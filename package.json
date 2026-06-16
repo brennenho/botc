@@ -13,6 +13,7 @@
     "lint:fix": "eslint . --fix",
     "preview": "next build && next start",
     "start": "next start",
+    "sync:assets": "node scripts/sync-assets.mjs",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
