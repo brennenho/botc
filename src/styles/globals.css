@@ -1,6 +1,259 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
 
 @theme {
   --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif,
     "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+}
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+}
+
+:root {
+  --radius: 0.625rem;
+  --background: oklch(0.9791 0 0);
+  --foreground: oklch(0.1408 0.0044 285.82);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.1408 0.0044 285.82);
+  --primary: oklch(0.596 0.1274 163.23);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.97 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: oklch(0.708 0 0);
+}
+
+.dark {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.205 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.922 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(0.9197 0.004 286.32);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.556 0 0);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    min-width: 320px;
+    background: #191919;
+  }
+
+  button,
+  input,
+  select {
+    font: inherit;
+  }
+}
+
+@layer utilities {
+  .shadow-custom {
+    box-shadow: 4px 4px 0 0 rgba(0, 0, 0, 0.25);
+  }
+}
+
+@layer components {
+  .parchment-panel,
+  .grimoire-shell {
+    border: 1px solid rgba(87, 52, 27, 0.34);
+    border-radius: 10px;
+    background:
+      radial-gradient(circle at 18% 12%, rgba(255, 255, 255, 0.44), transparent 22%),
+      radial-gradient(circle at 88% 18%, rgba(111, 29, 38, 0.08), transparent 24%),
+      linear-gradient(135deg, rgba(255, 250, 231, 0.97), rgba(218, 190, 139, 0.95)),
+      #ead8ad;
+    box-shadow:
+      4px 4px 0 0 rgba(0, 0, 0, 0.25),
+      inset 0 0 0 1px rgba(255, 255, 255, 0.36),
+      inset 0 0 85px rgba(98, 55, 22, 0.18);
+  }
+
+  .grimoire-shell {
+    background:
+      radial-gradient(circle at 50% 42%, rgba(111, 29, 38, 0.1), transparent 25%),
+      linear-gradient(135deg, rgba(244, 226, 184, 0.98), rgba(205, 170, 111, 0.96));
+  }
+
+  .edition-card {
+    min-height: 228px;
+  }
+
+  .town-square {
+    position: relative;
+    min-height: clamp(620px, 72vw, 880px);
+    overflow: hidden;
+    border: 1px solid rgba(62, 38, 24, 0.2);
+    border-radius: 10px;
+    background:
+      radial-gradient(circle at center, rgba(255, 246, 212, 0.96) 0 19%, transparent 19.4%),
+      radial-gradient(circle at center, rgba(68, 41, 26, 0.12) 0 43%, transparent 43.3%),
+      radial-gradient(circle at center, rgba(111, 29, 38, 0.12) 0 67%, transparent 67.4%),
+      rgba(104, 75, 48, 0.16);
+  }
+
+  .town-center {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: min(260px, 34vw);
+    transform: translate(-50%, -50%);
+    text-align: center;
+  }
+
+  .seat-token {
+    position: absolute;
+    width: 126px;
+    min-height: 158px;
+    transform: translate(-50%, -50%);
+    border: 1px solid rgba(39, 24, 16, 0.28);
+    border-radius: 10px;
+    background: rgba(255, 247, 222, 0.86);
+    padding: 8px;
+    text-align: center;
+    box-shadow: 4px 4px 0 0 rgba(0, 0, 0, 0.2);
+  }
+
+  .seat-token.is-selected {
+    border-color: rgba(111, 29, 38, 0.78);
+    box-shadow:
+      0 0 0 3px rgba(111, 29, 38, 0.14),
+      4px 4px 0 0 rgba(0, 0, 0, 0.24);
+  }
+
+  .seat-token.is-dead {
+    background: rgba(217, 209, 193, 0.82);
+    filter: saturate(0.72);
+  }
+
+  .seat-art {
+    display: grid;
+    height: 78px;
+    place-items: center;
+  }
+
+  .empty-role {
+    display: block;
+    height: 66px;
+    width: 66px;
+    border: 1px dashed rgba(62, 38, 24, 0.38);
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.32);
+  }
+
+  .seat-name,
+  .seat-role {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .seat-name {
+    margin-top: 4px;
+    color: #25170f;
+    font-weight: 800;
+  }
+
+  .seat-role {
+    color: #6a5848;
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+
+  .seat-flags {
+    margin-top: 4px;
+    display: flex;
+    min-height: 18px;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    color: #6f1d26;
+    font-size: 0.78rem;
+    font-weight: 900;
+  }
+
+  .reminder-stack {
+    margin-top: 4px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 3px;
+  }
+
+  .reminder-stack span {
+    border-radius: 999px;
+    background: #25170f;
+    padding: 2px 6px;
+    color: #fff8df;
+    font-size: 0.65rem;
+    font-weight: 800;
+  }
+}
+
+@media (max-width: 760px) {
+  .town-square {
+    min-height: 760px;
+  }
+
+  .town-center {
+    width: 190px;
+  }
+
+  .seat-token {
+    width: 104px;
+    min-height: 146px;
+    padding: 6px;
+  }
+
+  .seat-art {
+    height: 64px;
+  }
 }
