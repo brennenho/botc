@@ -4,8 +4,9 @@ import { type Metadata } from "next";
 import { Geist } from "next/font/google";
 
 export const metadata: Metadata = {
-  title: "Blood on the Clocktower Grimoire",
-  description: "A private friend-use online grimoire for Blood on the Clocktower.",
+  title: "BOTC Online",
+  description:
+    "Online grimoire and multiplayer host for Blood on the Clocktower.",
   icons: [{ rel: "icon", url: "/favicon.ico" }],
 };
 
