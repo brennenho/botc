@@ -2,7 +2,10 @@ import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
-import { getStorytellerSnapshot, updateStorytellerGame } from "@/lib/server/store";
+import {
+  getStorytellerSnapshot,
+  updateStorytellerGame,
+} from "@/lib/server/store";
 
 const patchSchema = z.object({
   gameId: z.string(),
@@ -59,7 +62,9 @@ export async function GET(request: Request) {
     return NextResponse.json(
       {
         error:
-          error instanceof Error ? error.message : "Unable to load storyteller game.",
+          error instanceof Error
+            ? error.message
+            : "Unable to load storyteller game.",
       },
       { status: 401 },
     );
@@ -75,7 +80,10 @@ export async function PATCH(request: Request) {
     return NextResponse.json({ snapshot });
   } catch (error) {
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Unable to update game." },
+      {
+        error:
+          error instanceof Error ? error.message : "Unable to update game.",
+      },
       { status: 400 },
     );
   }

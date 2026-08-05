@@ -25,7 +25,9 @@ export async function POST(request: Request) {
     return response;
   } catch (error) {
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Unable to join game." },
+      {
+        error: error instanceof Error ? error.message : "Unable to join game.",
+      },
       { status: 400 },
     );
   }

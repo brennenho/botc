@@ -13,6 +13,7 @@
     /* Strictness */
     "strict": true,
     "noUncheckedIndexedAccess": true,
+    "noUncheckedSideEffectImports": true,
     "checkJs": true,
 
     /* Bundled projects */

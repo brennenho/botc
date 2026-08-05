@@ -18,7 +18,10 @@ export async function GET(request: Request) {
     return NextResponse.json({ snapshot });
   } catch (error) {
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Unable to load player." },
+      {
+        error:
+          error instanceof Error ? error.message : "Unable to load player.",
+      },
       { status: 401 },
     );
   }

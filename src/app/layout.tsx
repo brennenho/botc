@@ -1,26 +1,34 @@
 import "@/styles/globals.css";
+import "@fontsource-variable/commissioner";
+import "@fontsource-variable/fraunces";
+import "@fontsource/ibm-plex-mono/500.css";
 
-import { type Metadata } from "next";
-import { Geist } from "next/font/google";
+import { type Metadata, type Viewport } from "next";
+
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 export const metadata: Metadata = {
-  title: "BOTC Online",
+  title: "Blood on the Clocktower Grimoire",
   description:
     "Online grimoire and multiplayer host for Blood on the Clocktower.",
   icons: [{ rel: "icon", url: "/favicon.ico" }],
 };
 
-const geist = Geist({
-  subsets: ["latin"],
-  variable: "--font-geist-sans",
-});
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+  themeColor: "#171917",
+};
 
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={`${geist.variable}`}>
-      <body>{children}</body>
+    <html lang="en">
+      <body>
+        <TooltipProvider>{children}</TooltipProvider>
+      </body>
     </html>
   );
 }

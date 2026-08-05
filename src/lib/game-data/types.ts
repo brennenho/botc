@@ -1,12 +1,6 @@
 import type { Alignment, EditionId, Phase } from "@/lib/game-data";
 
-export type {
-  Alignment,
-  EditionId,
-  Phase,
-  Role,
-  Team,
-} from "@/lib/game-data";
+export type { Alignment, EditionId, Phase, Role, Team } from "@/lib/game-data";
 
 export type GameStatus = "active" | "archived";
 
@@ -53,6 +47,9 @@ export type StorytellerSnapshot = {
 };
 
 export type PlayerSnapshot = {
-  game: Pick<Game, "id" | "joinCode" | "edition" | "status" | "phase" | "dayNumber" | "version">;
+  game: Pick<
+    Game,
+    "id" | "joinCode" | "edition" | "status" | "phase" | "dayNumber" | "version"
+  >;
   seat: Seat;
 };

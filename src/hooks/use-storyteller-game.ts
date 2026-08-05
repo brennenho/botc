@@ -1,0 +1,131 @@
+"use client";
+
+import { useCallback, useEffect, useRef, useState } from "react";
+
+import { fetchStorytellerGame, updateStorytellerGame } from "@/lib/api";
+import type {
+  GameToken,
+  Seat,
+  StorytellerSnapshot,
+} from "@/lib/game-data/types";
+import { getSupabaseBrowser } from "@/lib/supabase/client";
+
+export type StorytellerPatch = {
+  phase?: StorytellerSnapshot["game"]["phase"];
+  dayNumber?: number;
+  status?: StorytellerSnapshot["game"]["status"];
+  seats?: Seat[];
+  gameTokens?: GameToken[];
+};
+
+export type StorytellerUpdate =
+  | StorytellerPatch
+  | ((snapshot: StorytellerSnapshot) => StorytellerPatch);
+
+function applyPatch(
+  snapshot: StorytellerSnapshot,
+  patch: StorytellerPatch,
+): StorytellerSnapshot {
+  return {
+    ...snapshot,
+    game: {
+      ...snapshot.game,
+      phase: patch.phase ?? snapshot.game.phase,
+      dayNumber: patch.dayNumber ?? snapshot.game.dayNumber,
+      status: patch.status ?? snapshot.game.status,
+    },
+    seats: patch.seats ?? snapshot.seats,
+    gameTokens: patch.gameTokens ?? snapshot.gameTokens,
+  };
+}
+
+export function useStorytellerGame(gameId: string) {
+  const [snapshot, setSnapshot] = useState<StorytellerSnapshot | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [saveState, setSaveState] = useState<"saved" | "saving" | "error">(
+    "saved",
+  );
+  const queueRef = useRef<Promise<void>>(Promise.resolve());
+  const pendingRef = useRef(0);
+  const snapshotRef = useRef<StorytellerSnapshot | null>(null);
+
+  const refresh = useCallback(async () => {
+    try {
+      const result = await fetchStorytellerGame(gameId);
+      if (pendingRef.current === 0) {
+        snapshotRef.current = result.snapshot;
+        setSnapshot(result.snapshot);
+      }
+      setError(null);
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : "Unable to load game.");
+    } finally {
+      setLoading(false);
+    }
+  }, [gameId]);
+
+  useEffect(() => {
+    void refresh();
+  }, [refresh]);
+
+  useEffect(() => {
+    const supabase = getSupabaseBrowser();
+    if (!supabase) return;
+
+    const channel = supabase
+      .channel(`game-version-${gameId}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "games",
+          filter: `id=eq.${gameId}`,
+        },
+        () => void refresh(),
+      )
+      .subscribe();
+
+    return () => {
+      void supabase.removeChannel(channel);
+    };
+  }, [gameId, refresh]);
+
+  const commit = useCallback(
+    (update: StorytellerUpdate) => {
+      const current = snapshotRef.current;
+      if (!current) return;
+      const patch = typeof update === "function" ? update(current) : update;
+      const optimisticSnapshot = applyPatch(current, patch);
+      snapshotRef.current = optimisticSnapshot;
+      setSnapshot(optimisticSnapshot);
+
+      pendingRef.current += 1;
+      setSaveState("saving");
+      setError(null);
+
+      queueRef.current = queueRef.current.then(async () => {
+        try {
+          const result = await updateStorytellerGame(gameId, patch);
+          pendingRef.current -= 1;
+          if (pendingRef.current === 0) {
+            snapshotRef.current = result.snapshot;
+            setSnapshot(result.snapshot);
+            setSaveState("saved");
+          }
+        } catch (cause) {
+          pendingRef.current = Math.max(0, pendingRef.current - 1);
+          setSaveState("error");
+          setError(
+            cause instanceof Error ? cause.message : "Unable to save game.",
+          );
+          if (pendingRef.current === 0) await refresh();
+        }
+      });
+    },
+    [gameId, refresh],
+  );
+
+  return { snapshot, loading, error, saveState, commit, refresh };
+}

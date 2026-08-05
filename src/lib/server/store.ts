@@ -1,11 +1,5 @@
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
-import {
-  getDefaultAlignment,
-  getEditionRoles,
-  roleById,
-  type EditionId,
-  type Phase,
-} from "@/lib/game-data";
+import { roleById, type EditionId, type Phase } from "@/lib/game-data";
 import type {
   Alignment,
   Game,
@@ -14,7 +8,11 @@ import type {
   Seat,
   StorytellerSnapshot,
 } from "@/lib/game-data/types";
-import { createJoinCode, createSecretToken, hashToken } from "@/lib/server/tokens";
+import {
+  createJoinCode,
+  createSecretToken,
+  hashToken,
+} from "@/lib/server/tokens";
 
 type StoredGame = Game & { storytellerTokenHash: string };
 type StoredSeat = Seat & { playerTokenHash: string | null };
@@ -196,32 +194,11 @@ function assertPlayer(seat: StoredSeat, token: string) {
   }
 }
 
-function createStarterSeats(gameId: string, edition: EditionId) {
-  const now = new Date().toISOString();
-  const starterRoles = getEditionRoles(edition).filter(
-    (role) => role.team !== "traveller",
-  );
+export async function createGame(edition: EditionId, playerCount = 7) {
+  if (!Number.isInteger(playerCount) || playerCount < 5 || playerCount > 20) {
+    throw new Error("Player count must be between 5 and 20.");
+  }
 
-  return Array.from({ length: 7 }, (_, index): StoredSeat => {
-    const role = starterRoles[index] ?? null;
-
-    return {
-      id: crypto.randomUUID(),
-      gameId,
-      seatIndex: index,
-      playerName: `Player ${index + 1}`,
-      playerTokenHash: null,
-      roleId: role?.id ?? null,
-      alignment: role ? getDefaultAlignment(role) : "good",
-      alive: true,
-      ghostVoteAvailable: true,
-      isTraveller: false,
-      joinedAt: now,
-    };
-  });
-}
-
-export async function createGame(edition: EditionId) {
   const supabase = getSupabaseAdmin();
   const now = new Date().toISOString();
   const gameId = crypto.randomUUID();
@@ -238,7 +215,22 @@ export async function createGame(edition: EditionId) {
     updatedAt: now,
     storytellerTokenHash: hashToken(storytellerToken),
   };
-  const seats = createStarterSeats(gameId, edition);
+  const seats: StoredSeat[] = Array.from(
+    { length: playerCount },
+    (_, seatIndex): StoredSeat => ({
+      id: crypto.randomUUID(),
+      gameId,
+      seatIndex,
+      playerName: `Player ${seatIndex + 1}`,
+      playerTokenHash: null,
+      roleId: null,
+      alignment: "good",
+      alive: true,
+      ghostVoteAvailable: true,
+      isTraveller: false,
+      joinedAt: now,
+    }),
+  );
 
   if (supabase) {
     const { error: gameError } = await supabase.from("games").insert({
@@ -392,21 +384,23 @@ export async function getStorytellerSnapshot(gameId: string, token: string) {
     const game = rowToGame(gameRow);
     assertStoryteller(game, token);
 
-    const [{ data: seatRows, error: seatError }, { data: tokenRows, error: tokenError }] =
-      await Promise.all([
-        supabase
-          .from("seats")
-          .select("*")
-          .eq("game_id", gameId)
-          .order("seat_index", { ascending: true })
-          .returns<SupabaseSeatRow[]>(),
-        supabase
-          .from("game_tokens")
-          .select("*")
-          .eq("game_id", gameId)
-          .order("position", { ascending: true })
-          .returns<SupabaseTokenRow[]>(),
-      ]);
+    const [
+      { data: seatRows, error: seatError },
+      { data: tokenRows, error: tokenError },
+    ] = await Promise.all([
+      supabase
+        .from("seats")
+        .select("*")
+        .eq("game_id", gameId)
+        .order("seat_index", { ascending: true })
+        .returns<SupabaseSeatRow[]>(),
+      supabase
+        .from("game_tokens")
+        .select("*")
+        .eq("game_id", gameId)
+        .order("position", { ascending: true })
+        .returns<SupabaseTokenRow[]>(),
+    ]);
     if (seatError) throw seatError;
     if (tokenError) throw tokenError;
 
@@ -436,20 +430,22 @@ export async function getPlayerSnapshot(
   const supabase = getSupabaseAdmin();
 
   if (supabase) {
-    const [{ data: gameRow, error: gameError }, { data: seatRow, error: seatError }] =
-      await Promise.all([
-        supabase
-          .from("games")
-          .select("*")
-          .eq("id", gameId)
-          .single<SupabaseGameRow>(),
-        supabase
-          .from("seats")
-          .select("*")
-          .eq("id", seatId)
-          .eq("game_id", gameId)
-          .single<SupabaseSeatRow>(),
-      ]);
+    const [
+      { data: gameRow, error: gameError },
+      { data: seatRow, error: seatError },
+    ] = await Promise.all([
+      supabase
+        .from("games")
+        .select("*")
+        .eq("id", gameId)
+        .single<SupabaseGameRow>(),
+      supabase
+        .from("seats")
+        .select("*")
+        .eq("id", seatId)
+        .eq("game_id", gameId)
+        .single<SupabaseSeatRow>(),
+    ]);
     if (gameError) throw gameError;
     if (seatError) throw seatError;
 
@@ -457,7 +453,10 @@ export async function getPlayerSnapshot(
     const seat = rowToSeat(seatRow);
     assertPlayer(seat, token);
 
-    return { game: publicGame(game), seat: publicSeat(seat) } satisfies PlayerSnapshot;
+    return {
+      game: publicGame(game),
+      seat: publicSeat(seat),
+    } satisfies PlayerSnapshot;
   }
 
   const game = memoryStore.games.get(gameId);
@@ -467,7 +466,10 @@ export async function getPlayerSnapshot(
   if (!game || !seat) throw new Error("Game or seat not found.");
   assertPlayer(seat, token);
 
-  return { game: publicGame(game), seat: publicSeat(seat) } satisfies PlayerSnapshot;
+  return {
+    game: publicGame(game),
+    seat: publicSeat(seat),
+  } satisfies PlayerSnapshot;
 }
 
 export async function updateStorytellerGame(
@@ -540,15 +542,23 @@ export async function updateStorytellerGame(
     if (updateError) throw updateError;
 
     if (nextSeats) {
-      const { error: deleteSeatsError } = await supabase
+      const nextSeatIds = new Set(nextSeats.map((seat) => seat.id));
+      const removedSeatIds = existingRows
+        .map((seat) => seat.id)
+        .filter((seatId) => !nextSeatIds.has(seatId));
+
+      if (removedSeatIds.length > 0) {
+        const { error: deleteSeatsError } = await supabase
+          .from("seats")
+          .delete()
+          .in("id", removedSeatIds);
+        if (deleteSeatsError) throw deleteSeatsError;
+      }
+
+      const { error: upsertSeatsError } = await supabase
         .from("seats")
-        .delete()
-        .eq("game_id", gameId);
-      if (deleteSeatsError) throw deleteSeatsError;
-      const { error: insertSeatsError } = await supabase
-        .from("seats")
-        .insert(nextSeats.map(seatToRow));
-      if (insertSeatsError) throw insertSeatsError;
+        .upsert(nextSeats.map(seatToRow));
+      if (upsertSeatsError) throw upsertSeatsError;
     }
 
     if (normalizedTokens) {
@@ -582,10 +592,12 @@ export async function updateStorytellerGame(
       );
       memoryStore.seats.set(
         gameId,
-        normalizedSeats.map((seat): StoredSeat => ({
-          ...seat,
-          playerTokenHash: tokenHashes.get(seat.id) ?? null,
-        })),
+        normalizedSeats.map(
+          (seat): StoredSeat => ({
+            ...seat,
+            playerTokenHash: tokenHashes.get(seat.id) ?? null,
+          }),
+        ),
       );
     }
 
