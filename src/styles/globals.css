@@ -2647,6 +2647,17 @@
 
 /* Collector grimoire */
 .storyteller-shell {
+  --grimoire-hardware-surface: rgb(235 219 181 / 58%);
+  --grimoire-hardware-surface-hover: rgb(242 229 199 / 74%);
+  --grimoire-hardware-surface-active: rgb(246 235 211 / 84%);
+  --grimoire-hardware-border: rgb(100 76 44 / 38%);
+  --grimoire-hardware-border-strong: rgb(112 84 45 / 58%);
+  --grimoire-hardware-text: #403423;
+  --grimoire-hardware-muted: rgb(64 52 35 / 58%);
+  --grimoire-hardware-accent: #8b6c35;
+  --grimoire-hardware-radius: 6px;
+  --grimoire-hardware-shadow:
+    inset 0 1px rgb(255 252 239 / 36%), 0 3px 9px rgb(58 38 17 / 12%);
   background: #15110f;
 }
 
@@ -2676,25 +2687,34 @@
 }
 
 .toolbar-brand,
+.join-code-control,
+.board-bluff-rack {
+  border: 1px solid var(--grimoire-hardware-border);
+  color: var(--grimoire-hardware-text);
+  background-color: var(--grimoire-hardware-surface);
+  background-image: linear-gradient(
+    rgb(255 251 237 / 10%),
+    rgb(198 175 126 / 8%)
+  );
+  box-shadow: var(--grimoire-hardware-shadow);
+  backdrop-filter: blur(8px) saturate(0.82);
+  -webkit-backdrop-filter: blur(8px) saturate(0.82);
+}
+
+.toolbar-brand,
 .join-code-control {
   position: absolute;
   top: 28px;
-  min-height: 48px;
+  min-height: 52px;
   box-sizing: border-box;
-  border: 1px solid #8d7042;
-  border-radius: 2px;
-  color: #f4e8d0;
-  background: rgb(36 24 21 / 92%);
-  box-shadow:
-    inset 0 0 0 2px #160f0d,
-    0 4px 10px rgb(0 0 0 / 34%);
+  border-radius: var(--grimoire-hardware-radius);
   pointer-events: auto;
 }
 
 .toolbar-brand {
   left: 30px;
-  gap: 8px;
-  padding: 4px 13px 4px 8px;
+  gap: 10px;
+  padding: 5px 15px 5px 9px;
 }
 
 .toolbar-brand .edition-mark {
@@ -2709,33 +2729,45 @@
 
 .toolbar-brand .utility-label,
 .join-code-control .utility-label {
-  color: rgb(244 232 208 / 48%);
+  color: var(--grimoire-hardware-muted);
   font-size: var(--text-caption);
   letter-spacing: 0;
 }
 
 .toolbar-brand p {
-  margin-top: 1px;
+  margin: 0;
   font-size: 12px;
   font-weight: 680;
 }
 
 .join-code-control {
   right: 30px;
-  min-width: 104px;
+  min-width: 112px;
   grid-template-columns: auto 18px;
-  padding: 7px 10px 6px 14px;
-  border-right: 1px solid #8d7042;
-  border-left: 1px solid #8d7042;
+  padding: 7px 11px 7px 15px;
+  transition:
+    border-color 120ms ease,
+    background-color 120ms ease;
 }
 
 .join-code-control:hover {
-  background: rgb(44 30 25 / 94%);
+  border-color: var(--grimoire-hardware-border-strong);
+  background-color: var(--grimoire-hardware-surface-hover);
+}
+
+.join-code-control:focus-visible {
+  outline: 2px solid var(--grimoire-hardware-accent);
+  outline-offset: 2px;
 }
 
 .join-code-control strong {
   font-size: 11px;
-  font-weight: 560;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+}
+
+.join-code-control svg {
+  color: var(--grimoire-hardware-accent);
 }
 
 .toolbar-status {
@@ -2776,25 +2808,22 @@
 
 .board-bluff-rack {
   position: absolute;
-  right: 22px;
-  bottom: 22px;
+  right: 30px;
+  bottom: 30px;
   z-index: 54;
   display: flex;
-  width: 132px;
+  width: 140px;
   box-sizing: border-box;
   align-items: center;
   flex-direction: column;
-  gap: 6px;
-  padding: 8px 9px 9px;
-  border: 1px solid rgb(100 76 44 / 42%);
-  border-radius: 6px;
-  background: rgb(235 219 181 / 66%);
-  box-shadow: 0 3px 9px rgb(58 38 17 / 14%);
-  backdrop-filter: blur(7px);
+  gap: 7px;
+  padding: 9px 10px 10px;
+  border-radius: var(--grimoire-hardware-radius);
 }
 
 .board-bluff-rack .bluff-rack-label {
   align-self: flex-start;
+  color: var(--grimoire-hardware-muted);
 }
 
 .board-bluff-rack .bluff-slots {
@@ -2803,9 +2832,37 @@
 }
 
 .board-bluff-rack .bluff-slot {
-  width: 32px;
-  height: 32px;
-  background: rgb(242 228 195 / 48%);
+  width: 34px;
+  height: 34px;
+  border-color: rgb(91 68 38 / 42%);
+  color: rgb(72 55 32 / 58%);
+  background-color: rgb(248 236 207 / 46%);
+  background-image: url("/assets/grimoire-parchment.png");
+  background-position: center;
+  background-size: 120px auto;
+  background-blend-mode: multiply;
+  box-shadow:
+    inset 0 1px rgb(255 252 239 / 46%),
+    0 1px 2px rgb(58 38 17 / 12%);
+  transition:
+    border-color 120ms ease,
+    filter 120ms ease;
+}
+
+.board-bluff-rack .bluff-slot:hover,
+.board-bluff-rack .bluff-slot:focus-visible {
+  border-color: var(--grimoire-hardware-accent);
+  filter: brightness(1.06);
+}
+
+.board-bluff-rack .bluff-slot:focus-visible {
+  outline: 2px solid var(--grimoire-hardware-accent);
+  outline-offset: 2px;
+}
+
+.board-bluff-rack .bluff-slot.has-role {
+  border-color: var(--grimoire-hardware-border-strong);
+  background: transparent;
 }
 
 .player-token {
@@ -3286,20 +3343,24 @@
 
 .storyteller-dock.global-dock {
   z-index: 71;
-  top: 50%;
+  top: auto;
   right: 0;
-  bottom: auto;
+  bottom: 122px;
   left: auto;
   min-width: 0;
   height: auto;
   align-items: flex-end;
   flex-direction: column;
-  gap: 3px;
+  width: 44px;
+  gap: 2px;
   padding: 0;
   border: 0;
+  border-radius: 0;
   background: transparent;
   box-shadow: none;
-  transform: translateY(-50%);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  transform: none;
   transition: right 200ms cubic-bezier(0.2, 0.75, 0.2, 1);
 }
 
@@ -3307,50 +3368,115 @@
   right: var(--grimoire-sheet-width);
 }
 
-.global-dock .dock-button {
-  width: 46px;
-  min-width: 46px;
-  height: 112px;
-  justify-content: center;
-  flex-direction: column;
-  gap: 9px;
-  overflow: hidden;
-  padding: 10px 0;
-  border: 1px solid #75613d;
-  border-right: 0;
-  border-radius: 7px 0 0 7px;
-  color: #3c3020;
-  background: rgb(211 187 133 / 96%);
-  box-shadow:
-    inset 1px 0 rgb(255 247 222 / 32%),
-    -3px 3px 9px rgb(52 34 14 / 22%);
+.global-dock .panel-tab-button {
+  display: flex;
+  width: 44px;
+  min-width: 44px;
+  height: auto;
+  min-height: 0;
+  align-items: stretch;
+  justify-content: flex-end;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  color: var(--grimoire-hardware-text);
+  background: transparent;
+  box-shadow: none;
   transition:
     color 120ms ease,
-    background 120ms ease;
+    background-color 120ms ease,
+    box-shadow 120ms ease;
 }
 
-.global-dock .dock-button > span:last-child {
-  max-width: none;
-  overflow: visible;
-  opacity: 1;
+.global-dock .panel-tab-surface {
+  --panel-tab-box-padding: 8px;
+  --panel-tab-icon-ink-inset: 3.25px;
+  --panel-tab-visible-gap: 8px;
+  display: flex;
+  width: 38px;
+  align-items: center;
+  flex-direction: column;
+  gap: calc(var(--panel-tab-visible-gap) - var(--panel-tab-icon-ink-inset));
+  padding: var(--panel-tab-box-padding);
+  padding-bottom: calc(
+    var(--panel-tab-box-padding) + var(--panel-tab-icon-ink-inset)
+  );
+  border: 1px solid var(--grimoire-hardware-border);
+  border-right-color: transparent;
+  border-radius: var(--grimoire-hardware-radius) 0 0
+    var(--grimoire-hardware-radius);
+  background-color: var(--grimoire-hardware-surface);
+  background-image: linear-gradient(
+    rgb(255 251 237 / 10%),
+    rgb(198 175 126 / 8%)
+  );
+  box-shadow: var(--grimoire-hardware-shadow);
+  backdrop-filter: blur(8px) saturate(0.82);
+  transition:
+    border-color 120ms ease,
+    background-color 120ms ease;
+  -webkit-backdrop-filter: blur(8px) saturate(0.82);
+  pointer-events: none;
+}
+
+.global-dock .panel-tab-icon {
+  display: grid;
+  width: 20px;
+  height: 20px;
+  place-items: center;
+  color: var(--grimoire-hardware-accent);
+}
+
+.global-dock .panel-tab-icon > svg {
+  width: 18px;
+  height: 18px;
+  stroke-width: 1.8;
+}
+
+/* Users has wider painted bounds than Moon at the same Lucide canvas size. */
+.global-dock [data-panel-tab="players"] .panel-tab-icon > svg {
+  transform: scaleX(0.9);
+}
+
+.global-dock .panel-tab-label {
+  display: block;
+  color: var(--grimoire-hardware-text);
+  font-family: var(--font-utility);
+  font-size: 9px;
+  font-weight: 560;
+  line-height: 1;
   writing-mode: vertical-rl;
   transform: rotate(180deg);
   white-space: nowrap;
-  font-size: 9px;
-  font-weight: 680;
 }
 
-.global-dock .dock-button:hover,
-.global-dock .dock-button:focus-visible,
-.global-dock .dock-button.is-active {
-  color: #2c2418;
-  background: #ead9ae;
+.global-dock .panel-tab-button:hover,
+.global-dock .panel-tab-button:focus-visible,
+.global-dock .panel-tab-button.is-active {
+  color: #332919;
+  background: transparent;
 }
 
-.global-dock.is-sheet-open .dock-button.is-active {
-  border-color: rgb(99 75 39 / 48%);
-  background: var(--parchment-light);
-  box-shadow: -3px 3px 8px rgb(38 26 13 / 16%);
+.global-dock .panel-tab-button:focus-visible {
+  outline: 0;
+}
+
+.global-dock .panel-tab-button:hover .panel-tab-surface,
+.global-dock .panel-tab-button:focus-visible .panel-tab-surface {
+  border-color: var(--grimoire-hardware-border-strong);
+  background-color: var(--grimoire-hardware-surface-hover);
+}
+
+.global-dock .panel-tab-button:focus-visible .panel-tab-surface {
+  box-shadow:
+    var(--grimoire-hardware-shadow),
+    0 0 0 2px var(--focus-ring);
+}
+
+.global-dock .panel-tab-button.is-active .panel-tab-surface,
+.global-dock.is-sheet-open .panel-tab-button.is-active .panel-tab-surface {
+  border-color: var(--grimoire-hardware-border-strong);
+  background-color: rgb(255 250 235 / 48%);
 }
 
 .sheet-scrim,

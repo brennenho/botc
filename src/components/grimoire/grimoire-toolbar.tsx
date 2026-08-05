@@ -32,7 +32,6 @@ export function GrimoireToolbar({
           />
         </Link>
         <div>
-          <span className="utility-label">Storyteller grimoire</span>
           <p>{edition.name}</p>
         </div>
       </div>

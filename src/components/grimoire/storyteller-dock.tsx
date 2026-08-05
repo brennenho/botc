@@ -73,13 +73,15 @@ export function StorytellerDock({
       )}
       aria-label="Grimoire panels"
     >
-      <DockButton
+      <PanelTabButton
+        tab="players"
         icon={<Users />}
         label="Players"
         active={playersOpen}
         onClick={onOpenPlayers}
       />
-      <DockButton
+      <PanelTabButton
+        tab="night-order"
         icon={<Moon />}
         label="Night order"
         active={nightOpen}
@@ -296,13 +298,45 @@ function DockButton({
   onClick: () => void;
 }) {
   return (
-    <button
+    <Button
       type="button"
+      variant="quiet"
       className={cn("dock-button", active && "is-active")}
       onClick={onClick}
     >
       <span className="dock-button-icon">{icon}</span>
       <span>{label}</span>
-    </button>
+    </Button>
+  );
+}
+
+function PanelTabButton({
+  tab,
+  icon,
+  label,
+  active = false,
+  onClick,
+}: {
+  tab: "players" | "night-order";
+  icon: React.ReactNode;
+  label: string;
+  active?: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <IconButton
+      label={label}
+      tooltip={label}
+      tooltipSide="left"
+      variant="quiet"
+      className={cn("panel-tab-button", active && "is-active")}
+      data-panel-tab={tab}
+      onClick={onClick}
+    >
+      <span className="panel-tab-surface">
+        <span className="panel-tab-icon">{icon}</span>
+        <span className="panel-tab-label">{label}</span>
+      </span>
+    </IconButton>
   );
 }

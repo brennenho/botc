@@ -12,6 +12,7 @@ type IconButtonProps = Omit<ButtonProps, "size"> & {
   label: string;
   size?: "sm" | "md";
   tooltip?: React.ReactNode | false;
+  tooltipSide?: "top" | "right" | "bottom" | "left";
 };
 
 export function IconButton({
@@ -19,6 +20,7 @@ export function IconButton({
   className,
   size = "md",
   tooltip,
+  tooltipSide = "top",
   ...props
 }: IconButtonProps) {
   const button = (
@@ -35,7 +37,7 @@ export function IconButton({
   return (
     <Tooltip>
       <TooltipTrigger render={button} />
-      <TooltipContent>{tooltip ?? label}</TooltipContent>
+      <TooltipContent side={tooltipSide}>{tooltip ?? label}</TooltipContent>
     </Tooltip>
   );
 }
