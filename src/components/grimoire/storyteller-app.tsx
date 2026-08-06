@@ -379,6 +379,9 @@ export function StorytellerApp({ gameId }: { gameId: string }) {
         usedRoleIds={snapshot.seats.flatMap((seat) =>
           seat.roleId ? [seat.roleId] : [],
         )}
+        bluffRoleIds={bluffs.flatMap((bluff) =>
+          bluff.roleId ? [bluff.roleId] : [],
+        )}
         onOpenChange={(open) => !open && setPickerTarget(null)}
         onSelect={(roleId) => {
           if (pickerTarget?.type === "seat")
@@ -392,10 +395,16 @@ export function StorytellerApp({ gameId }: { gameId: string }) {
         <div className="save-error" role="alert">
           <AlertCircle className="size-4" />
           <span>{error}</span>
-          <button type="button" onClick={() => void refresh()}>
+          <Button
+            type="button"
+            size="sm"
+            variant="quiet"
+            className="save-error-action"
+            onClick={() => void refresh()}
+          >
             <RotateCcw className="size-3.5" />
             Retry
-          </button>
+          </Button>
         </div>
       )}
       <div className="portrait-notice">

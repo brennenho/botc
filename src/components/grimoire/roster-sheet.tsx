@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Plus, Shuffle, Trash2, X } from "lucide-react";
+import { useState } from "react";
+import { Plus, Shuffle, X } from "lucide-react";
 
-import { RoleArtwork } from "@/components/grimoire/role-artwork";
+import { RemovePlayerButton } from "@/components/grimoire/remove-player-button";
 import { RoleDistributionDialog } from "@/components/grimoire/role-distribution-dialog";
+import { TokenIcon } from "@/components/grimoire/token-icon";
 import { Button } from "@/components/ui/button";
 import { IconButton } from "@/components/ui/icon-button";
 import { Input } from "@/components/ui/input";
@@ -38,16 +39,7 @@ export function RosterPanel({
   onClearAssignments: () => void;
 }) {
   const [distributionOpen, setDistributionOpen] = useState(false);
-  const [armedRemoveSeatId, setArmedRemoveSeatId] = useState<string | null>(
-    null,
-  );
   const assessment = getSetupAssessment(seats);
-
-  useEffect(() => {
-    if (!armedRemoveSeatId) return;
-    const timeout = window.setTimeout(() => setArmedRemoveSeatId(null), 4000);
-    return () => window.clearTimeout(timeout);
-  }, [armedRemoveSeatId]);
 
   const defaultSetup = assessment.expected
     ? (["townsfolk", "outsider", "minion", "demon"] as const)
@@ -97,7 +89,6 @@ export function RosterPanel({
       <div className="roster-list">
         {seats.map((seat, index) => {
           const role = seat.roleId ? roleById.get(seat.roleId) : null;
-          const removeArmed = armedRemoveSeatId === seat.id;
           return (
             <div key={seat.id} className="roster-row">
               <button
@@ -133,7 +124,7 @@ export function RosterPanel({
                   }
                 >
                   {role ? (
-                    <RoleArtwork role={role} size="tiny" />
+                    <TokenIcon role={role} />
                   ) : (
                     <Plus className="size-4" />
                   )}
@@ -152,31 +143,12 @@ export function RosterPanel({
                   </IconButton>
                 )}
               </div>
-              <IconButton
-                label={
-                  removeArmed
-                    ? `Click again to remove ${seat.playerName}`
-                    : `Remove ${seat.playerName}`
-                }
-                size="sm"
-                variant="danger"
-                tooltipSide="left"
-                className={cn(
-                  "roster-remove-player",
-                  removeArmed && "is-confirming",
-                )}
-                aria-pressed={removeArmed}
-                onClick={() => {
-                  if (removeArmed) {
-                    onRemovePlayer(seat.id);
-                    setArmedRemoveSeatId(null);
-                    return;
-                  }
-                  setArmedRemoveSeatId(seat.id);
-                }}
-              >
-                <Trash2 className="size-3.5" />
-              </IconButton>
+              <RemovePlayerButton
+                playerName={seat.playerName}
+                display="icon"
+                className="roster-remove-player"
+                onRemove={() => onRemovePlayer(seat.id)}
+              />
             </div>
           );
         })}

@@ -66,9 +66,15 @@ export function RoleDistributionDialog({
                 {selectedRoleIds.length} of {playerCount} selected
               </strong>
               {selectedRoleIds.length > 0 && (
-                <button type="button" onClick={() => setSelectedRoleIds([])}>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="quiet"
+                  className="pool-clear-button"
+                  onClick={() => setSelectedRoleIds([])}
+                >
                   Clear
-                </button>
+                </Button>
               )}
             </div>
           </div>

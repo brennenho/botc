@@ -13,6 +13,7 @@ export function RolePicker({
   clearLabel = "Clear assignment",
   selectedRoleId,
   usedRoleIds,
+  bluffRoleIds,
   onOpenChange,
   onSelect,
 }: {
@@ -22,6 +23,7 @@ export function RolePicker({
   clearLabel?: string;
   selectedRoleId: string | null;
   usedRoleIds: string[];
+  bluffRoleIds: string[];
   onOpenChange: (open: boolean) => void;
   onSelect: (roleId: string | null) => void;
 }) {
@@ -34,6 +36,7 @@ export function RolePicker({
       selectionMode="single"
       selectedRoleIds={selectedRoleId ? [selectedRoleId] : []}
       usedRoleIds={usedRoleIds}
+      bluffRoleIds={bluffRoleIds}
       onOpenChange={onOpenChange}
       onSelect={onSelect}
       footer={

@@ -1116,6 +1116,54 @@
   inset: 3%;
 }
 
+.token-icon {
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  border-radius: 50%;
+}
+
+.token-icon-sm {
+  width: 31px;
+  height: 31px;
+  flex: 0 0 31px;
+}
+
+.token-icon-md {
+  width: 36px;
+  height: 36px;
+  flex: 0 0 36px;
+}
+
+.token-icon-soft {
+  border: 1px solid rgb(35 38 34 / 16%);
+  box-shadow: none;
+}
+
+.token-icon-soft.token-icon-generic {
+  color: var(--brass-dark);
+  background: rgb(195 161 95 / 9%);
+}
+
+.token-icon-parchment {
+  border: 0;
+  box-shadow: 0 2px 4px rgb(49 32 13 / 22%);
+}
+
+.token-icon-parchment.token-icon-generic {
+  color: #4a4135;
+  background-color: #ded3b9;
+  background-image: url("/assets/grimoire-parchment.png");
+  background-position: center;
+  background-size: 120px auto;
+}
+
+.token-icon > svg {
+  width: 52%;
+  height: 52%;
+  stroke-width: 1.8;
+}
+
 .empty-role-token {
   display: flex;
   width: 100%;
@@ -1478,13 +1526,6 @@
   background: rgb(244 240 230 / 10%);
 }
 
-.remove-confirm {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 11px;
-}
-
 /* Side sheets */
 .sheet-scrim {
   position: fixed;
@@ -1779,9 +1820,9 @@
   background: rgb(114 47 52 / 9%);
 }
 
-.roster-remove-player.is-confirming,
-.roster-remove-player.is-confirming:hover,
-.roster-remove-player.is-confirming:focus-visible {
+.remove-player-button.is-confirming,
+.remove-player-button.is-confirming:hover,
+.remove-player-button.is-confirming:focus-visible {
   color: #fff8ed;
   background: var(--oxblood);
   box-shadow: 0 2px 5px rgb(73 27 31 / 24%);
@@ -1842,8 +1883,7 @@
   background: rgb(35 38 34 / 4%);
 }
 
-.night-order-index,
-.night-system-icon {
+.night-order-index {
   display: grid;
   width: 30px;
   height: 30px;
@@ -1854,11 +1894,6 @@
   color: rgb(35 38 34 / 48%);
   font-family: var(--font-utility);
   font-size: var(--text-caption);
-}
-
-.night-system-icon {
-  color: var(--brass-dark);
-  background: rgb(195 161 95 / 9%);
 }
 
 .night-empty {
@@ -2045,6 +2080,11 @@
 }
 
 .role-choice-item.is-used:not(.is-selected) {
+  color: var(--text-on-dark-subtle);
+}
+
+.role-choice-item.is-used:not(.is-selected) .role-artwork-compact,
+.role-choice-item.is-used:not(.is-selected) .role-choice-caption {
   opacity: 0.48;
 }
 
@@ -2145,16 +2185,43 @@
   stroke-width: 1.8;
 }
 
-.role-choice-state {
+.role-choice-states {
   position: absolute;
-  top: 2px;
-  right: 1px;
-  padding: 2px 4px;
-  border-radius: 3px;
-  color: #201f1a;
-  background: var(--brass);
-  font-size: 8px;
-  font-weight: 700;
+  top: -3px;
+  right: -5px;
+  z-index: 3;
+  display: flex;
+  align-items: flex-end;
+  flex-direction: column;
+  gap: 2px;
+  pointer-events: none;
+}
+
+.role-choice-state {
+  display: inline-flex;
+  min-height: 15px;
+  align-items: center;
+  padding: 0 5px;
+  border: 1px solid rgb(244 240 230 / 14%);
+  border-radius: 999px;
+  color: rgb(244 240 230 / 76%);
+  background: rgb(24 33 30 / 94%);
+  box-shadow: 0 1px 4px rgb(0 0 0 / 24%);
+  font-family: var(--font-utility);
+  font-size: 7px;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.role-choice-state.is-in-play {
+  border-color: rgb(195 161 95 / 38%);
+  color: #dec68f;
+}
+
+.role-choice-state.is-bluff {
+  border-color: rgb(204 115 120 / 38%);
+  color: #dda7aa;
 }
 
 .pool-case-footer {
@@ -2188,15 +2255,14 @@
   gap: 10px;
 }
 
-.pool-summary-line button {
-  padding: 0;
-  border: 0;
+.pool-clear-button {
+  height: 24px;
+  padding: 0 6px;
   color: rgb(244 240 230 / 42%);
-  background: transparent;
   font-size: 9px;
 }
 
-.pool-summary-line button:hover {
+.pool-clear-button:hover {
   color: var(--chalk);
 }
 
@@ -2576,14 +2642,12 @@
   gap: 8px;
 }
 
-.save-error button {
-  display: flex;
-  align-items: center;
+.save-error-action {
+  height: 26px;
   gap: 4px;
   margin-left: 5px;
-  border: 0;
+  padding: 0 6px;
   color: white;
-  background: transparent;
   font-size: 10px;
   font-weight: 650;
 }
@@ -3278,35 +3342,6 @@
 .reminder-choice-grid button:hover {
   border-color: transparent;
   background: rgb(244 240 230 / 7%);
-}
-
-.reminder-choice-token {
-  position: relative;
-  display: grid;
-  width: 36px;
-  height: 36px;
-  place-items: center;
-  overflow: hidden;
-  border-radius: 50%;
-  color: #4a4135;
-  background-color: #ded3b9;
-  background-image: url("/assets/grimoire-parchment.png");
-  background-position: center;
-  background-size: 120px auto;
-  box-shadow: 0 2px 4px rgb(49 32 13 / 22%);
-}
-
-.reminder-choice-token > svg {
-  width: 17px;
-  height: 17px;
-  color: #4a4135;
-}
-
-.reminder-choice-token .role-artwork-tiny {
-  width: 36px;
-  height: 36px;
-  border: 0;
-  box-shadow: none;
 }
 
 .active-token-strip {

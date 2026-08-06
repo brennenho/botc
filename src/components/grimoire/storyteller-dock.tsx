@@ -6,7 +6,6 @@ import {
   Moon,
   Plus,
   Skull,
-  Trash2,
   UserRoundCog,
   Users,
   Vote,
@@ -14,6 +13,8 @@ import {
 } from "lucide-react";
 
 import { RoleArtwork } from "@/components/grimoire/role-artwork";
+import { RemovePlayerButton } from "@/components/grimoire/remove-player-button";
+import { TokenIcon } from "@/components/grimoire/token-icon";
 import { Button } from "@/components/ui/button";
 import { IconButton } from "@/components/ui/icon-button";
 import { SegmentedControl } from "@/components/ui/segmented-control";
@@ -56,13 +57,11 @@ export function StorytellerDock({
 }) {
   const [remindersOpen, setRemindersOpen] = useState(false);
   const [detailsOpen, setDetailsOpen] = useState(false);
-  const [confirmRemove, setConfirmRemove] = useState(false);
   const role = seat?.roleId ? roleById.get(seat.roleId) : null;
 
   useEffect(() => {
     setRemindersOpen(false);
     setDetailsOpen(false);
-    setConfirmRemove(false);
   }, [seat?.id]);
 
   const panelTabs = (
@@ -154,13 +153,13 @@ export function StorytellerDock({
                       )
                     }
                   >
-                    <span className="reminder-choice-token">
-                      {isRoleReminder && role ? (
-                        <RoleArtwork role={role} size="tiny" showName={false} />
-                      ) : (
-                        <CircleDot aria-hidden="true" />
-                      )}
-                    </span>
+                    <TokenIcon
+                      role={isRoleReminder ? role : null}
+                      size="md"
+                      appearance="parchment"
+                    >
+                      <CircleDot />
+                    </TokenIcon>
                     <span>{label}</span>
                   </button>
                 );
@@ -187,30 +186,10 @@ export function StorytellerDock({
               />
             </div>
             <span className="detail-divider" />
-            {confirmRemove ? (
-              <div className="remove-confirm">
-                <span>Remove {seat.playerName}?</span>
-                <Button
-                  size="sm"
-                  variant="quiet"
-                  onClick={() => setConfirmRemove(false)}
-                >
-                  Cancel
-                </Button>
-                <Button size="sm" variant="danger" onClick={onRemovePlayer}>
-                  Remove
-                </Button>
-              </div>
-            ) : (
-              <Button
-                size="sm"
-                variant="danger"
-                onClick={() => setConfirmRemove(true)}
-              >
-                <Trash2 className="size-4" />
-                Remove player
-              </Button>
-            )}
+            <RemovePlayerButton
+              playerName={seat.playerName}
+              onRemove={onRemovePlayer}
+            />
           </div>
         )}
 

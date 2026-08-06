@@ -3,7 +3,7 @@
 import { useMemo } from "react";
 import { Check, Moon, Sun } from "lucide-react";
 
-import { RoleArtwork } from "@/components/grimoire/role-artwork";
+import { TokenIcon } from "@/components/grimoire/token-icon";
 import { SegmentedControl } from "@/components/ui/segmented-control";
 import {
   getNightOrderEntries,
@@ -107,17 +107,9 @@ export function NightOrderPanel({
               <span className="night-order-index">
                 {done ? <Check className="size-3.5" /> : index + 1}
               </span>
-              {entry.role ? (
-                <RoleArtwork role={entry.role} size="tiny" />
-              ) : (
-                <span className="night-system-icon">
-                  {entry.id === "dawn" ? (
-                    <Sun className="size-4" />
-                  ) : (
-                    <Moon className="size-4" />
-                  )}
-                </span>
-              )}
+              <TokenIcon role={entry.role}>
+                {entry.id === "dawn" ? <Sun /> : <Moon />}
+              </TokenIcon>
               <span className="min-w-0 flex-1 text-left">
                 <span className="block text-sm font-semibold">
                   {entry.name}

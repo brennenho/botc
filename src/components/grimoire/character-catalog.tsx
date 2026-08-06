@@ -17,6 +17,7 @@ export function CharacterCatalog({
   editionId,
   selectedRoleIds,
   usedRoleIds = [],
+  bluffRoleIds = [],
   selectionMode = "single",
   selectionLimit,
   defaultTeamCounts,
@@ -25,6 +26,7 @@ export function CharacterCatalog({
   editionId: EditionId;
   selectedRoleIds: string[];
   usedRoleIds?: string[];
+  bluffRoleIds?: string[];
   selectionMode?: "single" | "multiple";
   selectionLimit?: number;
   defaultTeamCounts?: TeamCounts;
@@ -59,6 +61,7 @@ export function CharacterCatalog({
               <div className="token-grid">
                 {roles.map((role) => {
                   const used = usedRoleIds.includes(role.id);
+                  const bluff = bluffRoleIds.includes(role.id);
                   const selected = selectedRoleIds.includes(role.id);
                   const selectionUnavailable =
                     selectionMode === "multiple" &&
@@ -66,7 +69,10 @@ export function CharacterCatalog({
                     selectionLimit !== undefined &&
                     selectedRoleIds.length >= selectionLimit;
                   const stateClasses = {
-                    "is-used": selectionMode === "single" && used && !selected,
+                    "is-used":
+                      selectionMode === "single" &&
+                      (used || bluff) &&
+                      !selected,
                     "is-selected": selectionMode === "single" && selected,
                     "is-pool-included":
                       selectionMode === "multiple" && selected,
@@ -83,7 +89,7 @@ export function CharacterCatalog({
                       <button
                         type="button"
                         className={cn("role-choice", stateClasses)}
-                        aria-label={role.name}
+                        aria-label={`${role.name}${used ? ", in play" : ""}${bluff ? ", demon bluff" : ""}`}
                         aria-pressed={
                           selectionMode === "multiple" ? selected : undefined
                         }
@@ -91,8 +97,19 @@ export function CharacterCatalog({
                         onClick={() => onSelect(role.id)}
                       >
                         <RoleArtwork role={role} size="compact" />
-                        {selectionMode === "single" && used && (
-                          <span className="role-choice-state">In play</span>
+                        {selectionMode === "single" && (used || bluff) && (
+                          <span className="role-choice-states">
+                            {used && (
+                              <span className="role-choice-state is-in-play">
+                                In play
+                              </span>
+                            )}
+                            {bluff && (
+                              <span className="role-choice-state is-bluff">
+                                Bluff
+                              </span>
+                            )}
+                          </span>
                         )}
                       </button>
                       <div className="role-choice-caption">
