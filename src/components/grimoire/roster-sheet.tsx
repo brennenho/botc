@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
-import { Check, Dice5, Plus } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Plus, Shuffle, Trash2, X } from "lucide-react";
 
-import { RandomDistributionDialog } from "@/components/grimoire/random-distribution-dialog";
 import { RoleArtwork } from "@/components/grimoire/role-artwork";
+import { RoleDistributionDialog } from "@/components/grimoire/role-distribution-dialog";
 import { Button } from "@/components/ui/button";
+import { IconButton } from "@/components/ui/icon-button";
 import { Input } from "@/components/ui/input";
 import { getSetupAssessment, roleById } from "@/lib/game-data";
 import type { EditionId, Seat } from "@/lib/game-data/types";
@@ -17,22 +18,38 @@ export function RosterPanel({
   onClose,
   onSelectSeat,
   onChooseRole,
+  onClearRole,
+  onRemovePlayer,
   onRename,
   onAddPlayer,
-  onRandomize,
+  onDistributeRoles,
+  onClearAssignments,
 }: {
   editionId: EditionId;
   seats: Seat[];
   onClose: () => void;
   onSelectSeat: (seatId: string) => void;
   onChooseRole: (seatId: string) => void;
+  onClearRole: (seatId: string) => void;
+  onRemovePlayer: (seatId: string) => void;
   onRename: (seatId: string, name: string) => void;
   onAddPlayer: () => void;
-  onRandomize: (roleIds: string[]) => void;
+  onDistributeRoles: (roleIds: string[]) => void;
+  onClearAssignments: () => void;
 }) {
-  const [randomOpen, setRandomOpen] = useState(false);
+  const [distributionOpen, setDistributionOpen] = useState(false);
+  const [armedRemoveSeatId, setArmedRemoveSeatId] = useState<string | null>(
+    null,
+  );
   const assessment = getSetupAssessment(seats);
-  const targetSummary = assessment.expected
+
+  useEffect(() => {
+    if (!armedRemoveSeatId) return;
+    const timeout = window.setTimeout(() => setArmedRemoveSeatId(null), 4000);
+    return () => window.clearTimeout(timeout);
+  }, [armedRemoveSeatId]);
+
+  const defaultSetup = assessment.expected
     ? (["townsfolk", "outsider", "minion", "demon"] as const)
         .filter((team) => assessment.expected?.[team])
         .map((team) => {
@@ -41,9 +58,13 @@ export function RosterPanel({
             team === "townsfolk"
               ? "Townsfolk"
               : `${team[0]?.toUpperCase()}${team.slice(1)}${count === 1 ? "" : "s"}`;
-          return `${count} ${label}`;
+          return {
+            team,
+            assigned: assessment.actual[team],
+            expected: count,
+            label,
+          };
         })
-        .join(" · ")
     : null;
   const setupIssue =
     assessment.assignedCount === seats.length && !assessment.legal
@@ -53,20 +74,21 @@ export function RosterPanel({
   return (
     <>
       <div className="roster-summary">
-        <div className="roster-progress">
-          <span>Characters</span>
-          <strong className={cn(assessment.legal && "is-legal")}>
-            {assessment.legal && <Check className="size-3.5" />}
-            {assessment.legal
-              ? "Legal setup"
-              : `${assessment.assignedCount} of ${seats.length} assigned`}
-          </strong>
-        </div>
-        {targetSummary && (
-          <p>
-            <span>Target</span>
-            {targetSummary}
-          </p>
+        {defaultSetup && (
+          <div className="roster-team-counts">
+            {defaultSetup.map(({ team, assigned, expected, label }) => (
+              <span
+                key={team}
+                className={cn("roster-team-count", `team-${team}`)}
+              >
+                <strong>
+                  <span>{assigned}</span>
+                  <span>/ {expected}</span>
+                </strong>
+                {label}
+              </span>
+            ))}
+          </div>
         )}
       </div>
 
@@ -75,6 +97,7 @@ export function RosterPanel({
       <div className="roster-list">
         {seats.map((seat, index) => {
           const role = seat.roleId ? roleById.get(seat.roleId) : null;
+          const removeArmed = armedRemoveSeatId === seat.id;
           return (
             <div key={seat.id} className="roster-row">
               <button
@@ -98,44 +121,97 @@ export function RosterPanel({
                   if (name && name !== seat.playerName) onRename(seat.id, name);
                 }}
               />
-              <button
-                type="button"
-                className={cn("roster-role", !role && "is-empty")}
-                onClick={() => onChooseRole(seat.id)}
-                title={
-                  role
-                    ? `Change ${seat.playerName}'s character`
-                    : `Assign ${seat.playerName}`
-                }
-              >
-                {role ? (
-                  <RoleArtwork role={role} size="tiny" />
-                ) : (
-                  <Plus className="size-4" />
+              <div className="roster-role-control">
+                <button
+                  type="button"
+                  className={cn("roster-role", !role && "is-empty")}
+                  onClick={() => onChooseRole(seat.id)}
+                  title={
+                    role
+                      ? `Change ${seat.playerName}'s character`
+                      : `Assign ${seat.playerName}`
+                  }
+                >
+                  {role ? (
+                    <RoleArtwork role={role} size="tiny" />
+                  ) : (
+                    <Plus className="size-4" />
+                  )}
+                  <span>{role?.name ?? "Assign"}</span>
+                </button>
+                {role && (
+                  <IconButton
+                    label={`Clear ${seat.playerName}'s assignment`}
+                    size="sm"
+                    variant="quiet"
+                    tooltipSide="left"
+                    className="roster-role-clear"
+                    onClick={() => onClearRole(seat.id)}
+                  >
+                    <X className="size-3" />
+                  </IconButton>
                 )}
-                <span>{role?.name ?? "Assign"}</span>
-              </button>
+              </div>
+              <IconButton
+                label={
+                  removeArmed
+                    ? `Click again to remove ${seat.playerName}`
+                    : `Remove ${seat.playerName}`
+                }
+                size="sm"
+                variant="danger"
+                tooltipSide="left"
+                className={cn(
+                  "roster-remove-player",
+                  removeArmed && "is-confirming",
+                )}
+                aria-pressed={removeArmed}
+                onClick={() => {
+                  if (removeArmed) {
+                    onRemovePlayer(seat.id);
+                    setArmedRemoveSeatId(null);
+                    return;
+                  }
+                  setArmedRemoveSeatId(seat.id);
+                }}
+              >
+                <Trash2 className="size-3.5" />
+              </IconButton>
             </div>
           );
         })}
       </div>
 
-      <footer className="sheet-footer">
-        <Button variant="secondary" onClick={() => setRandomOpen(true)}>
-          <Dice5 className="size-4" />
-          Random distribute
+      <footer className="sheet-footer roster-sheet-footer">
+        <Button
+          size="sm"
+          variant="secondary"
+          onClick={() => setDistributionOpen(true)}
+        >
+          <Shuffle className="size-4" />
+          Distribute roles
         </Button>
-        <Button variant="quiet" onClick={onAddPlayer}>
+        <Button size="sm" variant="secondary" onClick={onAddPlayer}>
           <Plus className="size-4" />
           Add player
         </Button>
+        <Button
+          size="sm"
+          variant="secondary"
+          className="roster-clear-assignments"
+          disabled={assessment.assignedCount === 0}
+          onClick={onClearAssignments}
+        >
+          <X className="size-4" />
+          Clear all
+        </Button>
       </footer>
-      <RandomDistributionDialog
-        open={randomOpen}
+      <RoleDistributionDialog
+        open={distributionOpen}
         editionId={editionId}
         playerCount={seats.filter((seat) => !seat.isTraveller).length}
-        onOpenChange={setRandomOpen}
-        onDistribute={onRandomize}
+        onOpenChange={setDistributionOpen}
+        onDistribute={onDistributeRoles}
       />
     </>
   );

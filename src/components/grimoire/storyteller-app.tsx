@@ -152,7 +152,7 @@ export function StorytellerApp({ gameId }: { gameId: string }) {
     setSelectedSeatId(null);
   }
 
-  function randomizeRoles(rolePoolIds: string[]) {
+  function distributeRoles(rolePoolIds: string[]) {
     commit((current) => {
       const residentSeats = current.seats.filter((seat) => !seat.isTraveller);
       const roleIds = createRandomSetup(
@@ -177,6 +177,21 @@ export function StorytellerApp({ gameId }: { gameId: string }) {
         gameTokens: current.gameTokens.filter(isPlayerPositionToken),
       };
     });
+    setSelectedSeatId(null);
+  }
+
+  function clearAssignments() {
+    commit((current) => ({
+      seats: current.seats.map((seat) => ({
+        ...seat,
+        roleId: null,
+        alignment: "good",
+        isTraveller: false,
+      })),
+      gameTokens: current.gameTokens.filter(
+        (token) => token.seatId === null || token.roleId === null,
+      ),
+    }));
     setSelectedSeatId(null);
   }
 
@@ -331,9 +346,12 @@ export function StorytellerApp({ gameId }: { gameId: string }) {
         onClose={() => setOpenPanel(null)}
         onSelectSeat={setSelectedSeatId}
         onChooseRole={(seatId) => setPickerTarget({ type: "seat", seatId })}
+        onClearRole={(seatId) => chooseRole(seatId, null)}
+        onRemovePlayer={removePlayer}
         onRename={(seatId, playerName) => updateSeat(seatId, { playerName })}
         onAddPlayer={addPlayer}
-        onRandomize={randomizeRoles}
+        onDistributeRoles={distributeRoles}
+        onClearAssignments={clearAssignments}
         onArrangeCircle={arrangeInCircle}
       />
       <RolePicker
@@ -342,9 +360,12 @@ export function StorytellerApp({ gameId }: { gameId: string }) {
         title={
           pickerTarget?.type === "bluff"
             ? "Choose a demon bluff"
-            : selectedSeat
-              ? `Choose a character for ${selectedSeat.playerName}`
+            : pickerTarget?.type === "seat"
+              ? `Choose a character for ${snapshot.seats.find((seat) => seat.id === pickerTarget.seatId)?.playerName ?? "player"}`
               : "Choose a character"
+        }
+        clearLabel={
+          pickerTarget?.type === "bluff" ? "Clear bluff" : "Clear assignment"
         }
         selectedRoleId={
           pickerTarget?.type === "seat"

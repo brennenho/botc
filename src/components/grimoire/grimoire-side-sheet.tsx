@@ -20,9 +20,12 @@ export function GrimoireSideSheet({
   onClose,
   onSelectSeat,
   onChooseRole,
+  onClearRole,
+  onRemovePlayer,
   onRename,
   onAddPlayer,
-  onRandomize,
+  onDistributeRoles,
+  onClearAssignments,
   onArrangeCircle,
 }: {
   panel: GrimoirePanel;
@@ -32,9 +35,12 @@ export function GrimoireSideSheet({
   onClose: () => void;
   onSelectSeat: (seatId: string) => void;
   onChooseRole: (seatId: string) => void;
+  onClearRole: (seatId: string) => void;
+  onRemovePlayer: (seatId: string) => void;
   onRename: (seatId: string, name: string) => void;
   onAddPlayer: () => void;
-  onRandomize: (roleIds: string[]) => void;
+  onDistributeRoles: (roleIds: string[]) => void;
+  onClearAssignments: () => void;
   onArrangeCircle: () => void;
 }) {
   const [nightOrderState, setNightOrderState] =
@@ -68,9 +74,12 @@ export function GrimoireSideSheet({
           onClose={onClose}
           onSelectSeat={onSelectSeat}
           onChooseRole={onChooseRole}
+          onClearRole={onClearRole}
+          onRemovePlayer={onRemovePlayer}
           onRename={onRename}
           onAddPlayer={onAddPlayer}
-          onRandomize={onRandomize}
+          onDistributeRoles={onDistributeRoles}
+          onClearAssignments={onClearAssignments}
         />
       </div>
       <div className="sheet-panel" hidden={panel !== "night"}>

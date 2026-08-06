@@ -1,7 +1,5 @@
 "use client";
 
-import { useMemo } from "react";
-
 import { RoleArtwork } from "@/components/grimoire/role-artwork";
 import { RoleInfoButton } from "@/components/grimoire/role-info-button";
 import {
@@ -17,7 +15,6 @@ const teams: ResidentTeam[] = ["townsfolk", "outsider", "minion", "demon"];
 
 export function CharacterCatalog({
   editionId,
-  query,
   selectedRoleIds,
   usedRoleIds = [],
   selectionMode = "single",
@@ -26,7 +23,6 @@ export function CharacterCatalog({
   onSelect,
 }: {
   editionId: EditionId;
-  query: string;
   selectedRoleIds: string[];
   usedRoleIds?: string[];
   selectionMode?: "single" | "multiple";
@@ -35,24 +31,11 @@ export function CharacterCatalog({
   onSelect: (roleId: string) => void;
 }) {
   const grouped = getRolesByTeam(editionId);
-  const normalizedQuery = query.trim().toLowerCase();
-  const visibleGroups = useMemo(
-    () =>
-      teams.map((team) => ({
-        team,
-        roles: grouped[team].filter(
-          (role) =>
-            !normalizedQuery ||
-            role.name.toLowerCase().includes(normalizedQuery) ||
-            role.ability.toLowerCase().includes(normalizedQuery),
-        ),
-      })),
-    [grouped, normalizedQuery],
-  );
 
   return (
     <div className={cn("character-catalog", `selection-${selectionMode}`)}>
-      {visibleGroups.map(({ team, roles }) => {
+      {teams.map((team) => {
+        const roles = grouped[team];
         const selectedCount = roles.filter((role) =>
           selectedRoleIds.includes(role.id),
         ).length;
