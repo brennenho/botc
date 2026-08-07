@@ -2,7 +2,7 @@
 
 import { useDraggable } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
-import { Skull, Vote } from "lucide-react";
+import { Vote } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
 import { RoleArtwork } from "@/components/grimoire/role-artwork";
@@ -67,6 +67,8 @@ export function PlayerToken({
         type="button"
         className={cn(
           "player-token",
+          `alignment-${seat.alignment}`,
+          seat.isTraveller && "is-traveller",
           selected && "is-selected",
           !seat.alive && "is-dead",
         )}
@@ -89,14 +91,27 @@ export function PlayerToken({
             <span>Character</span>
           </span>
         )}
+        {!seat.alive && <span className="death-overlay" aria-label="Dead" />}
         {!seat.alive && (
-          <span className="death-shroud" aria-label="Dead">
-            <Skull className="size-[32%]" strokeWidth={1.8} />
-          </span>
-        )}
-        {!seat.alive && !seat.ghostVoteAvailable && (
-          <span className="vote-used-badge" title="Ghost vote used">
-            <Vote className="size-[58%]" />
+          <span
+            className={cn(
+              "ghost-vote-badge",
+              !seat.ghostVoteAvailable && "is-used",
+            )}
+            role="status"
+            aria-label={
+              seat.ghostVoteAvailable
+                ? "Ghost vote available"
+                : "Ghost vote used"
+            }
+            title={
+              seat.ghostVoteAvailable
+                ? "Ghost vote available"
+                : "Ghost vote used"
+            }
+          >
+            <Vote aria-hidden="true" />
+            <span className="ghost-vote-slash" aria-hidden="true" />
           </span>
         )}
       </button>
