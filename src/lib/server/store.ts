@@ -1,5 +1,6 @@
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
-import { roleById, type EditionId, type Phase } from "@/lib/game-data";
+import { normalizeUpdatedSeats } from "@/lib/server/seat-normalization";
+import type { EditionId, Phase } from "@/lib/game-data";
 import type {
   Alignment,
   Game,
@@ -482,18 +483,9 @@ export async function updateStorytellerGame(
   const nextUpdatedAt = new Date().toISOString();
   const nextVersion = current.game.version + 1;
 
-  const normalizedSeats = patch.seats?.map((seat, index): Seat => {
-    const role = seat.roleId ? roleById.get(seat.roleId) : undefined;
-
-    return {
-      ...seat,
-      gameId,
-      seatIndex: index,
-      roleId: role?.id ?? null,
-      alignment: role ? seat.alignment : "good",
-      playerName: seat.playerName.trim() || `Player ${index + 1}`,
-    };
-  });
+  const normalizedSeats = patch.seats
+    ? normalizeUpdatedSeats(patch.seats, gameId)
+    : undefined;
 
   const normalizedTokens = patch.gameTokens?.map((gameToken, index) => ({
     ...gameToken,

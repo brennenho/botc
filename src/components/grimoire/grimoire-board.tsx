@@ -11,11 +11,12 @@ import {
   type DragMoveEvent,
   type DragStartEvent,
 } from "@dnd-kit/core";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 
 import { DraggableReminderToken } from "@/components/grimoire/draggable-reminder-token";
+import { PlayerContextMenu } from "@/components/grimoire/player-context-menu";
 import { PlayerToken } from "@/components/grimoire/player-token";
-import type { GameToken, Seat } from "@/lib/game-data/types";
+import type { Alignment, GameToken, Seat } from "@/lib/game-data/types";
 import {
   clampCanvasPosition,
   getPlayerPosition,
@@ -28,6 +29,8 @@ import {
   findReminderSnapTarget,
   getReminderSlotPositions,
 } from "@/lib/reminder-layout";
+import type { ReminderDefinition } from "@/lib/reminders";
+import { getPlayerMenuPlacement } from "@/lib/player-menu-layout";
 
 export function GrimoireBoard({
   seats,
@@ -40,6 +43,13 @@ export function GrimoireBoard({
   onPlaceReminder,
   onClearSelection,
   onRenameSeat,
+  onChooseRole,
+  onSetAlive,
+  onSetAlignment,
+  onSetGhostVote,
+  onSetTraveller,
+  onAddReminder,
+  onRemovePlayer,
   onMovePlayer,
   onMoveReminder,
 }: {
@@ -53,6 +63,13 @@ export function GrimoireBoard({
   onPlaceReminder: (seatId: string) => void;
   onClearSelection: () => void;
   onRenameSeat: (seatId: string, playerName: string) => void;
+  onChooseRole: (seatId: string) => void;
+  onSetAlive: (seatId: string, alive: boolean) => void;
+  onSetAlignment: (seatId: string, alignment: Alignment) => void;
+  onSetGhostVote: (seatId: string, available: boolean) => void;
+  onSetTraveller: (seatId: string, isTraveller: boolean) => void;
+  onAddReminder: (seatId: string, definition: ReminderDefinition) => void;
+  onRemovePlayer: (seatId: string) => void;
   onMovePlayer: (seatId: string, position: CanvasPosition) => void;
   onMoveReminder: (
     tokenId: string,
@@ -96,6 +113,7 @@ export function GrimoireBoard({
       getPlayerPosition(gameTokens, seat.id, index, seats.length),
     ]),
   );
+  const selectedSeat = seats.find((seat) => seat.id === selectedSeatId) ?? null;
   const reminders = gameTokens.filter(
     (token) => token.tokenType === "reminder",
   );
@@ -192,11 +210,21 @@ export function GrimoireBoard({
       : null;
   const displayReminderPositions = new Map(reminderPositions);
   const reflowingReminderIds = new Set<string>();
+  const selectedPlayerPosition = selectedSeat
+    ? playerPositions.get(selectedSeat.id)
+    : null;
+  const playerMenu =
+    selectedSeat && selectedPlayerPosition
+      ? getPlayerMenuPlacement({
+          playerPosition: selectedPlayerPosition,
+          boardSize,
+          tokenSize,
+        })
+      : null;
 
   if (activePlayerSeatId) {
     const playerPosition = playerPositions.get(activePlayerSeatId);
-    const seatReminders =
-      anchoredRemindersBySeat.get(activePlayerSeatId) ?? [];
+    const seatReminders = anchoredRemindersBySeat.get(activePlayerSeatId) ?? [];
 
     if (playerPosition && seatReminders.length > 0) {
       const livePlayerPosition = {
@@ -303,8 +331,10 @@ export function GrimoireBoard({
   }
 
   function handleDragStart(event: DragStartEvent) {
-    setActiveId(String(event.active.id));
+    const id = String(event.active.id);
+    setActiveId(id);
     setDragDelta({ x: 0, y: 0 });
+    if (id.startsWith("player:")) onClearSelection();
   }
 
   function handleDragMove(event: DragMoveEvent) {
@@ -402,6 +432,42 @@ export function GrimoireBoard({
                 height: reminderSize,
               }}
               aria-hidden="true"
+            />
+          )}
+          {selectedSeat && playerMenu && (
+            <PlayerContextMenu
+              seat={selectedSeat}
+              reminders={reminders.filter(
+                (reminder) => reminder.seatId === selectedSeat.id,
+              )}
+              side={playerMenu.side}
+              style={
+                {
+                  left: playerMenu.left,
+                  top: playerMenu.top,
+                  width: playerMenu.width,
+                  "--player-menu-anchor-y": `${playerMenu.anchorOffset}px`,
+                } as CSSProperties
+              }
+              onClose={onClearSelection}
+              onChooseRole={() => onChooseRole(selectedSeat.id)}
+              onRename={(playerName) =>
+                onRenameSeat(selectedSeat.id, playerName)
+              }
+              onSetAlive={(alive) => onSetAlive(selectedSeat.id, alive)}
+              onSetAlignment={(alignment) =>
+                onSetAlignment(selectedSeat.id, alignment)
+              }
+              onSetGhostVote={(available) =>
+                onSetGhostVote(selectedSeat.id, available)
+              }
+              onSetTraveller={(isTraveller) =>
+                onSetTraveller(selectedSeat.id, isTraveller)
+              }
+              onAddReminder={(definition) =>
+                onAddReminder(selectedSeat.id, definition)
+              }
+              onRemovePlayer={() => onRemovePlayer(selectedSeat.id)}
             />
           )}
         </div>

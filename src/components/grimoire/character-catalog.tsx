@@ -2,6 +2,7 @@
 
 import { RoleArtwork } from "@/components/grimoire/role-artwork";
 import { RoleInfoButton } from "@/components/grimoire/role-info-button";
+import { Button } from "@/components/ui/button";
 import {
   getRolesByTeam,
   teamLabel,
@@ -86,8 +87,10 @@ export function CharacterCatalog({
                       key={role.id}
                       className={cn("role-choice-item", stateClasses)}
                     >
-                      <button
+                      <Button
                         type="button"
+                        size="icon"
+                        variant="quiet"
                         className={cn("role-choice", stateClasses)}
                         aria-label={`${role.name}${used ? ", in play" : ""}${bluff ? ", demon bluff" : ""}`}
                         aria-pressed={
@@ -111,7 +114,7 @@ export function CharacterCatalog({
                             )}
                           </span>
                         )}
-                      </button>
+                      </Button>
                       <div className="role-choice-caption">
                         <span className="role-choice-name">{role.name}</span>
                         <RoleInfoButton role={role} />

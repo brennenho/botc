@@ -63,6 +63,9 @@
 
   --radius-control: 4px;
   --radius-panel: 8px;
+  --layer-context-menu: 80;
+  --layer-dialog-backdrop: 90;
+  --layer-dialog: 91;
   --grimoire-sheet-width: min(430px, 92vw);
   --text-caption: 9px;
   --text-body-sm: 11px;
@@ -1314,67 +1317,6 @@
   max-width: calc(100vw - 32px);
 }
 
-.dock-button {
-  display: flex;
-  min-width: 88px;
-  height: 52px;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-  padding: 4px 10px;
-  border: 0;
-  border-radius: 5px;
-  color: rgb(244 240 230 / 58%);
-  background: transparent;
-  font-size: 9px;
-  font-weight: 650;
-  flex-direction: column;
-}
-
-.dock-button:hover,
-.dock-button.is-active {
-  color: var(--chalk);
-  background: rgb(244 240 230 / 8%);
-}
-
-.dock-button-icon,
-.dock-button-icon svg {
-  display: block;
-  width: 18px;
-  height: 18px;
-}
-
-.dock-button.is-active .dock-button-icon {
-  color: var(--brass);
-}
-
-.dock-divider {
-  width: 1px;
-  height: 36px;
-  align-self: center;
-  margin: 0 4px;
-  background: rgb(195 161 95 / 18%);
-}
-
-.dock-role-token {
-  display: grid;
-  width: 48px;
-  height: 48px;
-  flex: 0 0 48px;
-  place-items: center;
-  padding: 0;
-  border: 1px solid rgb(195 161 95 / 38%);
-  border-radius: 50%;
-  color: var(--brass);
-  background: rgb(244 240 230 / 6%);
-}
-
-.dock-role-token .role-artwork-compact {
-  width: 46px;
-  height: 46px;
-  border: 0;
-}
-
 .player-dock > button:last-child {
   width: 40px;
   align-self: center;
@@ -1384,77 +1326,6 @@
 .player-dock > button:last-child:hover {
   color: var(--chalk);
   background: rgb(244 240 230 / 8%);
-}
-
-.reminder-choice-grid {
-  display: grid;
-  max-height: 190px;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 5px;
-  padding-top: 10px;
-  overflow: auto;
-}
-
-.reminder-choice-grid button {
-  display: flex;
-  min-width: 0;
-  height: 38px;
-  align-items: center;
-  gap: 7px;
-  padding: 0 9px;
-  border: 1px solid rgb(244 240 230 / 9%);
-  border-radius: 4px;
-  color: rgb(244 240 230 / 68%);
-  background: rgb(244 240 230 / 3%);
-  font-size: 10px;
-  text-align: left;
-}
-
-.reminder-choice-grid button:hover {
-  color: var(--chalk);
-  border-color: rgb(195 161 95 / 34%);
-  background: rgb(195 161 95 / 8%);
-}
-
-.reminder-choice-grid svg {
-  flex: 0 0 16px;
-  color: var(--brass);
-}
-
-.player-details {
-  display: flex;
-  width: min(520px, calc(100vw - 32px));
-  align-items: center;
-  justify-content: space-between;
-}
-
-.detail-control {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.detail-control .utility-label {
-  color: rgb(244 240 230 / 44%);
-}
-
-.detail-control [role="group"] {
-  background: rgb(244 240 230 / 7%);
-}
-
-.detail-control [role="group"] button {
-  color: rgb(244 240 230 / 52%);
-}
-
-.detail-control [role="group"] button[aria-pressed="true"] {
-  color: #20231f;
-  background: var(--parchment-light);
-}
-
-.detail-divider {
-  width: 1px;
-  height: 34px;
-  background: rgb(244 240 230 / 10%);
 }
 
 /* Side sheets */
@@ -1904,7 +1775,7 @@
 .dialog-backdrop {
   position: fixed;
   inset: 0;
-  z-index: 90;
+  z-index: var(--layer-dialog-backdrop);
   background: rgb(8 10 9 / 70%);
   backdrop-filter: blur(2px);
 }
@@ -1912,7 +1783,7 @@
 .dialog-viewport {
   position: fixed;
   inset: 0;
-  z-index: 91;
+  z-index: var(--layer-dialog);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2684,12 +2555,6 @@
 }
 
 @media (max-width: 1050px) {
-  .player-dock .dock-button {
-    min-width: 76px;
-    padding-right: 6px;
-    padding-left: 6px;
-  }
-
   .dialog-viewport {
     padding: 20px;
   }
@@ -2762,7 +2627,7 @@
 }
 
 .storyteller-shell
-  :is(.player-token, .reminder-token-trigger, .dock-role-token, .bluff-slot)
+  :is(.player-token, .reminder-token-trigger, .bluff-slot)
   :is(img, svg) {
   pointer-events: none;
 }
@@ -3343,6 +3208,364 @@
   transition: none;
 }
 
+.player-context-menu {
+  position: absolute;
+  z-index: var(--layer-context-menu);
+  display: flex;
+  max-height: calc(100% - 24px);
+  box-sizing: border-box;
+  flex-direction: column;
+  border: 1px solid var(--grimoire-hardware-border-strong);
+  border-radius: 8px;
+  color: var(--grimoire-hardware-text);
+  background-color: rgb(241 231 208 / 94%);
+  background-image:
+    linear-gradient(rgb(255 252 240 / 26%), rgb(215 195 155 / 10%)),
+    url("/assets/grimoire-parchment.png");
+  background-position: center;
+  background-size:
+    100% 100%,
+    420px auto;
+  box-shadow:
+    0 12px 30px rgb(52 37 20 / 24%),
+    inset 0 1px rgb(255 253 243 / 56%);
+  backdrop-filter: blur(12px) saturate(0.76);
+  animation: player-menu-in 120ms cubic-bezier(0.2, 0.75, 0.2, 1);
+}
+
+.player-context-menu::before {
+  position: absolute;
+  top: var(--player-menu-anchor-y);
+  z-index: -1;
+  width: 11px;
+  height: 11px;
+  border: 1px solid var(--grimoire-hardware-border-strong);
+  content: "";
+  background: rgb(235 220 187 / 96%);
+  transform: translateY(-50%) rotate(45deg);
+}
+
+.player-context-menu[data-side="right"]::before {
+  left: -6px;
+  border-top-color: transparent;
+  border-right-color: transparent;
+}
+
+.player-context-menu[data-side="left"]::before {
+  right: -6px;
+  border-bottom-color: transparent;
+  border-left-color: transparent;
+}
+
+.player-menu-header {
+  display: flex;
+  min-height: 64px;
+  align-items: center;
+  gap: 9px;
+  padding: 8px;
+  border-bottom: 1px solid rgb(99 76 46 / 20%);
+}
+
+.player-menu-role {
+  display: grid;
+  width: 46px;
+  height: 46px;
+  flex: 0 0 46px;
+  place-items: center;
+  padding: 0;
+  border: 1px solid var(--grimoire-hardware-border);
+  border-radius: 50%;
+  color: var(--grimoire-hardware-accent);
+  background: rgb(255 252 240 / 28%);
+  box-shadow: 0 2px 5px rgb(53 37 20 / 12%);
+}
+
+.player-menu-role:hover,
+.player-menu-role:focus-visible {
+  border-color: var(--grimoire-hardware-border-strong);
+  background: rgb(255 252 240 / 52%);
+}
+
+.player-menu-role:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+.player-menu-role .role-artwork-compact {
+  width: 44px;
+  height: 44px;
+}
+
+.player-menu-identity {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.player-menu-identity > button {
+  display: flex;
+  height: auto;
+  min-width: 0;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 5px;
+  padding: 0;
+  border: 0;
+  color: #30271c;
+  background: transparent;
+  text-align: left;
+}
+
+.player-menu-identity > button strong,
+.player-menu-identity > strong {
+  overflow: hidden;
+  font-size: 13px;
+  font-weight: 720;
+  line-height: 1.25;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.player-menu-identity > button svg {
+  width: 11px;
+  height: 11px;
+  flex: 0 0 auto;
+  color: var(--grimoire-hardware-muted);
+}
+
+.player-menu-identity > span {
+  overflow: hidden;
+  color: var(--grimoire-hardware-muted);
+  font-size: 10px;
+  line-height: 1.25;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.player-menu-identity > input {
+  width: 100%;
+  min-width: 0;
+  height: 28px;
+  padding: 0 7px;
+  border: 1px solid var(--grimoire-hardware-border-strong);
+  border-radius: var(--radius-control);
+  outline: 0;
+  color: #30271c;
+  background: rgb(255 252 240 / 62%);
+  font-size: 13px;
+  font-weight: 680;
+}
+
+.player-menu-identity > input:focus {
+  box-shadow: 0 0 0 2px var(--focus-ring);
+}
+
+.player-menu-header > button:last-child {
+  flex: 0 0 auto;
+  color: var(--grimoire-hardware-muted);
+}
+
+.player-menu-state {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
+}
+
+.player-menu-state-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.player-menu-control {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.player-menu-control > .utility-label,
+.player-reminder-section > .utility-label {
+  color: rgb(64 52 35 / 54%);
+  font-size: 8px;
+}
+
+.player-menu-segmented {
+  display: flex;
+  width: 100%;
+  height: 36px;
+  min-width: 0;
+  background: rgb(81 62 40 / 9%);
+}
+
+.player-menu-segmented button {
+  min-width: 0;
+  height: 32px;
+  flex: 1;
+  padding: 0 6px;
+  color: rgb(64 52 35 / 64%);
+  font-size: 10px;
+}
+
+.player-menu-segmented button[aria-pressed="true"] {
+  color: #30271c;
+  background: rgb(255 252 240 / 72%);
+}
+
+.player-menu-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1px;
+  padding: 1px 8px 8px;
+  border-top: 1px solid rgb(99 76 46 / 16%);
+}
+
+.player-menu-actions > button {
+  position: relative;
+  height: 42px;
+  min-width: 0;
+  padding: 0 8px;
+  color: rgb(64 52 35 / 74%);
+  font-size: 10px;
+}
+
+.player-menu-actions > button:hover {
+  color: #30271c;
+  background: rgb(255 252 240 / 38%);
+}
+
+.player-menu-count {
+  display: grid;
+  min-width: 17px;
+  height: 17px;
+  place-items: center;
+  border: 1px solid rgb(119 90 48 / 30%);
+  border-radius: 50%;
+  color: var(--grimoire-hardware-accent);
+  font-family: var(--font-utility);
+  font-size: 8px;
+}
+
+.player-menu-footer {
+  display: flex;
+  justify-content: flex-end;
+  padding: 7px 9px;
+  border-top: 1px solid rgb(99 76 46 / 18%);
+}
+
+.player-menu-footer .remove-player-button {
+  min-width: 116px;
+  justify-content: center;
+}
+
+.reminder-menu-header {
+  min-height: 56px;
+}
+
+.reminder-menu-header > button:first-child {
+  flex: 0 0 auto;
+  color: var(--grimoire-hardware-muted);
+}
+
+.player-reminder-menu {
+  max-height: 310px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.player-reminder-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 11px 12px 12px;
+  border-bottom: 1px solid rgb(99 76 46 / 16%);
+}
+
+.player-reminder-section:last-child {
+  border-bottom: 0;
+}
+
+.player-reminder-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 4px;
+}
+
+.player-reminder-grid > button {
+  display: flex;
+  min-width: 0;
+  min-height: 72px;
+  align-items: center;
+  flex-direction: column;
+  gap: 4px;
+  padding: 5px 2px 4px;
+  border: 0;
+  border-radius: var(--radius-control);
+  color: rgb(48 39 28 / 74%);
+  background: transparent;
+  font-size: 8px;
+  font-weight: 580;
+  line-height: 1.15;
+  text-align: center;
+}
+
+.player-reminder-grid > button:hover,
+.player-reminder-grid > button:focus-visible {
+  color: #30271c;
+  background: rgb(255 252 240 / 42%);
+}
+
+.player-reminder-grid > button:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: -2px;
+}
+
+.player-reminder-grid > button > span:last-child {
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.player-reminder-token-wrap {
+  position: relative;
+  display: grid;
+  place-items: center;
+}
+
+.player-reminder-count {
+  position: absolute;
+  top: -3px;
+  right: -7px;
+  display: grid;
+  min-width: 16px;
+  height: 16px;
+  place-items: center;
+  border: 1px solid rgb(103 77 39 / 34%);
+  border-radius: 50%;
+  color: #3b2e1f;
+  background: rgb(243 226 188 / 96%);
+  box-shadow: 0 1px 3px rgb(50 34 17 / 18%);
+  font-family: var(--font-utility);
+  font-size: 8px;
+  line-height: 1;
+}
+
+@keyframes player-menu-in {
+  from {
+    opacity: 0;
+    transform: translateY(3px) scale(0.99);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
 .storyteller-context-drawer {
   position: fixed;
   z-index: 56;
@@ -3376,15 +3599,6 @@
   transform: none;
 }
 
-.player-inspector-leading {
-  display: flex;
-  width: 218px;
-  min-width: 0;
-  align-items: center;
-  gap: 8px;
-  padding: 0 10px 0 2px;
-}
-
 .player-inspector-identity {
   display: flex;
   min-width: 0;
@@ -3411,173 +3625,6 @@
   color: rgb(244 232 208 / 48%);
   font-size: 9px;
   line-height: 1.25;
-}
-
-.drawer-expansion {
-  position: static;
-  width: 100%;
-  box-sizing: border-box;
-  border: 0;
-  border-bottom: 1px solid rgb(196 165 111 / 48%);
-  border-radius: 0;
-  color: #f4e8d0;
-  background: rgb(238 222 192 / 7%);
-  box-shadow: none;
-  transform: none;
-}
-
-.drawer-expansion.reminder-fan {
-  position: relative;
-  display: flex;
-  max-height: min(300px, calc(100svh - 116px));
-  flex-direction: column;
-  gap: 0;
-  padding: 0;
-  overflow-y: auto;
-}
-
-.drawer-expansion.reminder-fan > header {
-  position: sticky;
-  top: 0;
-  z-index: 2;
-  display: flex;
-  min-height: 48px;
-  align-items: center;
-  justify-content: space-between;
-  padding: 7px 9px 7px 14px;
-  border-bottom: 1px solid rgb(244 240 230 / 8%);
-  background: rgb(34 26 23 / 92%);
-  backdrop-filter: blur(12px);
-}
-
-.drawer-expansion.reminder-fan header .utility-label {
-  color: rgb(244 232 208 / 50%);
-  font-size: var(--text-caption);
-}
-
-.drawer-expansion.reminder-fan header strong {
-  display: block;
-  margin-top: 1px;
-  font-size: 12px;
-  line-height: 1.2;
-}
-
-.active-reminder-list {
-  display: flex;
-  min-height: 45px;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 12px;
-  border-bottom: 1px solid rgb(244 240 230 / 8%);
-  overflow-x: auto;
-}
-
-.active-reminder-item {
-  display: flex;
-  height: 32px;
-  flex: 0 0 auto;
-  align-items: center;
-  gap: 6px;
-  padding: 2px 2px 2px 4px;
-  border: 1px solid rgb(244 240 230 / 10%);
-  border-radius: var(--radius-control);
-  color: rgb(244 232 208 / 72%);
-  background: rgb(244 240 230 / 4%);
-  font-size: 9px;
-}
-
-.active-reminder-item > span:nth-child(2) {
-  max-width: 100px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.active-reminder-item > button {
-  width: 27px;
-  height: 27px;
-  min-height: 27px;
-  color: rgb(244 232 208 / 44%);
-}
-
-.reminder-choice-sections {
-  display: flex;
-  flex-direction: column;
-}
-
-.reminder-choice-section {
-  display: grid;
-  min-height: 62px;
-  grid-template-columns: 86px minmax(0, 1fr);
-  align-items: center;
-  border-bottom: 1px solid rgb(244 240 230 / 7%);
-}
-
-.reminder-choice-section:last-child {
-  border-bottom: 0;
-}
-
-.reminder-choice-section > .utility-label {
-  padding-left: 14px;
-  color: rgb(244 232 208 / 46%);
-  font-size: 8px;
-}
-
-.reminder-choice-grid {
-  display: flex;
-  min-width: 0;
-  max-height: none;
-  gap: 2px;
-  padding: 4px 10px 4px 0;
-  overflow-x: auto;
-  overflow-y: hidden;
-}
-
-.reminder-choice-grid button {
-  display: flex;
-  width: 64px;
-  min-width: 64px;
-  height: 54px;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-  gap: 1px;
-  padding: 3px 2px;
-  border: 0;
-  border-radius: var(--radius-control);
-  color: rgb(244 232 208 / 76%);
-  background: transparent;
-  font-size: 8px;
-  line-height: 1.15;
-  text-align: center;
-}
-
-.reminder-choice-grid button:hover,
-.reminder-choice-grid button:focus-visible {
-  background: rgb(244 240 230 / 7%);
-}
-
-.reminder-choice-grid button:focus-visible {
-  outline: 2px solid rgb(195 161 95 / 48%);
-  outline-offset: -2px;
-}
-
-.reminder-choice-grid button > span:nth-child(2) {
-  width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.reminder-choice-grid button small {
-  color: rgb(244 232 208 / 38%);
-  font-family: var(--font-utility);
-  font-size: 6px;
-  line-height: 1;
-}
-
-.storyteller-context-drawer.is-expanded {
-  width: min(860px, calc(100vw - 36px));
 }
 
 .reminder-placement-dock,
@@ -3612,54 +3659,6 @@
   height: 32px;
   flex: 0 0 auto;
   padding: 0 12px;
-}
-
-.drawer-expansion.player-details {
-  display: flex;
-  min-height: 68px;
-  padding: 10px 14px;
-}
-
-.dock-role-token {
-  width: 38px;
-  height: 38px;
-  flex-basis: 38px;
-  border: 0;
-  background: transparent;
-}
-
-.dock-role-token .role-artwork-compact {
-  width: 38px;
-  height: 38px;
-}
-
-.storyteller-context-drawer .dock-button {
-  min-width: 88px;
-  height: 40px;
-  flex: 1;
-  flex-direction: row;
-  gap: 6px;
-  padding: 0 8px;
-  color: rgb(244 232 208 / 66%);
-  font-size: 9px;
-  white-space: nowrap;
-}
-
-.storyteller-context-drawer .dock-button-icon,
-.storyteller-context-drawer .dock-button-icon svg {
-  width: 15px;
-  height: 15px;
-}
-
-.storyteller-context-drawer .dock-button:hover,
-.storyteller-context-drawer .dock-button.is-active {
-  color: #f4e8d0;
-  background: rgb(244 240 230 / 8%);
-}
-
-.storyteller-context-drawer .dock-divider {
-  height: 26px;
-  margin: 0 3px;
 }
 
 .storyteller-context-drawer .player-dock > button:last-child {
@@ -3813,15 +3812,4 @@
 
 .side-sheet {
   top: 0;
-}
-
-@media (max-width: 1050px) {
-  .player-inspector-leading {
-    width: 185px;
-  }
-
-  .storyteller-context-drawer .dock-button {
-    min-width: 72px;
-    padding: 0 5px;
-  }
 }

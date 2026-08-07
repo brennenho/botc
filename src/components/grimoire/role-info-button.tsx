@@ -3,6 +3,7 @@
 import { Info } from "lucide-react";
 import { useState } from "react";
 
+import { Button } from "@/components/ui/button";
 import {
   Tooltip,
   TooltipContent,
@@ -17,8 +18,10 @@ export function RoleInfoButton({ role }: { role: Role }) {
     <Tooltip open={open}>
       <TooltipTrigger
         render={
-          <button
+          <Button
             type="button"
+            size="icon"
+            variant="quiet"
             className="role-info-button"
             aria-label={`About ${role.name}`}
             onPointerEnter={() => setOpen(true)}
@@ -30,7 +33,7 @@ export function RoleInfoButton({ role }: { role: Role }) {
             }}
           >
             <Info aria-hidden="true" />
-          </button>
+          </Button>
         }
       />
       <TooltipContent className="role-ability-tooltip">

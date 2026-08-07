@@ -52,18 +52,6 @@ export function StorytellerApp({ gameId }: { gameId: string }) {
     useState<ReminderDefinition | null>(null);
   const [pickerTarget, setPickerTarget] = useState<PickerTarget>(null);
 
-  const selectedSeat = useMemo(
-    () => snapshot?.seats.find((seat) => seat.id === selectedSeatId) ?? null,
-    [selectedSeatId, snapshot?.seats],
-  );
-  const selectedReminders = useMemo(
-    () =>
-      snapshot?.gameTokens.filter(
-        (token) =>
-          token.tokenType === "reminder" && token.seatId === selectedSeatId,
-      ) ?? [],
-    [selectedSeatId, snapshot?.gameTokens],
-  );
   const bluffs = useMemo(
     () =>
       snapshot?.gameTokens
@@ -340,6 +328,29 @@ export function StorytellerApp({ gameId }: { gameId: string }) {
           onRenameSeat={(seatId, playerName) =>
             updateSeat(seatId, { playerName })
           }
+          onChooseRole={(seatId) => setPickerTarget({ type: "seat", seatId })}
+          onSetAlive={(seatId, alive) => {
+            const seat = snapshot.seats.find(
+              (candidate) => candidate.id === seatId,
+            );
+            updateSeat(seatId, {
+              alive,
+              ghostVoteAvailable: alive
+                ? true
+                : (seat?.ghostVoteAvailable ?? true),
+            });
+          }}
+          onSetAlignment={(seatId, alignment) =>
+            updateSeat(seatId, { alignment })
+          }
+          onSetGhostVote={(seatId, ghostVoteAvailable) =>
+            updateSeat(seatId, { ghostVoteAvailable })
+          }
+          onSetTraveller={(seatId, isTraveller) =>
+            updateSeat(seatId, { isTraveller })
+          }
+          onAddReminder={addReminder}
+          onRemovePlayer={removePlayer}
           onMovePlayer={movePlayer}
           onMoveReminder={moveReminder}
         />
@@ -350,8 +361,6 @@ export function StorytellerApp({ gameId }: { gameId: string }) {
       </div>
 
       <StorytellerDock
-        seat={openPanel === null ? selectedSeat : null}
-        reminders={selectedReminders}
         selectedReminder={openPanel === null ? selectedReminder : null}
         reminderOwner={
           selectedReminder?.seatId
@@ -363,7 +372,6 @@ export function StorytellerApp({ gameId }: { gameId: string }) {
         pendingReminder={pendingReminder}
         playersOpen={openPanel === "players"}
         nightOpen={openPanel === "night"}
-        onCloseSeat={() => setSelectedSeatId(null)}
         onOpenPlayers={() => {
           setSelectedSeatId(null);
           setSelectedReminderId(null);
@@ -376,34 +384,6 @@ export function StorytellerApp({ gameId }: { gameId: string }) {
           setPendingReminder(null);
           setOpenPanel((current) => (current === "night" ? null : "night"));
         }}
-        onChooseRole={() =>
-          selectedSeat &&
-          setPickerTarget({ type: "seat", seatId: selectedSeat.id })
-        }
-        onSetAlive={(alive) =>
-          selectedSeat &&
-          updateSeat(selectedSeat.id, {
-            alive,
-            ghostVoteAvailable: alive ? true : selectedSeat.ghostVoteAvailable,
-          })
-        }
-        onSetAlignment={(alignment) =>
-          selectedSeat && updateSeat(selectedSeat.id, { alignment })
-        }
-        onSetGhostVote={(ghostVoteAvailable) =>
-          selectedSeat && updateSeat(selectedSeat.id, { ghostVoteAvailable })
-        }
-        onAddReminder={(definition) =>
-          selectedSeat && addReminder(selectedSeat.id, definition)
-        }
-        onRemoveReminder={(tokenId) =>
-          commit((current) => ({
-            gameTokens: current.gameTokens.filter(
-              (token) => token.id !== tokenId,
-            ),
-          }))
-        }
-        onRemovePlayer={() => selectedSeat && removePlayer(selectedSeat.id)}
         onRemoveSelectedReminder={() => {
           if (!selectedReminder) return;
           commit((current) => ({
@@ -423,7 +403,11 @@ export function StorytellerApp({ gameId }: { gameId: string }) {
         editionId={snapshot.game.edition}
         seats={snapshot.seats}
         onClose={() => setOpenPanel(null)}
-        onSelectSeat={setSelectedSeatId}
+        onSelectSeat={(seatId) => {
+          setOpenPanel(null);
+          setSelectedReminderId(null);
+          setSelectedSeatId(seatId);
+        }}
         onChooseRole={(seatId) => setPickerTarget({ type: "seat", seatId })}
         onClearRole={(seatId) => chooseRole(seatId, null)}
         onRemovePlayer={removePlayer}

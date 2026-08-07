@@ -1,3 +1,4 @@
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 type Option<T extends string> = {
@@ -30,9 +31,11 @@ export function SegmentedControl<T extends string>({
       )}
     >
       {options.map((option) => (
-        <button
+        <Button
           key={option.value}
           type="button"
+          size="sm"
+          variant="quiet"
           aria-pressed={value === option.value}
           onClick={() => onChange(option.value)}
           className={cn(
@@ -42,7 +45,7 @@ export function SegmentedControl<T extends string>({
           )}
         >
           {option.label}
-        </button>
+        </Button>
       ))}
     </div>
   );
