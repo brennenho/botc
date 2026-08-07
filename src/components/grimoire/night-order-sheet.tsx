@@ -3,6 +3,7 @@
 import { useMemo } from "react";
 import { Check, Moon, Sun } from "lucide-react";
 
+import { ReminderToken } from "@/components/grimoire/reminder-token";
 import { TokenIcon } from "@/components/grimoire/token-icon";
 import { SegmentedControl } from "@/components/ui/segmented-control";
 import {
@@ -10,7 +11,7 @@ import {
   type EditionId,
   type NightOrderEntry,
 } from "@/lib/game-data";
-import type { Seat } from "@/lib/game-data/types";
+import type { GameToken, Seat } from "@/lib/game-data/types";
 import {
   getNightOrderViewKey,
   type NightOrderState,
@@ -22,13 +23,20 @@ type DisplayEntry = NightOrderEntry & { key: string; playerName?: string };
 export function NightOrderPanel({
   editionId,
   seats,
+  gameTokens,
   state,
   onStateChange,
+  onPlaceReminder,
 }: {
   editionId: EditionId;
   seats: Seat[];
+  gameTokens: GameToken[];
   state: NightOrderState;
   onStateChange: (state: NightOrderState) => void;
+  onPlaceReminder: (
+    role: NonNullable<NightOrderEntry["role"]>,
+    action: NightOrderEntry["reminderActions"][number],
+  ) => void;
 }) {
   const { night, scope } = state;
   const viewKey = getNightOrderViewKey(night, scope);
@@ -98,32 +106,67 @@ export function NightOrderPanel({
         {entries.map((entry, index) => {
           const done = completed.has(entry.key);
           return (
-            <button
+            <div
               key={entry.key}
-              type="button"
               className={cn("night-order-row", done && "is-complete")}
-              onClick={() => toggleComplete(entry.key)}
             >
-              <span className="night-order-index">
-                {done ? <Check className="size-3.5" /> : index + 1}
-              </span>
-              <TokenIcon role={entry.role}>
-                {entry.id === "dawn" ? <Sun /> : <Moon />}
-              </TokenIcon>
-              <span className="min-w-0 flex-1 text-left">
-                <span className="block text-sm font-semibold">
-                  {entry.name}
-                  {entry.playerName && (
-                    <small className="ml-1.5 font-normal text-black/42">
-                      {entry.playerName}
-                    </small>
-                  )}
+              <button
+                type="button"
+                className="night-order-row-main"
+                onClick={() => toggleComplete(entry.key)}
+              >
+                <span className="night-order-index">
+                  {done ? <Check className="size-3.5" /> : index + 1}
                 </span>
-                <span className="mt-0.5 block text-xs leading-5 text-black/48">
-                  {entry.reminder}
+                <TokenIcon role={entry.role}>
+                  {entry.id === "dawn" ? <Sun /> : <Moon />}
+                </TokenIcon>
+                <span className="min-w-0 flex-1 text-left">
+                  <span className="block text-sm font-semibold">
+                    {entry.name}
+                    {entry.playerName && (
+                      <small className="ml-1.5 font-normal text-black/42">
+                        {entry.playerName}
+                      </small>
+                    )}
+                  </span>
+                  <span className="mt-0.5 block text-xs leading-5 text-black/48">
+                    <FormattedNightText text={entry.reminder} />
+                  </span>
                 </span>
-              </span>
-            </button>
+              </button>
+              {entry.role && entry.reminderActions.length > 0 && (
+                <div className="night-reminder-actions">
+                  {entry.reminderActions.map((action) => {
+                    const placedCount = gameTokens.filter(
+                      (token) =>
+                        token.tokenType === "reminder" &&
+                        token.roleId === entry.role?.id &&
+                        token.label === action.label,
+                    ).length;
+                    return (
+                      <button
+                        key={`${entry.key}-${action.label}`}
+                        type="button"
+                        aria-label={action.instruction}
+                        onClick={() =>
+                          entry.role && onPlaceReminder(entry.role, action)
+                        }
+                      >
+                        <ReminderToken
+                          label={action.label}
+                          roleId={entry.role?.id ?? null}
+                          size="inline"
+                          count={action.count}
+                        />
+                        <span>{action.instruction}</span>
+                        {placedCount > 0 && <small>{placedCount} placed</small>}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
           );
         })}
         {entries.length === 0 && (
@@ -134,5 +177,17 @@ export function NightOrderPanel({
         )}
       </div>
     </>
+  );
+}
+
+function FormattedNightText({ text }: { text: string }) {
+  return text.split(/(\*[^*]+\*)/g).map((part, index) =>
+    part.startsWith("*") && part.endsWith("*") ? (
+      <strong key={`${part}-${index}`} className="night-info-token">
+        {part.slice(1, -1)}
+      </strong>
+    ) : (
+      part
+    ),
   );
 }

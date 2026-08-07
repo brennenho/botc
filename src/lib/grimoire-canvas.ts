@@ -5,6 +5,10 @@ export type CanvasPosition = {
   y: number;
 };
 
+export type ReminderPlacement =
+  | { mode: "anchored"; order: number }
+  | { mode: "free"; canvasPosition: CanvasPosition };
+
 export const PLAYER_POSITION_KIND = "player-position";
 
 export function getDefaultPlayerPosition(
@@ -60,7 +64,40 @@ export function getPlayerPosition(
 }
 
 export function getReminderPosition(token: GameToken) {
-  return readCanvasPosition(token.metadata.canvasPosition);
+  const placement = readReminderPlacement(token);
+  return placement.mode === "free" ? placement.canvasPosition : null;
+}
+
+export function readReminderPlacement(token: GameToken): ReminderPlacement {
+  const value = token.metadata.placement;
+  if (value && typeof value === "object") {
+    const placement = value as Record<string, unknown>;
+    if (placement.mode === "free") {
+      const canvasPosition = readCanvasPosition(placement.canvasPosition);
+      if (canvasPosition) return { mode: "free", canvasPosition };
+    }
+    if (
+      placement.mode === "anchored" &&
+      typeof placement.order === "number" &&
+      Number.isFinite(placement.order)
+    ) {
+      return { mode: "anchored", order: placement.order };
+    }
+  }
+
+  const legacyPosition = readCanvasPosition(token.metadata.canvasPosition);
+  if (legacyPosition) return { mode: "free", canvasPosition: legacyPosition };
+  return { mode: "anchored", order: token.position };
+}
+
+export function withReminderPlacement(
+  metadata: Record<string, unknown>,
+  placement: ReminderPlacement,
+) {
+  return {
+    ...withoutCanvasPosition(metadata),
+    placement,
+  };
 }
 
 export function clampCanvasPosition(

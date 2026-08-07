@@ -1,5 +1,10 @@
 import nightsheetRaw from "./nightsheet.json";
 import rolesRaw from "./roles.json";
+import {
+  cleanNightReminderText,
+  getNightReminderPlan,
+  type NightReminderAction,
+} from "./night-reminder-actions";
 
 export type EditionId = "tb" | "bmr" | "snv";
 export type Team = "townsfolk" | "outsider" | "minion" | "demon" | "traveller";
@@ -44,6 +49,7 @@ export type NightOrderEntry = {
   id: string;
   name: string;
   reminder: string;
+  reminderActions: NightReminderAction[];
   role: Role | null;
   system: boolean;
 };
@@ -138,7 +144,7 @@ export function getNightOrder(edition: EditionId, night: "first" | "other") {
 
 const systemNightEntries: Record<
   string,
-  Omit<NightOrderEntry, "id" | "role" | "system">
+  Omit<NightOrderEntry, "id" | "role" | "system" | "reminderActions">
 > = {
   dusk: { name: "Dusk", reminder: "The night begins." },
   minioninfo: {
@@ -165,20 +171,31 @@ export function getNightOrderEntries(
   return ids.flatMap((id): NightOrderEntry[] => {
     const systemEntry = systemNightEntries[id];
     if (systemEntry) {
-      return [{ id, ...systemEntry, role: null, system: true }];
+      return [
+        {
+          id,
+          ...systemEntry,
+          reminderActions: [],
+          role: null,
+          system: true,
+        },
+      ];
     }
 
     const role = roleById.get(id);
     if (!role || !editionRoleIds.has(id)) return [];
 
+    const plan = getNightReminderPlan(role.id, night);
+    const rawReminder =
+      (night === "first" ? role.firstNightReminder : role.otherNightReminder) ??
+      role.ability;
+
     return [
       {
         id,
         name: role.name,
-        reminder:
-          (night === "first"
-            ? role.firstNightReminder
-            : role.otherNightReminder) ?? role.ability,
+        reminder: plan?.summary ?? cleanNightReminderText(rawReminder),
+        reminderActions: plan?.actions ?? [],
         role,
         system: false,
       },

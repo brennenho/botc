@@ -7,23 +7,25 @@ import { Button } from "@/components/ui/button";
 import { IconButton } from "@/components/ui/icon-button";
 import { cn } from "@/lib/utils";
 
-type RemovePlayerButtonProps = {
-  playerName: string;
+type ConfirmRemoveButtonProps = {
+  itemLabel: string;
+  idleLabel: string;
   onRemove: () => void;
   display?: "icon" | "label";
   className?: string;
 };
 
-export function RemovePlayerButton({
-  playerName,
+export function ConfirmRemoveButton({
+  itemLabel,
+  idleLabel,
   onRemove,
   display = "label",
   className,
-}: RemovePlayerButtonProps) {
+}: ConfirmRemoveButtonProps) {
   const [armed, setArmed] = useState(false);
-  const confirmLabel = `Click again to remove ${playerName}`;
+  const confirmLabel = `Click again to remove ${itemLabel}`;
 
-  useEffect(() => setArmed(false), [playerName]);
+  useEffect(() => setArmed(false), [itemLabel]);
 
   useEffect(() => {
     if (!armed) return;
@@ -49,7 +51,7 @@ export function RemovePlayerButton({
   if (display === "icon") {
     return (
       <IconButton
-        label={armed ? confirmLabel : `Remove ${playerName}`}
+        label={armed ? confirmLabel : idleLabel}
         size="sm"
         variant="danger"
         tooltipSide="left"
@@ -63,7 +65,22 @@ export function RemovePlayerButton({
   return (
     <Button size="sm" variant="danger" {...sharedProps}>
       <Trash2 className="size-4" />
-      {armed ? "Click again to remove" : "Remove player"}
+      {armed ? "Click again to remove" : idleLabel}
     </Button>
+  );
+}
+
+export function RemovePlayerButton({
+  playerName,
+  ...props
+}: Omit<ConfirmRemoveButtonProps, "itemLabel" | "idleLabel"> & {
+  playerName: string;
+}) {
+  return (
+    <ConfirmRemoveButton
+      itemLabel={playerName}
+      idleLabel={`Remove ${props.display === "icon" ? playerName : "player"}`}
+      {...props}
+    />
   );
 }

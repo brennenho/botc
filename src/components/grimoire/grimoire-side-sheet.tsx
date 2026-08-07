@@ -7,7 +7,8 @@ import { RosterPanel } from "@/components/grimoire/roster-sheet";
 import { IconButton } from "@/components/ui/icon-button";
 import { Sheet } from "@/components/ui/sheet";
 import { usePersistedNightOrderState } from "@/hooks/use-persisted-night-order-state";
-import type { EditionId, Seat } from "@/lib/game-data/types";
+import type { NightReminderAction } from "@/lib/game-data/night-reminder-actions";
+import type { EditionId, GameToken, Role, Seat } from "@/lib/game-data/types";
 import { cn } from "@/lib/utils";
 
 export type GrimoirePanel = "players" | "night" | null;
@@ -17,6 +18,7 @@ export function GrimoireSideSheet({
   gameId,
   editionId,
   seats,
+  gameTokens,
   onClose,
   onSelectSeat,
   onChooseRole,
@@ -27,11 +29,13 @@ export function GrimoireSideSheet({
   onDistributeRoles,
   onClearAssignments,
   onArrangeCircle,
+  onPlaceNightReminder,
 }: {
   panel: GrimoirePanel;
   gameId: string;
   editionId: EditionId;
   seats: Seat[];
+  gameTokens: GameToken[];
   onClose: () => void;
   onSelectSeat: (seatId: string) => void;
   onChooseRole: (seatId: string) => void;
@@ -42,6 +46,7 @@ export function GrimoireSideSheet({
   onDistributeRoles: (roleIds: string[]) => void;
   onClearAssignments: () => void;
   onArrangeCircle: () => void;
+  onPlaceNightReminder: (role: Role, action: NightReminderAction) => void;
 }) {
   const [nightOrderState, setNightOrderState] =
     usePersistedNightOrderState(gameId);
@@ -54,6 +59,9 @@ export function GrimoireSideSheet({
       }}
       title={panel === "night" ? "Night order" : "Players"}
       eyebrow={panel === "night" ? "Storyteller" : undefined}
+      modal={panel !== "night"}
+      backdrop={panel !== "night"}
+      disablePointerDismissal={panel === "night"}
       className={cn(panel === "night" && "night-sheet")}
       headerActions={
         panel === "players" ? (
@@ -86,8 +94,10 @@ export function GrimoireSideSheet({
         <NightOrderPanel
           editionId={editionId}
           seats={seats}
+          gameTokens={gameTokens}
           state={nightOrderState}
           onStateChange={setNightOrderState}
+          onPlaceReminder={onPlaceNightReminder}
         />
       </div>
     </Sheet>

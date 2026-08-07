@@ -8,28 +8,36 @@ import {
   useSensors,
   type DragCancelEvent,
   type DragEndEvent,
+  type DragMoveEvent,
   type DragStartEvent,
 } from "@dnd-kit/core";
 import { useEffect, useRef, useState } from "react";
 
-import {
-  CanvasReminderToken,
-  PlayerToken,
-} from "@/components/grimoire/player-token";
+import { DraggableReminderToken } from "@/components/grimoire/draggable-reminder-token";
+import { PlayerToken } from "@/components/grimoire/player-token";
 import type { GameToken, Seat } from "@/lib/game-data/types";
 import {
   clampCanvasPosition,
   getPlayerPosition,
   getReminderPosition,
+  readReminderPlacement,
   type CanvasPosition,
+  type ReminderPlacement,
 } from "@/lib/grimoire-canvas";
-import { getTriangularReminderOffset } from "@/lib/reminder-layout";
+import {
+  findReminderSnapTarget,
+  getReminderSlotPositions,
+} from "@/lib/reminder-layout";
 
 export function GrimoireBoard({
   seats,
   gameTokens,
   selectedSeatId,
+  selectedReminderId,
+  placingReminder,
   onSelectSeat,
+  onSelectReminder,
+  onPlaceReminder,
   onClearSelection,
   onRenameSeat,
   onMovePlayer,
@@ -38,19 +46,30 @@ export function GrimoireBoard({
   seats: Seat[];
   gameTokens: GameToken[];
   selectedSeatId: string | null;
+  selectedReminderId: string | null;
+  placingReminder: boolean;
   onSelectSeat: (seatId: string) => void;
+  onSelectReminder: (tokenId: string) => void;
+  onPlaceReminder: (seatId: string) => void;
   onClearSelection: () => void;
   onRenameSeat: (seatId: string, playerName: string) => void;
   onMovePlayer: (seatId: string, position: CanvasPosition) => void;
-  onMoveReminder: (tokenId: string, position: CanvasPosition) => void;
+  onMoveReminder: (
+    tokenId: string,
+    placement: ReminderPlacement,
+    seatId?: string,
+  ) => void;
 }) {
   const tokenSize = Math.round(
     Math.max(66, Math.min(112, 1440 / (seats.length + 5))),
   );
   const reminderSize = Math.max(26, Math.min(36, tokenSize * 0.36));
+  const reminderClearance = Math.max(10, tokenSize * 0.1);
+  const reminderGap = Math.max(6, reminderSize * 0.2);
   const boardRef = useRef<HTMLDivElement>(null);
   const [boardSize, setBoardSize] = useState({ width: 1000, height: 700 });
   const [activeId, setActiveId] = useState<string | null>(null);
+  const [dragDelta, setDragDelta] = useState({ x: 0, y: 0 });
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 7 } }),
     useSensor(TouchSensor, {
@@ -80,6 +99,23 @@ export function GrimoireBoard({
   const reminders = gameTokens.filter(
     (token) => token.tokenType === "reminder",
   );
+  const anchoredRemindersBySeat = new Map<string, GameToken[]>();
+  for (const reminder of reminders) {
+    if (!reminder.seatId || readReminderPlacement(reminder).mode !== "anchored")
+      continue;
+    const existing = anchoredRemindersBySeat.get(reminder.seatId) ?? [];
+    existing.push(reminder);
+    anchoredRemindersBySeat.set(reminder.seatId, existing);
+  }
+  for (const seatReminders of anchoredRemindersBySeat.values()) {
+    seatReminders.sort((a, b) => {
+      const aPlacement = readReminderPlacement(a);
+      const bPlacement = readReminderPlacement(b);
+      const aOrder = aPlacement.mode === "anchored" ? aPlacement.order : 0;
+      const bOrder = bPlacement.mode === "anchored" ? bPlacement.order : 0;
+      return aOrder - bOrder || a.position - b.position;
+    });
+  }
   const reminderPositions = new Map<string, CanvasPosition>();
 
   for (const reminder of reminders) {
@@ -92,26 +128,142 @@ export function GrimoireBoard({
     const seat = seats.find((candidate) => candidate.id === reminder.seatId);
     const playerPosition = seat ? playerPositions.get(seat.id) : null;
     if (!seat || !playerPosition) continue;
-    const seatReminders = reminders.filter((token) => token.seatId === seat.id);
+    const seatReminders = anchoredRemindersBySeat.get(seat.id) ?? [];
     const reminderIndex = seatReminders.findIndex(
       (token) => token.id === reminder.id,
     );
-    const deltaX = ((playerPosition.x - 50) / 100) * boardSize.width;
-    const deltaY = ((playerPosition.y - 50) / 100) * boardSize.height;
-    const outwardAngle = (Math.atan2(deltaY, deltaX) * 180) / Math.PI;
-    const offset = getTriangularReminderOffset({
-      index: reminderIndex,
+    const slots = getReminderSlotPositions({
+      playerPosition,
       count: seatReminders.length,
-      outwardAngle,
+      boardSize,
       playerSize: tokenSize,
       reminderSize,
-      clearance: Math.max(6, tokenSize * 0.07),
-      gap: Math.max(6, reminderSize * 0.2),
+      clearance: reminderClearance,
+      gap: reminderGap,
     });
-    reminderPositions.set(reminder.id, {
-      x: playerPosition.x + (offset.x / boardSize.width) * 100,
-      y: playerPosition.y + (offset.y / boardSize.height) * 100,
+    const position = slots[reminderIndex];
+    if (position) reminderPositions.set(reminder.id, position);
+  }
+
+  const activeReminderId = activeId?.startsWith("reminder:")
+    ? activeId.slice("reminder:".length)
+    : null;
+  const activePlayerSeatId = activeId?.startsWith("player:")
+    ? activeId.slice("player:".length)
+    : null;
+
+  function getSnapTarget(position: CanvasPosition, tokenId: string) {
+    return findReminderSnapTarget({
+      dropPosition: position,
+      players: seats.flatMap((seat) => {
+        const playerPosition = playerPositions.get(seat.id);
+        if (!playerPosition) return [];
+        const anchoredReminderCount = (
+          anchoredRemindersBySeat.get(seat.id) ?? []
+        ).filter((reminder) => reminder.id !== tokenId).length;
+        return [
+          { seatId: seat.id, position: playerPosition, anchoredReminderCount },
+        ];
+      }),
+      boardSize,
+      playerSize: tokenSize,
+      reminderSize,
+      clearance: reminderClearance,
+      gap: reminderGap,
     });
+  }
+
+  const activeReminderPosition = activeReminderId
+    ? reminderPositions.get(activeReminderId)
+    : null;
+  const activeReminderDropPosition = activeReminderPosition
+    ? clampCanvasPosition(
+        {
+          x: activeReminderPosition.x + (dragDelta.x / boardSize.width) * 100,
+          y: activeReminderPosition.y + (dragDelta.y / boardSize.height) * 100,
+        },
+        ((reminderSize / 2 + 8) / boardSize.width) * 100,
+        ((reminderSize / 2 + 8) / boardSize.height) * 100,
+      )
+    : null;
+  const snapPreview =
+    activeReminderId && activeReminderDropPosition
+      ? getSnapTarget(activeReminderDropPosition, activeReminderId)
+      : null;
+  const displayReminderPositions = new Map(reminderPositions);
+  const reflowingReminderIds = new Set<string>();
+
+  if (activePlayerSeatId) {
+    const playerPosition = playerPositions.get(activePlayerSeatId);
+    const seatReminders =
+      anchoredRemindersBySeat.get(activePlayerSeatId) ?? [];
+
+    if (playerPosition && seatReminders.length > 0) {
+      const livePlayerPosition = {
+        x: playerPosition.x + (dragDelta.x / boardSize.width) * 100,
+        y: playerPosition.y + (dragDelta.y / boardSize.height) * 100,
+      };
+      const liveSlots = getReminderSlotPositions({
+        playerPosition: livePlayerPosition,
+        count: seatReminders.length,
+        boardSize,
+        playerSize: tokenSize,
+        reminderSize,
+        clearance: reminderClearance,
+        gap: reminderGap,
+      });
+
+      seatReminders.forEach((reminder, index) => {
+        const position = liveSlots[index];
+        if (position) displayReminderPositions.set(reminder.id, position);
+      });
+    }
+  }
+
+  if (activeReminderId && snapPreview) {
+    const activeReminder = reminders.find(
+      (reminder) => reminder.id === activeReminderId,
+    );
+    const sourceSeatId =
+      activeReminder &&
+      readReminderPlacement(activeReminder).mode === "anchored"
+        ? activeReminder.seatId
+        : null;
+    const previewSeatIds = new Set(
+      [sourceSeatId, snapPreview.seatId].filter((seatId): seatId is string =>
+        Boolean(seatId),
+      ),
+    );
+
+    for (const seatId of previewSeatIds) {
+      const playerPosition = playerPositions.get(seatId);
+      if (!playerPosition) continue;
+
+      const previewOrder = (anchoredRemindersBySeat.get(seatId) ?? [])
+        .filter((reminder) => reminder.id !== activeReminderId)
+        .map((reminder) => reminder.id);
+      if (seatId === snapPreview.seatId) {
+        previewOrder.splice(snapPreview.order, 0, "snap-preview");
+      }
+
+      const previewSlots = getReminderSlotPositions({
+        playerPosition,
+        count: previewOrder.length,
+        boardSize,
+        playerSize: tokenSize,
+        reminderSize,
+        clearance: reminderClearance,
+        gap: reminderGap,
+      });
+
+      previewOrder.forEach((reminderId, index) => {
+        if (reminderId === "snap-preview") return;
+        const position = previewSlots[index];
+        if (!position) return;
+        displayReminderPositions.set(reminderId, position);
+        reflowingReminderIds.add(reminderId);
+      });
+    }
   }
 
   function handleDragEnd(event: DragEndEvent) {
@@ -122,6 +274,7 @@ export function GrimoireBoard({
         ? playerPositions.get(tokenId ?? "")
         : reminderPositions.get(tokenId ?? "");
     setActiveId(null);
+    setDragDelta({ x: 0, y: 0 });
     if (!current || !tokenId) return;
 
     const size = kind === "player" ? tokenSize : reminderSize;
@@ -135,21 +288,39 @@ export function GrimoireBoard({
     );
 
     if (kind === "player") onMovePlayer(tokenId, position);
-    if (kind === "reminder") onMoveReminder(tokenId, position);
+    if (kind === "reminder") {
+      const snapTarget = getSnapTarget(position, tokenId);
+      if (snapTarget) {
+        onMoveReminder(
+          tokenId,
+          { mode: "anchored", order: snapTarget.order },
+          snapTarget.seatId,
+        );
+      } else {
+        onMoveReminder(tokenId, { mode: "free", canvasPosition: position });
+      }
+    }
   }
 
   function handleDragStart(event: DragStartEvent) {
     setActiveId(String(event.active.id));
+    setDragDelta({ x: 0, y: 0 });
+  }
+
+  function handleDragMove(event: DragMoveEvent) {
+    setDragDelta(event.delta);
   }
 
   function handleDragCancel(_event: DragCancelEvent) {
     setActiveId(null);
+    setDragDelta({ x: 0, y: 0 });
   }
 
   return (
     <DndContext
       sensors={sensors}
       onDragStart={handleDragStart}
+      onDragMove={handleDragMove}
       onDragEnd={handleDragEnd}
       onDragCancel={handleDragCancel}
     >
@@ -170,6 +341,10 @@ export function GrimoireBoard({
                 key={seat.id}
                 className={`canvas-player-position ${
                   activeId === `player:${seat.id}` ? "is-dragging" : ""
+                } ${
+                  placingReminder || snapPreview?.seatId === seat.id
+                    ? "is-reminder-target"
+                    : ""
                 }`}
                 style={{ left: `${position.x}%`, top: `${position.y}%` }}
               >
@@ -177,14 +352,21 @@ export function GrimoireBoard({
                   seat={seat}
                   selected={selectedSeatId === seat.id}
                   tokenSize={tokenSize}
-                  onSelect={() => onSelectSeat(seat.id)}
+                  onSelect={() =>
+                    placingReminder
+                      ? onPlaceReminder(seat.id)
+                      : onSelectSeat(seat.id)
+                  }
                   onRename={(playerName) => onRenameSeat(seat.id, playerName)}
                 />
               </div>
             );
           })}
           {reminders.map((reminder) => {
-            const position = reminderPositions.get(reminder.id);
+            const isDragging = activeId === `reminder:${reminder.id}`;
+            const position = isDragging
+              ? reminderPositions.get(reminder.id)
+              : displayReminderPositions.get(reminder.id);
             const seat = seats.find(
               (candidate) => candidate.id === reminder.seatId,
             );
@@ -194,19 +376,34 @@ export function GrimoireBoard({
               <div
                 key={reminder.id}
                 className={`canvas-reminder-position ${
-                  activeId === `reminder:${reminder.id}` ? "is-dragging" : ""
+                  isDragging ? "is-dragging" : ""
+                } ${
+                  reflowingReminderIds.has(reminder.id) ? "is-reflowing" : ""
                 }`}
                 style={{ left: `${position.x}%`, top: `${position.y}%` }}
               >
-                <CanvasReminderToken
+                <DraggableReminderToken
                   reminder={reminder}
                   playerName={seat.playerName}
                   size={reminderSize}
-                  onSelect={() => onSelectSeat(seat.id)}
+                  selected={selectedReminderId === reminder.id}
+                  onSelect={() => onSelectReminder(reminder.id)}
                 />
               </div>
             );
           })}
+          {snapPreview && activeReminderId && (
+            <div
+              className="reminder-snap-preview"
+              style={{
+                left: `${snapPreview.position.x}%`,
+                top: `${snapPreview.position.y}%`,
+                width: reminderSize,
+                height: reminderSize,
+              }}
+              aria-hidden="true"
+            />
+          )}
         </div>
       </div>
     </DndContext>

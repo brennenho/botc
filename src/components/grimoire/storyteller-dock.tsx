@@ -13,20 +13,30 @@ import {
 } from "lucide-react";
 
 import { RoleArtwork } from "@/components/grimoire/role-artwork";
-import { RemovePlayerButton } from "@/components/grimoire/remove-player-button";
-import { TokenIcon } from "@/components/grimoire/token-icon";
+import { ReminderToken } from "@/components/grimoire/reminder-token";
+import {
+  ConfirmRemoveButton,
+  RemovePlayerButton,
+} from "@/components/grimoire/remove-player-button";
 import { Button } from "@/components/ui/button";
 import { IconButton } from "@/components/ui/icon-button";
 import { SegmentedControl } from "@/components/ui/segmented-control";
 import { roleById } from "@/lib/game-data";
 import type { Alignment, GameToken, Seat } from "@/lib/game-data/types";
+import {
+  generalReminderDefinitions,
+  getReminderKey,
+  getRoleReminderDefinitions,
+  type ReminderDefinition,
+} from "@/lib/reminders";
 import { cn } from "@/lib/utils";
-
-const generalReminders = ["Poisoned", "Drunk", "Mad", "Is the Demon"];
 
 export function StorytellerDock({
   seat,
   reminders,
+  selectedReminder,
+  reminderOwner,
+  pendingReminder,
   playersOpen,
   nightOpen,
   onCloseSeat,
@@ -39,9 +49,15 @@ export function StorytellerDock({
   onAddReminder,
   onRemoveReminder,
   onRemovePlayer,
+  onRemoveSelectedReminder,
+  onCloseSelectedReminder,
+  onCancelReminderPlacement,
 }: {
   seat: Seat | null;
   reminders: GameToken[];
+  selectedReminder: GameToken | null;
+  reminderOwner: Seat | null;
+  pendingReminder: ReminderDefinition | null;
   playersOpen: boolean;
   nightOpen: boolean;
   onCloseSeat: () => void;
@@ -51,9 +67,12 @@ export function StorytellerDock({
   onSetAlive: (alive: boolean) => void;
   onSetAlignment: (alignment: Alignment) => void;
   onSetGhostVote: (available: boolean) => void;
-  onAddReminder: (label: string, roleId: string | null) => void;
+  onAddReminder: (definition: ReminderDefinition) => void;
   onRemoveReminder: (tokenId: string) => void;
   onRemovePlayer: () => void;
+  onRemoveSelectedReminder: () => void;
+  onCloseSelectedReminder: () => void;
+  onCancelReminderPlacement: () => void;
 }) {
   const [remindersOpen, setRemindersOpen] = useState(false);
   const [detailsOpen, setDetailsOpen] = useState(false);
@@ -89,9 +108,92 @@ export function StorytellerDock({
     </nav>
   );
 
+  if (pendingReminder) {
+    return (
+      <>
+        {panelTabs}
+        <section
+          className={cn(
+            "storyteller-context-drawer reminder-placement-dock",
+            nightOpen && "is-sheet-adjacent",
+          )}
+          aria-label={`Place ${pendingReminder.label}`}
+        >
+          <div className="storyteller-dock player-dock" role="toolbar">
+            <ReminderToken
+              label={pendingReminder.label}
+              roleId={pendingReminder.roleId}
+              size="tray"
+            />
+            <div className="player-inspector-identity">
+              <strong>Place {pendingReminder.label}</strong>
+              <span>{pendingReminder.sourceName}</span>
+            </div>
+            <Button
+              size="sm"
+              variant="quiet"
+              onClick={onCancelReminderPlacement}
+            >
+              Cancel
+            </Button>
+          </div>
+        </section>
+      </>
+    );
+  }
+
+  if (selectedReminder) {
+    const selectedRole = selectedReminder.roleId
+      ? roleById.get(selectedReminder.roleId)
+      : null;
+    return (
+      <>
+        {panelTabs}
+        <section
+          className="storyteller-context-drawer reminder-inspector-dock"
+          aria-label={`${selectedReminder.label} reminder controls`}
+        >
+          <div className="storyteller-dock player-dock" role="toolbar">
+            <ReminderToken
+              label={selectedReminder.label}
+              roleId={selectedReminder.roleId}
+              size="tray"
+              selected
+            />
+            <div className="player-inspector-identity">
+              <strong>{selectedReminder.label}</strong>
+              <span>
+                {selectedRole?.name ?? "General"}
+                {reminderOwner ? ` · ${reminderOwner.playerName}` : ""}
+              </span>
+            </div>
+            <ConfirmRemoveButton
+              itemLabel={`${selectedReminder.label} reminder`}
+              idleLabel="Remove reminder"
+              onRemove={onRemoveSelectedReminder}
+            />
+            <IconButton
+              label="Close reminder controls"
+              variant="quiet"
+              tooltip={false}
+              onClick={onCloseSelectedReminder}
+            >
+              <X className="size-4" />
+            </IconButton>
+          </div>
+        </section>
+      </>
+    );
+  }
+
   if (!seat) return panelTabs;
 
-  const reminderChoices = [...(role?.reminders ?? []), ...generalReminders];
+  const roleReminderDefinitions = getRoleReminderDefinitions(role ?? null);
+  const placedCounts = reminders.reduce((counts, reminder) => {
+    const key = getReminderKey(reminder);
+    counts.set(key, (counts.get(key) ?? 0) + 1);
+    return counts;
+  }, new Map<string, number>());
 
   return (
     <>
@@ -126,44 +228,46 @@ export function StorytellerDock({
               </IconButton>
             </header>
             {reminders.length > 0 && (
-              <div className="active-token-strip" aria-label="Active reminders">
+              <div
+                className="active-reminder-list"
+                aria-label={`Reminders on ${seat.playerName}`}
+              >
                 {reminders.map((reminder) => (
-                  <button
-                    key={reminder.id}
-                    type="button"
-                    onClick={() => onRemoveReminder(reminder.id)}
-                  >
+                  <div key={reminder.id} className="active-reminder-item">
+                    <ReminderToken
+                      label={reminder.label}
+                      roleId={reminder.roleId}
+                      size="inline"
+                    />
                     <span>{reminder.label}</span>
-                    <X className="size-3.5" />
-                  </button>
+                    <IconButton
+                      label={`Remove ${reminder.label}`}
+                      size="sm"
+                      variant="quiet"
+                      tooltipSide="top"
+                      onClick={() => onRemoveReminder(reminder.id)}
+                    >
+                      <X className="size-3" />
+                    </IconButton>
+                  </div>
                 ))}
               </div>
             )}
-            <div className="reminder-choice-grid">
-              {reminderChoices.map((label, index) => {
-                const isRoleReminder = index < (role?.reminders.length ?? 0);
-                return (
-                  <button
-                    key={`${label}-${index}`}
-                    type="button"
-                    onClick={() =>
-                      onAddReminder(
-                        label,
-                        isRoleReminder ? (role?.id ?? null) : null,
-                      )
-                    }
-                  >
-                    <TokenIcon
-                      role={isRoleReminder ? role : null}
-                      size="md"
-                      appearance="parchment"
-                    >
-                      <CircleDot />
-                    </TokenIcon>
-                    <span>{label}</span>
-                  </button>
-                );
-              })}
+            <div className="reminder-choice-sections">
+              {roleReminderDefinitions.length > 0 && (
+                <ReminderChoiceSection
+                  label={role?.name ?? "Character"}
+                  definitions={roleReminderDefinitions}
+                  placedCounts={placedCounts}
+                  onAddReminder={onAddReminder}
+                />
+              )}
+              <ReminderChoiceSection
+                label="General"
+                definitions={generalReminderDefinitions}
+                placedCounts={placedCounts}
+                onAddReminder={onAddReminder}
+              />
             </div>
           </div>
         )}
@@ -262,6 +366,49 @@ export function StorytellerDock({
         </div>
       </section>
     </>
+  );
+}
+
+function ReminderChoiceSection({
+  label,
+  definitions,
+  placedCounts,
+  onAddReminder,
+}: {
+  label: string;
+  definitions: ReminderDefinition[];
+  placedCounts: Map<string, number>;
+  onAddReminder: (definition: ReminderDefinition) => void;
+}) {
+  return (
+    <section className="reminder-choice-section">
+      <span className="utility-label">{label}</span>
+      <div className="reminder-choice-grid">
+        {definitions.map((definition) => {
+          const placed = placedCounts.get(definition.key) ?? 0;
+          return (
+            <button
+              key={definition.key}
+              type="button"
+              onClick={() => onAddReminder(definition)}
+            >
+              <ReminderToken
+                label={definition.label}
+                roleId={definition.roleId}
+                size="tray"
+                count={
+                  Number.isFinite(definition.copies)
+                    ? definition.copies
+                    : undefined
+                }
+              />
+              <span>{definition.label}</span>
+              {placed > 0 && <small>{placed} placed</small>}
+            </button>
+          );
+        })}
+      </div>
+    </section>
   );
 }
 

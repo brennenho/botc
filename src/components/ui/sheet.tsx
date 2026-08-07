@@ -13,6 +13,9 @@ type SheetProps = {
   title: string;
   eyebrow?: string;
   headerActions?: React.ReactNode;
+  modal?: boolean;
+  backdrop?: boolean;
+  disablePointerDismissal?: boolean;
   className?: string;
   children: React.ReactNode;
 };
@@ -23,15 +26,23 @@ export function Sheet({
   title,
   eyebrow,
   headerActions,
+  modal = true,
+  backdrop = true,
+  disablePointerDismissal = false,
   className,
   children,
 }: SheetProps) {
   const titleRef = React.useRef<HTMLHeadingElement>(null);
 
   return (
-    <Dialog.Root open={open} onOpenChange={onOpenChange}>
+    <Dialog.Root
+      open={open}
+      onOpenChange={onOpenChange}
+      modal={modal}
+      disablePointerDismissal={disablePointerDismissal}
+    >
       <Dialog.Portal>
-        <Dialog.Backdrop className="sheet-scrim" />
+        {backdrop && <Dialog.Backdrop className="sheet-scrim" />}
         <Dialog.Viewport className="sheet-viewport">
           <Dialog.Popup
             className={cn("side-sheet", className)}

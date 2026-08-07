@@ -2,17 +2,12 @@
 
 import { useDraggable } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
-import { CircleDot, Skull, Vote } from "lucide-react";
+import { Skull, Vote } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
 import { RoleArtwork } from "@/components/grimoire/role-artwork";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { roleById } from "@/lib/game-data";
-import type { GameToken, Seat } from "@/lib/game-data/types";
+import type { Seat } from "@/lib/game-data/types";
 import { cn } from "@/lib/utils";
 
 export function PlayerToken({
@@ -141,51 +136,5 @@ export function PlayerToken({
         {role && <small>{role.name}</small>}
       </div>
     </div>
-  );
-}
-
-export function CanvasReminderToken({
-  reminder,
-  playerName,
-  size,
-  onSelect,
-}: {
-  reminder: GameToken;
-  playerName: string;
-  size: number;
-  onSelect: () => void;
-}) {
-  const reminderRole = reminder.roleId ? roleById.get(reminder.roleId) : null;
-  const { attributes, listeners, setNodeRef, transform, isDragging } =
-    useDraggable({
-      id: `reminder:${reminder.id}`,
-    });
-
-  return (
-    <Tooltip>
-      <TooltipTrigger
-        ref={setNodeRef}
-        className={cn("reminder-orbit-token", isDragging && "is-dragging")}
-        style={{
-          width: size,
-          height: size,
-          transform: CSS.Translate.toString(transform),
-        }}
-        aria-label={`${reminder.label} reminder on ${playerName}`}
-        onClick={(event) => {
-          event.stopPropagation();
-          onSelect();
-        }}
-        {...listeners}
-        {...attributes}
-      >
-        {reminderRole ? (
-          <RoleArtwork role={reminderRole} size="tiny" />
-        ) : (
-          <CircleDot className="reminder-generic-icon" aria-hidden="true" />
-        )}
-      </TooltipTrigger>
-      <TooltipContent>{reminder.label}</TooltipContent>
-    </Tooltip>
   );
 }

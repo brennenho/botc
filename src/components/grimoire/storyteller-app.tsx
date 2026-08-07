@@ -23,9 +23,17 @@ import type { GameToken, Seat } from "@/lib/game-data/types";
 import {
   isPlayerPositionToken,
   PLAYER_POSITION_KIND,
-  withoutCanvasPosition,
+  withReminderPlacement,
   type CanvasPosition,
+  type ReminderPlacement,
 } from "@/lib/grimoire-canvas";
+import {
+  getAnchoredReminders,
+  getReminderDefinition,
+  updateReminderPlacement,
+  withReminderKey,
+  type ReminderDefinition,
+} from "@/lib/reminders";
 
 type PickerTarget =
   | { type: "seat"; seatId: string }
@@ -37,6 +45,11 @@ export function StorytellerApp({ gameId }: { gameId: string }) {
     useStorytellerGame(gameId);
   const [openPanel, setOpenPanel] = useState<GrimoirePanel>(null);
   const [selectedSeatId, setSelectedSeatId] = useState<string | null>(null);
+  const [selectedReminderId, setSelectedReminderId] = useState<string | null>(
+    null,
+  );
+  const [pendingReminder, setPendingReminder] =
+    useState<ReminderDefinition | null>(null);
   const [pickerTarget, setPickerTarget] = useState<PickerTarget>(null);
 
   const selectedSeat = useMemo(
@@ -57,6 +70,14 @@ export function StorytellerApp({ gameId }: { gameId: string }) {
         .filter((token) => token.tokenType === "bluff")
         .sort((a, b) => a.position - b.position) ?? [],
     [snapshot?.gameTokens],
+  );
+  const selectedReminder = useMemo(
+    () =>
+      snapshot?.gameTokens.find(
+        (token) =>
+          token.tokenType === "reminder" && token.id === selectedReminderId,
+      ) ?? null,
+    [selectedReminderId, snapshot?.gameTokens],
   );
 
   if (loading) return <GrimoireLoading />;
@@ -195,17 +216,21 @@ export function StorytellerApp({ gameId }: { gameId: string }) {
     setSelectedSeatId(null);
   }
 
-  function addReminder(seatId: string, label: string, roleId: string | null) {
+  function addReminder(seatId: string, definition: ReminderDefinition) {
     commit((current) => {
+      const order = getAnchoredReminders(current.gameTokens, seatId).length;
       const reminder: GameToken = {
         id: crypto.randomUUID(),
         gameId,
         seatId,
         tokenType: "reminder",
-        roleId,
-        label,
+        roleId: definition.roleId,
+        label: definition.label,
         position: current.gameTokens.length,
-        metadata: {},
+        metadata: withReminderPlacement(withReminderKey({}, definition.key), {
+          mode: "anchored",
+          order,
+        }),
       };
       return { gameTokens: [...current.gameTokens, reminder] };
     });
@@ -239,29 +264,41 @@ export function StorytellerApp({ gameId }: { gameId: string }) {
     });
   }
 
-  function moveReminder(tokenId: string, position: CanvasPosition) {
+  function moveReminder(
+    tokenId: string,
+    placement: ReminderPlacement,
+    seatId?: string,
+  ) {
     commit((current) => ({
-      gameTokens: current.gameTokens.map((token) =>
-        token.id === tokenId
-          ? {
-              ...token,
-              metadata: { ...token.metadata, canvasPosition: position },
-            }
-          : token,
+      gameTokens: updateReminderPlacement(
+        current.gameTokens,
+        tokenId,
+        placement,
+        seatId,
       ),
     }));
   }
 
   function arrangeInCircle() {
-    commit((current) => ({
-      gameTokens: current.gameTokens
-        .filter((token) => !isPlayerPositionToken(token))
-        .map((token) =>
-          token.tokenType === "reminder"
-            ? { ...token, metadata: withoutCanvasPosition(token.metadata) }
-            : token,
-        ),
-    }));
+    commit((current) => {
+      const reminderOrders = new Map<string, number>();
+      return {
+        gameTokens: current.gameTokens
+          .filter((token) => !isPlayerPositionToken(token))
+          .map((token) => {
+            if (token.tokenType !== "reminder" || !token.seatId) return token;
+            const order = reminderOrders.get(token.seatId) ?? 0;
+            reminderOrders.set(token.seatId, order + 1);
+            return {
+              ...token,
+              metadata: withReminderPlacement(token.metadata, {
+                mode: "anchored",
+                order,
+              }),
+            };
+          }),
+      };
+    });
   }
 
   return (
@@ -277,11 +314,29 @@ export function StorytellerApp({ gameId }: { gameId: string }) {
           seats={snapshot.seats}
           gameTokens={snapshot.gameTokens}
           selectedSeatId={selectedSeatId}
+          selectedReminderId={selectedReminderId}
+          placingReminder={pendingReminder !== null}
           onSelectSeat={(seatId) => {
             setOpenPanel(null);
+            setSelectedReminderId(null);
             setSelectedSeatId(seatId);
           }}
-          onClearSelection={() => setSelectedSeatId(null)}
+          onSelectReminder={(tokenId) => {
+            setOpenPanel(null);
+            setSelectedSeatId(null);
+            setPendingReminder(null);
+            setSelectedReminderId(tokenId);
+          }}
+          onPlaceReminder={(seatId) => {
+            if (!pendingReminder) return;
+            addReminder(seatId, pendingReminder);
+            setPendingReminder(null);
+          }}
+          onClearSelection={() => {
+            setSelectedSeatId(null);
+            setSelectedReminderId(null);
+            setPendingReminder(null);
+          }}
           onRenameSeat={(seatId, playerName) =>
             updateSeat(seatId, { playerName })
           }
@@ -297,15 +352,28 @@ export function StorytellerApp({ gameId }: { gameId: string }) {
       <StorytellerDock
         seat={openPanel === null ? selectedSeat : null}
         reminders={selectedReminders}
+        selectedReminder={openPanel === null ? selectedReminder : null}
+        reminderOwner={
+          selectedReminder?.seatId
+            ? (snapshot.seats.find(
+                (seat) => seat.id === selectedReminder.seatId,
+              ) ?? null)
+            : null
+        }
+        pendingReminder={pendingReminder}
         playersOpen={openPanel === "players"}
         nightOpen={openPanel === "night"}
         onCloseSeat={() => setSelectedSeatId(null)}
         onOpenPlayers={() => {
           setSelectedSeatId(null);
+          setSelectedReminderId(null);
+          setPendingReminder(null);
           setOpenPanel((current) => (current === "players" ? null : "players"));
         }}
         onOpenNight={() => {
           setSelectedSeatId(null);
+          setSelectedReminderId(null);
+          setPendingReminder(null);
           setOpenPanel((current) => (current === "night" ? null : "night"));
         }}
         onChooseRole={() =>
@@ -325,8 +393,8 @@ export function StorytellerApp({ gameId }: { gameId: string }) {
         onSetGhostVote={(ghostVoteAvailable) =>
           selectedSeat && updateSeat(selectedSeat.id, { ghostVoteAvailable })
         }
-        onAddReminder={(label, roleId) =>
-          selectedSeat && addReminder(selectedSeat.id, label, roleId)
+        onAddReminder={(definition) =>
+          selectedSeat && addReminder(selectedSeat.id, definition)
         }
         onRemoveReminder={(tokenId) =>
           commit((current) => ({
@@ -336,6 +404,17 @@ export function StorytellerApp({ gameId }: { gameId: string }) {
           }))
         }
         onRemovePlayer={() => selectedSeat && removePlayer(selectedSeat.id)}
+        onRemoveSelectedReminder={() => {
+          if (!selectedReminder) return;
+          commit((current) => ({
+            gameTokens: current.gameTokens.filter(
+              (token) => token.id !== selectedReminder.id,
+            ),
+          }));
+          setSelectedReminderId(null);
+        }}
+        onCloseSelectedReminder={() => setSelectedReminderId(null)}
+        onCancelReminderPlacement={() => setPendingReminder(null)}
       />
 
       <GrimoireSideSheet
@@ -353,6 +432,10 @@ export function StorytellerApp({ gameId }: { gameId: string }) {
         onDistributeRoles={distributeRoles}
         onClearAssignments={clearAssignments}
         onArrangeCircle={arrangeInCircle}
+        gameTokens={snapshot.gameTokens}
+        onPlaceNightReminder={(role, action) => {
+          setPendingReminder(getReminderDefinition(role, action.label));
+        }}
       />
       <RolePicker
         open={pickerTarget !== null}
