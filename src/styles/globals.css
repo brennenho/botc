@@ -2785,22 +2785,6 @@
 }
 
 .toolbar-brand,
-.join-code-control,
-.board-bluff-rack,
-.board-setup-warning {
-  border: 1px solid var(--grimoire-hardware-border);
-  color: var(--grimoire-hardware-text);
-  background-color: var(--grimoire-hardware-surface);
-  background-image: linear-gradient(
-    rgb(255 251 237 / 10%),
-    rgb(198 175 126 / 8%)
-  );
-  box-shadow: var(--grimoire-hardware-shadow);
-  backdrop-filter: blur(8px) saturate(0.82);
-  -webkit-backdrop-filter: blur(8px) saturate(0.82);
-}
-
-.toolbar-brand,
 .join-code-control {
   position: absolute;
   top: 28px;
@@ -4030,14 +4014,26 @@
 }
 
 .reminder-placement-dock {
+  bottom: max(30px, env(safe-area-inset-bottom));
   width: min(310px, calc(100vw - 36px));
-  border-color: transparent;
   border-radius: var(--grimoire-hardware-radius);
+}
+
+.toolbar-brand,
+.join-code-control,
+.board-bluff-rack,
+.board-setup-warning,
+.reminder-placement-dock {
+  border: 1px solid var(--grimoire-hardware-border);
   color: var(--grimoire-hardware-text);
-  background: rgb(249 243 226 / 26%);
-  box-shadow: 0 2px 7px rgb(55 36 17 / 8%);
-  backdrop-filter: blur(7px) saturate(0.72);
-  -webkit-backdrop-filter: blur(7px) saturate(0.72);
+  background-color: var(--grimoire-hardware-surface);
+  background-image: linear-gradient(
+    rgb(255 251 237 / 10%),
+    rgb(198 175 126 / 8%)
+  );
+  box-shadow: var(--grimoire-hardware-shadow);
+  backdrop-filter: blur(8px) saturate(0.82);
+  -webkit-backdrop-filter: blur(8px) saturate(0.82);
 }
 
 .reminder-placement-dock.is-sheet-adjacent {
