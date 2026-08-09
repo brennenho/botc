@@ -18,7 +18,8 @@ export function CharacterSelectionDialog({
   usedRoleIds = [],
   bluffRoleIds = [],
   selectionLimit,
-  defaultTeamCounts,
+  expandableRoleIds,
+  targetTeamCounts,
   footer,
   onOpenChange,
   onSelect,
@@ -32,7 +33,8 @@ export function CharacterSelectionDialog({
   usedRoleIds?: string[];
   bluffRoleIds?: string[];
   selectionLimit?: number;
-  defaultTeamCounts?: TeamCounts;
+  expandableRoleIds?: string[];
+  targetTeamCounts?: TeamCounts;
   footer?: ReactNode;
   onOpenChange: (open: boolean) => void;
   onSelect: (roleId: string) => void;
@@ -65,7 +67,8 @@ export function CharacterSelectionDialog({
                 bluffRoleIds={bluffRoleIds}
                 selectionMode={selectionMode}
                 selectionLimit={selectionLimit}
-                defaultTeamCounts={defaultTeamCounts}
+                expandableRoleIds={expandableRoleIds}
+                targetTeamCounts={targetTeamCounts}
                 onSelect={onSelect}
               />
             </div>

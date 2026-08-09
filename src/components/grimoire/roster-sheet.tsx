@@ -10,12 +10,13 @@ import { Button } from "@/components/ui/button";
 import { IconButton } from "@/components/ui/icon-button";
 import { Input } from "@/components/ui/input";
 import { getSetupAssessment, roleById } from "@/lib/game-data";
-import type { EditionId, Seat } from "@/lib/game-data/types";
+import type { EditionId, GameToken, Seat } from "@/lib/game-data/types";
 import { cn } from "@/lib/utils";
 
 export function RosterPanel({
   editionId,
   seats,
+  gameTokens,
   onClose,
   onSelectSeat,
   onChooseRole,
@@ -28,6 +29,7 @@ export function RosterPanel({
 }: {
   editionId: EditionId;
   seats: Seat[];
+  gameTokens: GameToken[];
   onClose: () => void;
   onSelectSeat: (seatId: string) => void;
   onChooseRole: (seatId: string) => void;
@@ -39,7 +41,7 @@ export function RosterPanel({
   onClearAssignments: () => void;
 }) {
   const [distributionOpen, setDistributionOpen] = useState(false);
-  const assessment = getSetupAssessment(seats);
+  const assessment = getSetupAssessment(seats, gameTokens);
 
   const defaultSetup = assessment.expected
     ? (["townsfolk", "outsider", "minion", "demon"] as const)

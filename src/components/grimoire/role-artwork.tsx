@@ -8,12 +8,16 @@ export function RoleArtwork({
   size = "full",
   showName = size !== "tiny",
   presentation = "icon",
+  priority = false,
+  imageSizes = "120px",
   className,
 }: {
   role: Role;
   size?: "full" | "compact" | "tiny";
   showName?: boolean;
   presentation?: "icon" | "token";
+  priority?: boolean;
+  imageSizes?: string;
   className?: string;
 }) {
   return (
@@ -31,7 +35,8 @@ export function RoleArtwork({
           src={role.imagePath}
           alt=""
           fill
-          sizes="120px"
+          sizes={imageSizes}
+          priority={priority}
           draggable={false}
         />
       </span>

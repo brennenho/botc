@@ -5,21 +5,24 @@ import { CSS } from "@dnd-kit/utilities";
 import { Vote } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
-import { RoleArtwork } from "@/components/grimoire/role-artwork";
+import { CharacterToken } from "@/components/grimoire/character-token";
 import { roleById } from "@/lib/game-data";
 import type { Seat } from "@/lib/game-data/types";
+import type { ReminderLabelSide } from "@/lib/reminder-layout";
 import { cn } from "@/lib/utils";
 
 export function PlayerToken({
   seat,
   selected,
   tokenSize,
+  labelSide,
   onSelect,
   onRename,
 }: {
   seat: Seat;
   selected: boolean;
   tokenSize: number;
+  labelSide: ReminderLabelSide;
   onSelect: () => void;
   onRename: (playerName: string) => void;
 }) {
@@ -55,6 +58,7 @@ export function PlayerToken({
       className={cn(
         "player-token-cluster",
         role && `team-${role.team}`,
+        `player-name-${labelSide}`,
         isDragging && "is-dragging",
       )}
       style={{
@@ -84,7 +88,7 @@ export function PlayerToken({
         {...attributes}
       >
         {role ? (
-          <RoleArtwork role={role} showName={false} />
+          <CharacterToken role={role} size="fill" appearance="bare" />
         ) : (
           <span className="empty-role-token">
             <span className="empty-role-plus">+</span>

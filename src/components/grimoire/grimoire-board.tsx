@@ -16,7 +16,12 @@ import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { DraggableReminderToken } from "@/components/grimoire/draggable-reminder-token";
 import { PlayerContextMenu } from "@/components/grimoire/player-context-menu";
 import { PlayerToken } from "@/components/grimoire/player-token";
-import type { Alignment, GameToken, Seat } from "@/lib/game-data/types";
+import type {
+  Alignment,
+  EditionId,
+  GameToken,
+  Seat,
+} from "@/lib/game-data/types";
 import {
   clampCanvasPosition,
   getPlayerPosition,
@@ -27,12 +32,15 @@ import {
 } from "@/lib/grimoire-canvas";
 import {
   findReminderSnapTarget,
+  getPlayerLabelSide,
   getReminderSlotPositions,
+  type ReminderLabelSide,
 } from "@/lib/reminder-layout";
 import type { ReminderDefinition } from "@/lib/reminders";
 import { getPlayerMenuPlacement } from "@/lib/player-menu-layout";
 
 export function GrimoireBoard({
+  editionId,
   seats,
   gameTokens,
   selectedSeatId,
@@ -53,6 +61,7 @@ export function GrimoireBoard({
   onMovePlayer,
   onMoveReminder,
 }: {
+  editionId: EditionId;
   seats: Seat[];
   gameTokens: GameToken[];
   selectedSeatId: string | null;
@@ -80,9 +89,9 @@ export function GrimoireBoard({
   const tokenSize = Math.round(
     Math.max(66, Math.min(112, 1440 / (seats.length + 5))),
   );
-  const reminderSize = Math.max(26, Math.min(36, tokenSize * 0.36));
+  const reminderSize = Math.max(60, Math.min(72, tokenSize * 0.64));
   const reminderClearance = Math.max(10, tokenSize * 0.1);
-  const reminderGap = Math.max(6, reminderSize * 0.2);
+  const reminderGap = Math.max(6, reminderSize * 0.1);
   const boardRef = useRef<HTMLDivElement>(null);
   const [boardSize, setBoardSize] = useState({ width: 1000, height: 700 });
   const [activeId, setActiveId] = useState<string | null>(null);
@@ -113,7 +122,40 @@ export function GrimoireBoard({
       getPlayerPosition(gameTokens, seat.id, index, seats.length),
     ]),
   );
+  const activeReminderId = activeId?.startsWith("reminder:")
+    ? activeId.slice("reminder:".length)
+    : null;
+  const activePlayerSeatId = activeId?.startsWith("player:")
+    ? activeId.slice("player:".length)
+    : null;
+  const displayPlayerPositions = new Map(playerPositions);
+
+  if (activePlayerSeatId) {
+    const playerPosition = playerPositions.get(activePlayerSeatId);
+    if (playerPosition) {
+      displayPlayerPositions.set(activePlayerSeatId, {
+        x: playerPosition.x + (dragDelta.x / boardSize.width) * 100,
+        y: playerPosition.y + (dragDelta.y / boardSize.height) * 100,
+      });
+    }
+  }
+
   const selectedSeat = seats.find((seat) => seat.id === selectedSeatId) ?? null;
+  const playerLabelSides = new Map(
+    seats.flatMap((seat): [string, ReminderLabelSide][] => {
+      const playerPosition = displayPlayerPositions.get(seat.id);
+      return playerPosition
+        ? [
+            [
+              seat.id,
+              getPlayerLabelSide({
+                playerPosition,
+              }),
+            ],
+          ]
+        : [];
+    }),
+  );
   const reminders = gameTokens.filter(
     (token) => token.tokenType === "reminder",
   );
@@ -162,13 +204,6 @@ export function GrimoireBoard({
     const position = slots[reminderIndex];
     if (position) reminderPositions.set(reminder.id, position);
   }
-
-  const activeReminderId = activeId?.startsWith("reminder:")
-    ? activeId.slice("reminder:".length)
-    : null;
-  const activePlayerSeatId = activeId?.startsWith("player:")
-    ? activeId.slice("player:".length)
-    : null;
 
   function getSnapTarget(position: CanvasPosition, tokenId: string) {
     return findReminderSnapTarget({
@@ -223,16 +258,12 @@ export function GrimoireBoard({
       : null;
 
   if (activePlayerSeatId) {
-    const playerPosition = playerPositions.get(activePlayerSeatId);
+    const playerPosition = displayPlayerPositions.get(activePlayerSeatId);
     const seatReminders = anchoredRemindersBySeat.get(activePlayerSeatId) ?? [];
 
     if (playerPosition && seatReminders.length > 0) {
-      const livePlayerPosition = {
-        x: playerPosition.x + (dragDelta.x / boardSize.width) * 100,
-        y: playerPosition.y + (dragDelta.y / boardSize.height) * 100,
-      };
       const liveSlots = getReminderSlotPositions({
-        playerPosition: livePlayerPosition,
+        playerPosition,
         count: seatReminders.length,
         boardSize,
         playerSize: tokenSize,
@@ -306,13 +337,15 @@ export function GrimoireBoard({
     if (!current || !tokenId) return;
 
     const size = kind === "player" ? tokenSize : reminderSize;
+    const verticalClearance =
+      kind === "player" ? tokenSize / 2 + 48 : size / 2 + 8;
     const position = clampCanvasPosition(
       {
         x: current.x + (event.delta.x / boardSize.width) * 100,
         y: current.y + (event.delta.y / boardSize.height) * 100,
       },
       ((size / 2 + 8) / boardSize.width) * 100,
-      ((size / 2 + 8) / boardSize.height) * 100,
+      (verticalClearance / boardSize.height) * 100,
     );
 
     if (kind === "player") onMovePlayer(tokenId, position);
@@ -382,6 +415,7 @@ export function GrimoireBoard({
                   seat={seat}
                   selected={selectedSeatId === seat.id}
                   tokenSize={tokenSize}
+                  labelSide={playerLabelSides.get(seat.id) ?? "bottom"}
                   onSelect={() =>
                     placingReminder
                       ? onPlaceReminder(seat.id)
@@ -436,10 +470,10 @@ export function GrimoireBoard({
           )}
           {selectedSeat && playerMenu && (
             <PlayerContextMenu
+              editionId={editionId}
               seat={selectedSeat}
-              reminders={reminders.filter(
-                (reminder) => reminder.seatId === selectedSeat.id,
-              )}
+              seats={seats}
+              gameTokens={gameTokens}
               side={playerMenu.side}
               style={
                 {

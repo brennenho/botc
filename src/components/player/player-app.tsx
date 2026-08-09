@@ -1,8 +1,8 @@
 "use client";
 
-import Image from "next/image";
 import { CircleSlash2, Skull, Vote } from "lucide-react";
 
+import { CharacterToken } from "@/components/grimoire/character-token";
 import { usePlayerGame } from "@/hooks/use-player-game";
 import { getEdition, roleById, teamLabel } from "@/lib/game-data";
 
@@ -51,18 +51,15 @@ export function PlayerApp({
         <section className="flex flex-1 flex-col items-center justify-center py-10 text-center">
           {role ? (
             <>
-              <div className={`player-role-token team-${role.team}`}>
-                <div className="role-art-crop">
-                  <Image
-                    src={role.imagePath}
-                    alt=""
-                    fill
-                    sizes="220px"
-                    priority
-                  />
-                </div>
-                <span className="role-token-name">{role.name}</span>
-              </div>
+              <CharacterToken
+                role={role}
+                size="fill"
+                appearance="bare"
+                presentation="token"
+                showName
+                priority
+                className="player-role-token"
+              />
               <p className="mt-7 text-xs font-bold text-black/45 uppercase">
                 {teamLabel(role.team)} · {snapshot.seat.alignment}
               </p>

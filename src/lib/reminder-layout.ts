@@ -26,6 +26,16 @@ export type ReminderSnapTarget = {
   position: CanvasPosition;
 };
 
+export type ReminderLabelSide = "top" | "right" | "bottom" | "left";
+
+export function getPlayerLabelSide({
+  playerPosition,
+}: {
+  playerPosition: CanvasPosition;
+}): ReminderLabelSide {
+  return playerPosition.y < 50 ? "top" : "bottom";
+}
+
 export function getCircularReminderOffset({
   index,
   count,
@@ -37,7 +47,7 @@ export function getCircularReminderOffset({
 }: CircularReminderLayoutOptions) {
   const baseRadius = playerSize / 2 + clearance + reminderSize / 2;
   const ringStride = reminderSize + gap;
-  const maxArc = Math.PI * 0.92;
+  const maxArc = Math.PI * 0.58;
   const rings: { count: number; radius: number }[] = [];
   let remaining = Math.max(1, count);
 
@@ -74,7 +84,9 @@ export function getCircularReminderOffset({
   const arcSpan = Math.min(maxArc, minimumStep * (ring.count - 1));
   const inwardAngle = ((outwardAngle + 180) * Math.PI) / 180;
   const angle =
-    inwardAngle - arcSpan / 2 + (ring.count > 1 ? indexInRing * minimumStep : 0);
+    inwardAngle -
+    arcSpan / 2 +
+    (ring.count > 1 ? indexInRing * minimumStep : 0);
 
   return {
     x: Math.cos(angle) * ring.radius,

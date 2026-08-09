@@ -9,12 +9,14 @@ import {
 import { getNightReminderPlan } from "@/lib/game-data/night-reminder-actions";
 import type { GameToken } from "@/lib/game-data/types";
 import {
+  getDefaultPlayerPosition,
   getReminderPosition,
   readReminderPlacement,
   withReminderPlacement,
 } from "@/lib/grimoire-canvas";
 import {
   findReminderSnapTarget,
+  getPlayerLabelSide,
   getReminderSlotPositions,
 } from "@/lib/reminder-layout";
 import { getAnchoredReminders, updateReminderPlacement } from "@/lib/reminders";
@@ -23,9 +25,9 @@ const boardSize = { width: 1200, height: 800 };
 const layoutOptions = {
   boardSize,
   playerSize: 100,
-  reminderSize: 34,
-  clearance: 7,
-  gap: 7,
+  reminderSize: 68,
+  clearance: 10,
+  gap: 8,
 };
 
 function reminder(id: string, seatId: string, order: number): GameToken {
@@ -42,7 +44,41 @@ function reminder(id: string, seatId: string, order: number): GameToken {
 }
 
 describe("reminder layout", () => {
-  it("curves reminders inward on a compact arc without overlapping", () => {
+  it("keeps the top and bottom seats clear of outward-facing labels", () => {
+    const positions = Array.from({ length: 8 }, (_, index) =>
+      getDefaultPlayerPosition(index, 8),
+    );
+
+    expect(Math.min(...positions.map(({ y }) => y))).toBeGreaterThanOrEqual(15);
+    expect(Math.max(...positions.map(({ y }) => y))).toBeLessThanOrEqual(79);
+  });
+
+  it("centers reminders below a top seat toward the grimoire center", () => {
+    const [slot] = getReminderSlotPositions({
+      playerPosition: { x: 50, y: 12 },
+      count: 1,
+      ...layoutOptions,
+    });
+
+    expect(slot).toBeDefined();
+    expect(slot?.x).toBeCloseTo(50);
+    expect(slot?.y).toBeGreaterThan(12);
+  });
+
+  it("places the player identity opposite the inward reminder arc", () => {
+    expect(
+      getPlayerLabelSide({
+        playerPosition: { x: 50, y: 12 },
+      }),
+    ).toBe("top");
+    expect(
+      getPlayerLabelSide({
+        playerPosition: { x: 88, y: 50 },
+      }),
+    ).toBe("bottom");
+  });
+
+  it("curves reminders inward on compact rings without overlapping", () => {
     const playerPosition = { x: 88, y: 50 };
     const slots = getReminderSlotPositions({
       playerPosition,
@@ -61,7 +97,10 @@ describe("reminder layout", () => {
         ((slot.y - playerPosition.y) / 100) * boardSize.height,
       ),
     );
-    expect(Math.max(...radii) - Math.min(...radii)).toBeLessThan(0.001);
+    expect(new Set(radii.map(Math.round)).size).toBe(2);
+    expect(Math.max(...radii) - Math.min(...radii)).toBeCloseTo(
+      layoutOptions.reminderSize + layoutOptions.gap,
+    );
 
     for (const slot of slots) {
       const slotDistance = Math.hypot(

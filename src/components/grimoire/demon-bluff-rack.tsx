@@ -2,7 +2,7 @@
 
 import { Plus } from "lucide-react";
 
-import { RoleArtwork } from "@/components/grimoire/role-artwork";
+import { CharacterToken } from "@/components/grimoire/character-token";
 import { roleById } from "@/lib/game-data";
 import type { GameToken } from "@/lib/game-data/types";
 import { cn } from "@/lib/utils";
@@ -34,7 +34,7 @@ export function DemonBluffRack({
               onClick={() => onChooseBluff(slot)}
             >
               {role ? (
-                <RoleArtwork role={role} size="tiny" />
+                <CharacterToken role={role} size="sm" />
               ) : (
                 <Plus className="size-4" />
               )}

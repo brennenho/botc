@@ -2,6 +2,7 @@
 
 import {
   ArrowLeft,
+  ChevronDown,
   CircleDot,
   LibraryBig,
   Pencil,
@@ -16,26 +17,31 @@ import {
   type ReactNode,
 } from "react";
 
-import { RoleArtwork } from "@/components/grimoire/role-artwork";
-import { ReminderToken } from "@/components/grimoire/reminder-token";
+import { CharacterToken } from "@/components/grimoire/character-token";
 import { RemovePlayerButton } from "@/components/grimoire/remove-player-button";
 import { Button } from "@/components/ui/button";
 import { IconButton } from "@/components/ui/icon-button";
 import { SegmentedControl } from "@/components/ui/segmented-control";
 import { roleById } from "@/lib/game-data";
-import type { Alignment, GameToken, Seat } from "@/lib/game-data/types";
+import type {
+  Alignment,
+  EditionId,
+  GameToken,
+  Seat,
+} from "@/lib/game-data/types";
 import {
-  generalReminderDefinitions,
-  getReminderKey,
-  getRoleReminderDefinitions,
-  type ReminderDefinition,
-} from "@/lib/reminders";
+  getInPlayReminderSources,
+  getScriptReminderSources,
+} from "@/lib/reminder-catalog";
+import { getReminderKey, type ReminderDefinition } from "@/lib/reminders";
 
 type PlayerMenuView = "player" | "reminders";
 
 export function PlayerContextMenu({
+  editionId,
   seat,
-  reminders,
+  seats,
+  gameTokens,
   side,
   style,
   onClose,
@@ -48,8 +54,10 @@ export function PlayerContextMenu({
   onAddReminder,
   onRemovePlayer,
 }: {
+  editionId: EditionId;
   seat: Seat;
-  reminders: GameToken[];
+  seats: Seat[];
+  gameTokens: GameToken[];
   side: "left" | "right";
   style: CSSProperties;
   onClose: () => void;
@@ -67,12 +75,16 @@ export function PlayerContextMenu({
   const [draftName, setDraftName] = useState(seat.playerName);
   const nameInputRef = useRef<HTMLInputElement>(null);
   const role = seat.roleId ? roleById.get(seat.roleId) : null;
-  const roleReminders = getRoleReminderDefinitions(role ?? null);
-  const roleReminderLabels = new Set(
-    roleReminders.map((definition) => definition.label.toLowerCase()),
+  const reminders = gameTokens.filter(
+    (token) => token.tokenType === "reminder",
   );
-  const generalReminders = generalReminderDefinitions.filter(
-    (definition) => !roleReminderLabels.has(definition.label.toLowerCase()),
+  const targetReminderCount = reminders.filter(
+    (reminder) => reminder.seatId === seat.id,
+  ).length;
+  const inPlaySources = getInPlayReminderSources(seats, seat.id, gameTokens);
+  const inPlayReminders = inPlaySources.flatMap((source) => source.definitions);
+  const scriptReminders = getScriptReminderSources(editionId).flatMap(
+    (source) => source.definitions,
   );
   const placedCounts = reminders.reduce((counts, reminder) => {
     const key = getReminderKey(reminder);
@@ -124,7 +136,7 @@ export function PlayerContextMenu({
               type="button"
               size="icon"
               variant="quiet"
-              className="player-menu-role"
+              className={`player-menu-role${role ? "has-character" : ""}`}
               onClick={onChooseRole}
               aria-label={
                 role
@@ -133,7 +145,7 @@ export function PlayerContextMenu({
               }
             >
               {role ? (
-                <RoleArtwork role={role} size="compact" showName={false} />
+                <CharacterToken role={role} size="md" />
               ) : (
                 <Plus className="size-5" />
               )}
@@ -249,8 +261,8 @@ export function PlayerContextMenu({
             >
               <CircleDot className="size-4" />
               Add reminder
-              {reminders.length > 0 && (
-                <span className="player-menu-count">{reminders.length}</span>
+              {targetReminderCount > 0 && (
+                <span className="player-menu-count">{targetReminderCount}</span>
               )}
             </Button>
           </div>
@@ -263,50 +275,94 @@ export function PlayerContextMenu({
           </footer>
         </>
       ) : (
-        <>
-          <header className="player-menu-header reminder-menu-header">
-            <IconButton
-              label="Back to player controls"
-              size="sm"
-              variant="quiet"
-              tooltip={false}
-              onClick={() => setView("player")}
-            >
-              <ArrowLeft className="size-4" />
-            </IconButton>
-            <div className="player-menu-identity">
-              <strong>Reminders</strong>
-              <span>{seat.playerName}</span>
-            </div>
-            <IconButton
-              label="Close player controls"
-              size="sm"
-              variant="quiet"
-              tooltip={false}
-              onClick={onClose}
-            >
-              <X className="size-4" />
-            </IconButton>
-          </header>
-          <div className="player-reminder-menu">
-            {roleReminders.length > 0 && (
-              <PlayerReminderSection
-                label={role?.name ?? "Character"}
-                definitions={roleReminders}
-                placedCounts={placedCounts}
-                onAddReminder={onAddReminder}
-              />
-            )}
+        <ReminderPicker
+          playerName={seat.playerName}
+          inPlayReminders={inPlayReminders}
+          scriptReminders={scriptReminders}
+          placedCounts={placedCounts}
+          onBack={() => setView("player")}
+          onClose={onClose}
+          onAddReminder={onAddReminder}
+        />
+      )}
+    </section>
+  );
+}
+
+function ReminderPicker({
+  playerName,
+  inPlayReminders,
+  scriptReminders,
+  placedCounts,
+  onBack,
+  onClose,
+  onAddReminder,
+}: {
+  playerName: string;
+  inPlayReminders: ReminderDefinition[];
+  scriptReminders: ReminderDefinition[];
+  placedCounts: Map<string, number>;
+  onBack: () => void;
+  onClose: () => void;
+  onAddReminder: (definition: ReminderDefinition) => void;
+}) {
+  return (
+    <>
+      <header className="player-menu-header reminder-menu-header">
+        <IconButton
+          label="Back"
+          size="sm"
+          variant="quiet"
+          tooltip={false}
+          onClick={onBack}
+        >
+          <ArrowLeft className="size-4" />
+        </IconButton>
+        <div className="player-menu-identity">
+          <strong>Add reminder</strong>
+          <span>Add to {playerName}</span>
+        </div>
+        <IconButton
+          label="Close player controls"
+          size="sm"
+          variant="quiet"
+          tooltip={false}
+          onClick={onClose}
+        >
+          <X className="size-4" />
+        </IconButton>
+      </header>
+
+      <div className="player-reminder-menu">
+        {inPlayReminders.length > 0 && (
+          <PlayerReminderSection
+            label="In-play reminders"
+            definitions={inPlayReminders}
+            placedCounts={placedCounts}
+            onAddReminder={onAddReminder}
+          />
+        )}
+        {inPlayReminders.length === 0 && (
+          <p className="player-reminder-empty">
+            Assign characters to make their reminders available here.
+          </p>
+        )}
+        {scriptReminders.length > 0 && (
+          <details className="player-reminder-collapsible">
+            <summary>
+              <span>All script reminders</span>
+              <small>{scriptReminders.length}</small>
+              <ChevronDown aria-hidden="true" />
+            </summary>
             <PlayerReminderSection
-              label="General"
-              definitions={generalReminders}
+              definitions={scriptReminders}
               placedCounts={placedCounts}
               onAddReminder={onAddReminder}
             />
-          </div>
-        </>
-      )}
-    </section>
+          </details>
+        )}
+      </div>
+    </>
   );
 }
 
@@ -331,17 +387,22 @@ function PlayerReminderSection({
   placedCounts,
   onAddReminder,
 }: {
-  label: string;
+  label?: string;
   definitions: ReminderDefinition[];
   placedCounts: Map<string, number>;
   onAddReminder: (definition: ReminderDefinition) => void;
 }) {
   return (
     <section className="player-reminder-section">
-      <span className="utility-label">{label}</span>
+      {label && <span className="utility-label">{label}</span>}
       <div className="player-reminder-grid">
         {definitions.map((definition) => {
           const placed = placedCounts.get(definition.key) ?? 0;
+          const sourceRole = definition.roleId
+            ? roleById.get(definition.roleId)
+            : null;
+          if (!sourceRole) return null;
+
           return (
             <Button
               key={definition.key}
@@ -352,21 +413,20 @@ function PlayerReminderSection({
               onClick={() => onAddReminder(definition)}
             >
               <span className="player-reminder-token-wrap">
-                <ReminderToken
-                  label={definition.label}
-                  roleId={definition.roleId}
-                  size="tray"
-                  count={
-                    Number.isFinite(definition.copies)
-                      ? definition.copies
-                      : undefined
-                  }
-                />
+                <CharacterToken role={sourceRole} size="lg" />
                 {placed > 0 && (
                   <span className="player-reminder-count">{placed}</span>
                 )}
               </span>
-              <span>{definition.label}</span>
+              <span className="player-reminder-label">
+                {definition.label}
+                {Number.isFinite(definition.copies) &&
+                  definition.copies > 1 && (
+                    <small aria-label={`${definition.copies} copies`}>
+                      ×{definition.copies}
+                    </small>
+                  )}
+              </span>
             </Button>
           );
         })}

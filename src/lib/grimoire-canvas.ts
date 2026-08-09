@@ -20,7 +20,7 @@ export function getDefaultPlayerPosition(
 
   return {
     x: 50 + Math.cos(radians) * 42.5,
-    y: 47 + Math.sin(radians) * 37,
+    y: 47 + Math.sin(radians) * 32,
   };
 }
 

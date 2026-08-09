@@ -1,6 +1,6 @@
 "use client";
 
-import { RoleArtwork } from "@/components/grimoire/role-artwork";
+import { CharacterToken } from "@/components/grimoire/character-token";
 import { RoleInfoButton } from "@/components/grimoire/role-info-button";
 import { Button } from "@/components/ui/button";
 import {
@@ -21,7 +21,8 @@ export function CharacterCatalog({
   bluffRoleIds = [],
   selectionMode = "single",
   selectionLimit,
-  defaultTeamCounts,
+  expandableRoleIds = [],
+  targetTeamCounts,
   onSelect,
 }: {
   editionId: EditionId;
@@ -30,7 +31,8 @@ export function CharacterCatalog({
   bluffRoleIds?: string[];
   selectionMode?: "single" | "multiple";
   selectionLimit?: number;
-  defaultTeamCounts?: TeamCounts;
+  expandableRoleIds?: string[];
+  targetTeamCounts?: TeamCounts;
   onSelect: (roleId: string) => void;
 }) {
   const grouped = getRolesByTeam(editionId);
@@ -47,14 +49,14 @@ export function CharacterCatalog({
           <section key={team} className={cn("token-team", `team-${team}`)}>
             <h3>
               <span>{teamLabel(team)}</span>
-              {selectionMode === "multiple" && defaultTeamCounts && (
+              {selectionMode === "multiple" && targetTeamCounts && (
                 <span
                   className="token-team-count"
-                  aria-label={`${selectedCount} selected, ${defaultTeamCounts[team]} in the default setup`}
+                  aria-label={`${selectedCount} selected, ${targetTeamCounts[team]} in the current setup`}
                 >
                   <strong>{selectedCount}</strong>
                   <span aria-hidden="true">/</span>
-                  <span>{defaultTeamCounts[team]} default</span>
+                  <span>{targetTeamCounts[team]}</span>
                 </span>
               )}
             </h3>
@@ -68,7 +70,8 @@ export function CharacterCatalog({
                     selectionMode === "multiple" &&
                     !selected &&
                     selectionLimit !== undefined &&
-                    selectedRoleIds.length >= selectionLimit;
+                    selectedRoleIds.length >= selectionLimit &&
+                    !expandableRoleIds.includes(role.id);
                   const stateClasses = {
                     "is-used":
                       selectionMode === "single" &&
@@ -99,7 +102,7 @@ export function CharacterCatalog({
                         disabled={selectionUnavailable}
                         onClick={() => onSelect(role.id)}
                       >
-                        <RoleArtwork role={role} size="compact" />
+                        <CharacterToken role={role} size="lg" />
                         {selectionMode === "single" && (used || bluff) && (
                           <span className="role-choice-states">
                             {used && (

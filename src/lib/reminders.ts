@@ -13,7 +13,18 @@ export type ReminderDefinition = {
   copies: number;
 };
 
-const generalReminderLabels = ["Poisoned", "Drunk", "Mad", "Is the Demon"];
+const supplementalReminderLabels: Partial<Record<string, string[]>> = {
+  drunk: ["Is The Drunk"],
+  philosopher: ["Is The Philosopher"],
+};
+
+const physicalReminderLabelOverrides: Partial<
+  Record<string, Record<string, string>>
+> = {
+  towncrier: {
+    "Minions Not Nominated": "Minion Not Nominated",
+  },
+};
 
 function reminderKey(roleId: string | null, label: string) {
   const slug = label
@@ -23,20 +34,15 @@ function reminderKey(roleId: string | null, label: string) {
   return `${roleId ? `role:${roleId}` : "general"}:${slug}`;
 }
 
-export const generalReminderDefinitions: ReminderDefinition[] =
-  generalReminderLabels.map((label) => ({
-    key: reminderKey(null, label),
-    label,
-    roleId: null,
-    sourceName: "General",
-    copies: Number.POSITIVE_INFINITY,
-  }));
-
 export function getRoleReminderDefinitions(role: Role | null) {
   if (!role) return [];
 
+  const labels = [
+    ...role.reminders,
+    ...(supplementalReminderLabels[role.id] ?? []),
+  ].map((label) => physicalReminderLabelOverrides[role.id]?.[label] ?? label);
   const grouped = new Map<string, ReminderDefinition>();
-  for (const label of role.reminders) {
+  for (const label of labels) {
     const key = reminderKey(role.id, label);
     const existing = grouped.get(key);
     grouped.set(key, {

@@ -5,7 +5,12 @@ import { useEffect, useState } from "react";
 
 import { CharacterSelectionDialog } from "@/components/grimoire/character-selection-dialog";
 import { Button } from "@/components/ui/button";
-import { setupCounts, type EditionId, type TeamCounts } from "@/lib/game-data";
+import {
+  getSetupSelectionTargetCounts,
+  type EditionId,
+  type TeamCounts,
+} from "@/lib/game-data";
+import { DRUNK_ROLE_ID } from "@/lib/setup-effects";
 
 const emptyDefaultCounts: TeamCounts = {
   townsfolk: 0,
@@ -33,15 +38,22 @@ export function RoleDistributionDialog({
     if (!open) return;
     setSelectedRoleIds([]);
   }, [open]);
-  const defaultTeamCounts = setupCounts[playerCount] ?? emptyDefaultCounts;
-  const selectionComplete = selectedRoleIds.length === playerCount;
+  const drunkSelected = selectedRoleIds.includes(DRUNK_ROLE_ID);
+  const selectionTarget = playerCount + (drunkSelected ? 1 : 0);
+  const targetTeamCounts =
+    getSetupSelectionTargetCounts(playerCount, selectedRoleIds) ??
+    emptyDefaultCounts;
+  const selectionComplete = selectedRoleIds.length === selectionTarget;
 
   function toggleRole(roleId: string) {
     setSelectedRoleIds((current) => {
       if (current.includes(roleId)) {
         return current.filter((id) => id !== roleId);
       }
-      if (current.length >= playerCount) return current;
+      const currentTarget =
+        playerCount + (current.includes(DRUNK_ROLE_ID) ? 1 : 0);
+      if (current.length >= currentTarget && roleId !== DRUNK_ROLE_ID)
+        return current;
       return [...current, roleId];
     });
   }
@@ -54,8 +66,9 @@ export function RoleDistributionDialog({
       closeLabel="Close role distribution"
       selectionMode="multiple"
       selectedRoleIds={selectedRoleIds}
-      selectionLimit={playerCount}
-      defaultTeamCounts={defaultTeamCounts}
+      selectionLimit={selectionTarget}
+      expandableRoleIds={[DRUNK_ROLE_ID]}
+      targetTeamCounts={targetTeamCounts}
       onOpenChange={onOpenChange}
       onSelect={toggleRole}
       footer={
@@ -63,7 +76,7 @@ export function RoleDistributionDialog({
           <div className="pool-summary">
             <div className="pool-summary-line">
               <strong>
-                {selectedRoleIds.length} of {playerCount} selected
+                {selectedRoleIds.length} of {selectionTarget} selected
               </strong>
               {selectedRoleIds.length > 0 && (
                 <Button

@@ -79,6 +79,7 @@ export function GrimoireSideSheet({
         <RosterPanel
           editionId={editionId}
           seats={seats}
+          gameTokens={gameTokens}
           onClose={onClose}
           onSelectSeat={onSelectSeat}
           onChooseRole={onChooseRole}

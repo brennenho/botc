@@ -10,6 +10,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { roleById } from "@/lib/game-data";
 import type { GameToken } from "@/lib/game-data/types";
 import { cn } from "@/lib/utils";
 
@@ -26,6 +27,9 @@ export function DraggableReminderToken({
   selected: boolean;
   onSelect: () => void;
 }) {
+  const sourceName = reminder.roleId
+    ? (roleById.get(reminder.roleId)?.name ?? "Character")
+    : "General";
   const { attributes, listeners, setNodeRef, transform, isDragging } =
     useDraggable({
       id: `reminder:${reminder.id}`,
@@ -55,12 +59,15 @@ export function DraggableReminderToken({
           roleId={reminder.roleId}
           size={size}
           selected={selected}
+          presentation="labeled"
         />
       </TooltipTrigger>
       <TooltipContent>
         <span className="reminder-token-tooltip">
           <strong>{reminder.label}</strong>
-          <span>{playerName}</span>
+          <span>
+            {sourceName} · {playerName}
+          </span>
         </span>
       </TooltipContent>
     </Tooltip>

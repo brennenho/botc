@@ -1,6 +1,6 @@
 "use client";
 
-import { AlertCircle, RotateCcw } from "lucide-react";
+import { AlertCircle, AlertTriangle, RotateCcw } from "lucide-react";
 import { useMemo, useState } from "react";
 
 import { DemonBluffRack } from "@/components/grimoire/demon-bluff-rack";
@@ -10,6 +10,7 @@ import {
   type GrimoirePanel,
 } from "@/components/grimoire/grimoire-side-sheet";
 import { GrimoireToolbar } from "@/components/grimoire/grimoire-toolbar";
+import { ReminderToken } from "@/components/grimoire/reminder-token";
 import { RolePicker } from "@/components/grimoire/role-picker";
 import { StorytellerDock } from "@/components/grimoire/storyteller-dock";
 import { Button } from "@/components/ui/button";
@@ -17,6 +18,7 @@ import { useStorytellerGame } from "@/hooks/use-storyteller-game";
 import {
   createRandomSetup,
   getDefaultAlignment,
+  getSetupReminderWarnings,
   roleById,
 } from "@/lib/game-data";
 import type { GameToken, Seat } from "@/lib/game-data/types";
@@ -34,6 +36,7 @@ import {
   withReminderKey,
   type ReminderDefinition,
 } from "@/lib/reminders";
+import { createSetupRoleMetadata, DRUNK_ROLE_ID } from "@/lib/setup-effects";
 
 type PickerTarget =
   | { type: "seat"; seatId: string }
@@ -72,6 +75,11 @@ export function StorytellerApp({ gameId }: { gameId: string }) {
   if (!snapshot)
     return <GrimoireError message={error} onRetry={() => void refresh()} />;
 
+  const setupReminderWarnings = getSetupReminderWarnings(
+    snapshot.seats,
+    snapshot.gameTokens,
+  );
+
   function makeSeat(index: number): Seat {
     return {
       id: crypto.randomUUID(),
@@ -107,12 +115,6 @@ export function StorytellerApp({ gameId }: { gameId: string }) {
               isTraveller: role?.team === "traveller",
             }
           : seat,
-      ),
-      gameTokens: current.gameTokens.filter(
-        (token) =>
-          token.seatId !== seatId ||
-          token.roleId === null ||
-          token.roleId === roleId,
       ),
     }));
     setPickerTarget(null);
@@ -162,31 +164,56 @@ export function StorytellerApp({ gameId }: { gameId: string }) {
   }
 
   function distributeRoles(rolePoolIds: string[]) {
+    const drunkSelected = rolePoolIds.includes(DRUNK_ROLE_ID);
+    const dealtRoleIds = rolePoolIds.filter(
+      (roleId) => roleId !== DRUNK_ROLE_ID,
+    );
+
     commit((current) => {
       const residentSeats = current.seats.filter((seat) => !seat.isTraveller);
       const roleIds = createRandomSetup(
         current.game.edition,
         residentSeats.length,
         Math.random,
-        rolePoolIds,
+        dealtRoleIds,
       );
       if (roleIds.length !== residentSeats.length) return {};
       let residentIndex = 0;
+      const seats = current.seats.map((seat) => {
+        if (seat.isTraveller) return seat;
+        const roleId = roleIds[residentIndex++] ?? null;
+        const role = roleId ? roleById.get(roleId) : null;
+        return {
+          ...seat,
+          roleId: role?.id ?? null,
+          alignment: role ? getDefaultAlignment(role) : "good",
+        };
+      });
+      let gameTokens = current.gameTokens.filter(isPlayerPositionToken);
+      if (drunkSelected) {
+        gameTokens = [
+          ...gameTokens,
+          {
+            id: crypto.randomUUID(),
+            gameId,
+            seatId: null,
+            tokenType: "custom",
+            roleId: DRUNK_ROLE_ID,
+            label: "Drunk selected",
+            position: gameTokens.length,
+            metadata: createSetupRoleMetadata(),
+          },
+        ];
+      }
+
       return {
-        seats: current.seats.map((seat) => {
-          if (seat.isTraveller) return seat;
-          const roleId = roleIds[residentIndex++] ?? null;
-          const role = roleId ? roleById.get(roleId) : null;
-          return {
-            ...seat,
-            roleId: role?.id ?? null,
-            alignment: role ? getDefaultAlignment(role) : "good",
-          };
-        }),
-        gameTokens: current.gameTokens.filter(isPlayerPositionToken),
+        seats,
+        gameTokens,
       };
     });
     setSelectedSeatId(null);
+    setOpenPanel(null);
+    setPendingReminder(null);
   }
 
   function clearAssignments() {
@@ -198,7 +225,7 @@ export function StorytellerApp({ gameId }: { gameId: string }) {
         isTraveller: false,
       })),
       gameTokens: current.gameTokens.filter(
-        (token) => token.seatId === null || token.roleId === null,
+        (token) => token.tokenType === "bluff" || isPlayerPositionToken(token),
       ),
     }));
     setSelectedSeatId(null);
@@ -299,6 +326,7 @@ export function StorytellerApp({ gameId }: { gameId: string }) {
 
       <div className="grimoire-workspace">
         <GrimoireBoard
+          editionId={snapshot.game.edition}
           seats={snapshot.seats}
           gameTokens={snapshot.gameTokens}
           selectedSeatId={selectedSeatId}
@@ -457,6 +485,34 @@ export function StorytellerApp({ gameId }: { gameId: string }) {
             chooseBluff(pickerTarget.slot, roleId);
         }}
       />
+
+      {setupReminderWarnings.length > 0 && (
+        <aside className="board-setup-warning" role="status" aria-live="polite">
+          <header className="board-setup-warning-header">
+            <AlertTriangle aria-hidden="true" />
+            <span className="utility-label">Missing reminders</span>
+          </header>
+          <div className="board-setup-warning-tokens">
+            {setupReminderWarnings.flatMap((warning) =>
+              warning.missing.map(({ label, count }) => (
+                <span
+                  key={`${warning.roleId}:${label}`}
+                  className="board-setup-warning-token"
+                  title={`${warning.roleName}: ${label}`}
+                >
+                  <ReminderToken
+                    label={label}
+                    roleId={warning.roleId}
+                    size="tray"
+                    count={count}
+                  />
+                  <span>{label}</span>
+                </span>
+              )),
+            )}
+          </div>
+        </aside>
+      )}
 
       {error && (
         <div className="save-error" role="alert">

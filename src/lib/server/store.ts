@@ -367,7 +367,10 @@ export async function joinGame(joinCode: string, playerName: string) {
   return {
     playerToken,
     seatId: seat.id,
-    snapshot: { game: publicGame(game), seat: publicSeat(seat) },
+    snapshot: {
+      game: publicGame(game),
+      seat: publicSeat(seat),
+    },
   };
 }
 

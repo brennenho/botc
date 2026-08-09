@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 
-import { RoleArtwork } from "@/components/grimoire/role-artwork";
+import { CharacterToken } from "@/components/grimoire/character-token";
 import type { Role } from "@/lib/game-data";
 import { cn } from "@/lib/utils";
 
@@ -29,11 +29,11 @@ export function TokenIcon({
 
   if (role) {
     return (
-      <RoleArtwork
+      <CharacterToken
         role={role}
-        size="tiny"
-        showName={false}
-        className={classes}
+        size={size}
+        appearance={appearance}
+        className={className}
       />
     );
   }
