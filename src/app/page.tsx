@@ -41,7 +41,7 @@ export default function HomePage() {
     setError(null);
     try {
       const result = await createGame(edition, playerCount);
-      router.push(`/game/${result.snapshot.game.id}/storyteller`);
+      router.push(`/game/${result.snapshot.game.joinCode}/storyteller`);
     } catch (cause) {
       setBusy(false);
       setError(
@@ -56,7 +56,9 @@ export default function HomePage() {
     setError(null);
     try {
       const result = await joinGame(joinCode, playerName);
-      router.push(`/game/${result.snapshot.game.id}/player/${result.seatId}`);
+      router.push(
+        `/game/${result.snapshot.game.joinCode}/player/${result.seatId}`,
+      );
     } catch (cause) {
       setBusy(false);
       setError(cause instanceof Error ? cause.message : "Unable to join game.");

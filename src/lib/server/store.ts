@@ -195,6 +195,27 @@ function assertPlayer(seat: StoredSeat, token: string) {
   }
 }
 
+export async function getGameIdByJoinCode(joinCode: string) {
+  const normalizedCode = joinCode.trim().toUpperCase();
+  const supabase = getSupabaseAdmin();
+
+  if (supabase) {
+    const { data: game, error } = await supabase
+      .from("games")
+      .select("id")
+      .eq("join_code", normalizedCode)
+      .maybeSingle<{ id: string }>();
+    if (error) throw error;
+    return game?.id ?? null;
+  }
+
+  return (
+    [...memoryStore.games.values()].find(
+      (game) => game.joinCode === normalizedCode,
+    )?.id ?? null
+  );
+}
+
 export async function createGame(edition: EditionId, playerCount = 7) {
   if (!Number.isInteger(playerCount) || playerCount < 5 || playerCount > 20) {
     throw new Error("Player count must be between 5 and 20.");
