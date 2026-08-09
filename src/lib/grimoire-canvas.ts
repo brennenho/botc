@@ -19,7 +19,7 @@ export function getDefaultPlayerPosition(
   const radians = (angle * Math.PI) / 180;
 
   return {
-    x: 50 + Math.cos(radians) * 42.5,
+    x: 50 + Math.cos(radians) * 39,
     y: 47 + Math.sin(radians) * 32,
   };
 }
