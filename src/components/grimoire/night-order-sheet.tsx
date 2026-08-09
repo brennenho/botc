@@ -126,16 +126,16 @@ export function NightOrderPanel({
                 <TokenIcon role={entry.role}>
                   {entry.id === "dawn" ? <Sun /> : <Moon />}
                 </TokenIcon>
-                <span className="min-w-0 flex-1 text-left">
-                  <span className="block text-sm font-semibold">
+                <span className="night-order-copy">
+                  <span className="night-order-title">
                     {entry.name}
                     {entry.playerName && (
-                      <small className="ml-1.5 font-normal text-black/42">
+                      <small className="night-order-player">
                         {entry.playerName}
                       </small>
                     )}
                   </span>
-                  <span className="mt-0.5 block text-xs leading-5 text-black/48">
+                  <span className="night-order-description">
                     <FormattedNightText text={entry.reminder} />
                   </span>
                 </span>

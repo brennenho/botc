@@ -4,23 +4,16 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 import { fetchStorytellerGame, updateStorytellerGame } from "@/lib/api";
 import type {
-  GameToken,
-  Seat,
+  StorytellerPatch,
   StorytellerSnapshot,
 } from "@/lib/game-data/types";
 import { getSupabaseBrowser } from "@/lib/supabase/client";
 
-export type StorytellerPatch = {
-  phase?: StorytellerSnapshot["game"]["phase"];
-  dayNumber?: number;
-  status?: StorytellerSnapshot["game"]["status"];
-  seats?: Seat[];
-  gameTokens?: GameToken[];
-};
-
 export type StorytellerUpdate =
   | StorytellerPatch
   | ((snapshot: StorytellerSnapshot) => StorytellerPatch);
+
+export type StorytellerCommit = (update: StorytellerUpdate) => void;
 
 function applyPatch(
   snapshot: StorytellerSnapshot,

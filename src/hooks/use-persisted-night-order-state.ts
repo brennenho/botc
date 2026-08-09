@@ -1,6 +1,7 @@
-"use client";
-
-import { useEffect, useState } from "react";
+import {
+  type PersistedStateCodec,
+  usePersistedState,
+} from "@/hooks/use-persisted-state";
 
 import {
   createDefaultNightOrderState,
@@ -9,36 +10,15 @@ import {
 } from "@/lib/night-order-state";
 
 const storagePrefix = "botc:night-order:";
+const nightOrderCodec: PersistedStateCodec<NightOrderState> = {
+  parse: (value) => normalizeNightOrderState(JSON.parse(value) as unknown),
+  stringify: JSON.stringify,
+};
 
 export function usePersistedNightOrderState(gameId: string) {
-  const storageKey = `${storagePrefix}${gameId}`;
-  const [state, setState] = useState<NightOrderState>(
+  return usePersistedState(
+    `${storagePrefix}${gameId}`,
     createDefaultNightOrderState,
+    nightOrderCodec,
   );
-  const [loadedKey, setLoadedKey] = useState<string | null>(null);
-
-  useEffect(() => {
-    try {
-      const stored = window.localStorage.getItem(storageKey);
-      setState(
-        stored
-          ? normalizeNightOrderState(JSON.parse(stored) as unknown)
-          : createDefaultNightOrderState(),
-      );
-    } catch {
-      setState(createDefaultNightOrderState());
-    }
-    setLoadedKey(storageKey);
-  }, [storageKey]);
-
-  useEffect(() => {
-    if (loadedKey !== storageKey) return;
-    try {
-      window.localStorage.setItem(storageKey, JSON.stringify(state));
-    } catch {
-      // The controls still work for the current session when storage is unavailable.
-    }
-  }, [loadedKey, state, storageKey]);
-
-  return [state, setState] as const;
 }

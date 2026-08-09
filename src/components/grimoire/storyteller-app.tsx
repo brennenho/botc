@@ -14,31 +14,15 @@ import { ReminderToken } from "@/components/grimoire/reminder-token";
 import { RolePicker } from "@/components/grimoire/role-picker";
 import { StorytellerDock } from "@/components/grimoire/storyteller-dock";
 import { Button } from "@/components/ui/button";
+import { useGrimoireActions } from "@/hooks/use-grimoire-actions";
 import { usePersistedGrimoireSheetPin } from "@/hooks/use-persisted-grimoire-sheet-pin";
 import { usePersistedNightOrderState } from "@/hooks/use-persisted-night-order-state";
 import { useStorytellerGame } from "@/hooks/use-storyteller-game";
+import { getSetupReminderWarnings } from "@/lib/game-data";
 import {
-  createRandomSetup,
-  getDefaultAlignment,
-  getSetupReminderWarnings,
-  roleById,
-} from "@/lib/game-data";
-import type { GameToken, Seat } from "@/lib/game-data/types";
-import {
-  isPlayerPositionToken,
-  PLAYER_POSITION_KIND,
-  withReminderPlacement,
-  type CanvasPosition,
-  type ReminderPlacement,
-} from "@/lib/grimoire-canvas";
-import {
-  getAnchoredReminders,
   getReminderDefinition,
-  updateReminderPlacement,
-  withReminderKey,
   type ReminderDefinition,
 } from "@/lib/reminders";
-import { createSetupRoleMetadata, DRUNK_ROLE_ID } from "@/lib/setup-effects";
 import { cn } from "@/lib/utils";
 
 type PickerTarget =
@@ -60,6 +44,20 @@ export function StorytellerApp({ gameId }: { gameId: string }) {
   const [pendingReminder, setPendingReminder] =
     useState<ReminderDefinition | null>(null);
   const [pickerTarget, setPickerTarget] = useState<PickerTarget>(null);
+  const {
+    updateSeat,
+    chooseRole,
+    chooseBluff,
+    addPlayer,
+    removePlayer,
+    distributeRoles,
+    clearAssignments,
+    addReminder,
+    removeReminder,
+    movePlayer,
+    moveReminder,
+    arrangeInCircle,
+  } = useGrimoireActions({ gameId, commit });
 
   const bluffs = useMemo(
     () =>
@@ -86,247 +84,26 @@ export function StorytellerApp({ gameId }: { gameId: string }) {
     snapshot.gameTokens,
   );
 
-  function makeSeat(index: number): Seat {
-    return {
-      id: crypto.randomUUID(),
-      gameId,
-      seatIndex: index,
-      playerName: `Player ${index + 1}`,
-      roleId: null,
-      alignment: "good",
-      alive: true,
-      ghostVoteAvailable: true,
-      isTraveller: false,
-      joinedAt: new Date().toISOString(),
-    };
-  }
-
-  function updateSeat(seatId: string, patch: Partial<Seat>) {
-    commit((current) => ({
-      seats: current.seats.map((seat) =>
-        seat.id === seatId ? { ...seat, ...patch } : seat,
-      ),
-    }));
-  }
-
-  function chooseRole(seatId: string, roleId: string | null) {
-    const role = roleId ? roleById.get(roleId) : null;
-    commit((current) => ({
-      seats: current.seats.map((seat) =>
-        seat.id === seatId
-          ? {
-              ...seat,
-              roleId: role?.id ?? null,
-              alignment: role ? getDefaultAlignment(role) : "good",
-              isTraveller: role?.team === "traveller",
-            }
-          : seat,
-      ),
-    }));
-    setPickerTarget(null);
-  }
-
-  function chooseBluff(slot: number, roleId: string | null) {
-    const role = roleId ? roleById.get(roleId) : null;
-    if (roleId && !role) return;
-    commit((current) => {
-      const existing = current.gameTokens.find(
-        (token) => token.tokenType === "bluff" && token.position === slot,
-      );
-      const remaining = current.gameTokens.filter(
-        (token) => token.id !== existing?.id,
-      );
-      if (!role) return { gameTokens: remaining };
-      const bluff: GameToken = {
-        id: existing?.id ?? crypto.randomUUID(),
-        gameId,
-        seatId: null,
-        tokenType: "bluff",
-        roleId: role.id,
-        label: role.name,
-        position: slot,
-        metadata: {},
-      };
-      return { gameTokens: [...remaining, bluff] };
-    });
-    setPickerTarget(null);
-  }
-
-  function addPlayer() {
-    commit((current) => {
-      const seat = makeSeat(current.seats.length);
-      return { seats: [...current.seats, seat] };
-    });
-  }
-
-  function removePlayer(seatId: string) {
-    commit((current) => ({
-      seats: current.seats
-        .filter((seat) => seat.id !== seatId)
-        .map((seat, seatIndex) => ({ ...seat, seatIndex })),
-      gameTokens: current.gameTokens.filter((token) => token.seatId !== seatId),
-    }));
+  function handleRemovePlayer(seatId: string) {
+    removePlayer(seatId);
     setSelectedSeatId(null);
   }
 
-  function distributeRoles(rolePoolIds: string[]) {
-    const drunkSelected = rolePoolIds.includes(DRUNK_ROLE_ID);
-    const dealtRoleIds = rolePoolIds.filter(
-      (roleId) => roleId !== DRUNK_ROLE_ID,
-    );
+  function handleRemoveReminder(tokenId: string) {
+    removeReminder(tokenId);
+    setSelectedReminderId((current) => (current === tokenId ? null : current));
+  }
 
-    commit((current) => {
-      const residentSeats = current.seats.filter((seat) => !seat.isTraveller);
-      const roleIds = createRandomSetup(
-        current.game.edition,
-        residentSeats.length,
-        Math.random,
-        dealtRoleIds,
-      );
-      if (roleIds.length !== residentSeats.length) return {};
-      let residentIndex = 0;
-      const seats = current.seats.map((seat) => {
-        if (seat.isTraveller) return seat;
-        const roleId = roleIds[residentIndex++] ?? null;
-        const role = roleId ? roleById.get(roleId) : null;
-        return {
-          ...seat,
-          roleId: role?.id ?? null,
-          alignment: role ? getDefaultAlignment(role) : "good",
-        };
-      });
-      let gameTokens = current.gameTokens.filter(isPlayerPositionToken);
-      if (drunkSelected) {
-        gameTokens = [
-          ...gameTokens,
-          {
-            id: crypto.randomUUID(),
-            gameId,
-            seatId: null,
-            tokenType: "custom",
-            roleId: DRUNK_ROLE_ID,
-            label: "Drunk Selected",
-            position: gameTokens.length,
-            metadata: createSetupRoleMetadata(),
-          },
-        ];
-      }
-
-      return {
-        seats,
-        gameTokens,
-      };
-    });
+  function handleDistributeRoles(roleIds: string[]) {
+    distributeRoles(roleIds);
     setSelectedSeatId(null);
     setOpenPanel(null);
     setPendingReminder(null);
   }
 
-  function clearAssignments() {
-    commit((current) => ({
-      seats: current.seats.map((seat) => ({
-        ...seat,
-        roleId: null,
-        alignment: "good",
-        isTraveller: false,
-      })),
-      gameTokens: current.gameTokens.filter(
-        (token) => token.tokenType === "bluff" || isPlayerPositionToken(token),
-      ),
-    }));
+  function handleClearAssignments() {
+    clearAssignments();
     setSelectedSeatId(null);
-  }
-
-  function addReminder(seatId: string, definition: ReminderDefinition) {
-    commit((current) => {
-      const order = getAnchoredReminders(current.gameTokens, seatId).length;
-      const reminder: GameToken = {
-        id: crypto.randomUUID(),
-        gameId,
-        seatId,
-        tokenType: "reminder",
-        roleId: definition.roleId,
-        label: definition.label,
-        position: current.gameTokens.length,
-        metadata: withReminderPlacement(withReminderKey({}, definition.key), {
-          mode: "anchored",
-          order,
-        }),
-      };
-      return { gameTokens: [...current.gameTokens, reminder] };
-    });
-  }
-
-  function removeReminder(tokenId: string) {
-    commit((current) => ({
-      gameTokens: current.gameTokens.filter((token) => token.id !== tokenId),
-    }));
-    setSelectedReminderId((current) => (current === tokenId ? null : current));
-  }
-
-  function movePlayer(seatId: string, position: CanvasPosition) {
-    commit((current) => {
-      const existing = current.gameTokens.find(
-        (token) => isPlayerPositionToken(token) && token.seatId === seatId,
-      );
-      const positionToken: GameToken = {
-        id: existing?.id ?? crypto.randomUUID(),
-        gameId,
-        seatId,
-        tokenType: "custom",
-        roleId: null,
-        label: "Player Position",
-        position: existing?.position ?? current.gameTokens.length,
-        metadata: {
-          kind: PLAYER_POSITION_KIND,
-          canvasPosition: position,
-        },
-      };
-      return {
-        gameTokens: existing
-          ? current.gameTokens.map((token) =>
-              token.id === existing.id ? positionToken : token,
-            )
-          : [...current.gameTokens, positionToken],
-      };
-    });
-  }
-
-  function moveReminder(
-    tokenId: string,
-    placement: ReminderPlacement,
-    seatId?: string,
-  ) {
-    commit((current) => ({
-      gameTokens: updateReminderPlacement(
-        current.gameTokens,
-        tokenId,
-        placement,
-        seatId,
-      ),
-    }));
-  }
-
-  function arrangeInCircle() {
-    commit((current) => {
-      const reminderOrders = new Map<string, number>();
-      return {
-        gameTokens: current.gameTokens
-          .filter((token) => !isPlayerPositionToken(token))
-          .map((token) => {
-            if (token.tokenType !== "reminder" || !token.seatId) return token;
-            const order = reminderOrders.get(token.seatId) ?? 0;
-            reminderOrders.set(token.seatId, order + 1);
-            return {
-              ...token,
-              metadata: withReminderPlacement(token.metadata, {
-                mode: "anchored",
-                order,
-              }),
-            };
-          }),
-      };
-    });
   }
 
   return (
@@ -361,7 +138,7 @@ export function StorytellerApp({ gameId }: { gameId: string }) {
             setPendingReminder(null);
             setSelectedReminderId(tokenId);
           }}
-          onRemoveReminder={removeReminder}
+          onRemoveReminder={handleRemoveReminder}
           onPlaceReminder={(seatId) => {
             if (!pendingReminder) return;
             addReminder(seatId, pendingReminder);
@@ -397,7 +174,7 @@ export function StorytellerApp({ gameId }: { gameId: string }) {
             updateSeat(seatId, { isTraveller })
           }
           onAddReminder={addReminder}
-          onRemovePlayer={removePlayer}
+          onRemovePlayer={handleRemovePlayer}
           onMovePlayer={movePlayer}
           onMoveReminder={moveReminder}
         />
@@ -434,7 +211,7 @@ export function StorytellerApp({ gameId }: { gameId: string }) {
         }}
         onRemoveSelectedReminder={() => {
           if (!selectedReminder) return;
-          removeReminder(selectedReminder.id);
+          handleRemoveReminder(selectedReminder.id);
         }}
         onCloseSelectedReminder={() => setSelectedReminderId(null)}
         onCancelReminderPlacement={() => setPendingReminder(null)}
@@ -459,11 +236,11 @@ export function StorytellerApp({ gameId }: { gameId: string }) {
         }}
         onChooseRole={(seatId) => setPickerTarget({ type: "seat", seatId })}
         onClearRole={(seatId) => chooseRole(seatId, null)}
-        onRemovePlayer={removePlayer}
+        onRemovePlayer={handleRemovePlayer}
         onRename={(seatId, playerName) => updateSeat(seatId, { playerName })}
         onAddPlayer={addPlayer}
-        onDistributeRoles={distributeRoles}
-        onClearAssignments={clearAssignments}
+        onDistributeRoles={handleDistributeRoles}
+        onClearAssignments={handleClearAssignments}
         onArrangeCircle={arrangeInCircle}
         onPlaceNightReminder={(role, action) => {
           setPendingReminder(getReminderDefinition(role, action.label));
@@ -504,6 +281,7 @@ export function StorytellerApp({ gameId }: { gameId: string }) {
             chooseRole(pickerTarget.seatId, roleId);
           if (pickerTarget?.type === "bluff")
             chooseBluff(pickerTarget.slot, roleId);
+          setPickerTarget(null);
         }}
       />
 

@@ -19,14 +19,6 @@ export function TokenIcon({
   appearance = "soft",
   className,
 }: TokenIconProps) {
-  const classes = cn(
-    "token-icon",
-    `token-icon-${size}`,
-    `token-icon-${appearance}`,
-    !role && "token-icon-generic",
-    className,
-  );
-
   if (role) {
     return (
       <CharacterToken
@@ -39,7 +31,15 @@ export function TokenIcon({
   }
 
   return (
-    <span className={classes} aria-hidden="true">
+    <span
+      className={cn(
+        "token-icon token-icon-generic",
+        `token-icon-${size}`,
+        `token-icon-${appearance}`,
+        className,
+      )}
+      aria-hidden="true"
+    >
       {children}
     </span>
   );

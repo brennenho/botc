@@ -9,9 +9,9 @@ const inputVariants = cva(
     variants: {
       variant: {
         default:
-          "h-10 rounded-md border border-[var(--control-border)] bg-[var(--control-secondary-bg)] px-3 text-sm focus:border-[var(--focus-ring)] focus:bg-[var(--control-secondary-bg-hover)] focus:ring-2 focus:ring-[var(--focus-ring)]",
+          "h-10 rounded-[var(--radius-control)] border border-[var(--control-border)] bg-[var(--control-secondary-bg)] px-3 text-sm focus:border-[var(--focus-ring)] focus:bg-[var(--control-secondary-bg-hover)] focus:ring-2 focus:ring-[var(--focus-ring)]",
         inline:
-          "h-6 rounded-none border-0 border-b border-b-transparent bg-transparent px-1 py-0 text-[13px] font-semibold leading-tight focus:border-b-[var(--grimoire-hardware-accent,var(--brass-dark))] focus:bg-[rgb(248_238_210_/_62%)] focus:ring-0",
+          "h-6 rounded-none border-0 border-b border-b-transparent bg-transparent px-1 py-0 text-[13px] font-semibold leading-tight focus:border-b-[var(--grimoire-hardware-accent,var(--brass-dark))] focus:bg-[var(--control-inline-focus-bg)] focus:ring-0",
       },
     },
     defaultVariants: {

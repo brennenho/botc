@@ -1,8 +1,7 @@
 import type {
   EditionId,
-  GameToken,
   PlayerSnapshot,
-  Seat,
+  StorytellerPatch,
   StorytellerSnapshot,
 } from "@/lib/game-data/types";
 
@@ -50,16 +49,7 @@ export function fetchStorytellerGame(gameId: string) {
   );
 }
 
-export function updateStorytellerGame(
-  gameId: string,
-  patch: {
-    phase?: StorytellerSnapshot["game"]["phase"];
-    dayNumber?: number;
-    status?: StorytellerSnapshot["game"]["status"];
-    seats?: Seat[];
-    gameTokens?: GameToken[];
-  },
-) {
+export function updateStorytellerGame(gameId: string, patch: StorytellerPatch) {
   return requestJson<{ snapshot: StorytellerSnapshot }>("/api/storyteller", {
     method: "PATCH",
     body: JSON.stringify({ gameId, ...patch }),

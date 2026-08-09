@@ -26,7 +26,7 @@ export function SegmentedControl<T extends string>({
       role="group"
       aria-label={label}
       className={cn(
-        "inline-flex h-9 items-center rounded-md bg-[var(--control-hover)] p-0.5",
+        "inline-flex h-9 items-center rounded-[var(--radius-control)] bg-[var(--control-hover)] p-0.5",
         className,
       )}
     >
@@ -39,9 +39,9 @@ export function SegmentedControl<T extends string>({
           aria-pressed={value === option.value}
           onClick={() => onChange(option.value)}
           className={cn(
-            "h-8 rounded-[5px] px-3 text-xs font-medium text-[var(--control-text-muted)] transition-colors",
+            "h-8 rounded-[var(--radius-control)] px-3 text-xs font-medium text-[var(--control-text-muted)] transition-colors",
             value === option.value &&
-              "bg-[var(--control-secondary-bg-hover)] text-[var(--control-text)] shadow-[0_1px_3px_rgba(30,24,16,0.13)]",
+              "bg-[var(--control-secondary-bg-hover)] text-[var(--control-text)] shadow-[var(--shadow-control-selected)]",
           )}
         >
           {option.label}
