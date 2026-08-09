@@ -3,6 +3,7 @@
 import { Plus, X } from "lucide-react";
 
 import { CharacterToken } from "@/components/grimoire/character-token";
+import { RevealIcon } from "@/components/grimoire/reveal-icon";
 import { IconButton } from "@/components/ui/icon-button";
 import { roleById } from "@/lib/game-data";
 import type { GameToken } from "@/lib/game-data/types";
@@ -12,14 +13,29 @@ export function DemonBluffRack({
   bluffs,
   onChooseBluff,
   onClearBluff,
+  onShowBluffs,
 }: {
   bluffs: GameToken[];
   onChooseBluff: (slot: number) => void;
   onClearBluff: (slot: number) => void;
+  onShowBluffs: () => void;
 }) {
   return (
     <section className="board-bluff-rack" aria-label="Demon Bluffs">
-      <span className="bluff-rack-label">Demon Bluffs</span>
+      <header className="bluff-rack-header">
+        <span className="bluff-rack-label">Demon Bluffs</span>
+        <IconButton
+          label="Show Demon Bluffs to a Player"
+          size="sm"
+          variant="quiet"
+          tooltipSide="top"
+          className="bluff-rack-reveal"
+          disabled={!bluffs.some((bluff) => bluff.roleId)}
+          onClick={onShowBluffs}
+        >
+          <RevealIcon />
+        </IconButton>
+      </header>
       <div className="bluff-slots">
         {[0, 1, 2].map((slot) => {
           const token = bluffs.find((bluff) => bluff.position === slot);

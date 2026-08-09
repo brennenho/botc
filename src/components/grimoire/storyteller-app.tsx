@@ -10,6 +10,7 @@ import {
   type GrimoirePanel,
 } from "@/components/grimoire/grimoire-side-sheet";
 import { GrimoireToolbar } from "@/components/grimoire/grimoire-toolbar";
+import { PlayerRevealScreen } from "@/components/grimoire/player-reveal-screen";
 import { ReminderToken } from "@/components/grimoire/reminder-token";
 import { RolePicker } from "@/components/grimoire/role-picker";
 import { StorytellerDock } from "@/components/grimoire/storyteller-dock";
@@ -24,10 +25,12 @@ import {
   type ReminderDefinition,
 } from "@/lib/reminders";
 import { cn } from "@/lib/utils";
+import type { NightRevealAction, PlayerReveal } from "@/lib/player-reveal";
 
 type PickerTarget =
   | { type: "seat"; seatId: string }
   | { type: "bluff"; slot: number }
+  | { type: "reveal"; heading: string }
   | null;
 
 export function StorytellerApp({ gameId }: { gameId: string }) {
@@ -43,6 +46,7 @@ export function StorytellerApp({ gameId }: { gameId: string }) {
   );
   const [pendingReminder, setPendingReminder] =
     useState<ReminderDefinition | null>(null);
+  const [playerReveal, setPlayerReveal] = useState<PlayerReveal | null>(null);
   const [pickerTarget, setPickerTarget] = useState<PickerTarget>(null);
   const {
     updateSeat,
@@ -104,6 +108,14 @@ export function StorytellerApp({ gameId }: { gameId: string }) {
   function handleClearAssignments() {
     clearAssignments();
     setSelectedSeatId(null);
+  }
+
+  function handleNightReveal(action: NightRevealAction) {
+    if (action.kind === "choose-role") {
+      setPickerTarget({ type: "reveal", heading: action.chooseRoleHeading });
+      return;
+    }
+    setPlayerReveal(action.reveal);
   }
 
   return (
@@ -182,6 +194,7 @@ export function StorytellerApp({ gameId }: { gameId: string }) {
           bluffs={bluffs}
           onChooseBluff={(slot) => setPickerTarget({ type: "bluff", slot })}
           onClearBluff={(slot) => chooseBluff(slot, null)}
+          onShowBluffs={() => setPlayerReveal({ type: "demon-bluffs" })}
         />
       </div>
 
@@ -197,6 +210,7 @@ export function StorytellerApp({ gameId }: { gameId: string }) {
         pendingReminder={pendingReminder}
         playersOpen={openPanel === "players"}
         nightOpen={openPanel === "night"}
+        showOpen={openPanel === "show"}
         onOpenPlayers={() => {
           setSelectedSeatId(null);
           setSelectedReminderId(null);
@@ -208,6 +222,12 @@ export function StorytellerApp({ gameId }: { gameId: string }) {
           setSelectedReminderId(null);
           setPendingReminder(null);
           setOpenPanel((current) => (current === "night" ? null : "night"));
+        }}
+        onOpenShow={() => {
+          setSelectedSeatId(null);
+          setSelectedReminderId(null);
+          setPendingReminder(null);
+          setOpenPanel((current) => (current === "show" ? null : "show"));
         }}
         onRemoveSelectedReminder={() => {
           if (!selectedReminder) return;
@@ -223,7 +243,7 @@ export function StorytellerApp({ gameId }: { gameId: string }) {
         seats={snapshot.seats}
         gameTokens={snapshot.gameTokens}
         pinned={sheetPinned}
-        childDialogOpen={pickerTarget !== null}
+        childDialogOpen={pickerTarget !== null || playerReveal !== null}
         pendingReminder={pendingReminder}
         nightOrderState={nightOrderState}
         onNightOrderStateChange={setNightOrderState}
@@ -246,6 +266,11 @@ export function StorytellerApp({ gameId }: { gameId: string }) {
           setPendingReminder(getReminderDefinition(role, action.label));
         }}
         onCancelReminderPlacement={() => setPendingReminder(null)}
+        onNightReveal={handleNightReveal}
+        onReveal={setPlayerReveal}
+        onChooseRevealRole={(heading) =>
+          setPickerTarget({ type: "reveal", heading })
+        }
       />
       <RolePicker
         open={pickerTarget !== null}
@@ -253,9 +278,11 @@ export function StorytellerApp({ gameId }: { gameId: string }) {
         title={
           pickerTarget?.type === "bluff"
             ? "Choose a Demon Bluff"
-            : pickerTarget?.type === "seat"
-              ? `Choose a Character for ${snapshot.seats.find((seat) => seat.id === pickerTarget.seatId)?.playerName ?? "Player"}`
-              : "Choose a Character"
+            : pickerTarget?.type === "reveal"
+              ? `Choose a Character to Show with “${pickerTarget.heading}”`
+              : pickerTarget?.type === "seat"
+                ? `Choose a Character for ${snapshot.seats.find((seat) => seat.id === pickerTarget.seatId)?.playerName ?? "Player"}`
+                : "Choose a Character"
         }
         clearLabel={
           pickerTarget?.type === "bluff" ? "Clear Bluff" : "Clear Assignment"
@@ -281,8 +308,22 @@ export function StorytellerApp({ gameId }: { gameId: string }) {
             chooseRole(pickerTarget.seatId, roleId);
           if (pickerTarget?.type === "bluff")
             chooseBluff(pickerTarget.slot, roleId);
+          if (pickerTarget?.type === "reveal" && roleId) {
+            setPlayerReveal({
+              type: "role",
+              heading: pickerTarget.heading,
+              roleId,
+            });
+          }
           setPickerTarget(null);
         }}
+      />
+
+      <PlayerRevealScreen
+        reveal={playerReveal}
+        seats={snapshot.seats}
+        gameTokens={snapshot.gameTokens}
+        onClose={() => setPlayerReveal(null)}
       />
 
       {setupReminderWarnings.length > 0 && (

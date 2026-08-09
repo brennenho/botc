@@ -2,6 +2,7 @@
 
 import { Moon, Users, X } from "lucide-react";
 
+import { RevealIcon } from "@/components/grimoire/reveal-icon";
 import { ReminderIcon } from "@/components/grimoire/reminder-icon";
 import { ReminderToken } from "@/components/grimoire/reminder-token";
 import { ConfirmRemoveButton } from "@/components/grimoire/remove-player-button";
@@ -17,8 +18,10 @@ export function StorytellerDock({
   pendingReminder,
   playersOpen,
   nightOpen,
+  showOpen,
   onOpenPlayers,
   onOpenNight,
+  onOpenShow,
   onRemoveSelectedReminder,
   onCloseSelectedReminder,
   onCancelReminderPlacement,
@@ -28,8 +31,10 @@ export function StorytellerDock({
   pendingReminder: ReminderDefinition | null;
   playersOpen: boolean;
   nightOpen: boolean;
+  showOpen: boolean;
   onOpenPlayers: () => void;
   onOpenNight: () => void;
+  onOpenShow: () => void;
   onRemoveSelectedReminder: () => void;
   onCloseSelectedReminder: () => void;
   onCancelReminderPlacement: () => void;
@@ -38,7 +43,7 @@ export function StorytellerDock({
     <nav
       className={cn(
         "storyteller-dock global-dock",
-        (playersOpen || nightOpen) && "is-sheet-open",
+        (playersOpen || nightOpen || showOpen) && "is-sheet-open",
       )}
       aria-label="Grimoire Panels"
     >
@@ -55,6 +60,13 @@ export function StorytellerDock({
         label="Night Order"
         active={nightOpen}
         onClick={onOpenNight}
+      />
+      <PanelTabButton
+        tab="show"
+        icon={<RevealIcon />}
+        label="Show"
+        active={showOpen}
+        onClick={onOpenShow}
       />
     </nav>
   );
@@ -147,7 +159,7 @@ function PanelTabButton({
   active = false,
   onClick,
 }: {
-  tab: "players" | "night-order";
+  tab: "players" | "night-order" | "show";
   icon: React.ReactNode;
   label: string;
   active?: boolean;

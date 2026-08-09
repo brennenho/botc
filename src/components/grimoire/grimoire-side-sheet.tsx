@@ -3,6 +3,7 @@
 import { Pin } from "lucide-react";
 
 import { NightOrderPanel } from "@/components/grimoire/night-order-sheet";
+import { PlayerRevealPanel } from "@/components/grimoire/player-reveal-panel";
 import { RosterPanel } from "@/components/grimoire/roster-sheet";
 import { IconButton } from "@/components/ui/icon-button";
 import { Sheet } from "@/components/ui/sheet";
@@ -10,9 +11,10 @@ import type { NightReminderAction } from "@/lib/game-data/night-reminder-actions
 import type { EditionId, GameToken, Role, Seat } from "@/lib/game-data/types";
 import type { NightOrderState } from "@/lib/night-order-state";
 import type { ReminderDefinition } from "@/lib/reminders";
+import type { NightRevealAction, PlayerReveal } from "@/lib/player-reveal";
 import { cn } from "@/lib/utils";
 
-export type GrimoirePanel = "players" | "night" | null;
+export type GrimoirePanel = "players" | "night" | "show" | null;
 
 export function GrimoireSideSheet({
   panel,
@@ -37,6 +39,9 @@ export function GrimoireSideSheet({
   onArrangeCircle,
   onPlaceNightReminder,
   onCancelReminderPlacement,
+  onNightReveal,
+  onReveal,
+  onChooseRevealRole,
 }: {
   panel: GrimoirePanel;
   editionId: EditionId;
@@ -60,14 +65,24 @@ export function GrimoireSideSheet({
   onArrangeCircle: () => void;
   onPlaceNightReminder: (role: Role, action: NightReminderAction) => void;
   onCancelReminderPlacement: () => void;
+  onNightReveal: (action: NightRevealAction) => void;
+  onReveal: (reveal: PlayerReveal) => void;
+  onChooseRevealRole: (heading: string) => void;
 }) {
+  const title =
+    panel === "night"
+      ? "Night Order"
+      : panel === "show"
+        ? "Show to Player"
+        : "Players";
+
   return (
     <Sheet
       open={panel !== null}
       onOpenChange={(open) => {
         if (!open) onClose();
       }}
-      title={panel === "night" ? "Night Order" : "Players"}
+      title={title}
       modal={false}
       backdrop={false}
       disablePointerDismissal={pinned || childDialogOpen}
@@ -111,6 +126,15 @@ export function GrimoireSideSheet({
           onStateChange={onNightOrderStateChange}
           onPlaceReminder={onPlaceNightReminder}
           onCancelReminderPlacement={onCancelReminderPlacement}
+          onReveal={onNightReveal}
+        />
+      </div>
+      <div className="sheet-panel" hidden={panel !== "show"}>
+        <PlayerRevealPanel
+          seats={seats}
+          gameTokens={gameTokens}
+          onReveal={onReveal}
+          onChooseRole={onChooseRevealRole}
         />
       </div>
     </Sheet>

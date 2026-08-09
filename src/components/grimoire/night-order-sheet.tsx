@@ -4,6 +4,7 @@ import { useMemo } from "react";
 import { Check, Moon, Plus, Sun, X } from "lucide-react";
 
 import { ReminderIcon } from "@/components/grimoire/reminder-icon";
+import { RevealIcon } from "@/components/grimoire/reveal-icon";
 import { TokenIcon } from "@/components/grimoire/token-icon";
 import { SegmentedControl } from "@/components/ui/segmented-control";
 import {
@@ -18,6 +19,10 @@ import {
 } from "@/lib/night-order-state";
 import { cn } from "@/lib/utils";
 import type { ReminderDefinition } from "@/lib/reminders";
+import {
+  getNightRevealActions,
+  type NightRevealAction,
+} from "@/lib/player-reveal";
 
 type DisplayEntry = NightOrderEntry & { key: string; playerName?: string };
 
@@ -30,6 +35,7 @@ export function NightOrderPanel({
   onStateChange,
   onPlaceReminder,
   onCancelReminderPlacement,
+  onReveal,
 }: {
   editionId: EditionId;
   seats: Seat[];
@@ -42,6 +48,7 @@ export function NightOrderPanel({
     action: NightOrderEntry["reminderActions"][number],
   ) => void;
   onCancelReminderPlacement: () => void;
+  onReveal: (action: NightRevealAction) => void;
 }) {
   const { night, scope } = state;
   const viewKey = getNightOrderViewKey(night, scope);
@@ -110,6 +117,7 @@ export function NightOrderPanel({
       <div className="night-order-list">
         {entries.map((entry, index) => {
           const done = completed.has(entry.key);
+          const revealActions = getNightRevealActions(entry);
           return (
             <div
               key={entry.key}
@@ -189,6 +197,27 @@ export function NightOrderPanel({
                       </button>
                     );
                   })}
+                </div>
+              )}
+              {revealActions.length > 0 && (
+                <div className="night-reveal-actions">
+                  {revealActions.map((action) => (
+                    <button
+                      key={`${entry.key}-${action.id}`}
+                      type="button"
+                      onClick={() => onReveal(action)}
+                    >
+                      <span className="night-reveal-action-icon">
+                        <RevealIcon />
+                      </span>
+                      <span className="night-reveal-action-copy">
+                        {action.label}
+                      </span>
+                      <span className="night-reveal-action-meta">
+                        <strong>Show</strong>
+                      </span>
+                    </button>
+                  ))}
                 </div>
               )}
             </div>

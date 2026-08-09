@@ -1319,6 +1319,30 @@
   text-transform: uppercase;
 }
 
+.bluff-rack-header {
+  display: flex;
+  width: 100%;
+  min-height: 18px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.bluff-rack-reveal {
+  width: 20px;
+  height: 20px;
+  min-height: 20px;
+  padding: 0;
+  border-radius: 50%;
+  color: var(--grimoire-hardware-accent);
+}
+
+.bluff-rack-reveal .reveal-icon {
+  width: 12px;
+  height: 12px;
+  stroke-width: 1.8;
+}
+
 .bluff-slots {
   display: flex;
   gap: 6px;
@@ -1816,13 +1840,15 @@
   line-height: 1.55;
 }
 
-.night-reminder-actions {
+.night-reminder-actions,
+.night-reveal-actions {
   display: grid;
   gap: 0;
   padding: 0 14px 12px 89px;
 }
 
-.night-reminder-actions button {
+.night-reminder-actions button,
+.night-reveal-actions button {
   display: grid;
   min-height: 32px;
   grid-template-columns: 18px minmax(0, 1fr) auto;
@@ -1842,7 +1868,9 @@
 }
 
 .night-reminder-actions button:hover,
-.night-reminder-actions button:focus-visible {
+.night-reminder-actions button:focus-visible,
+.night-reveal-actions button:hover,
+.night-reveal-actions button:focus-visible {
   color: var(--ink);
   background: var(--row-hover);
 }
@@ -1917,6 +1945,47 @@
   font-weight: 600;
 }
 
+.night-reveal-actions {
+  padding-top: 0;
+}
+
+.night-reveal-actions button {
+  grid-template-columns: 18px minmax(0, 1fr) auto;
+}
+
+.night-reveal-action-icon {
+  display: grid;
+  width: 18px;
+  height: 18px;
+  place-items: center;
+  color: rgb(49 93 90 / 72%);
+}
+
+.night-reveal-action-icon .reveal-icon {
+  width: 15px;
+  height: 15px;
+  stroke-width: 1.8;
+}
+
+.night-reveal-action-copy {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.night-reveal-action-meta {
+  color: rgb(49 93 90 / 72%);
+  font-family: var(--font-utility);
+  font-size: 8px;
+  font-weight: 600;
+  line-height: 1.1;
+}
+
+.night-reveal-actions button:focus-visible {
+  outline: 0;
+  box-shadow: inset 2px 0 rgb(49 93 90 / 32%);
+}
+
 .night-info-token {
   color: #7c522b;
   font-weight: 650;
@@ -1940,6 +2009,464 @@
   color: rgb(35 38 34 / 45%);
   font-size: 12px;
   text-align: center;
+}
+
+/* Player-facing reveals */
+.player-reveal-panel {
+  min-height: 0;
+  flex: 1;
+  overflow-y: auto;
+  padding: 4px 0 20px;
+}
+
+.player-reveal-panel-section {
+  padding: 15px 16px 5px;
+}
+
+.player-reveal-panel-section + .player-reveal-panel-section {
+  margin-top: 8px;
+  border-top: 1px solid rgb(35 38 34 / 9%);
+}
+
+.player-reveal-panel-section > .utility-label {
+  display: block;
+  margin-bottom: 7px;
+  color: rgb(35 38 34 / 46%);
+}
+
+.player-reveal-action-list {
+  display: grid;
+  gap: 2px;
+}
+
+.player-reveal-action {
+  width: 100%;
+  min-height: 54px;
+  justify-content: flex-start;
+  gap: 10px;
+  padding: 7px 9px;
+  border-radius: var(--radius-control);
+  color: var(--ink);
+  text-align: left;
+}
+
+.player-reveal-action:hover,
+.player-reveal-action:focus-visible {
+  background: var(--row-hover);
+}
+
+.player-reveal-action:focus-visible {
+  box-shadow: inset 2px 0 rgb(49 93 90 / 34%);
+}
+
+.player-reveal-action-icon {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  flex: 0 0 34px;
+  place-items: center;
+  border: 1px solid rgb(49 93 90 / 18%);
+  border-radius: 50%;
+  color: #356b72;
+  background: rgb(219 232 229 / 58%);
+}
+
+.player-reveal-action-icon > svg {
+  width: 17px;
+  height: 17px;
+  stroke-width: 1.7;
+}
+
+.player-reveal-action[data-tone="good"] .player-reveal-action-icon {
+  color: #286d8e;
+  background: rgb(216 232 239 / 64%);
+}
+
+.player-reveal-action[data-tone="evil"] .player-reveal-action-icon {
+  color: #8e383d;
+  background: rgb(237 217 212 / 66%);
+}
+
+.player-reveal-action-copy {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.player-reveal-action-copy strong {
+  overflow: hidden;
+  font-size: var(--text-body-sm);
+  font-weight: 640;
+  line-height: 1.25;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.player-reveal-action-copy small {
+  overflow: hidden;
+  color: rgb(35 38 34 / 46%);
+  font-size: 9px;
+  font-weight: 450;
+  line-height: 1.3;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.player-reveal-action-command {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 4px;
+  color: rgb(49 93 90 / 70%);
+  font-family: var(--font-utility);
+  font-size: 8px;
+  font-weight: 600;
+}
+
+.player-reveal-action-command .reveal-icon {
+  width: 13px;
+  height: 13px;
+  stroke-width: 1.8;
+}
+
+.player-reveal-alignment-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.player-reveal-viewport {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+}
+
+.player-reveal-screen {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  place-items: center;
+  outline: none;
+  color: #f3ead9;
+  background-color: #101713;
+  background-image: url("/assets/grimoire-leather.webp");
+  background-position: center;
+  background-size: cover;
+}
+
+.player-reveal-screen::before {
+  position: absolute;
+  inset: 18px;
+  border: 1px solid rgb(194 157 84 / 32%);
+  border-radius: 7px;
+  content: "";
+  pointer-events: none;
+}
+
+.player-reveal-content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  width: min(920px, calc(100vw - 112px));
+  max-height: calc(100svh - 112px);
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 22px;
+  text-align: center;
+}
+
+.player-reveal-title {
+  margin: 0;
+  outline: none;
+  color: #f3ead9;
+  font-family: var(--font-display);
+  font-size: 42px;
+  font-weight: 610;
+  line-height: 1.05;
+  letter-spacing: 0;
+  text-wrap: balance;
+}
+
+.player-reveal-primary-role {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+}
+
+.player-reveal-primary-token {
+  width: 190px;
+  height: 190px;
+  border: 2px solid rgb(190 154 83 / 66%);
+  box-shadow: 0 13px 28px rgb(0 0 0 / 34%);
+}
+
+.player-reveal-primary-role h2 {
+  margin: 16px 0 1px;
+  color: #f7efe0;
+  font-family: var(--font-display);
+  font-size: 32px;
+  font-weight: 680;
+  line-height: 1.1;
+}
+
+.player-reveal-team {
+  margin: 0;
+  color: #75a8ba;
+  font-family: var(--font-utility);
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.player-reveal-team.team-minion,
+.player-reveal-team.team-demon {
+  color: #c97876;
+}
+
+.player-reveal-ability {
+  max-width: 620px;
+  margin: 15px 0 0;
+  color: rgb(243 234 217 / 72%);
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.player-reveal-role-list {
+  display: grid;
+  width: 100%;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  justify-items: center;
+  gap: 28px;
+}
+
+.player-reveal-role-item {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.player-reveal-role-token {
+  width: 150px;
+  height: 150px;
+  border: 1px solid rgb(190 154 83 / 54%);
+  box-shadow: 0 10px 22px rgb(0 0 0 / 30%);
+}
+
+.player-reveal-role-item > strong {
+  color: #f3ead9;
+  font-family: var(--font-display);
+  font-size: 19px;
+  font-weight: 620;
+  line-height: 1.1;
+}
+
+.player-reveal-empty {
+  margin: 8px 0 0;
+  color: rgb(243 234 217 / 48%);
+  font-family: var(--font-utility);
+  font-size: 11px;
+}
+
+.player-reveal-player-name {
+  margin: 0;
+  color: #f6eddb;
+  font-family: var(--font-display);
+  font-size: 66px;
+  font-weight: 680;
+  line-height: 1;
+  text-wrap: balance;
+}
+
+.player-reveal-alignment {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.player-reveal-alignment > svg {
+  width: 112px;
+  height: 112px;
+  stroke-width: 1.3;
+}
+
+.player-reveal-alignment > strong {
+  font-family: var(--font-display);
+  font-size: 66px;
+  line-height: 1;
+}
+
+.player-reveal-alignment.is-good {
+  color: #72b6cf;
+}
+
+.player-reveal-alignment.is-evil {
+  color: #d46f70;
+}
+
+.player-reveal-content.is-group-information {
+  width: min(1020px, calc(100vw - 112px));
+  flex-direction: row;
+  gap: 54px;
+}
+
+.player-reveal-information-section {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  align-items: center;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.player-reveal-information-section + .player-reveal-information-section {
+  padding-left: 54px;
+  border-left: 1px solid rgb(194 157 84 / 24%);
+}
+
+.player-reveal-content.is-group-information .player-reveal-title {
+  font-size: 32px;
+}
+
+.player-reveal-content.is-group-information .player-reveal-role-list {
+  gap: 13px;
+}
+
+.player-reveal-content.is-group-information .player-reveal-role-token {
+  width: 112px;
+  height: 112px;
+}
+
+.player-reveal-content.is-group-information .player-reveal-role-item > strong {
+  font-size: 15px;
+}
+
+.player-reveal-content.is-group-information .player-reveal-player-name {
+  font-size: 46px;
+}
+
+.player-reveal-player-list {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 9px;
+}
+
+.player-reveal-player-list > strong {
+  padding: 9px 13px 10px;
+  border-top: 1px solid rgb(194 157 84 / 28%);
+  border-bottom: 1px solid rgb(194 157 84 / 18%);
+  color: #f5ecdc;
+  background: rgb(238 224 191 / 7%);
+  font-family: var(--font-display);
+  font-size: 24px;
+  font-weight: 610;
+}
+
+.player-reveal-player-list > span {
+  color: rgb(243 234 217 / 48%);
+  font-family: var(--font-utility);
+  font-size: 11px;
+}
+
+.player-reveal-return {
+  position: fixed;
+  right: max(30px, env(safe-area-inset-right));
+  bottom: max(30px, env(safe-area-inset-bottom));
+  z-index: 2;
+  min-width: 170px;
+  justify-content: center;
+  border: 1px solid rgb(194 157 84 / 26%);
+  color: rgb(243 234 217 / 58%);
+  background: rgb(11 16 14 / 58%);
+  backdrop-filter: blur(8px);
+}
+
+.player-reveal-return:hover,
+.player-reveal-return:focus-visible {
+  color: #f3ead9;
+  background: rgb(24 33 28 / 92%);
+}
+
+.player-reveal-return.is-confirming {
+  border-color: rgb(194 157 84 / 56%);
+  color: #f3ead9;
+}
+
+.player-reveal-return > svg {
+  width: 15px;
+  height: 15px;
+}
+
+@media (max-width: 900px), (max-height: 680px) {
+  .player-reveal-content {
+    width: min(820px, calc(100vw - 88px));
+    max-height: calc(100svh - 88px);
+    gap: 16px;
+  }
+
+  .player-reveal-title {
+    font-size: 34px;
+  }
+
+  .player-reveal-primary-token {
+    width: 142px;
+    height: 142px;
+  }
+
+  .player-reveal-primary-role h2 {
+    margin-top: 10px;
+    font-size: 26px;
+  }
+
+  .player-reveal-ability {
+    max-width: 560px;
+    margin-top: 10px;
+    font-size: 13px;
+  }
+
+  .player-reveal-role-token {
+    width: 116px;
+    height: 116px;
+  }
+
+  .player-reveal-player-name,
+  .player-reveal-alignment > strong {
+    font-size: 52px;
+  }
+
+  .player-reveal-alignment > svg {
+    width: 86px;
+    height: 86px;
+  }
+
+  .player-reveal-content.is-group-information {
+    width: min(880px, calc(100vw - 88px));
+    gap: 28px;
+  }
+
+  .player-reveal-information-section + .player-reveal-information-section {
+    padding-left: 28px;
+  }
+
+  .player-reveal-content.is-group-information .player-reveal-role-token {
+    width: 84px;
+    height: 84px;
+  }
+
+  .player-reveal-return {
+    right: max(22px, env(safe-area-inset-right));
+    bottom: max(22px, env(safe-area-inset-bottom));
+  }
 }
 
 /* Token case */
@@ -2817,9 +3344,7 @@
 
 .join-code-control:hover {
   background-color: var(--grimoire-hardware-surface-hover);
-  box-shadow:
-    var(--grimoire-hardware-shadow),
-    var(--shadow-control-hover);
+  box-shadow: var(--grimoire-hardware-shadow), var(--shadow-control-hover);
 }
 
 .join-code-control:focus-visible {
@@ -2928,11 +3453,9 @@
 
 .board-bluff-rack .bluff-slot {
   --tactile-shadow-rest:
-    inset 0 1px rgb(255 252 239 / 46%),
-    0 1px 2px rgb(58 38 17 / 12%);
+    inset 0 1px rgb(255 252 239 / 46%), 0 1px 2px rgb(58 38 17 / 12%);
   --tactile-shadow-hover:
-    inset 0 1px rgb(255 252 239 / 52%),
-    0 3px 6px rgb(58 38 17 / 15%);
+    inset 0 1px rgb(255 252 239 / 52%), 0 3px 6px rgb(58 38 17 / 15%);
 
   width: 34px;
   height: 34px;
@@ -3046,7 +3569,7 @@
   box-shadow: var(--tactile-shadow-rest);
 }
 
-.storyteller-shell .role-artwork {
+:is(.storyteller-shell, .player-reveal-screen) .role-artwork {
   box-shadow: inset 0 0 12px rgb(91 72 45 / 8%);
   background-position: center;
   background-size:
@@ -3055,7 +3578,7 @@
   background-blend-mode: soft-light, multiply;
 }
 
-.storyteller-shell .role-artwork.team-townsfolk {
+:is(.storyteller-shell, .player-reveal-screen) .role-artwork.team-townsfolk {
   background-color: #dbe4df;
   background-image:
     radial-gradient(
@@ -3067,7 +3590,7 @@
     url("/assets/grimoire-parchment.png");
 }
 
-.storyteller-shell .role-artwork.team-outsider {
+:is(.storyteller-shell, .player-reveal-screen) .role-artwork.team-outsider {
   background-color: #e0dce4;
   background-image:
     radial-gradient(
@@ -3079,7 +3602,7 @@
     url("/assets/grimoire-parchment.png");
 }
 
-.storyteller-shell .role-artwork.team-minion {
+:is(.storyteller-shell, .player-reveal-screen) .role-artwork.team-minion {
   background-color: #e5dad3;
   background-image:
     radial-gradient(
@@ -3091,7 +3614,7 @@
     url("/assets/grimoire-parchment.png");
 }
 
-.storyteller-shell .role-artwork.team-demon {
+:is(.storyteller-shell, .player-reveal-screen) .role-artwork.team-demon {
   background-color: #e3d5d0;
   background-image:
     radial-gradient(
@@ -3103,7 +3626,7 @@
     url("/assets/grimoire-parchment.png");
 }
 
-.storyteller-shell .role-artwork.team-traveller {
+:is(.storyteller-shell, .player-reveal-screen) .role-artwork.team-traveller {
   background-color: #ded8ca;
   background-image:
     radial-gradient(
@@ -3115,7 +3638,7 @@
     url("/assets/grimoire-parchment.png");
 }
 
-.storyteller-shell .role-artwork::after {
+:is(.storyteller-shell, .player-reveal-screen) .role-artwork::after {
   position: absolute;
   inset: 0;
   z-index: 4;
@@ -3259,11 +3782,9 @@
 
 .reminder-token-face {
   --tactile-shadow-rest:
-    0 2px 4px rgb(49 32 13 / 17%),
-    inset 0 1px 1px rgb(255 253 241 / 58%);
+    0 2px 4px rgb(49 32 13 / 17%), inset 0 1px 1px rgb(255 253 241 / 58%);
   --tactile-shadow-hover:
-    0 4px 7px rgb(49 32 13 / 20%),
-    inset 0 1px 1px rgb(255 253 241 / 64%);
+    0 4px 7px rgb(49 32 13 / 20%), inset 0 1px 1px rgb(255 253 241 / 64%);
 
   position: absolute;
   inset: 0;
@@ -3294,15 +3815,11 @@
 
 .reminder-token.is-selected .reminder-token-face {
   --tactile-shadow-rest:
-    0 3px 6px rgb(49 32 13 / 21%),
-    0 0 0 2px rgb(255 250 235 / 82%),
-    0 0 0 3px
-      color-mix(in srgb, var(--reminder-token-accent) 64%, transparent);
+    0 3px 6px rgb(49 32 13 / 21%), 0 0 0 2px rgb(255 250 235 / 82%),
+    0 0 0 3px color-mix(in srgb, var(--reminder-token-accent) 64%, transparent);
   --tactile-shadow-hover:
-    0 5px 9px rgb(49 32 13 / 23%),
-    0 0 0 2px rgb(255 250 235 / 82%),
-    0 0 0 3px
-      color-mix(in srgb, var(--reminder-token-accent) 64%, transparent);
+    0 5px 9px rgb(49 32 13 / 23%), 0 0 0 2px rgb(255 250 235 / 82%),
+    0 0 0 3px color-mix(in srgb, var(--reminder-token-accent) 64%, transparent);
 }
 
 .storyteller-shell .reminder-token-source-art {
@@ -3385,8 +3902,7 @@
 
 .reminder-token-labeled .reminder-token-face {
   --tactile-shadow-rest:
-    0 2px 4px rgb(49 32 13 / 17%),
-    inset 0 1px 1px rgb(255 253 241 / 58%);
+    0 2px 4px rgb(49 32 13 / 17%), inset 0 1px 1px rgb(255 253 241 / 58%);
 }
 
 .reminder-token-count {
