@@ -883,32 +883,9 @@
   align-items: center;
   gap: 5px;
   justify-self: end;
-  color: rgb(244 240 230 / 43%);
-  font-size: 10px;
-}
-
-.save-state {
-  display: grid;
-  width: 18px;
-  height: 18px;
-  place-items: center;
-  border-radius: 50%;
-  color: #9db89c;
-}
-
-.save-state.is-saving {
-  color: var(--brass);
-  animation: save-pulse 900ms ease-in-out infinite alternate;
-}
-
-.save-state.is-error {
-  color: #e18a83;
-}
-
-@keyframes save-pulse {
-  to {
-    opacity: 0.28;
-  }
+  color: #9a3e39;
+  font-size: var(--text-caption);
+  font-weight: 650;
 }
 
 .grimoire-workspace {
@@ -1336,6 +1313,12 @@
 .bluff-slots {
   display: flex;
   gap: 6px;
+}
+
+.bluff-slot-control {
+  position: relative;
+  width: 34px;
+  height: 34px;
 }
 
 .bluff-slot {
@@ -2839,14 +2822,9 @@
 
 .toolbar-status {
   position: absolute;
-  top: 80px;
-  right: 34px;
-  color: rgb(54 43 30 / 58%);
+  top: 87px;
+  right: 30px;
   pointer-events: none;
-}
-
-.toolbar-status > span:last-child {
-  display: none;
 }
 
 .grimoire-workspace {
@@ -3006,6 +2984,40 @@
 .board-bluff-rack .bluff-slot.has-role {
   border-color: var(--grimoire-hardware-border-strong);
   background: transparent;
+}
+
+.board-bluff-rack .bluff-slot-clear {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  z-index: 1;
+  border-radius: 50%;
+  color: rgb(114 47 52 / 56%);
+  background: transparent;
+  box-shadow: none;
+  opacity: 0;
+  pointer-events: none;
+  transform: scale(0.82);
+  transition:
+    color 120ms ease,
+    background-color 120ms ease,
+    opacity 120ms ease,
+    transform 120ms ease;
+}
+
+.board-bluff-rack .bluff-slot-control:hover .bluff-slot-clear,
+.board-bluff-rack .bluff-slot-control:focus-within .bluff-slot-clear {
+  background: rgb(245 234 207 / 94%);
+  box-shadow: 0 1px 3px rgb(55 36 17 / 18%);
+  opacity: 1;
+  pointer-events: auto;
+  transform: scale(1);
+}
+
+.board-bluff-rack .bluff-slot-clear:hover,
+.board-bluff-rack .bluff-slot-clear:focus-visible {
+  color: var(--oxblood);
+  background: rgb(239 220 190 / 98%);
 }
 
 .player-token {

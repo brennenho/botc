@@ -1,5 +1,6 @@
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { normalizeUpdatedSeats } from "@/lib/server/seat-normalization";
+import { normalizeUpdatedTokens } from "@/lib/server/token-normalization";
 import type { EditionId, Phase } from "@/lib/game-data";
 import type {
   Alignment,
@@ -511,11 +512,9 @@ export async function updateStorytellerGame(
     ? normalizeUpdatedSeats(patch.seats, gameId)
     : undefined;
 
-  const normalizedTokens = patch.gameTokens?.map((gameToken, index) => ({
-    ...gameToken,
-    gameId,
-    position: index,
-  }));
+  const normalizedTokens = patch.gameTokens
+    ? normalizeUpdatedTokens(patch.gameTokens, gameId)
+    : undefined;
 
   if (supabase) {
     const { data: gameRow, error: gameError } = await supabase

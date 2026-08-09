@@ -396,6 +396,7 @@ export function StorytellerApp({ gameId }: { gameId: string }) {
         <DemonBluffRack
           bluffs={bluffs}
           onChooseBluff={(slot) => setPickerTarget({ type: "bluff", slot })}
+          onClearBluff={(slot) => chooseBluff(slot, null)}
         />
       </div>
 
@@ -442,6 +443,7 @@ export function StorytellerApp({ gameId }: { gameId: string }) {
         seats={snapshot.seats}
         gameTokens={snapshot.gameTokens}
         pinned={sheetPinned}
+        childDialogOpen={pickerTarget !== null}
         nightOrderState={nightOrderState}
         onNightOrderStateChange={setNightOrderState}
         onPinnedChange={setSheetPinned}

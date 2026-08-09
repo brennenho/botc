@@ -19,6 +19,7 @@ export function GrimoireSideSheet({
   seats,
   gameTokens,
   pinned,
+  childDialogOpen,
   nightOrderState,
   onNightOrderStateChange,
   onPinnedChange,
@@ -39,6 +40,7 @@ export function GrimoireSideSheet({
   seats: Seat[];
   gameTokens: GameToken[];
   pinned: boolean;
+  childDialogOpen: boolean;
   nightOrderState: NightOrderState;
   onNightOrderStateChange: (state: NightOrderState) => void;
   onPinnedChange: (pinned: boolean) => void;
@@ -63,7 +65,7 @@ export function GrimoireSideSheet({
       title={panel === "night" ? "Night Order" : "Players"}
       modal={false}
       backdrop={false}
-      disablePointerDismissal={pinned}
+      disablePointerDismissal={pinned || childDialogOpen}
       className={cn(panel === "night" && "night-sheet", pinned && "is-pinned")}
       headerActions={
         <IconButton
