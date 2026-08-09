@@ -4,14 +4,14 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex shrink-0 items-center justify-center gap-2 rounded-md border border-transparent font-medium transition-colors outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] disabled:pointer-events-none disabled:opacity-45",
+  "inline-flex shrink-0 items-center justify-center gap-2 rounded-md border border-transparent font-medium outline-none transition-[color,background-color,border-color,box-shadow,transform] duration-150 ease-out disabled:pointer-events-none disabled:opacity-45",
   {
     variants: {
       variant: {
         primary:
-          "bg-[var(--control-primary-bg)] text-[var(--control-primary-text)] shadow-sm hover:bg-[var(--control-primary-bg-hover)] active:bg-[var(--control-primary-bg-hover)]",
+          "bg-[var(--control-primary-bg)] text-[var(--control-primary-text)] shadow-[var(--shadow-control-rest)] hover:-translate-y-px hover:bg-[var(--control-primary-bg-hover)] hover:shadow-[var(--shadow-control-hover)] active:translate-y-0 active:bg-[var(--control-primary-bg-hover)] active:shadow-[var(--shadow-control-pressed)]",
         secondary:
-          "border-[var(--control-border)] bg-[var(--control-secondary-bg)] text-[var(--control-text)] hover:bg-[var(--control-secondary-bg-hover)] active:bg-[var(--control-secondary-bg-hover)]",
+          "border-[var(--control-border)] bg-[var(--control-secondary-bg)] text-[var(--control-text)] shadow-[var(--shadow-control-rest)] hover:-translate-y-px hover:bg-[var(--control-secondary-bg-hover)] hover:shadow-[var(--shadow-control-hover)] active:translate-y-0 active:bg-[var(--control-secondary-bg-hover)] active:shadow-[var(--shadow-control-pressed)]",
         quiet:
           "text-[var(--control-text-muted)] hover:bg-[var(--control-hover)] hover:text-[var(--control-text)] active:bg-[var(--control-hover)]",
         danger:
@@ -23,10 +23,15 @@ const buttonVariants = cva(
         lg: "h-11 px-5 text-sm",
         icon: "size-10 p-0",
       },
+      focusStyle: {
+        control: "focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]",
+        surface: "focus-visible:ring-0",
+      },
     },
     defaultVariants: {
       variant: "primary",
       size: "md",
+      focusStyle: "control",
     },
   },
 );
@@ -35,11 +40,11 @@ export type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> &
   VariantProps<typeof buttonVariants>;
 
 export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  function Button({ className, variant, size, ...props }, ref) {
+  function Button({ className, variant, size, focusStyle, ...props }, ref) {
     return (
       <button
         ref={ref}
-        className={cn(buttonVariants({ variant, size }), className)}
+        className={cn(buttonVariants({ variant, size, focusStyle }), className)}
         {...props}
       />
     );

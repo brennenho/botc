@@ -107,10 +107,11 @@ export function RosterPanel({
               </button>
               <Input
                 key={`${seat.id}-${seat.playerName}`}
+                variant="inline"
                 defaultValue={seat.playerName}
                 maxLength={40}
                 aria-label={`Name for seat ${index + 1}`}
-                className="h-9 min-w-0 border-0 bg-transparent px-1 focus:bg-white/55 focus:ring-0"
+                className="h-9 min-w-0"
                 onBlur={(event) => {
                   const name = event.target.value.trim();
                   if (name && name !== seat.playerName) onRename(seat.id, name);

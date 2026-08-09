@@ -37,6 +37,12 @@
   --border-brass-strong: rgb(195 161 95 / 40%);
   --shadow-dialog: 0 24px 72px rgb(0 0 0 / 64%);
   --shadow-popover: 0 8px 22px rgb(0 0 0 / 34%);
+  --shadow-control-rest: 0 1px 2px rgb(30 24 16 / 8%);
+  --shadow-control-hover: 0 3px 7px rgb(30 24 16 / 12%);
+  --shadow-control-pressed: 0 1px 2px rgb(30 24 16 / 10%);
+  --shadow-tactile-rest: 0 2px 4px rgb(49 32 13 / 15%);
+  --shadow-tactile-hover: 0 4px 7px rgb(49 32 13 / 19%);
+  --shadow-tactile-drag: 0 7px 14px rgb(49 32 13 / 27%);
 
   --control-primary-bg: var(--ink);
   --control-primary-bg-hover: #111310;
@@ -48,6 +54,8 @@
   --control-placeholder: rgb(35 38 34 / 35%);
   --control-border: rgb(35 38 34 / 15%);
   --control-hover: rgb(35 38 34 / 6%);
+  --row-hover: rgb(195 161 95 / 7%);
+  --row-active: rgb(195 161 95 / 11%);
   --focus-ring: rgb(141 113 61 / 45%);
   --status-danger: #8f2f34;
   --status-danger-hover: rgb(143 47 52 / 12%);
@@ -72,6 +80,9 @@
   --text-body-sm: 11px;
   --text-body: 13px;
   --text-title-sm: 26px;
+  --motion-fast: 120ms;
+  --motion-standard: 150ms;
+  --ease-out: cubic-bezier(0.2, 0.75, 0.2, 1);
 }
 
 @layer base {
@@ -111,6 +122,50 @@
   ::selection {
     background: rgb(195 161 95 / 28%);
   }
+}
+
+/* Shared interaction language: elevation indicates action; rings indicate focus. */
+.tactile-action {
+  --tactile-shadow-rest: var(--shadow-tactile-rest);
+  --tactile-shadow-hover: var(--shadow-tactile-hover);
+  --tactile-shadow-active: var(--shadow-control-pressed);
+
+  outline: none;
+}
+
+.tactile-surface {
+  box-shadow: var(--tactile-shadow-rest);
+  transition:
+    box-shadow var(--motion-fast) ease,
+    filter var(--motion-fast) ease,
+    transform var(--motion-fast) var(--ease-out);
+}
+
+.tactile-action:hover.tactile-surface,
+.tactile-action:hover .tactile-surface {
+  box-shadow: var(--tactile-shadow-hover);
+  filter: brightness(1.015);
+  transform: translateY(-1px);
+}
+
+.tactile-action:active.tactile-surface,
+.tactile-action:active .tactile-surface {
+  box-shadow: var(--tactile-shadow-active);
+  filter: brightness(0.99);
+  transform: translateY(0) scale(0.985);
+}
+
+.tactile-action:focus-visible.tactile-surface,
+.tactile-action:focus-visible .tactile-surface {
+  box-shadow:
+    var(--tactile-shadow-hover),
+    0 0 0 3px var(--focus-ring);
+}
+
+.tactile-action:disabled.tactile-surface,
+.tactile-action:disabled .tactile-surface {
+  filter: none;
+  transform: none;
 }
 
 .font-display,
@@ -319,7 +374,7 @@
 }
 
 .entry-action:hover {
-  transform: translateY(-2px);
+  transform: translateY(-1px);
 }
 
 .entry-action.is-primary:hover {
@@ -328,8 +383,8 @@
 }
 
 .entry-action.is-secondary:hover {
-  border-color: rgb(226 198 136 / 72%);
   background: rgb(39 12 10 / 44%);
+  box-shadow: 0 8px 22px rgb(0 0 0 / 20%);
 }
 
 .entry-action:focus-visible,
@@ -394,7 +449,7 @@
 
 .entry-edition:hover {
   color: rgb(241 232 213 / 82%);
-  transform: translateY(-2px);
+  transform: translateY(-1px);
 }
 
 .entry-edition-art {
@@ -1490,16 +1545,6 @@
   fill: currentColor;
 }
 
-.sheet-header .sheet-pin-button[aria-pressed="true"]:focus-visible {
-  box-shadow: none;
-}
-
-.sheet-header .sheet-pin-button[aria-pressed="true"]:focus-visible svg {
-  border-radius: 2px;
-  outline: 2px solid var(--focus-ring);
-  outline-offset: 3px;
-}
-
 .sheet-header-actions {
   display: flex;
   align-items: center;
@@ -1611,7 +1656,7 @@
 }
 
 .roster-row:hover {
-  background: rgb(195 161 95 / 7%);
+  background: var(--row-hover);
 }
 
 .roster-seat-number {
@@ -1658,7 +1703,13 @@
 }
 
 .roster-role:hover {
-  background: rgb(35 38 34 / 7%);
+  background: var(--control-hover);
+}
+
+.roster-seat-number:focus-visible,
+.roster-role:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
 }
 .roster-role span:last-child {
   overflow: hidden;
@@ -1757,7 +1808,7 @@
 }
 
 .night-order-row:hover {
-  background: rgb(195 161 95 / 5%);
+  background: var(--row-hover);
 }
 
 .night-order-row.is-complete {
@@ -1811,12 +1862,12 @@
 .night-reminder-actions button:hover,
 .night-reminder-actions button:focus-visible {
   color: var(--ink);
-  background: rgb(195 161 95 / 7%);
+  background: var(--row-hover);
 }
 
 .night-reminder-actions button.is-active {
   color: var(--ink);
-  background: rgb(195 161 95 / 11%);
+  background: var(--row-active);
 }
 
 .night-reminder-action-icon {
@@ -2083,6 +2134,7 @@
 
 .role-choice:focus-visible {
   outline: none;
+  box-shadow: none;
 }
 
 .role-choice-item.is-used:not(.is-selected) {
@@ -2124,12 +2176,18 @@
   opacity: 1;
 }
 
-.role-choice.is-pool-included .character-token,
-.role-choice:focus-visible .character-token {
+.role-choice.is-pool-included .character-token {
   border-color: var(--team-accent);
   box-shadow:
     0 0 0 2px color-mix(in srgb, var(--team-accent) 32%, transparent),
     0 3px 6px rgb(0 0 0 / 26%);
+}
+
+.role-choice:focus-visible .character-token {
+  border-color: transparent;
+  box-shadow:
+    var(--shadow-tactile-hover),
+    0 0 0 3px var(--focus-ring);
 }
 
 .role-choice-caption {
@@ -2170,11 +2228,6 @@
 .role-info-button:focus-visible {
   color: var(--team-accent);
   background: rgb(244 240 230 / 7%);
-}
-
-.role-info-button:focus-visible {
-  outline: 1px solid var(--team-accent);
-  outline-offset: 1px;
 }
 
 .role-info-button svg {
@@ -2276,13 +2329,6 @@
 
 .pool-case-footer > button {
   flex: 0 0 auto;
-}
-
-.token-case-close:focus-visible {
-  outline: 1px solid rgb(195 161 95 / 48%);
-  outline-offset: 2px;
-  box-shadow: none !important;
-  --tw-ring-shadow: 0 0 #0000 !important;
 }
 
 /* Role distribution tray */
@@ -2857,12 +2903,14 @@
 }
 
 .join-code-control:hover {
-  border-color: var(--grimoire-hardware-border-strong);
   background-color: var(--grimoire-hardware-surface-hover);
+  box-shadow:
+    var(--grimoire-hardware-shadow),
+    var(--shadow-control-hover);
 }
 
 .join-code-control:focus-visible {
-  outline: 2px solid var(--grimoire-hardware-accent);
+  outline: 2px solid var(--focus-ring);
   outline-offset: 2px;
 }
 
@@ -3008,6 +3056,13 @@
 }
 
 .board-bluff-rack .bluff-slot {
+  --tactile-shadow-rest:
+    inset 0 1px rgb(255 252 239 / 46%),
+    0 1px 2px rgb(58 38 17 / 12%);
+  --tactile-shadow-hover:
+    inset 0 1px rgb(255 252 239 / 52%),
+    0 3px 6px rgb(58 38 17 / 15%);
+
   width: 34px;
   height: 34px;
   border-color: rgb(91 68 38 / 42%);
@@ -3017,22 +3072,11 @@
   background-position: center;
   background-size: 120px auto;
   background-blend-mode: multiply;
-  box-shadow:
-    inset 0 1px rgb(255 252 239 / 46%),
-    0 1px 2px rgb(58 38 17 / 12%);
-  transition:
-    border-color 120ms ease,
-    filter 120ms ease;
-}
-
-.board-bluff-rack .bluff-slot:hover,
-.board-bluff-rack .bluff-slot:focus-visible {
-  border-color: var(--grimoire-hardware-accent);
-  filter: brightness(1.06);
+  box-shadow: var(--tactile-shadow-rest);
 }
 
 .board-bluff-rack .bluff-slot:focus-visible {
-  outline: 2px solid var(--grimoire-hardware-accent);
+  outline: 0;
   outline-offset: 2px;
 }
 
@@ -3080,6 +3124,9 @@
 
 .player-token {
   --player-token-border-color: var(--good);
+  --tactile-shadow-rest: 0 3px 5px rgb(49 31 12 / 16%);
+  --tactile-shadow-hover: 0 4px 8px rgb(49 31 12 / 20%);
+  --tactile-shadow-active: 0 2px 5px rgb(49 31 12 / 18%);
 
   display: grid;
   place-items: center;
@@ -3091,11 +3138,12 @@
   background-position: center;
   background-size: 150px auto;
   background-blend-mode: multiply;
-  box-shadow: 0 3px 5px rgb(49 31 12 / 18%);
+  box-shadow: var(--tactile-shadow-rest);
   transition:
-    border-color 150ms ease,
-    box-shadow 130ms ease,
-    transform 130ms ease;
+    border-color var(--motion-standard) ease,
+    box-shadow var(--motion-fast) ease,
+    filter var(--motion-fast) ease,
+    transform var(--motion-fast) var(--ease-out);
 }
 
 .player-token.alignment-good {
@@ -3114,12 +3162,11 @@
   cursor: grabbing;
 }
 
-.player-token:hover {
-  box-shadow: 0 4px 7px rgb(49 31 12 / 24%);
-}
-
 .player-token.is-selected {
-  box-shadow: 0 4px 7px rgb(49 31 12 / 26%);
+  --tactile-shadow-rest: 0 3px 6px rgb(49 31 12 / 21%);
+  --tactile-shadow-hover: 0 5px 9px rgb(49 31 12 / 23%);
+
+  box-shadow: var(--tactile-shadow-rest);
 }
 
 .storyteller-shell .role-artwork {
@@ -3331,6 +3378,13 @@
 }
 
 .reminder-token-face {
+  --tactile-shadow-rest:
+    0 2px 4px rgb(49 32 13 / 17%),
+    inset 0 1px 1px rgb(255 253 241 / 58%);
+  --tactile-shadow-hover:
+    0 4px 7px rgb(49 32 13 / 20%),
+    inset 0 1px 1px rgb(255 253 241 / 64%);
+
   position: absolute;
   inset: 0;
   display: grid;
@@ -3343,7 +3397,7 @@
   overflow: hidden;
   border: 1px solid rgb(88 67 39 / 32%);
   background: #ded3b9;
-  box-shadow: 0 2px 4px rgb(49 32 13 / 18%);
+  --tactile-shadow-rest: 0 2px 4px rgb(49 32 13 / 18%);
 }
 
 .reminder-token-inline {
@@ -3359,10 +3413,16 @@
 }
 
 .reminder-token.is-selected .reminder-token-face {
-  box-shadow:
-    0 2px 5px rgb(49 32 13 / 23%),
+  --tactile-shadow-rest:
+    0 3px 6px rgb(49 32 13 / 21%),
     0 0 0 2px rgb(255 250 235 / 82%),
-    0 0 0 3px color-mix(in srgb, var(--reminder-token-accent) 64%, transparent);
+    0 0 0 3px
+      color-mix(in srgb, var(--reminder-token-accent) 64%, transparent);
+  --tactile-shadow-hover:
+    0 5px 9px rgb(49 32 13 / 23%),
+    0 0 0 2px rgb(255 250 235 / 82%),
+    0 0 0 3px
+      color-mix(in srgb, var(--reminder-token-accent) 64%, transparent);
 }
 
 .storyteller-shell .reminder-token-source-art {
@@ -3444,8 +3504,8 @@
 }
 
 .reminder-token-labeled .reminder-token-face {
-  box-shadow:
-    0 2px 5px rgb(49 32 13 / 20%),
+  --tactile-shadow-rest:
+    0 2px 4px rgb(49 32 13 / 17%),
     inset 0 1px 1px rgb(255 253 241 / 58%);
 }
 
@@ -3487,15 +3547,9 @@
   user-select: none;
 }
 
-.reminder-token-trigger:hover .reminder-token-face {
-  box-shadow:
-    0 4px 7px rgb(49 32 13 / 22%),
-    0 0 0 1px color-mix(in srgb, var(--reminder-token-accent) 42%, transparent);
-}
-
 .reminder-token-trigger:focus-visible .reminder-token-face {
   box-shadow:
-    0 2px 5px rgb(49 32 13 / 24%),
+    var(--tactile-shadow-hover),
     0 0 0 3px var(--focus-ring);
 }
 
@@ -3505,7 +3559,9 @@
 }
 
 .reminder-token-control.is-dragging .reminder-token-face {
-  box-shadow: 0 7px 14px rgb(49 32 13 / 32%);
+  box-shadow: var(--shadow-tactile-drag);
+  filter: brightness(1.03);
+  transform: translateY(-2px) scale(1.015);
 }
 
 .reminder-token-control.is-dragging .reminder-token-clear {
@@ -3623,6 +3679,9 @@
 }
 
 .player-menu-role {
+  --tactile-shadow-rest: 0 2px 5px rgb(53 37 20 / 12%);
+  --tactile-shadow-hover: 0 4px 7px rgb(53 37 20 / 15%);
+
   display: grid;
   width: 46px;
   height: 46px;
@@ -3633,16 +3692,17 @@
   border-radius: 50%;
   color: var(--grimoire-hardware-accent);
   background: rgb(255 252 240 / 28%);
-  box-shadow: 0 2px 5px rgb(53 37 20 / 12%);
 }
 
 .player-menu-role:hover,
 .player-menu-role:focus-visible {
-  border-color: var(--grimoire-hardware-border-strong);
   background: rgb(255 252 240 / 52%);
 }
 
 .player-menu-role.has-character {
+  --tactile-shadow-rest: none;
+  --tactile-shadow-hover: 0 3px 6px rgb(53 37 20 / 13%);
+
   border-color: transparent;
   background: transparent;
   box-shadow: none;
@@ -3655,7 +3715,7 @@
 }
 
 .player-menu-role:focus-visible {
-  outline: 2px solid var(--focus-ring);
+  outline: 0;
   outline-offset: 2px;
 }
 
@@ -3873,7 +3933,7 @@
 
 .player-reminder-collapsible > summary:hover {
   color: var(--grimoire-hardware-text);
-  background: rgb(255 252 240 / 24%);
+  background: var(--control-hover);
 }
 
 .player-reminder-collapsible > summary:focus-visible {
@@ -3934,20 +3994,12 @@
 
 .player-reminder-grid > button:focus-visible {
   outline: 0;
+  box-shadow: none;
 }
 
 .player-reminder-grid > button .character-token {
-  transition:
-    filter 120ms ease,
-    box-shadow 120ms ease,
-    transform 120ms ease;
-}
-
-.player-reminder-grid > button:hover .character-token,
-.player-reminder-grid > button:focus-visible .character-token {
-  filter: brightness(1.02);
-  box-shadow: 0 3px 7px rgb(55 36 17 / 14%);
-  transform: translateY(-1px);
+  --tactile-shadow-rest: none;
+  --tactile-shadow-hover: 0 3px 6px rgb(55 36 17 / 14%);
 }
 
 .player-reminder-grid > button > span:last-child {
@@ -4280,12 +4332,15 @@
 
 .global-dock .panel-tab-button:focus-visible {
   outline: 0;
+  box-shadow: none;
 }
 
 .global-dock .panel-tab-button:hover .panel-tab-surface,
 .global-dock .panel-tab-button:focus-visible .panel-tab-surface {
-  border-color: var(--grimoire-hardware-border-strong);
   background-color: var(--grimoire-hardware-surface-hover);
+  box-shadow:
+    var(--grimoire-hardware-shadow),
+    -2px 3px 7px rgb(58 38 17 / 8%);
 }
 
 .global-dock .panel-tab-button:focus-visible .panel-tab-surface {

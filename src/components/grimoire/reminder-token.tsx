@@ -51,7 +51,12 @@ export function ReminderToken({
       data-label-layout={labelLayout}
       data-team={role?.team}
     >
-      <span className={cn("reminder-token-face", !role && "is-generic")}>
+      <span
+        className={cn(
+          "reminder-token-face tactile-surface",
+          !role && "is-generic",
+        )}
+      >
         {role && (
           <CharacterToken
             role={role}

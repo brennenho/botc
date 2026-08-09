@@ -21,6 +21,7 @@ import { ReminderIcon } from "@/components/grimoire/reminder-icon";
 import { RemovePlayerButton } from "@/components/grimoire/remove-player-button";
 import { Button } from "@/components/ui/button";
 import { IconButton } from "@/components/ui/icon-button";
+import { Input } from "@/components/ui/input";
 import { SegmentedControl } from "@/components/ui/segmented-control";
 import { roleById } from "@/lib/game-data";
 import type {
@@ -34,6 +35,7 @@ import {
   getScriptReminderSources,
 } from "@/lib/reminder-catalog";
 import { getReminderKey, type ReminderDefinition } from "@/lib/reminders";
+import { cn } from "@/lib/utils";
 
 type PlayerMenuView = "player" | "reminders";
 
@@ -136,7 +138,11 @@ export function PlayerContextMenu({
               type="button"
               size="icon"
               variant="quiet"
-              className={`player-menu-role${role ? "has-character" : ""}`}
+              focusStyle="surface"
+              className={cn(
+                "player-menu-role tactile-action tactile-surface",
+                role && "has-character",
+              )}
               onClick={onChooseRole}
               aria-label={
                 role
@@ -152,8 +158,9 @@ export function PlayerContextMenu({
             </Button>
             <div className="player-menu-identity">
               {editingName ? (
-                <input
+                <Input
                   ref={nameInputRef}
+                  variant="inline"
                   className="player-name-input"
                   value={draftName}
                   maxLength={40}
@@ -410,11 +417,17 @@ function PlayerReminderSection({
               type="button"
               size="sm"
               variant="quiet"
+              focusStyle="surface"
+              className="tactile-action"
               aria-label={`Add ${definition.label}`}
               onClick={() => onAddReminder(definition)}
             >
               <span className="player-reminder-token-wrap">
-                <CharacterToken role={sourceRole} size="lg" />
+                <CharacterToken
+                  role={sourceRole}
+                  size="lg"
+                  className="tactile-surface"
+                />
                 {placed > 0 && (
                   <span className="player-reminder-count">{placed}</span>
                 )}

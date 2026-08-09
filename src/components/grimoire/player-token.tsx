@@ -6,6 +6,7 @@ import { Vote } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
 import { CharacterToken } from "@/components/grimoire/character-token";
+import { Input } from "@/components/ui/input";
 import { roleById } from "@/lib/game-data";
 import type { Seat } from "@/lib/game-data/types";
 import type { ReminderLabelSide } from "@/lib/reminder-layout";
@@ -70,7 +71,7 @@ export function PlayerToken({
       <button
         type="button"
         className={cn(
-          "player-token",
+          "player-token tactile-action tactile-surface",
           `alignment-${seat.alignment}`,
           seat.isTraveller && "is-traveller",
           selected && "is-selected",
@@ -121,8 +122,9 @@ export function PlayerToken({
       </button>
       <div className="player-name-label">
         {editingName ? (
-          <input
+          <Input
             ref={nameInputRef}
+            variant="inline"
             className="player-name-input"
             value={draftName}
             maxLength={40}

@@ -28,7 +28,10 @@ export function DemonBluffRack({
             <div key={slot} className="bluff-slot-control">
               <button
                 type="button"
-                className={cn("bluff-slot", role && "has-role")}
+                className={cn(
+                  "bluff-slot tactile-action tactile-surface",
+                  role && "has-role",
+                )}
                 aria-label={
                   role
                     ? `Change ${role.name} Demon Bluff`

@@ -159,6 +159,7 @@ function PanelTabButton({
       tooltip={label}
       tooltipSide="left"
       variant="quiet"
+      focusStyle="surface"
       className={cn("panel-tab-button", active && "is-active")}
       data-panel-tab={tab}
       onClick={onClick}

@@ -94,7 +94,11 @@ export function CharacterCatalog({
                         type="button"
                         size="icon"
                         variant="quiet"
-                        className={cn("role-choice", stateClasses)}
+                        focusStyle="surface"
+                        className={cn(
+                          "role-choice tactile-action",
+                          stateClasses,
+                        )}
                         aria-label={`${role.name}${used ? ", in play" : ""}${bluff ? ", demon bluff" : ""}`}
                         aria-pressed={
                           selectionMode === "multiple" ? selected : undefined
@@ -102,7 +106,11 @@ export function CharacterCatalog({
                         disabled={selectionUnavailable}
                         onClick={() => onSelect(role.id)}
                       >
-                        <CharacterToken role={role} size="lg" />
+                        <CharacterToken
+                          role={role}
+                          size="lg"
+                          className="tactile-surface"
+                        />
                         {selectionMode === "single" && (used || bluff) && (
                           <span className="role-choice-states">
                             {used && (

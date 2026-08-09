@@ -56,7 +56,7 @@ export function DraggableReminderToken({
     >
       <Tooltip open={tooltipOpen && !isDragging} onOpenChange={setTooltipOpen}>
         <TooltipTrigger
-          className="reminder-token-trigger"
+          className="reminder-token-trigger tactile-action"
           aria-label={`${reminder.label} reminder on ${playerName}`}
           onClick={(event) => {
             event.stopPropagation();
