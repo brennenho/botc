@@ -78,7 +78,7 @@ export default function HomePage() {
             onClick={() => showView("cover")}
           >
             <ArrowLeft aria-hidden="true" />
-            Back to cover
+            Back to Cover
           </button>
         </header>
       )}
@@ -91,7 +91,7 @@ export default function HomePage() {
               Clocktower
             </h1>
 
-            <div className="entry-actions" aria-label="Choose game mode">
+            <div className="entry-actions" aria-label="Choose Game Mode">
               <button
                 type="button"
                 className="entry-action is-primary"
@@ -99,8 +99,8 @@ export default function HomePage() {
               >
                 <BookOpen aria-hidden="true" />
                 <span>
-                  <strong>Open a grimoire</strong>
-                  <small>Storytell a new game</small>
+                  <strong>Open a Grimoire</strong>
+                  <small>Storytell a New Game</small>
                 </span>
                 <ArrowRight className="entry-action-arrow" aria-hidden="true" />
               </button>
@@ -111,8 +111,8 @@ export default function HomePage() {
               >
                 <Users aria-hidden="true" />
                 <span>
-                  <strong>Join a game</strong>
-                  <small>Enter as a player</small>
+                  <strong>Join a Game</strong>
+                  <small>Enter as a Player</small>
                 </span>
                 <ArrowRight className="entry-action-arrow" aria-hidden="true" />
               </button>
@@ -127,8 +127,8 @@ export default function HomePage() {
           >
             <header className="entry-step-heading">
               <span className="entry-step-count">01</span>
-              <p>Open a grimoire</p>
-              <h1 id="edition-title">Choose an edition</h1>
+              <p>Open a Grimoire</p>
+              <h1 id="edition-title">Choose an Edition</h1>
             </header>
 
             <div className="entry-editions">
@@ -165,7 +165,7 @@ export default function HomePage() {
                 </span>
                 <div className="entry-player-stepper">
                   <IconButton
-                    label="Remove a player"
+                    label="Remove a Player"
                     size="sm"
                     variant="quiet"
                     disabled={playerCount <= 5}
@@ -180,7 +180,7 @@ export default function HomePage() {
                     min={5}
                     max={20}
                     inputMode="numeric"
-                    aria-label="Player count"
+                    aria-label="Player Count"
                     className="entry-player-count-input"
                     value={playerCount}
                     onFocus={(event) => event.currentTarget.select()}
@@ -193,7 +193,7 @@ export default function HomePage() {
                     }}
                   />
                   <IconButton
-                    label="Add a player"
+                    label="Add a Player"
                     size="sm"
                     variant="quiet"
                     disabled={playerCount >= 20}
@@ -211,7 +211,7 @@ export default function HomePage() {
                 onClick={handleCreate}
                 disabled={busy}
               >
-                {busy ? "Opening..." : "Open grimoire"}
+                {busy ? "Opening..." : "Open Grimoire"}
                 <ArrowRight aria-hidden="true" />
               </Button>
             </div>
@@ -225,13 +225,13 @@ export default function HomePage() {
           >
             <header className="entry-step-heading">
               <span className="entry-step-count">01</span>
-              <p>Take your seat</p>
-              <h1 id="join-title">Join a game</h1>
+              <p>Take Your Seat</p>
+              <h1 id="join-title">Join a Game</h1>
             </header>
 
             <form onSubmit={handleJoin} className="entry-join-form">
               <label>
-                <span>Game code</span>
+                <span>Game Code</span>
                 <Input
                   value={joinCode}
                   onChange={(event) =>
@@ -246,11 +246,11 @@ export default function HomePage() {
                 />
               </label>
               <label>
-                <span>Your name</span>
+                <span>Your Name</span>
                 <Input
                   value={playerName}
                   onChange={(event) => setPlayerName(event.target.value)}
-                  placeholder="Player name"
+                  placeholder="Player Name"
                   maxLength={40}
                   autoComplete="name"
                 />
@@ -260,7 +260,7 @@ export default function HomePage() {
                 size="lg"
                 disabled={busy || joinCode.length < 4 || !playerName.trim()}
               >
-                {busy ? "Joining..." : "Join game"}
+                {busy ? "Joining..." : "Join Game"}
                 <ArrowRight aria-hidden="true" />
               </Button>
             </form>

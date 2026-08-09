@@ -40,7 +40,7 @@ export function StorytellerDock({
         "storyteller-dock global-dock",
         (playersOpen || nightOpen) && "is-sheet-open",
       )}
-      aria-label="Grimoire panels"
+      aria-label="Grimoire Panels"
     >
       <PanelTabButton
         tab="players"
@@ -52,7 +52,7 @@ export function StorytellerDock({
       <PanelTabButton
         tab="night-order"
         icon={<Moon />}
-        label="Night order"
+        label="Night Order"
         active={nightOpen}
         onClick={onOpenNight}
       />
@@ -119,12 +119,12 @@ export function StorytellerDock({
               </span>
             </div>
             <ConfirmRemoveButton
-              itemLabel={`${selectedReminder.label} reminder`}
-              idleLabel="Remove reminder"
+              itemLabel={`${selectedReminder.label} Reminder`}
+              idleLabel="Remove Reminder"
               onRemove={onRemoveSelectedReminder}
             />
             <IconButton
-              label="Close reminder controls"
+              label="Close Reminder Controls"
               variant="quiet"
               tooltip={false}
               onClick={onCloseSelectedReminder}

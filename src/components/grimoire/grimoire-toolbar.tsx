@@ -22,7 +22,7 @@ export function GrimoireToolbar({
   return (
     <header className="grimoire-toolbar">
       <div className="toolbar-brand">
-        <Link href="/" aria-label="Back to home" className="edition-mark">
+        <Link href="/" aria-label="Back to Home" className="edition-mark">
           <Image
             src={edition.logoPath}
             alt=""
@@ -40,9 +40,9 @@ export function GrimoireToolbar({
         type="button"
         className="join-code-control"
         onClick={() => void navigator.clipboard.writeText(joinCode)}
-        title="Copy game code"
+        title="Copy Game Code"
       >
-        <span className="utility-label">Players join with</span>
+        <span className="utility-label">Players Join With</span>
         <strong>{joinCode}</strong>
         <Clipboard className="size-3.5" />
       </button>
@@ -54,7 +54,7 @@ export function GrimoireToolbar({
             saveState === "saving"
               ? "Saving"
               : saveState === "error"
-                ? "Save failed"
+                ? "Save Failed"
                 : "Saved"
           }
         >
@@ -64,7 +64,7 @@ export function GrimoireToolbar({
           {saveState === "saving"
             ? "Saving"
             : saveState === "error"
-              ? "Save failed"
+              ? "Save Failed"
               : "Saved"}
         </span>
       </div>

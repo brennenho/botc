@@ -14,6 +14,8 @@ import { ReminderToken } from "@/components/grimoire/reminder-token";
 import { RolePicker } from "@/components/grimoire/role-picker";
 import { StorytellerDock } from "@/components/grimoire/storyteller-dock";
 import { Button } from "@/components/ui/button";
+import { usePersistedGrimoireSheetPin } from "@/hooks/use-persisted-grimoire-sheet-pin";
+import { usePersistedNightOrderState } from "@/hooks/use-persisted-night-order-state";
 import { useStorytellerGame } from "@/hooks/use-storyteller-game";
 import {
   createRandomSetup,
@@ -37,6 +39,7 @@ import {
   type ReminderDefinition,
 } from "@/lib/reminders";
 import { createSetupRoleMetadata, DRUNK_ROLE_ID } from "@/lib/setup-effects";
+import { cn } from "@/lib/utils";
 
 type PickerTarget =
   | { type: "seat"; seatId: string }
@@ -47,6 +50,9 @@ export function StorytellerApp({ gameId }: { gameId: string }) {
   const { snapshot, loading, error, saveState, commit, refresh } =
     useStorytellerGame(gameId);
   const [openPanel, setOpenPanel] = useState<GrimoirePanel>(null);
+  const [sheetPinned, setSheetPinned] = usePersistedGrimoireSheetPin(gameId);
+  const [nightOrderState, setNightOrderState] =
+    usePersistedNightOrderState(gameId);
   const [selectedSeatId, setSelectedSeatId] = useState<string | null>(null);
   const [selectedReminderId, setSelectedReminderId] = useState<string | null>(
     null,
@@ -199,7 +205,7 @@ export function StorytellerApp({ gameId }: { gameId: string }) {
             seatId: null,
             tokenType: "custom",
             roleId: DRUNK_ROLE_ID,
-            label: "Drunk selected",
+            label: "Drunk Selected",
             position: gameTokens.length,
             metadata: createSetupRoleMetadata(),
           },
@@ -262,7 +268,7 @@ export function StorytellerApp({ gameId }: { gameId: string }) {
         seatId,
         tokenType: "custom",
         roleId: null,
-        label: "Player position",
+        label: "Player Position",
         position: existing?.position ?? current.gameTokens.length,
         metadata: {
           kind: PLAYER_POSITION_KIND,
@@ -317,7 +323,12 @@ export function StorytellerApp({ gameId }: { gameId: string }) {
   }
 
   return (
-    <main className="storyteller-shell">
+    <main
+      className={cn(
+        "storyteller-shell",
+        openPanel !== null && sheetPinned && "is-sheet-pinned",
+      )}
+    >
       <GrimoireToolbar
         editionId={snapshot.game.edition}
         joinCode={snapshot.game.joinCode}
@@ -333,12 +344,12 @@ export function StorytellerApp({ gameId }: { gameId: string }) {
           selectedReminderId={selectedReminderId}
           placingReminder={pendingReminder !== null}
           onSelectSeat={(seatId) => {
-            setOpenPanel(null);
+            if (!sheetPinned) setOpenPanel(null);
             setSelectedReminderId(null);
             setSelectedSeatId(seatId);
           }}
           onSelectReminder={(tokenId) => {
-            setOpenPanel(null);
+            if (!sheetPinned) setOpenPanel(null);
             setSelectedSeatId(null);
             setPendingReminder(null);
             setSelectedReminderId(tokenId);
@@ -427,12 +438,16 @@ export function StorytellerApp({ gameId }: { gameId: string }) {
 
       <GrimoireSideSheet
         panel={openPanel}
-        gameId={gameId}
         editionId={snapshot.game.edition}
         seats={snapshot.seats}
+        gameTokens={snapshot.gameTokens}
+        pinned={sheetPinned}
+        nightOrderState={nightOrderState}
+        onNightOrderStateChange={setNightOrderState}
+        onPinnedChange={setSheetPinned}
         onClose={() => setOpenPanel(null)}
         onSelectSeat={(seatId) => {
-          setOpenPanel(null);
+          if (!sheetPinned) setOpenPanel(null);
           setSelectedReminderId(null);
           setSelectedSeatId(seatId);
         }}
@@ -444,7 +459,6 @@ export function StorytellerApp({ gameId }: { gameId: string }) {
         onDistributeRoles={distributeRoles}
         onClearAssignments={clearAssignments}
         onArrangeCircle={arrangeInCircle}
-        gameTokens={snapshot.gameTokens}
         onPlaceNightReminder={(role, action) => {
           setPendingReminder(getReminderDefinition(role, action.label));
         }}
@@ -454,13 +468,13 @@ export function StorytellerApp({ gameId }: { gameId: string }) {
         editionId={snapshot.game.edition}
         title={
           pickerTarget?.type === "bluff"
-            ? "Choose a demon bluff"
+            ? "Choose a Demon Bluff"
             : pickerTarget?.type === "seat"
-              ? `Choose a character for ${snapshot.seats.find((seat) => seat.id === pickerTarget.seatId)?.playerName ?? "player"}`
-              : "Choose a character"
+              ? `Choose a Character for ${snapshot.seats.find((seat) => seat.id === pickerTarget.seatId)?.playerName ?? "Player"}`
+              : "Choose a Character"
         }
         clearLabel={
-          pickerTarget?.type === "bluff" ? "Clear bluff" : "Clear assignment"
+          pickerTarget?.type === "bluff" ? "Clear Bluff" : "Clear Assignment"
         }
         selectedRoleId={
           pickerTarget?.type === "seat"
@@ -490,7 +504,7 @@ export function StorytellerApp({ gameId }: { gameId: string }) {
         <aside className="board-setup-warning" role="status" aria-live="polite">
           <header className="board-setup-warning-header">
             <AlertTriangle aria-hidden="true" />
-            <span className="utility-label">Missing reminders</span>
+            <span className="utility-label">Missing Reminders</span>
           </header>
           <div className="board-setup-warning-tokens">
             {setupReminderWarnings.flatMap((warning) =>
@@ -557,19 +571,19 @@ function GrimoireError({
     <main className="grimoire-error-screen">
       <div>
         <AlertCircle className="mx-auto mb-4 size-7 text-red-300/80" />
-        <h1 className="font-display text-3xl">Unable to open this grimoire</h1>
+        <h1 className="font-display text-3xl">Unable to Open This Grimoire</h1>
         <p>{message}</p>
         <div className="grimoire-error-actions">
           <Button variant="secondary" onClick={onRetry}>
             <RotateCcw className="size-4" />
-            Try again
+            Try Again
           </Button>
           <Button
             className="text-white/60 hover:bg-white/8 hover:text-white"
             variant="quiet"
             onClick={() => window.location.assign("/")}
           >
-            Back home
+            Back Home
           </Button>
         </div>
       </div>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, Shuffle, X } from "lucide-react";
+import { Orbit, Plus, Shuffle, X } from "lucide-react";
 
 import { RemovePlayerButton } from "@/components/grimoire/remove-player-button";
 import { RoleDistributionDialog } from "@/components/grimoire/role-distribution-dialog";
@@ -26,6 +26,7 @@ export function RosterPanel({
   onAddPlayer,
   onDistributeRoles,
   onClearAssignments,
+  onArrangeCircle,
 }: {
   editionId: EditionId;
   seats: Seat[];
@@ -39,6 +40,7 @@ export function RosterPanel({
   onAddPlayer: () => void;
   onDistributeRoles: (roleIds: string[]) => void;
   onClearAssignments: () => void;
+  onArrangeCircle: () => void;
 }) {
   const [distributionOpen, setDistributionOpen] = useState(false);
   const assessment = getSetupAssessment(seats, gameTokens);
@@ -121,7 +123,7 @@ export function RosterPanel({
                   onClick={() => onChooseRole(seat.id)}
                   title={
                     role
-                      ? `Change ${seat.playerName}'s character`
+                      ? `Change ${seat.playerName}'s Character`
                       : `Assign ${seat.playerName}`
                   }
                 >
@@ -163,11 +165,15 @@ export function RosterPanel({
           onClick={() => setDistributionOpen(true)}
         >
           <Shuffle className="size-4" />
-          Distribute roles
+          Distribute Roles
         </Button>
         <Button size="sm" variant="secondary" onClick={onAddPlayer}>
           <Plus className="size-4" />
-          Add player
+          Add Player
+        </Button>
+        <Button size="sm" variant="secondary" onClick={onArrangeCircle}>
+          <Orbit className="size-4" />
+          Reset Token Positions
         </Button>
         <Button
           size="sm"
@@ -177,7 +183,7 @@ export function RosterPanel({
           onClick={onClearAssignments}
         >
           <X className="size-4" />
-          Clear all
+          Clear All
         </Button>
       </footer>
       <RoleDistributionDialog

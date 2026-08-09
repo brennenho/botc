@@ -23,7 +23,7 @@ export function ConfirmRemoveButton({
   className,
 }: ConfirmRemoveButtonProps) {
   const [armed, setArmed] = useState(false);
-  const confirmLabel = `Click again to remove ${itemLabel}`;
+  const confirmLabel = `Click Again to Remove ${itemLabel}`;
 
   useEffect(() => setArmed(false), [itemLabel]);
 
@@ -65,7 +65,7 @@ export function ConfirmRemoveButton({
   return (
     <Button size="sm" variant="danger" {...sharedProps}>
       <Trash2 className="size-4" />
-      {armed ? "Click again to remove" : idleLabel}
+      {armed ? "Click Again to Remove" : idleLabel}
     </Button>
   );
 }
@@ -79,7 +79,7 @@ export function RemovePlayerButton({
   return (
     <ConfirmRemoveButton
       itemLabel={playerName}
-      idleLabel={`Remove ${props.display === "icon" ? playerName : "player"}`}
+      idleLabel={`Remove ${props.display === "icon" ? playerName : "Player"}`}
       {...props}
     />
   );

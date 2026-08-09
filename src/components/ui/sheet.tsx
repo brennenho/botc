@@ -64,7 +64,7 @@ export function Sheet({
                 <Dialog.Close
                   render={
                     <IconButton
-                      label={`Close ${title.toLowerCase()}`}
+                      label={`Close ${title}`}
                       variant="quiet"
                       tooltip={false}
                     >

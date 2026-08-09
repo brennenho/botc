@@ -62,8 +62,8 @@ export function RoleDistributionDialog({
     <CharacterSelectionDialog
       open={open}
       editionId={editionId}
-      title="Distribute roles"
-      closeLabel="Close role distribution"
+      title="Distribute Roles"
+      closeLabel="Close Role Distribution"
       selectionMode="multiple"
       selectedRoleIds={selectedRoleIds}
       selectionLimit={selectionTarget}
@@ -76,7 +76,7 @@ export function RoleDistributionDialog({
           <div className="pool-summary">
             <div className="pool-summary-line">
               <strong>
-                {selectedRoleIds.length} of {selectionTarget} selected
+                {selectedRoleIds.length} of {selectionTarget} Selected
               </strong>
               {selectedRoleIds.length > 0 && (
                 <Button
@@ -99,7 +99,7 @@ export function RoleDistributionDialog({
             }}
           >
             <Shuffle className="size-4" />
-            Distribute roles
+            Distribute Roles
           </Button>
         </footer>
       }

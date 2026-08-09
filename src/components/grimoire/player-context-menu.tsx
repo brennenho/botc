@@ -140,8 +140,8 @@ export function PlayerContextMenu({
               onClick={onChooseRole}
               aria-label={
                 role
-                  ? `Change ${seat.playerName}'s character`
-                  : `Assign a character to ${seat.playerName}`
+                  ? `Change ${seat.playerName}'s Character`
+                  : `Assign a Character to ${seat.playerName}`
               }
             >
               {role ? (
@@ -180,11 +180,11 @@ export function PlayerContextMenu({
                 </Button>
               )}
               <span>
-                {role?.name ?? "Choose character"} · Seat {seat.seatIndex + 1}
+                {role?.name ?? "Choose Character"} · Seat {seat.seatIndex + 1}
               </span>
             </div>
             <IconButton
-              label="Close player controls"
+              label="Close Player Controls"
               size="sm"
               variant="quiet"
               tooltip={false}
@@ -198,7 +198,7 @@ export function PlayerContextMenu({
             <MenuControl label="Status">
               <SegmentedControl
                 value={seat.alive ? "alive" : "dead"}
-                label="Life status"
+                label="Life Status"
                 className="player-menu-segmented"
                 options={[
                   { value: "alive", label: "Alive" },
@@ -208,10 +208,10 @@ export function PlayerContextMenu({
               />
             </MenuControl>
             {!seat.alive && (
-              <MenuControl label="Ghost vote">
+              <MenuControl label="Ghost Vote">
                 <SegmentedControl
                   value={seat.ghostVoteAvailable ? "available" : "used"}
-                  label="Ghost vote"
+                  label="Ghost Vote"
                   className="player-menu-segmented"
                   options={[
                     { value: "available", label: "Available" },
@@ -234,10 +234,10 @@ export function PlayerContextMenu({
                   onChange={onSetAlignment}
                 />
               </MenuControl>
-              <MenuControl label="Player type">
+              <MenuControl label="Player Type">
                 <SegmentedControl
                   value={seat.isTraveller ? "traveller" : "resident"}
-                  label="Player type"
+                  label="Player Type"
                   className="player-menu-segmented"
                   options={[
                     { value: "resident", label: "Resident" },
@@ -252,7 +252,7 @@ export function PlayerContextMenu({
           <div className="player-menu-actions">
             <Button type="button" variant="quiet" onClick={onChooseRole}>
               <LibraryBig className="size-4" />
-              {role ? "Change character" : "Choose character"}
+              {role ? "Change Character" : "Choose Character"}
             </Button>
             <Button
               type="button"
@@ -260,7 +260,7 @@ export function PlayerContextMenu({
               onClick={() => setView("reminders")}
             >
               <CircleDot className="size-4" />
-              Add reminder
+              Add Reminder
               {targetReminderCount > 0 && (
                 <span className="player-menu-count">{targetReminderCount}</span>
               )}
@@ -319,11 +319,11 @@ function ReminderPicker({
           <ArrowLeft className="size-4" />
         </IconButton>
         <div className="player-menu-identity">
-          <strong>Add reminder</strong>
+          <strong>Add Reminder</strong>
           <span>Add to {playerName}</span>
         </div>
         <IconButton
-          label="Close player controls"
+          label="Close Player Controls"
           size="sm"
           variant="quiet"
           tooltip={false}
@@ -336,7 +336,7 @@ function ReminderPicker({
       <div className="player-reminder-menu">
         {inPlayReminders.length > 0 && (
           <PlayerReminderSection
-            label="In-play reminders"
+            label="In-Play Reminders"
             definitions={inPlayReminders}
             placedCounts={placedCounts}
             onAddReminder={onAddReminder}
@@ -350,7 +350,7 @@ function ReminderPicker({
         {scriptReminders.length > 0 && (
           <details className="player-reminder-collapsible">
             <summary>
-              <span>All script reminders</span>
+              <span>All Script Reminders</span>
               <small>{scriptReminders.length}</small>
               <ChevronDown aria-hidden="true" />
             </summary>

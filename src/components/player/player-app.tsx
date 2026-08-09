@@ -21,7 +21,7 @@ export function PlayerApp({
       <main className="home-surface grid min-h-svh place-items-center px-6 text-center">
         <div>
           <CircleSlash2 className="mx-auto mb-4 size-7 text-black/40" />
-          <p className="font-display text-2xl">This seat is unavailable</p>
+          <p className="font-display text-2xl">This Seat Is Unavailable</p>
           <p className="mt-2 text-sm text-black/50">{error}</p>
         </div>
       </main>
@@ -61,10 +61,11 @@ export function PlayerApp({
                 className="player-role-token"
               />
               <p className="mt-7 text-xs font-bold text-black/45 uppercase">
-                {teamLabel(role.team)} · {snapshot.seat.alignment}
+                {teamLabel(role.team)} ·{" "}
+                {snapshot.seat.alignment === "good" ? "Good" : "Evil"}
               </p>
               <h2 className="font-display mt-2 text-4xl">
-                You are the {role.name}
+                You Are the {role.name}
               </h2>
               <p className="mt-4 max-w-md text-base leading-7 text-black/65">
                 {role.ability}
@@ -74,7 +75,7 @@ export function PlayerApp({
             <>
               <div className="empty-player-role" />
               <h2 className="font-display mt-6 text-3xl">
-                Awaiting your character
+                Awaiting Your Character
               </h2>
             </>
           )}
@@ -93,8 +94,8 @@ export function PlayerApp({
             <span className="flex items-center gap-2">
               <Vote className="size-4" />
               {snapshot.seat.ghostVoteAvailable
-                ? "Ghost vote available"
-                : "Vote used"}
+                ? "Ghost Vote Available"
+                : "Vote Used"}
             </span>
           )}
         </footer>

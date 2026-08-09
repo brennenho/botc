@@ -85,14 +85,14 @@ export function NightOrderPanel({
           label="Night"
           className="flex-1"
           options={[
-            { value: "first", label: "First night" },
-            { value: "other", label: "Other nights" },
+            { value: "first", label: "First Night" },
+            { value: "other", label: "Other Nights" },
           ]}
           onChange={(value) => onStateChange({ ...state, night: value })}
         />
         <SegmentedControl
           value={scope}
-          label="Characters shown"
+          label="Characters Shown"
           className="flex-1"
           options={[
             { value: "alive", label: "Alive" },
@@ -160,7 +160,7 @@ export function NightOrderPanel({
                           count={action.count}
                         />
                         <span>{action.instruction}</span>
-                        {placedCount > 0 && <small>{placedCount} placed</small>}
+                        {placedCount > 0 && <small>{placedCount} Placed</small>}
                       </button>
                     );
                   })}

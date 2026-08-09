@@ -15,8 +15,8 @@ export function DemonBluffRack({
   onChooseBluff: (slot: number) => void;
 }) {
   return (
-    <section className="board-bluff-rack" aria-label="Demon bluffs">
-      <span className="bluff-rack-label">Demon bluffs</span>
+    <section className="board-bluff-rack" aria-label="Demon Bluffs">
+      <span className="bluff-rack-label">Demon Bluffs</span>
       <div className="bluff-slots">
         {[0, 1, 2].map((slot) => {
           const token = bluffs.find((bluff) => bluff.position === slot);
@@ -28,8 +28,8 @@ export function DemonBluffRack({
               className={cn("bluff-slot", role && "has-role")}
               aria-label={
                 role
-                  ? `Change ${role.name} demon bluff`
-                  : `Set demon bluff ${slot + 1}`
+                  ? `Change ${role.name} Demon Bluff`
+                  : `Set Demon Bluff ${slot + 1}`
               }
               onClick={() => onChooseBluff(slot)}
             >

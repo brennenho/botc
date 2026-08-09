@@ -105,13 +105,13 @@ export function PlayerToken({
             role="status"
             aria-label={
               seat.ghostVoteAvailable
-                ? "Ghost vote available"
-                : "Ghost vote used"
+                ? "Ghost Vote Available"
+                : "Ghost Vote Used"
             }
             title={
               seat.ghostVoteAvailable
-                ? "Ghost vote available"
-                : "Ghost vote used"
+                ? "Ghost Vote Available"
+                : "Ghost Vote Used"
             }
           >
             <Vote aria-hidden="true" />

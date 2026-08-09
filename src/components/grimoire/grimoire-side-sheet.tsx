@@ -1,24 +1,27 @@
 "use client";
 
-import { RotateCcw } from "lucide-react";
+import { Pin } from "lucide-react";
 
 import { NightOrderPanel } from "@/components/grimoire/night-order-sheet";
 import { RosterPanel } from "@/components/grimoire/roster-sheet";
 import { IconButton } from "@/components/ui/icon-button";
 import { Sheet } from "@/components/ui/sheet";
-import { usePersistedNightOrderState } from "@/hooks/use-persisted-night-order-state";
 import type { NightReminderAction } from "@/lib/game-data/night-reminder-actions";
 import type { EditionId, GameToken, Role, Seat } from "@/lib/game-data/types";
+import type { NightOrderState } from "@/lib/night-order-state";
 import { cn } from "@/lib/utils";
 
 export type GrimoirePanel = "players" | "night" | null;
 
 export function GrimoireSideSheet({
   panel,
-  gameId,
   editionId,
   seats,
   gameTokens,
+  pinned,
+  nightOrderState,
+  onNightOrderStateChange,
+  onPinnedChange,
   onClose,
   onSelectSeat,
   onChooseRole,
@@ -32,10 +35,13 @@ export function GrimoireSideSheet({
   onPlaceNightReminder,
 }: {
   panel: GrimoirePanel;
-  gameId: string;
   editionId: EditionId;
   seats: Seat[];
   gameTokens: GameToken[];
+  pinned: boolean;
+  nightOrderState: NightOrderState;
+  onNightOrderStateChange: (state: NightOrderState) => void;
+  onPinnedChange: (pinned: boolean) => void;
   onClose: () => void;
   onSelectSeat: (seatId: string) => void;
   onChooseRole: (seatId: string) => void;
@@ -48,31 +54,27 @@ export function GrimoireSideSheet({
   onArrangeCircle: () => void;
   onPlaceNightReminder: (role: Role, action: NightReminderAction) => void;
 }) {
-  const [nightOrderState, setNightOrderState] =
-    usePersistedNightOrderState(gameId);
-
   return (
     <Sheet
       open={panel !== null}
       onOpenChange={(open) => {
         if (!open) onClose();
       }}
-      title={panel === "night" ? "Night order" : "Players"}
-      eyebrow={panel === "night" ? "Storyteller" : undefined}
-      modal={panel !== "night"}
-      backdrop={panel !== "night"}
-      disablePointerDismissal={panel === "night"}
-      className={cn(panel === "night" && "night-sheet")}
+      title={panel === "night" ? "Night Order" : "Players"}
+      modal={false}
+      backdrop={false}
+      disablePointerDismissal={pinned}
+      className={cn(panel === "night" && "night-sheet", pinned && "is-pinned")}
       headerActions={
-        panel === "players" ? (
-          <IconButton
-            label="Arrange players in a circle"
-            variant="quiet"
-            onClick={onArrangeCircle}
-          >
-            <RotateCcw className="size-4" />
-          </IconButton>
-        ) : null
+        <IconButton
+          label={pinned ? "Unpin Sheet" : "Pin Sheet"}
+          variant="quiet"
+          className="sheet-pin-button"
+          aria-pressed={pinned}
+          onClick={() => onPinnedChange(!pinned)}
+        >
+          <Pin className="size-4" />
+        </IconButton>
       }
     >
       <div className="sheet-panel" hidden={panel !== "players"}>
@@ -89,6 +91,7 @@ export function GrimoireSideSheet({
           onAddPlayer={onAddPlayer}
           onDistributeRoles={onDistributeRoles}
           onClearAssignments={onClearAssignments}
+          onArrangeCircle={onArrangeCircle}
         />
       </div>
       <div className="sheet-panel" hidden={panel !== "night"}>
@@ -97,7 +100,7 @@ export function GrimoireSideSheet({
           seats={seats}
           gameTokens={gameTokens}
           state={nightOrderState}
-          onStateChange={setNightOrderState}
+          onStateChange={onNightOrderStateChange}
           onPlaceReminder={onPlaceNightReminder}
         />
       </div>

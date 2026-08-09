@@ -9,8 +9,8 @@ import type { EditionId } from "@/lib/game-data";
 export function RolePicker({
   open,
   editionId,
-  title = "Choose a character",
-  clearLabel = "Clear assignment",
+  title = "Choose a Character",
+  clearLabel = "Clear Assignment",
   selectedRoleId,
   usedRoleIds,
   bluffRoleIds,
@@ -32,7 +32,7 @@ export function RolePicker({
       open={open}
       editionId={editionId}
       title={title}
-      closeLabel="Close character picker"
+      closeLabel="Close Character Picker"
       selectionMode="single"
       selectedRoleIds={selectedRoleId ? [selectedRoleId] : []}
       usedRoleIds={usedRoleIds}

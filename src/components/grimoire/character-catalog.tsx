@@ -107,7 +107,7 @@ export function CharacterCatalog({
                           <span className="role-choice-states">
                             {used && (
                               <span className="role-choice-state is-in-play">
-                                In play
+                                In Play
                               </span>
                             )}
                             {bluff && (
@@ -127,7 +127,7 @@ export function CharacterCatalog({
                 })}
               </div>
             ) : (
-              <p className="token-team-empty">No matches</p>
+              <p className="token-team-empty">No Matches</p>
             )}
           </section>
         );
