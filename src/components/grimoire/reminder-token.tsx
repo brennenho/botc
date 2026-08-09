@@ -1,7 +1,7 @@
-import { CircleDot } from "lucide-react";
 import type { CSSProperties } from "react";
 
 import { CharacterToken } from "@/components/grimoire/character-token";
+import { ReminderIcon } from "@/components/grimoire/reminder-icon";
 import { roleById } from "@/lib/game-data";
 import { cn } from "@/lib/utils";
 
@@ -60,7 +60,7 @@ export function ReminderToken({
             className="reminder-token-source-art"
           />
         )}
-        {!role && <CircleDot className="reminder-token-fallback-icon" />}
+        {!role && <ReminderIcon className="reminder-token-fallback-icon" />}
       </span>
       {presentation === "labeled" && (
         <span className="reminder-token-label">

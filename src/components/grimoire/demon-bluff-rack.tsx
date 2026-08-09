@@ -48,7 +48,7 @@ export function DemonBluffRack({
                   size="sm"
                   variant="quiet"
                   tooltipSide="top"
-                  className="bluff-slot-clear size-4"
+                  className="token-clear-button bluff-slot-clear size-4"
                   onClick={() => onClearBluff(slot)}
                 >
                   <X className="size-2.5" />

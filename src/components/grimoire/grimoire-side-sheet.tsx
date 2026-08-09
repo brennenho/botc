@@ -9,6 +9,7 @@ import { Sheet } from "@/components/ui/sheet";
 import type { NightReminderAction } from "@/lib/game-data/night-reminder-actions";
 import type { EditionId, GameToken, Role, Seat } from "@/lib/game-data/types";
 import type { NightOrderState } from "@/lib/night-order-state";
+import type { ReminderDefinition } from "@/lib/reminders";
 import { cn } from "@/lib/utils";
 
 export type GrimoirePanel = "players" | "night" | null;
@@ -20,6 +21,7 @@ export function GrimoireSideSheet({
   gameTokens,
   pinned,
   childDialogOpen,
+  pendingReminder,
   nightOrderState,
   onNightOrderStateChange,
   onPinnedChange,
@@ -34,6 +36,7 @@ export function GrimoireSideSheet({
   onClearAssignments,
   onArrangeCircle,
   onPlaceNightReminder,
+  onCancelReminderPlacement,
 }: {
   panel: GrimoirePanel;
   editionId: EditionId;
@@ -41,6 +44,7 @@ export function GrimoireSideSheet({
   gameTokens: GameToken[];
   pinned: boolean;
   childDialogOpen: boolean;
+  pendingReminder: ReminderDefinition | null;
   nightOrderState: NightOrderState;
   onNightOrderStateChange: (state: NightOrderState) => void;
   onPinnedChange: (pinned: boolean) => void;
@@ -55,6 +59,7 @@ export function GrimoireSideSheet({
   onClearAssignments: () => void;
   onArrangeCircle: () => void;
   onPlaceNightReminder: (role: Role, action: NightReminderAction) => void;
+  onCancelReminderPlacement: () => void;
 }) {
   return (
     <Sheet
@@ -102,8 +107,10 @@ export function GrimoireSideSheet({
           seats={seats}
           gameTokens={gameTokens}
           state={nightOrderState}
+          pendingReminder={pendingReminder}
           onStateChange={onNightOrderStateChange}
           onPlaceReminder={onPlaceNightReminder}
+          onCancelReminderPlacement={onCancelReminderPlacement}
         />
       </div>
     </Sheet>

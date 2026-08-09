@@ -2,9 +2,9 @@
 
 import { Moon, Users, X } from "lucide-react";
 
+import { ReminderIcon } from "@/components/grimoire/reminder-icon";
 import { ReminderToken } from "@/components/grimoire/reminder-token";
 import { ConfirmRemoveButton } from "@/components/grimoire/remove-player-button";
-import { Button } from "@/components/ui/button";
 import { IconButton } from "@/components/ui/icon-button";
 import { roleById } from "@/lib/game-data";
 import type { GameToken, Seat } from "@/lib/game-data/types";
@@ -69,24 +69,24 @@ export function StorytellerDock({
             nightOpen && "is-sheet-adjacent",
           )}
           aria-label={`Place ${pendingReminder.label}`}
+          aria-live="polite"
         >
           <div className="storyteller-dock player-dock" role="toolbar">
-            <ReminderToken
-              label={pendingReminder.label}
-              roleId={pendingReminder.roleId}
-              size="tray"
-            />
+            <span className="reminder-placement-icon">
+              <ReminderIcon />
+            </span>
             <div className="player-inspector-identity">
               <strong>Place {pendingReminder.label}</strong>
-              <span>{pendingReminder.sourceName}</span>
+              <span>Select a Player Token · {pendingReminder.sourceName}</span>
             </div>
-            <Button
-              size="sm"
+            <IconButton
+              label="Cancel Reminder Placement"
               variant="quiet"
+              tooltipSide="top"
               onClick={onCancelReminderPlacement}
             >
-              Cancel
-            </Button>
+              <X className="size-4" />
+            </IconButton>
           </div>
         </section>
       </>

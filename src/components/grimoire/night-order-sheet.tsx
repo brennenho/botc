@@ -1,9 +1,9 @@
 "use client";
 
 import { useMemo } from "react";
-import { Check, Moon, Sun } from "lucide-react";
+import { Check, Moon, Plus, Sun, X } from "lucide-react";
 
-import { ReminderToken } from "@/components/grimoire/reminder-token";
+import { ReminderIcon } from "@/components/grimoire/reminder-icon";
 import { TokenIcon } from "@/components/grimoire/token-icon";
 import { SegmentedControl } from "@/components/ui/segmented-control";
 import {
@@ -17,6 +17,7 @@ import {
   type NightOrderState,
 } from "@/lib/night-order-state";
 import { cn } from "@/lib/utils";
+import type { ReminderDefinition } from "@/lib/reminders";
 
 type DisplayEntry = NightOrderEntry & { key: string; playerName?: string };
 
@@ -25,18 +26,22 @@ export function NightOrderPanel({
   seats,
   gameTokens,
   state,
+  pendingReminder,
   onStateChange,
   onPlaceReminder,
+  onCancelReminderPlacement,
 }: {
   editionId: EditionId;
   seats: Seat[];
   gameTokens: GameToken[];
   state: NightOrderState;
+  pendingReminder: ReminderDefinition | null;
   onStateChange: (state: NightOrderState) => void;
   onPlaceReminder: (
     role: NonNullable<NightOrderEntry["role"]>,
     action: NightOrderEntry["reminderActions"][number],
   ) => void;
+  onCancelReminderPlacement: () => void;
 }) {
   const { night, scope } = state;
   const viewKey = getNightOrderViewKey(night, scope);
@@ -138,6 +143,9 @@ export function NightOrderPanel({
               {entry.role && entry.reminderActions.length > 0 && (
                 <div className="night-reminder-actions">
                   {entry.reminderActions.map((action) => {
+                    const active =
+                      pendingReminder?.roleId === entry.role?.id &&
+                      pendingReminder?.label === action.label;
                     const placedCount = gameTokens.filter(
                       (token) =>
                         token.tokenType === "reminder" &&
@@ -148,19 +156,36 @@ export function NightOrderPanel({
                       <button
                         key={`${entry.key}-${action.label}`}
                         type="button"
-                        aria-label={action.instruction}
-                        onClick={() =>
-                          entry.role && onPlaceReminder(entry.role, action)
+                        className={cn(active && "is-active")}
+                        aria-label={
+                          active
+                            ? `Cancel Placing ${action.label}`
+                            : `${action.instruction}${
+                                placedCount > 0 ? `, ${placedCount} Placed` : ""
+                              }`
                         }
+                        aria-pressed={active}
+                        onClick={() => {
+                          if (active) {
+                            onCancelReminderPlacement();
+                            return;
+                          }
+                          if (entry.role) onPlaceReminder(entry.role, action);
+                        }}
                       >
-                        <ReminderToken
-                          label={action.label}
-                          roleId={entry.role?.id ?? null}
-                          size="inline"
-                          count={action.count}
-                        />
-                        <span>{action.instruction}</span>
-                        {placedCount > 0 && <small>{placedCount} Placed</small>}
+                        <span className="night-reminder-action-icon">
+                          <ReminderIcon />
+                          {placedCount > 0 && (
+                            <small aria-hidden="true">{placedCount}</small>
+                          )}
+                        </span>
+                        <span className="night-reminder-action-copy">
+                          {action.instruction}
+                        </span>
+                        <span className="night-reminder-action-meta">
+                          {active ? <X /> : <Plus />}
+                          <strong>{active ? "Cancel" : "Place"}</strong>
+                        </span>
                       </button>
                     );
                   })}

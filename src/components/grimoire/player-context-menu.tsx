@@ -3,7 +3,6 @@
 import {
   ArrowLeft,
   ChevronDown,
-  CircleDot,
   LibraryBig,
   Pencil,
   Plus,
@@ -18,6 +17,7 @@ import {
 } from "react";
 
 import { CharacterToken } from "@/components/grimoire/character-token";
+import { ReminderIcon } from "@/components/grimoire/reminder-icon";
 import { RemovePlayerButton } from "@/components/grimoire/remove-player-button";
 import { Button } from "@/components/ui/button";
 import { IconButton } from "@/components/ui/icon-button";
@@ -154,6 +154,7 @@ export function PlayerContextMenu({
               {editingName ? (
                 <input
                   ref={nameInputRef}
+                  className="player-name-input"
                   value={draftName}
                   maxLength={40}
                   aria-label={`Rename ${seat.playerName}`}
@@ -259,7 +260,7 @@ export function PlayerContextMenu({
               variant="quiet"
               onClick={() => setView("reminders")}
             >
-              <CircleDot className="size-4" />
+              <ReminderIcon className="size-4" />
               Add Reminder
               {targetReminderCount > 0 && (
                 <span className="player-menu-count">{targetReminderCount}</span>
@@ -350,7 +351,7 @@ function ReminderPicker({
         {scriptReminders.length > 0 && (
           <details className="player-reminder-collapsible">
             <summary>
-              <span>All Script Reminders</span>
+              <span className="utility-label">All Script Reminders</span>
               <small>{scriptReminders.length}</small>
               <ChevronDown aria-hidden="true" />
             </summary>

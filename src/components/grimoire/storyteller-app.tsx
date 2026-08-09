@@ -257,6 +257,13 @@ export function StorytellerApp({ gameId }: { gameId: string }) {
     });
   }
 
+  function removeReminder(tokenId: string) {
+    commit((current) => ({
+      gameTokens: current.gameTokens.filter((token) => token.id !== tokenId),
+    }));
+    setSelectedReminderId((current) => (current === tokenId ? null : current));
+  }
+
   function movePlayer(seatId: string, position: CanvasPosition) {
     commit((current) => {
       const existing = current.gameTokens.find(
@@ -354,6 +361,7 @@ export function StorytellerApp({ gameId }: { gameId: string }) {
             setPendingReminder(null);
             setSelectedReminderId(tokenId);
           }}
+          onRemoveReminder={removeReminder}
           onPlaceReminder={(seatId) => {
             if (!pendingReminder) return;
             addReminder(seatId, pendingReminder);
@@ -426,12 +434,7 @@ export function StorytellerApp({ gameId }: { gameId: string }) {
         }}
         onRemoveSelectedReminder={() => {
           if (!selectedReminder) return;
-          commit((current) => ({
-            gameTokens: current.gameTokens.filter(
-              (token) => token.id !== selectedReminder.id,
-            ),
-          }));
-          setSelectedReminderId(null);
+          removeReminder(selectedReminder.id);
         }}
         onCloseSelectedReminder={() => setSelectedReminderId(null)}
         onCancelReminderPlacement={() => setPendingReminder(null)}
@@ -444,6 +447,7 @@ export function StorytellerApp({ gameId }: { gameId: string }) {
         gameTokens={snapshot.gameTokens}
         pinned={sheetPinned}
         childDialogOpen={pickerTarget !== null}
+        pendingReminder={pendingReminder}
         nightOrderState={nightOrderState}
         onNightOrderStateChange={setNightOrderState}
         onPinnedChange={setSheetPinned}
@@ -464,6 +468,7 @@ export function StorytellerApp({ gameId }: { gameId: string }) {
         onPlaceNightReminder={(role, action) => {
           setPendingReminder(getReminderDefinition(role, action.label));
         }}
+        onCancelReminderPlacement={() => setPendingReminder(null)}
       />
       <RolePicker
         open={pickerTarget !== null}

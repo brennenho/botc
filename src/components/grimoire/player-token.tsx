@@ -123,6 +123,7 @@ export function PlayerToken({
         {editingName ? (
           <input
             ref={nameInputRef}
+            className="player-name-input"
             value={draftName}
             maxLength={40}
             aria-label={`Rename ${seat.playerName}`}

@@ -2,9 +2,11 @@
 
 import { useDraggable } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
+import { X } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { ReminderToken } from "@/components/grimoire/reminder-token";
+import { IconButton } from "@/components/ui/icon-button";
 import {
   Tooltip,
   TooltipContent,
@@ -20,12 +22,14 @@ export function DraggableReminderToken({
   size,
   selected,
   onSelect,
+  onRemove,
 }: {
   reminder: GameToken;
   playerName: string;
   size: number;
   selected: boolean;
   onSelect: () => void;
+  onRemove: () => void;
 }) {
   const sourceName = reminder.roleId
     ? (roleById.get(reminder.roleId)?.name ?? "Character")
@@ -41,35 +45,57 @@ export function DraggableReminderToken({
   }, [isDragging]);
 
   return (
-    <Tooltip open={tooltipOpen && !isDragging} onOpenChange={setTooltipOpen}>
-      <TooltipTrigger
-        ref={setNodeRef}
-        className={cn("reminder-token-trigger", isDragging && "is-dragging")}
-        style={{ transform: CSS.Translate.toString(transform) }}
-        aria-label={`${reminder.label} reminder on ${playerName}`}
+    <div
+      ref={setNodeRef}
+      className={cn(
+        "reminder-token-control",
+        selected && "is-selected",
+        isDragging && "is-dragging",
+      )}
+      style={{ transform: CSS.Translate.toString(transform) }}
+    >
+      <Tooltip open={tooltipOpen && !isDragging} onOpenChange={setTooltipOpen}>
+        <TooltipTrigger
+          className="reminder-token-trigger"
+          aria-label={`${reminder.label} reminder on ${playerName}`}
+          onClick={(event) => {
+            event.stopPropagation();
+            onSelect();
+          }}
+          {...listeners}
+          {...attributes}
+        >
+          <ReminderToken
+            label={reminder.label}
+            roleId={reminder.roleId}
+            size={size}
+            selected={selected}
+            presentation="labeled"
+          />
+        </TooltipTrigger>
+        <TooltipContent>
+          <span className="reminder-token-tooltip">
+            <strong>{reminder.label}</strong>
+            <span>
+              {sourceName} · {playerName}
+            </span>
+          </span>
+        </TooltipContent>
+      </Tooltip>
+      <IconButton
+        label={`Remove ${reminder.label} Reminder`}
+        size="sm"
+        variant="quiet"
+        tooltipSide="top"
+        className="token-clear-button reminder-token-clear size-4"
+        onPointerDown={(event) => event.stopPropagation()}
         onClick={(event) => {
           event.stopPropagation();
-          onSelect();
+          onRemove();
         }}
-        {...listeners}
-        {...attributes}
       >
-        <ReminderToken
-          label={reminder.label}
-          roleId={reminder.roleId}
-          size={size}
-          selected={selected}
-          presentation="labeled"
-        />
-      </TooltipTrigger>
-      <TooltipContent>
-        <span className="reminder-token-tooltip">
-          <strong>{reminder.label}</strong>
-          <span>
-            {sourceName} · {playerName}
-          </span>
-        </span>
-      </TooltipContent>
-    </Tooltip>
+        <X className="size-2.5" />
+      </IconButton>
+    </div>
   );
 }

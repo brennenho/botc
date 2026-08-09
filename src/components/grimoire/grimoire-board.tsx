@@ -48,6 +48,7 @@ export function GrimoireBoard({
   placingReminder,
   onSelectSeat,
   onSelectReminder,
+  onRemoveReminder,
   onPlaceReminder,
   onClearSelection,
   onRenameSeat,
@@ -69,6 +70,7 @@ export function GrimoireBoard({
   placingReminder: boolean;
   onSelectSeat: (seatId: string) => void;
   onSelectReminder: (tokenId: string) => void;
+  onRemoveReminder: (tokenId: string) => void;
   onPlaceReminder: (seatId: string) => void;
   onClearSelection: () => void;
   onRenameSeat: (seatId: string, playerName: string) => void;
@@ -452,6 +454,7 @@ export function GrimoireBoard({
                   size={reminderSize}
                   selected={selectedReminderId === reminder.id}
                   onSelect={() => onSelectReminder(reminder.id)}
+                  onRemove={() => onRemoveReminder(reminder.id)}
                 />
               </div>
             );
