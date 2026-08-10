@@ -1,10 +1,11 @@
 "use client";
 
 import { Dialog } from "@base-ui/react/dialog";
-import { Flame, ShieldCheck, Undo2 } from "lucide-react";
+import { Undo2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
 import { CharacterToken } from "@/components/grimoire/character-token";
+import { InformationTokenIcon } from "@/components/grimoire/information-token-icon";
 import { Button } from "@/components/ui/button";
 import { roleById, teamLabel } from "@/lib/game-data";
 import type { GameToken, Seat } from "@/lib/game-data/types";
@@ -121,9 +122,32 @@ function RevealContent({
             good ? "is-good" : "is-evil",
           )}
         >
-          {good ? <ShieldCheck /> : <Flame />}
+          <InformationTokenIcon type={good ? "good" : "evil"} />
           <strong>{good ? "Good" : "Evil"}</strong>
         </div>
+      </main>
+    );
+  }
+
+  if (reveal.type === "question") {
+    const isVoteQuestion = reveal.question === "Did You Vote Today?";
+    return (
+      <main className="player-reveal-content is-question">
+        <span className="player-reveal-question-icon" aria-hidden="true">
+          <InformationTokenIcon
+            type={isVoteQuestion ? "did-vote" : "did-nominate"}
+          />
+        </span>
+        <Dialog.Title
+          ref={titleRef}
+          tabIndex={-1}
+          className="player-reveal-title"
+        >
+          {reveal.question}
+        </Dialog.Title>
+        <p className="player-reveal-question-response">
+          Nod for Yes <span aria-hidden="true">·</span> Shake Your Head for No
+        </p>
       </main>
     );
   }

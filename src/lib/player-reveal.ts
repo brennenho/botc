@@ -1,11 +1,16 @@
 import type { Alignment, NightOrderEntry } from "@/lib/game-data/types";
 
+export type InformationQuestion =
+  | "Did You Vote Today?"
+  | "Did You Nominate Today?";
+
 export type PlayerReveal =
   | { type: "demon-bluffs" }
   | { type: "demon-information" }
   | { type: "minion-information" }
   | { type: "role"; heading: string; roleId: string }
-  | { type: "alignment"; alignment: Alignment };
+  | { type: "alignment"; alignment: Alignment }
+  | { type: "question"; question: InformationQuestion };
 
 export type NightRevealAction =
   | {

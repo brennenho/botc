@@ -1,19 +1,11 @@
 "use client";
 
-import {
-  BadgeCheck,
-  BookOpen,
-  Flame,
-  ShieldCheck,
-  UserRoundCheck,
-  Users,
-} from "lucide-react";
-
-import { RevealIcon } from "@/components/grimoire/reveal-icon";
+import { InformationTokenIcon } from "@/components/grimoire/information-token-icon";
 import { Button } from "@/components/ui/button";
 import { roleById } from "@/lib/game-data";
 import type { GameToken, Seat } from "@/lib/game-data/types";
 import type { PlayerReveal } from "@/lib/player-reveal";
+import { cn } from "@/lib/utils";
 
 export function PlayerRevealPanel({
   seats,
@@ -38,76 +30,96 @@ export function PlayerRevealPanel({
 
   return (
     <div className="player-reveal-panel">
-      <RevealSection title="Game Information">
+      <RevealSection title="Information Tokens" className="is-token-board">
         <RevealAction
-          icon={<Users />}
-          title="Demon Information"
-          description={
-            demon
-              ? `${minionCount} ${minionCount === 1 ? "Minion" : "Minions"} · ${bluffCount} of 3 Bluffs`
-              : "Assign a Demon First"
-          }
-          disabled={!demon}
-          onClick={() => onReveal({ type: "demon-information" })}
-        />
-        <RevealAction
-          icon={<UserRoundCheck />}
-          title="Minion Information"
-          description={
-            !demon
-              ? "Assign a Demon First"
-              : minionCount === 0
-                ? "Assign a Minion First"
-                : `Demon: ${demon.playerName} · ${minionCount} ${minionCount === 1 ? "Minion" : "Minions"}`
-          }
-          disabled={!demon || minionCount === 0}
-          onClick={() => onReveal({ type: "minion-information" })}
-        />
-        <RevealAction
-          icon={<BookOpen />}
-          title="Demon Bluffs"
-          description={`${bluffCount} of 3 Bluffs Set`}
-          disabled={bluffCount === 0}
-          onClick={() => onReveal({ type: "demon-bluffs" })}
-        />
-      </RevealSection>
-
-      <RevealSection title="Information Tokens">
-        <RevealAction
-          icon={<BadgeCheck />}
+          icon={<InformationTokenIcon type="you-are" />}
           title="You Are"
-          description="Show a Character"
+          layout="tile"
           onClick={() => onChooseRole("You Are")}
         />
         <RevealAction
-          icon={<UserRoundCheck />}
-          title="This Character Selected You"
-          description="Show the Selecting Character"
+          icon={<InformationTokenIcon type="this-player-is" />}
+          title="This Player Is"
+          layout="tile"
+          onClick={() => onChooseRole("This Player Is")}
+        />
+        <RevealAction
+          icon={<InformationTokenIcon type="selected-you" />}
+          title="Selected You"
+          layout="tile"
+          wide
           onClick={() => onChooseRole("This Character Selected You")}
         />
         <RevealAction
-          icon={<BookOpen />}
-          title="This Player Is"
-          description="Show a Character, Then Point to a Player"
-          onClick={() => onChooseRole("This Player Is")}
+          icon={<InformationTokenIcon type="did-vote" />}
+          title="Did You Vote Today?"
+          layout="tile"
+          onClick={() =>
+            onReveal({ type: "question", question: "Did You Vote Today?" })
+          }
+        />
+        <RevealAction
+          icon={<InformationTokenIcon type="did-nominate" />}
+          title="Did You Nominate Today?"
+          layout="tile"
+          onClick={() =>
+            onReveal({
+              type: "question",
+              question: "Did You Nominate Today?",
+            })
+          }
+        />
+        <RevealAction
+          icon={<InformationTokenIcon type="good" />}
+          title="You Are Good"
+          layout="tile"
+          tone="good"
+          onClick={() => onReveal({ type: "alignment", alignment: "good" })}
+        />
+        <RevealAction
+          icon={<InformationTokenIcon type="evil" />}
+          title="You Are Evil"
+          layout="tile"
+          tone="evil"
+          onClick={() => onReveal({ type: "alignment", alignment: "evil" })}
         />
       </RevealSection>
 
-      <RevealSection title="Alignment">
-        <div className="player-reveal-alignment-actions">
-          <RevealAction
-            icon={<ShieldCheck />}
-            title="You Are Good"
-            tone="good"
-            onClick={() => onReveal({ type: "alignment", alignment: "good" })}
-          />
-          <RevealAction
-            icon={<Flame />}
-            title="You Are Evil"
-            tone="evil"
-            onClick={() => onReveal({ type: "alignment", alignment: "evil" })}
-          />
-        </div>
+      <RevealSection title="Setup Info" className="is-setup-board">
+        <RevealAction
+          icon={<InformationTokenIcon type="demon" />}
+          title="Demon Information"
+          description={
+            demon
+              ? `${minionCount} ${minionCount === 1 ? "Minion" : "Minions"} · ${bluffCount} of 3 Bluffs Set`
+              : "Assign a Demon to Enable"
+          }
+          disabled={!demon}
+          layout="tile"
+          onClick={() => onReveal({ type: "demon-information" })}
+        />
+        <RevealAction
+          icon={<InformationTokenIcon type="minions" />}
+          title="Minion Information"
+          description={
+            !demon
+              ? "Assign a Demon to Enable"
+              : minionCount === 0
+                ? "Assign a Minion to Enable"
+                : `${minionCount} ${minionCount === 1 ? "Minion" : "Minions"} · Demon: ${demon.playerName}`
+          }
+          disabled={!demon || minionCount === 0}
+          layout="tile"
+          onClick={() => onReveal({ type: "minion-information" })}
+        />
+        <RevealAction
+          icon={<InformationTokenIcon type="bluffs" />}
+          title="Demon Bluffs"
+          description={`${bluffCount} of 3 Bluffs Set`}
+          disabled={bluffCount === 0}
+          layout="tile"
+          onClick={() => onReveal({ type: "demon-bluffs" })}
+        />
       </RevealSection>
     </div>
   );
@@ -115,13 +127,15 @@ export function PlayerRevealPanel({
 
 function RevealSection({
   title,
+  className,
   children,
 }: {
   title: string;
+  className?: string;
   children: React.ReactNode;
 }) {
   return (
-    <section className="player-reveal-panel-section">
+    <section className={cn("player-reveal-panel-section", className)}>
       <h3 className="utility-label">{title}</h3>
       <div className="player-reveal-action-list">{children}</div>
     </section>
@@ -133,14 +147,18 @@ function RevealAction({
   title,
   description,
   disabled,
+  layout = "row",
   tone,
+  wide,
   onClick,
 }: {
   icon: React.ReactNode;
   title: string;
   description?: string;
   disabled?: boolean;
+  layout?: "row" | "tile";
   tone?: "good" | "evil";
+  wide?: boolean;
   onClick: () => void;
 }) {
   return (
@@ -149,18 +167,17 @@ function RevealAction({
       variant="quiet"
       focusStyle="surface"
       className="player-reveal-action"
+      data-layout={layout}
       data-tone={tone}
+      data-wide={wide ? true : undefined}
       disabled={disabled}
+      aria-label={description ? `${title}: ${description}` : title}
       onClick={onClick}
     >
       <span className="player-reveal-action-icon">{icon}</span>
       <span className="player-reveal-action-copy">
         <strong>{title}</strong>
         {description ? <small>{description}</small> : null}
-      </span>
-      <span className="player-reveal-action-command">
-        <RevealIcon />
-        Show
       </span>
     </Button>
   );
