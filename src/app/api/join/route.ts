@@ -15,7 +15,7 @@ export async function POST(request: Request) {
     const response = NextResponse.json(joined);
 
     response.cookies.set({
-      name: `botc_pl_${joined.snapshot.game.id}_${joined.seatId}`,
+      name: `botc_pl_${joined.snapshot.game.joinCode}_${joined.seatId}`,
       value: joined.playerToken,
       httpOnly: true,
       sameSite: "lax",

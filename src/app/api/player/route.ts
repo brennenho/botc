@@ -1,19 +1,20 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
-import { getPlayerSnapshot } from "@/lib/server/store";
+import { normalizeGameCode } from "@/lib/game-code";
+import { getPlayerSnapshotByCode } from "@/lib/server/store";
 
 export async function GET(request: Request) {
   try {
     const url = new URL(request.url);
-    const gameId = url.searchParams.get("gameId") ?? "";
+    const gameCode = normalizeGameCode(url.searchParams.get("code") ?? "");
     const seatId = url.searchParams.get("seatId") ?? "";
     const explicitToken = url.searchParams.get("token");
     const cookieToken =
-      (await cookies()).get(`botc_pl_${gameId}_${seatId}`)?.value ?? "";
+      (await cookies()).get(`botc_pl_${gameCode}_${seatId}`)?.value ?? "";
     const token =
       explicitToken && explicitToken.length > 0 ? explicitToken : cookieToken;
-    const snapshot = await getPlayerSnapshot(gameId, seatId, token);
+    const snapshot = await getPlayerSnapshotByCode(gameCode, seatId, token);
 
     return NextResponse.json({ snapshot });
   } catch (error) {

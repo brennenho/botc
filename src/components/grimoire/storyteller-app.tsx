@@ -33,13 +33,13 @@ type PickerTarget =
   | { type: "reveal"; heading: string }
   | null;
 
-export function StorytellerApp({ gameId }: { gameId: string }) {
+export function StorytellerApp({ gameCode }: { gameCode: string }) {
   const { snapshot, loading, error, saveState, commit, refresh } =
-    useStorytellerGame(gameId);
+    useStorytellerGame(gameCode);
   const [openPanel, setOpenPanel] = useState<GrimoirePanel>(null);
-  const [sheetPinned, setSheetPinned] = usePersistedGrimoireSheetPin(gameId);
+  const [sheetPinned, setSheetPinned] = usePersistedGrimoireSheetPin(gameCode);
   const [nightOrderState, setNightOrderState] =
-    usePersistedNightOrderState(gameId);
+    usePersistedNightOrderState(gameCode);
   const [selectedSeatId, setSelectedSeatId] = useState<string | null>(null);
   const [selectedReminderId, setSelectedReminderId] = useState<string | null>(
     null,
@@ -62,7 +62,7 @@ export function StorytellerApp({ gameId }: { gameId: string }) {
     movePlayer,
     moveReminder,
     arrangeInCircle,
-  } = useGrimoireActions({ gameId, commit });
+  } = useGrimoireActions({ commit });
 
   const bluffs = useMemo(
     () =>

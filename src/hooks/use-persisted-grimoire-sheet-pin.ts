@@ -10,9 +10,9 @@ const booleanCodec: PersistedStateCodec<boolean> = {
 };
 const createDefaultPinState = () => false;
 
-export function usePersistedGrimoireSheetPin(gameId: string) {
+export function usePersistedGrimoireSheetPin(gameCode: string) {
   return usePersistedState(
-    `${storagePrefix}${gameId}`,
+    `${storagePrefix}${gameCode}`,
     createDefaultPinState,
     booleanCodec,
   );

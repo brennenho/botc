@@ -3,12 +3,13 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 
 import {
-  getStorytellerSnapshot,
-  updateStorytellerGame,
+  getStorytellerSnapshotByCode,
+  updateStorytellerGameByCode,
 } from "@/lib/server/store";
+import { normalizeGameCode } from "@/lib/game-code";
 
 const patchSchema = z.object({
-  gameId: z.string(),
+  code: z.string().min(4),
   token: z.string().optional(),
   phase: z.enum(["setup", "day", "night", "finished"]).optional(),
   dayNumber: z.number().int().min(1).optional(),
@@ -17,7 +18,6 @@ const patchSchema = z.object({
     .array(
       z.object({
         id: z.string(),
-        gameId: z.string(),
         seatIndex: z.number().int(),
         playerName: z.string(),
         roleId: z.string().nullable(),
@@ -33,7 +33,6 @@ const patchSchema = z.object({
     .array(
       z.object({
         id: z.string(),
-        gameId: z.string(),
         seatId: z.string().nullable(),
         tokenType: z.enum(["reminder", "bluff", "custom"]),
         roleId: z.string().nullable(),
@@ -45,17 +44,19 @@ const patchSchema = z.object({
     .optional(),
 });
 
-async function getToken(gameId: string, explicitToken: string | null) {
+async function getToken(gameCode: string, explicitToken: string | null) {
   if (explicitToken) return explicitToken;
-  return (await cookies()).get(`botc_st_${gameId}`)?.value ?? "";
+  return (
+    (await cookies()).get(`botc_st_${normalizeGameCode(gameCode)}`)?.value ?? ""
+  );
 }
 
 export async function GET(request: Request) {
   try {
     const url = new URL(request.url);
-    const gameId = url.searchParams.get("gameId") ?? "";
-    const token = await getToken(gameId, url.searchParams.get("token"));
-    const snapshot = await getStorytellerSnapshot(gameId, token);
+    const gameCode = normalizeGameCode(url.searchParams.get("code") ?? "");
+    const token = await getToken(gameCode, url.searchParams.get("token"));
+    const snapshot = await getStorytellerSnapshotByCode(gameCode, token);
 
     return NextResponse.json({ snapshot });
   } catch (error) {
@@ -74,8 +75,9 @@ export async function GET(request: Request) {
 export async function PATCH(request: Request) {
   try {
     const input = patchSchema.parse(await request.json());
-    const token = await getToken(input.gameId, input.token ?? null);
-    const snapshot = await updateStorytellerGame(input.gameId, token, input);
+    const gameCode = normalizeGameCode(input.code);
+    const token = await getToken(gameCode, input.token ?? null);
+    const snapshot = await updateStorytellerGameByCode(gameCode, token, input);
 
     return NextResponse.json({ snapshot });
   } catch (error) {

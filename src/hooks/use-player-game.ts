@@ -6,14 +6,14 @@ import { fetchPlayerGame } from "@/lib/api";
 import type { PlayerSnapshot } from "@/lib/game-data/types";
 import { getSupabaseBrowser } from "@/lib/supabase/client";
 
-export function usePlayerGame(gameId: string, seatId: string) {
+export function usePlayerGame(gameCode: string, seatId: string) {
   const [snapshot, setSnapshot] = useState<PlayerSnapshot | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const refresh = useCallback(async () => {
     try {
-      const result = await fetchPlayerGame(gameId, seatId);
+      const result = await fetchPlayerGame(gameCode, seatId);
       setSnapshot(result.snapshot);
       setError(null);
     } catch (cause) {
@@ -21,7 +21,7 @@ export function usePlayerGame(gameId: string, seatId: string) {
     } finally {
       setLoading(false);
     }
-  }, [gameId, seatId]);
+  }, [gameCode, seatId]);
 
   useEffect(() => {
     void refresh();
@@ -29,14 +29,14 @@ export function usePlayerGame(gameId: string, seatId: string) {
     if (!supabase) return;
 
     const channel = supabase
-      .channel(`player-game-version-${gameId}-${seatId}`)
+      .channel(`player-game-version-${gameCode}-${seatId}`)
       .on(
         "postgres_changes",
         {
           event: "UPDATE",
           schema: "public",
           table: "games",
-          filter: `id=eq.${gameId}`,
+          filter: `join_code=eq.${gameCode}`,
         },
         () => void refresh(),
       )
@@ -45,7 +45,7 @@ export function usePlayerGame(gameId: string, seatId: string) {
     return () => {
       void supabase.removeChannel(channel);
     };
-  }, [gameId, refresh, seatId]);
+  }, [gameCode, refresh, seatId]);
 
   return { snapshot, loading, error };
 }

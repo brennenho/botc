@@ -32,7 +32,7 @@ function applyPatch(
   };
 }
 
-export function useStorytellerGame(gameId: string) {
+export function useStorytellerGame(gameCode: string) {
   const [snapshot, setSnapshot] = useState<StorytellerSnapshot | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -45,7 +45,7 @@ export function useStorytellerGame(gameId: string) {
 
   const refresh = useCallback(async () => {
     try {
-      const result = await fetchStorytellerGame(gameId);
+      const result = await fetchStorytellerGame(gameCode);
       if (pendingRef.current === 0) {
         snapshotRef.current = result.snapshot;
         setSnapshot(result.snapshot);
@@ -56,7 +56,7 @@ export function useStorytellerGame(gameId: string) {
     } finally {
       setLoading(false);
     }
-  }, [gameId]);
+  }, [gameCode]);
 
   useEffect(() => {
     void refresh();
@@ -67,14 +67,14 @@ export function useStorytellerGame(gameId: string) {
     if (!supabase) return;
 
     const channel = supabase
-      .channel(`game-version-${gameId}`)
+      .channel(`game-version-${gameCode}`)
       .on(
         "postgres_changes",
         {
           event: "UPDATE",
           schema: "public",
           table: "games",
-          filter: `id=eq.${gameId}`,
+          filter: `join_code=eq.${gameCode}`,
         },
         () => void refresh(),
       )
@@ -83,7 +83,7 @@ export function useStorytellerGame(gameId: string) {
     return () => {
       void supabase.removeChannel(channel);
     };
-  }, [gameId, refresh]);
+  }, [gameCode, refresh]);
 
   const commit = useCallback(
     (update: StorytellerUpdate) => {
@@ -100,7 +100,7 @@ export function useStorytellerGame(gameId: string) {
 
       queueRef.current = queueRef.current.then(async () => {
         try {
-          const result = await updateStorytellerGame(gameId, patch);
+          const result = await updateStorytellerGame(gameCode, patch);
           pendingRef.current -= 1;
           if (pendingRef.current === 0) {
             snapshotRef.current = result.snapshot;
@@ -117,7 +117,7 @@ export function useStorytellerGame(gameId: string) {
         }
       });
     },
-    [gameId, refresh],
+    [gameCode, refresh],
   );
 
   return { snapshot, loading, error, saveState, commit, refresh };

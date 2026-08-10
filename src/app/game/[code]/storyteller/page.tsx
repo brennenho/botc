@@ -1,7 +1,8 @@
 import { notFound } from "next/navigation";
 
 import { StorytellerApp } from "@/components/grimoire/storyteller-app";
-import { getGameIdByJoinCode } from "@/lib/server/store";
+import { normalizeGameCode } from "@/lib/game-code";
+import { gameExistsByCode } from "@/lib/server/store";
 
 export default async function StorytellerPage({
   params,
@@ -9,8 +10,8 @@ export default async function StorytellerPage({
   params: Promise<{ code: string }>;
 }) {
   const { code } = await params;
-  const gameId = await getGameIdByJoinCode(code);
-  if (!gameId) notFound();
+  const gameCode = normalizeGameCode(code);
+  if (!(await gameExistsByCode(gameCode))) notFound();
 
-  return <StorytellerApp gameId={gameId} />;
+  return <StorytellerApp gameCode={gameCode} />;
 }

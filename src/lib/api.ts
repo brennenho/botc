@@ -43,21 +43,24 @@ export function joinGame(joinCode: string, playerName: string) {
   });
 }
 
-export function fetchStorytellerGame(gameId: string) {
+export function fetchStorytellerGame(gameCode: string) {
   return requestJson<{ snapshot: StorytellerSnapshot }>(
-    `/api/storyteller?gameId=${encodeURIComponent(gameId)}`,
+    `/api/storyteller?code=${encodeURIComponent(gameCode)}`,
   );
 }
 
-export function updateStorytellerGame(gameId: string, patch: StorytellerPatch) {
+export function updateStorytellerGame(
+  gameCode: string,
+  patch: StorytellerPatch,
+) {
   return requestJson<{ snapshot: StorytellerSnapshot }>("/api/storyteller", {
     method: "PATCH",
-    body: JSON.stringify({ gameId, ...patch }),
+    body: JSON.stringify({ code: gameCode, ...patch }),
   });
 }
 
-export function fetchPlayerGame(gameId: string, seatId: string) {
+export function fetchPlayerGame(gameCode: string, seatId: string) {
   return requestJson<{ snapshot: PlayerSnapshot }>(
-    `/api/player?gameId=${encodeURIComponent(gameId)}&seatId=${encodeURIComponent(seatId)}`,
+    `/api/player?code=${encodeURIComponent(gameCode)}&seatId=${encodeURIComponent(seatId)}`,
   );
 }

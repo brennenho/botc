@@ -7,13 +7,13 @@ import { usePlayerGame } from "@/hooks/use-player-game";
 import { getEdition, roleById, teamLabel } from "@/lib/game-data";
 
 export function PlayerApp({
-  gameId,
+  gameCode,
   seatId,
 }: {
-  gameId: string;
+  gameCode: string;
   seatId: string;
 }) {
-  const { snapshot, loading, error } = usePlayerGame(gameId, seatId);
+  const { snapshot, loading, error } = usePlayerGame(gameCode, seatId);
 
   if (loading) return <PlayerLoading />;
   if (error || !snapshot) {

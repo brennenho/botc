@@ -24,7 +24,6 @@ const sevenPlayerCounts: TeamCounts = {
 function seat(seatIndex: number, roleId: string): Seat {
   return {
     id: `seat-${seatIndex}`,
-    gameId: "game",
     seatIndex,
     playerName: `Player ${seatIndex + 1}`,
     roleId,
@@ -59,7 +58,6 @@ describe("setup modifiers", () => {
     const gameTokens: GameToken[] = [
       {
         id: "drunk-setup",
-        gameId: "game",
         seatId: null,
         tokenType: "custom",
         roleId: DRUNK_ROLE_ID,
@@ -69,7 +67,6 @@ describe("setup modifiers", () => {
       },
       {
         id: "drunk-reminder",
-        gameId: "game",
         seatId: seats[3]!.id,
         tokenType: "reminder",
         roleId: DRUNK_ROLE_ID,
@@ -117,7 +114,6 @@ describe("Drunk reminder", () => {
     ];
     const setupToken: GameToken = {
       id: "drunk-setup",
-      gameId: "game",
       seatId: null,
       tokenType: "custom",
       roleId: DRUNK_ROLE_ID,
@@ -147,7 +143,6 @@ describe("setup reminder warnings", () => {
     ];
     const setupToken: GameToken = {
       id: "drunk-setup",
-      gameId: "game",
       seatId: null,
       tokenType: "custom",
       roleId: DRUNK_ROLE_ID,
@@ -191,7 +186,6 @@ describe("setup reminder warnings", () => {
     const gameTokens: GameToken[] = [
       {
         id: "drunk-setup",
-        gameId: "game",
         seatId: null,
         tokenType: "custom",
         roleId: DRUNK_ROLE_ID,
@@ -207,7 +201,6 @@ describe("setup reminder warnings", () => {
       ].map(
         ([roleId, label, seatId], index): GameToken => ({
           id: `reminder-${index}`,
-          gameId: "game",
           seatId: seatId!,
           tokenType: "reminder",
           roleId: roleId!,
@@ -225,7 +218,6 @@ describe("setup reminder warnings", () => {
     const seats = [seat(0, "tealady"), seat(1, "sailor")];
     const cannotDie: GameToken = {
       id: "cannot-die",
-      gameId: "game",
       seatId: seats[1]!.id,
       tokenType: "reminder",
       roleId: "tealady",

@@ -6,7 +6,6 @@ import { normalizeUpdatedSeats } from "@/lib/server/seat-normalization";
 function seat(overrides: Partial<Seat> = {}): Seat {
   return {
     id: "seat-1",
-    gameId: "old-game",
     seatIndex: 4,
     playerName: "Player 1",
     roleId: null,
@@ -21,22 +20,17 @@ function seat(overrides: Partial<Seat> = {}): Seat {
 
 describe("seat update normalization", () => {
   it("preserves a storyteller-selected alignment without a role", () => {
-    const [normalized] = normalizeUpdatedSeats(
-      [seat({ alignment: "evil" })],
-      "game-1",
-    );
+    const [normalized] = normalizeUpdatedSeats([seat({ alignment: "evil" })]);
 
     expect(normalized?.alignment).toBe("evil");
   });
 
-  it("normalizes seat ownership, order, names, and invalid roles", () => {
-    const [normalized] = normalizeUpdatedSeats(
-      [seat({ playerName: "  ", roleId: "not-a-role" })],
-      "game-1",
-    );
+  it("normalizes seat order, names, and invalid roles", () => {
+    const [normalized] = normalizeUpdatedSeats([
+      seat({ playerName: "  ", roleId: "not-a-role" }),
+    ]);
 
     expect(normalized).toMatchObject({
-      gameId: "game-1",
       seatIndex: 0,
       playerName: "Player 1",
       roleId: null,

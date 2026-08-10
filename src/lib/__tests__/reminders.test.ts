@@ -33,7 +33,6 @@ const layoutOptions = {
 function reminder(id: string, seatId: string, order: number): GameToken {
   return {
     id,
-    gameId: "game",
     seatId,
     tokenType: "reminder",
     roleId: "poisoner",

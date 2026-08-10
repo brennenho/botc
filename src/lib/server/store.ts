@@ -1,6 +1,6 @@
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { normalizeUpdatedSeats } from "@/lib/server/seat-normalization";
-import { normalizeUpdatedTokens } from "@/lib/server/token-normalization";
+import { normalizeGameCode } from "@/lib/game-code";
 import type {
   Alignment,
   EditionId,
@@ -19,12 +19,13 @@ import {
   hashToken,
 } from "@/lib/server/tokens";
 
-type StoredGame = Game & { storytellerTokenHash: string };
-type StoredSeat = Seat & { playerTokenHash: string | null };
+type StoredGame = Game & { id: string; storytellerTokenHash: string };
+type StoredSeat = Seat & { gameId: string; playerTokenHash: string | null };
+type StoredGameToken = GameToken & { gameId: string };
 type Store = {
   games: Map<string, StoredGame>;
   seats: Map<string, StoredSeat[]>;
-  tokens: Map<string, GameToken[]>;
+  tokens: Map<string, StoredGameToken[]>;
 };
 
 type SupabaseGameRow = {
@@ -74,12 +75,8 @@ const memoryStore =
   (globalThis.__botcStore = {
     games: new Map<string, StoredGame>(),
     seats: new Map<string, StoredSeat[]>(),
-    tokens: new Map<string, GameToken[]>(),
+    tokens: new Map<string, StoredGameToken[]>(),
   });
-
-function normalizeJoinCode(joinCode: string) {
-  return joinCode.trim().toUpperCase();
-}
 
 function createStoredSeat(
   gameId: string,
@@ -105,7 +102,6 @@ function createStoredSeat(
 
 function publicGame(game: StoredGame): Game {
   return {
-    id: game.id,
     joinCode: game.joinCode,
     edition: game.edition,
     status: game.status,
@@ -120,7 +116,6 @@ function publicGame(game: StoredGame): Game {
 function publicSeat(seat: StoredSeat): Seat {
   return {
     id: seat.id,
-    gameId: seat.gameId,
     seatIndex: seat.seatIndex,
     playerName: seat.playerName,
     roleId: seat.roleId,
@@ -163,7 +158,7 @@ function rowToSeat(row: SupabaseSeatRow): StoredSeat {
   };
 }
 
-function rowToToken(row: SupabaseTokenRow): GameToken {
+function rowToToken(row: SupabaseTokenRow): StoredGameToken {
   return {
     id: row.id,
     gameId: row.game_id,
@@ -173,6 +168,18 @@ function rowToToken(row: SupabaseTokenRow): GameToken {
     label: row.label,
     position: row.position,
     metadata: row.metadata ?? {},
+  };
+}
+
+function publicToken(token: StoredGameToken): GameToken {
+  return {
+    id: token.id,
+    seatId: token.seatId,
+    tokenType: token.tokenType,
+    roleId: token.roleId,
+    label: token.label,
+    position: token.position,
+    metadata: token.metadata,
   };
 }
 
@@ -192,7 +199,7 @@ function seatToRow(seat: StoredSeat): SupabaseSeatRow {
   };
 }
 
-function tokenToRow(token: GameToken): SupabaseTokenRow {
+function tokenToRow(token: StoredGameToken): SupabaseTokenRow {
   return {
     id: token.id,
     game_id: token.gameId,
@@ -217,8 +224,8 @@ function assertPlayer(seat: StoredSeat, token: string) {
   }
 }
 
-export async function getGameIdByJoinCode(joinCode: string) {
-  const normalizedCode = normalizeJoinCode(joinCode);
+async function getGameIdByCode(gameCode: string) {
+  const normalizedCode = normalizeGameCode(gameCode);
   const supabase = getSupabaseAdmin();
 
   if (supabase) {
@@ -236,6 +243,16 @@ export async function getGameIdByJoinCode(joinCode: string) {
       (game) => game.joinCode === normalizedCode,
     )?.id ?? null
   );
+}
+
+async function requireGameId(gameCode: string) {
+  const gameId = await getGameIdByCode(gameCode);
+  if (!gameId) throw new Error("Game not found.");
+  return gameId;
+}
+
+export async function gameExistsByCode(gameCode: string) {
+  return (await getGameIdByCode(gameCode)) !== null;
 }
 
 export async function createGame(edition: EditionId, playerCount = 7) {
@@ -302,7 +319,7 @@ export async function createGame(edition: EditionId, playerCount = 7) {
 
 export async function joinGame(joinCode: string, playerName: string) {
   const supabase = getSupabaseAdmin();
-  const normalizedCode = normalizeJoinCode(joinCode);
+  const normalizedCode = normalizeGameCode(joinCode);
   const playerToken = createSecretToken("pl");
   const playerTokenHash = hashToken(playerToken);
 
@@ -387,7 +404,7 @@ export async function joinGame(joinCode: string, playerName: string) {
   };
 }
 
-export async function getStorytellerSnapshot(gameId: string, token: string) {
+async function getStorytellerSnapshot(gameId: string, token: string) {
   const supabase = getSupabaseAdmin();
 
   if (supabase) {
@@ -424,7 +441,7 @@ export async function getStorytellerSnapshot(gameId: string, token: string) {
     return {
       game: publicGame(game),
       seats: seatRows.map(rowToSeat).map(publicSeat),
-      gameTokens: tokenRows.map(rowToToken),
+      gameTokens: tokenRows.map(rowToToken).map(publicToken),
     } satisfies StorytellerSnapshot;
   }
 
@@ -435,11 +452,11 @@ export async function getStorytellerSnapshot(gameId: string, token: string) {
   return {
     game: publicGame(game),
     seats: (memoryStore.seats.get(gameId) ?? []).map(publicSeat),
-    gameTokens: memoryStore.tokens.get(gameId) ?? [],
+    gameTokens: (memoryStore.tokens.get(gameId) ?? []).map(publicToken),
   } satisfies StorytellerSnapshot;
 }
 
-export async function getPlayerSnapshot(
+async function getPlayerSnapshot(
   gameId: string,
   seatId: string,
   token: string,
@@ -489,7 +506,7 @@ export async function getPlayerSnapshot(
   } satisfies PlayerSnapshot;
 }
 
-export async function updateStorytellerGame(
+async function updateStorytellerGame(
   gameId: string,
   token: string,
   patch: StorytellerPatch,
@@ -500,12 +517,11 @@ export async function updateStorytellerGame(
   const nextVersion = current.game.version + 1;
 
   const normalizedSeats = patch.seats
-    ? normalizeUpdatedSeats(patch.seats, gameId)
+    ? normalizeUpdatedSeats(patch.seats)
     : undefined;
-
-  const normalizedTokens = patch.gameTokens
-    ? normalizeUpdatedTokens(patch.gameTokens, gameId)
-    : undefined;
+  const normalizedTokens = patch.gameTokens?.map(
+    (gameToken): StoredGameToken => ({ ...gameToken, gameId }),
+  );
 
   if (supabase) {
     const { data: gameRow, error: gameError } = await supabase
@@ -531,6 +547,7 @@ export async function updateStorytellerGame(
     const nextSeats = normalizedSeats?.map(
       (seat): StoredSeat => ({
         ...seat,
+        gameId,
         playerTokenHash: tokenHashes.get(seat.id) ?? null,
       }),
     );
@@ -601,6 +618,7 @@ export async function updateStorytellerGame(
         normalizedSeats.map(
           (seat): StoredSeat => ({
             ...seat,
+            gameId,
             playerTokenHash: tokenHashes.get(seat.id) ?? null,
           }),
         ),
@@ -613,4 +631,27 @@ export async function updateStorytellerGame(
   }
 
   return getStorytellerSnapshot(gameId, token);
+}
+
+export async function getStorytellerSnapshotByCode(
+  gameCode: string,
+  token: string,
+) {
+  return getStorytellerSnapshot(await requireGameId(gameCode), token);
+}
+
+export async function getPlayerSnapshotByCode(
+  gameCode: string,
+  seatId: string,
+  token: string,
+) {
+  return getPlayerSnapshot(await requireGameId(gameCode), seatId, token);
+}
+
+export async function updateStorytellerGameByCode(
+  gameCode: string,
+  token: string,
+  patch: StorytellerPatch,
+) {
+  return updateStorytellerGame(await requireGameId(gameCode), token, patch);
 }

@@ -25,14 +25,12 @@ import {
 import { createSetupRoleMetadata, DRUNK_ROLE_ID } from "@/lib/setup-effects";
 
 type UseGrimoireActionsOptions = {
-  gameId: string;
   commit: StorytellerCommit;
 };
 
-function createSeat(gameId: string, seatIndex: number): Seat {
+function createSeat(seatIndex: number): Seat {
   return {
     id: crypto.randomUUID(),
-    gameId,
     seatIndex,
     playerName: `Player ${seatIndex + 1}`,
     roleId: null,
@@ -44,10 +42,7 @@ function createSeat(gameId: string, seatIndex: number): Seat {
   };
 }
 
-export function useGrimoireActions({
-  gameId,
-  commit,
-}: UseGrimoireActionsOptions) {
+export function useGrimoireActions({ commit }: UseGrimoireActionsOptions) {
   const updateSeat = useCallback(
     (seatId: string, patch: Partial<Seat>) => {
       commit((current) => ({
@@ -94,7 +89,6 @@ export function useGrimoireActions({
 
         const bluff: GameToken = {
           id: existing?.id ?? crypto.randomUUID(),
-          gameId,
           seatId: null,
           tokenType: "bluff",
           roleId: role.id,
@@ -105,14 +99,14 @@ export function useGrimoireActions({
         return { gameTokens: [...remaining, bluff] };
       });
     },
-    [commit, gameId],
+    [commit],
   );
 
   const addPlayer = useCallback(() => {
     commit((current) => ({
-      seats: [...current.seats, createSeat(gameId, current.seats.length)],
+      seats: [...current.seats, createSeat(current.seats.length)],
     }));
-  }, [commit, gameId]);
+  }, [commit]);
 
   const removePlayer = useCallback(
     (seatId: string) => {
@@ -162,7 +156,6 @@ export function useGrimoireActions({
             ...gameTokens,
             {
               id: crypto.randomUUID(),
-              gameId,
               seatId: null,
               tokenType: "custom",
               roleId: DRUNK_ROLE_ID,
@@ -176,7 +169,7 @@ export function useGrimoireActions({
         return { seats, gameTokens };
       });
     },
-    [commit, gameId],
+    [commit],
   );
 
   const clearAssignments = useCallback(() => {
@@ -199,7 +192,6 @@ export function useGrimoireActions({
         const order = getAnchoredReminders(current.gameTokens, seatId).length;
         const reminder: GameToken = {
           id: crypto.randomUUID(),
-          gameId,
           seatId,
           tokenType: "reminder",
           roleId: definition.roleId,
@@ -213,7 +205,7 @@ export function useGrimoireActions({
         return { gameTokens: [...current.gameTokens, reminder] };
       });
     },
-    [commit, gameId],
+    [commit],
   );
 
   const removeReminder = useCallback(
@@ -233,7 +225,6 @@ export function useGrimoireActions({
         );
         const positionToken: GameToken = {
           id: existing?.id ?? crypto.randomUUID(),
-          gameId,
           seatId,
           tokenType: "custom",
           roleId: null,
@@ -253,7 +244,7 @@ export function useGrimoireActions({
         };
       });
     },
-    [commit, gameId],
+    [commit],
   );
 
   const moveReminder = useCallback(

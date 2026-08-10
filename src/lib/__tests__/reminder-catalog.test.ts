@@ -12,7 +12,6 @@ import { createSetupRoleMetadata, DRUNK_ROLE_ID } from "@/lib/setup-effects";
 function seat(id: string, seatIndex: number, roleId: string | null): Seat {
   return {
     id,
-    gameId: "game",
     seatIndex,
     playerName: `Player ${seatIndex + 1}`,
     roleId,
@@ -79,7 +78,6 @@ describe("reminder catalog", () => {
     const washerwomanSeat = seat("seat-1", 0, "washerwoman");
     const setupRoleToken: GameToken = {
       id: "drunk-setup",
-      gameId: "game",
       seatId: null,
       tokenType: "custom",
       roleId: DRUNK_ROLE_ID,

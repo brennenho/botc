@@ -47,7 +47,6 @@ export type NightOrderEntry = {
 };
 
 export type Game = {
-  id: string;
   joinCode: string;
   edition: EditionId;
   status: GameStatus;
@@ -60,7 +59,6 @@ export type Game = {
 
 export type Seat = {
   id: string;
-  gameId: string;
   seatIndex: number;
   playerName: string;
   roleId: string | null;
@@ -73,7 +71,6 @@ export type Seat = {
 
 export type GameToken = {
   id: string;
-  gameId: string;
   seatId: string | null;
   tokenType: "reminder" | "bluff" | "custom";
   roleId: string | null;
@@ -99,7 +96,7 @@ export type StorytellerPatch = {
 export type PlayerSnapshot = {
   game: Pick<
     Game,
-    "id" | "joinCode" | "edition" | "status" | "phase" | "dayNumber" | "version"
+    "joinCode" | "edition" | "status" | "phase" | "dayNumber" | "version"
   >;
   seat: Seat;
 };

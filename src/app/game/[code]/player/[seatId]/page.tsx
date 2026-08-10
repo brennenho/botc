@@ -1,7 +1,8 @@
 import { notFound } from "next/navigation";
 
 import { PlayerApp } from "@/components/player/player-app";
-import { getGameIdByJoinCode } from "@/lib/server/store";
+import { normalizeGameCode } from "@/lib/game-code";
+import { gameExistsByCode } from "@/lib/server/store";
 
 export default async function PlayerPage({
   params,
@@ -9,8 +10,8 @@ export default async function PlayerPage({
   params: Promise<{ code: string; seatId: string }>;
 }) {
   const { code, seatId } = await params;
-  const gameId = await getGameIdByJoinCode(code);
-  if (!gameId) notFound();
+  const gameCode = normalizeGameCode(code);
+  if (!(await gameExistsByCode(gameCode))) notFound();
 
-  return <PlayerApp gameId={gameId} seatId={seatId} />;
+  return <PlayerApp gameCode={gameCode} seatId={seatId} />;
 }

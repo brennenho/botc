@@ -15,9 +15,9 @@ const nightOrderCodec: PersistedStateCodec<NightOrderState> = {
   stringify: JSON.stringify,
 };
 
-export function usePersistedNightOrderState(gameId: string) {
+export function usePersistedNightOrderState(gameCode: string) {
   return usePersistedState(
-    `${storagePrefix}${gameId}`,
+    `${storagePrefix}${gameCode}`,
     createDefaultNightOrderState,
     nightOrderCodec,
   );
