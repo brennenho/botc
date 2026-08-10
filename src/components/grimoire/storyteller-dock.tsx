@@ -18,10 +18,10 @@ export function StorytellerDock({
   pendingReminder,
   playersOpen,
   nightOpen,
-  showOpen,
+  infoOpen,
   onOpenPlayers,
   onOpenNight,
-  onOpenShow,
+  onOpenInfo,
   onRemoveSelectedReminder,
   onCloseSelectedReminder,
   onCancelReminderPlacement,
@@ -31,10 +31,10 @@ export function StorytellerDock({
   pendingReminder: ReminderDefinition | null;
   playersOpen: boolean;
   nightOpen: boolean;
-  showOpen: boolean;
+  infoOpen: boolean;
   onOpenPlayers: () => void;
   onOpenNight: () => void;
-  onOpenShow: () => void;
+  onOpenInfo: () => void;
   onRemoveSelectedReminder: () => void;
   onCloseSelectedReminder: () => void;
   onCancelReminderPlacement: () => void;
@@ -43,7 +43,7 @@ export function StorytellerDock({
     <nav
       className={cn(
         "storyteller-dock global-dock",
-        (playersOpen || nightOpen || showOpen) && "is-sheet-open",
+        (playersOpen || nightOpen || infoOpen) && "is-sheet-open",
       )}
       aria-label="Grimoire Panels"
     >
@@ -58,15 +58,16 @@ export function StorytellerDock({
         tab="night-order"
         icon={<Moon />}
         label="Night Order"
+        displayLabel="Night"
         active={nightOpen}
         onClick={onOpenNight}
       />
       <PanelTabButton
-        tab="show"
+        tab="info"
         icon={<RevealIcon />}
-        label="Show"
-        active={showOpen}
-        onClick={onOpenShow}
+        label="Info"
+        active={infoOpen}
+        onClick={onOpenInfo}
       />
     </nav>
   );
@@ -156,29 +157,31 @@ function PanelTabButton({
   tab,
   icon,
   label,
+  displayLabel = label,
   active = false,
   onClick,
 }: {
-  tab: "players" | "night-order" | "show";
+  tab: "players" | "night-order" | "info";
   icon: React.ReactNode;
   label: string;
+  displayLabel?: string;
   active?: boolean;
   onClick: () => void;
 }) {
   return (
     <IconButton
       label={label}
-      tooltip={label}
-      tooltipSide="left"
+      tooltip={false}
       variant="quiet"
       focusStyle="surface"
+      aria-pressed={active}
       className={cn("panel-tab-button", active && "is-active")}
       data-panel-tab={tab}
       onClick={onClick}
     >
       <span className="panel-tab-surface">
         <span className="panel-tab-icon">{icon}</span>
-        <span className="panel-tab-label">{label}</span>
+        <span className="panel-tab-label">{displayLabel}</span>
       </span>
     </IconButton>
   );

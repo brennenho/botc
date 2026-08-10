@@ -14,7 +14,7 @@ import type { ReminderDefinition } from "@/lib/reminders";
 import type { NightRevealAction, PlayerReveal } from "@/lib/player-reveal";
 import { cn } from "@/lib/utils";
 
-export type GrimoirePanel = "players" | "night" | "show" | null;
+export type GrimoirePanel = "players" | "night" | "info" | null;
 
 export function GrimoireSideSheet({
   panel,
@@ -22,7 +22,6 @@ export function GrimoireSideSheet({
   seats,
   gameTokens,
   pinned,
-  childDialogOpen,
   pendingReminder,
   nightOrderState,
   onNightOrderStateChange,
@@ -48,7 +47,6 @@ export function GrimoireSideSheet({
   seats: Seat[];
   gameTokens: GameToken[];
   pinned: boolean;
-  childDialogOpen: boolean;
   pendingReminder: ReminderDefinition | null;
   nightOrderState: NightOrderState;
   onNightOrderStateChange: (state: NightOrderState) => void;
@@ -72,8 +70,8 @@ export function GrimoireSideSheet({
   const title =
     panel === "night"
       ? "Night Order"
-      : panel === "show"
-        ? "Show to Player"
+      : panel === "info"
+        ? "Player Information"
         : "Players";
 
   return (
@@ -85,7 +83,7 @@ export function GrimoireSideSheet({
       title={title}
       modal={false}
       backdrop={false}
-      disablePointerDismissal={pinned || childDialogOpen}
+      disablePointerDismissal
       className={cn(panel === "night" && "night-sheet", pinned && "is-pinned")}
       headerActions={
         <IconButton
@@ -129,7 +127,7 @@ export function GrimoireSideSheet({
           onReveal={onNightReveal}
         />
       </div>
-      <div className="sheet-panel" hidden={panel !== "show"}>
+      <div className="sheet-panel" hidden={panel !== "info"}>
         <PlayerRevealPanel
           seats={seats}
           gameTokens={gameTokens}

@@ -4615,6 +4615,9 @@
 }
 
 .storyteller-dock.global-dock {
+  --panel-tab-width: 36px;
+  --panel-tab-height: 88px;
+  --panel-tab-content-gap: 10px;
   z-index: 71;
   top: auto;
   right: 0;
@@ -4622,17 +4625,26 @@
   left: auto;
   min-width: 0;
   height: auto;
-  align-items: flex-end;
+  align-items: stretch;
   flex-direction: column;
-  width: 44px;
-  gap: 2px;
+  width: var(--panel-tab-width);
+  gap: 0;
   padding: 0;
-  border: 0;
-  border-radius: 0;
-  background: transparent;
-  box-shadow: none;
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
+  overflow: hidden;
+  border: 1px solid var(--grimoire-hardware-border);
+  border-right: 0;
+  border-radius: var(--grimoire-hardware-radius) 0 0
+    var(--grimoire-hardware-radius);
+  background-color: var(--grimoire-hardware-surface);
+  background-image: linear-gradient(
+    rgb(255 251 237 / 12%),
+    rgb(198 175 126 / 7%)
+  );
+  box-shadow:
+    inset 0 1px rgb(255 252 239 / 32%),
+    -2px 3px 8px rgb(58 38 17 / 10%);
+  backdrop-filter: blur(8px) saturate(0.82);
+  -webkit-backdrop-filter: blur(8px) saturate(0.82);
   transform: none;
   transition: right 200ms cubic-bezier(0.2, 0.75, 0.2, 1);
 }
@@ -4642,11 +4654,12 @@
 }
 
 .global-dock .panel-tab-button {
+  position: relative;
   display: flex;
-  width: 44px;
-  min-width: 44px;
-  height: auto;
-  min-height: 0;
+  width: var(--panel-tab-width);
+  min-width: var(--panel-tab-width);
+  height: var(--panel-tab-height);
+  min-height: var(--panel-tab-height);
   align-items: stretch;
   justify-content: flex-end;
   padding: 0;
@@ -4657,38 +4670,27 @@
   box-shadow: none;
   transition:
     color 120ms ease,
-    background-color 120ms ease,
-    box-shadow 120ms ease;
+    background-color 120ms ease;
 }
 
 .global-dock .panel-tab-surface {
-  --panel-tab-box-padding: 8px;
-  --panel-tab-icon-ink-inset: 3.25px;
-  --panel-tab-visible-gap: 8px;
+  position: relative;
   display: flex;
-  width: 38px;
+  width: 100%;
+  height: var(--panel-tab-height);
+  box-sizing: border-box;
   align-items: center;
+  justify-content: center;
   flex-direction: column;
-  gap: calc(var(--panel-tab-visible-gap) - var(--panel-tab-icon-ink-inset));
-  padding: var(--panel-tab-box-padding);
-  padding-bottom: calc(
-    var(--panel-tab-box-padding) + var(--panel-tab-icon-ink-inset)
-  );
-  border: 1px solid var(--grimoire-hardware-border);
-  border-right-color: transparent;
-  border-radius: var(--grimoire-hardware-radius) 0 0
-    var(--grimoire-hardware-radius);
-  background-color: var(--grimoire-hardware-surface);
-  background-image: linear-gradient(
-    rgb(255 251 237 / 10%),
-    rgb(198 175 126 / 8%)
-  );
-  box-shadow: var(--grimoire-hardware-shadow);
-  backdrop-filter: blur(8px) saturate(0.82);
+  gap: var(--panel-tab-content-gap);
+  padding: 10px 6px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
   transition:
-    border-color 120ms ease,
-    background-color 120ms ease;
-  -webkit-backdrop-filter: blur(8px) saturate(0.82);
+    background-color 120ms ease,
+    box-shadow 120ms ease;
   pointer-events: none;
 }
 
@@ -4696,6 +4698,7 @@
   display: grid;
   width: 20px;
   height: 20px;
+  flex: 0 0 20px;
   place-items: center;
   color: var(--grimoire-hardware-accent);
 }
@@ -4714,13 +4717,26 @@
 .global-dock .panel-tab-label {
   display: block;
   color: var(--grimoire-hardware-text);
+  background: transparent;
+  box-shadow: none;
   font-family: var(--font-utility);
-  font-size: 9px;
-  font-weight: 560;
+  font-size: 9.5px;
+  font-weight: 600;
   line-height: 1;
   writing-mode: vertical-rl;
   transform: rotate(180deg);
   white-space: nowrap;
+}
+
+.global-dock .panel-tab-button + .panel-tab-button::before {
+  position: absolute;
+  z-index: 1;
+  top: 0;
+  right: 10px;
+  left: 10px;
+  height: 1px;
+  content: "";
+  background: rgb(100 76 44 / 20%);
 }
 
 .global-dock .panel-tab-button:hover,
@@ -4736,21 +4752,24 @@
 }
 
 .global-dock .panel-tab-button:hover .panel-tab-surface {
-  background-color: var(--grimoire-hardware-surface-hover);
-  box-shadow:
-    var(--grimoire-hardware-shadow),
-    -2px 3px 7px rgb(58 38 17 / 8%);
+  background-color: rgb(255 250 235 / 18%);
+  box-shadow: none;
 }
 
 .global-dock .panel-tab-button:focus-visible .panel-tab-surface {
-  background-color: var(--grimoire-hardware-surface-hover);
-  box-shadow:
-    var(--grimoire-hardware-shadow),
-    0 0 0 2px var(--focus-ring);
+  background-color: rgb(255 250 235 / 22%);
+  box-shadow: inset 0 0 0 2px var(--focus-ring);
 }
 
 .global-dock .panel-tab-button.is-active .panel-tab-surface,
 .global-dock.is-sheet-open .panel-tab-button.is-active .panel-tab-surface {
-  border-color: var(--grimoire-hardware-border-strong);
-  background-color: rgb(255 250 235 / 48%);
+  background-color: rgb(255 250 235 / 32%);
+  box-shadow: inset 0 1px rgb(255 252 239 / 30%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .global-dock .panel-tab-button,
+  .global-dock .panel-tab-label {
+    transition: none;
+  }
 }

@@ -157,6 +157,7 @@ export function StorytellerApp({ gameId }: { gameId: string }) {
             setPendingReminder(null);
           }}
           onClearSelection={() => {
+            if (!sheetPinned) setOpenPanel(null);
             setSelectedSeatId(null);
             setSelectedReminderId(null);
             setPendingReminder(null);
@@ -210,7 +211,7 @@ export function StorytellerApp({ gameId }: { gameId: string }) {
         pendingReminder={pendingReminder}
         playersOpen={openPanel === "players"}
         nightOpen={openPanel === "night"}
-        showOpen={openPanel === "show"}
+        infoOpen={openPanel === "info"}
         onOpenPlayers={() => {
           setSelectedSeatId(null);
           setSelectedReminderId(null);
@@ -223,11 +224,11 @@ export function StorytellerApp({ gameId }: { gameId: string }) {
           setPendingReminder(null);
           setOpenPanel((current) => (current === "night" ? null : "night"));
         }}
-        onOpenShow={() => {
+        onOpenInfo={() => {
           setSelectedSeatId(null);
           setSelectedReminderId(null);
           setPendingReminder(null);
-          setOpenPanel((current) => (current === "show" ? null : "show"));
+          setOpenPanel((current) => (current === "info" ? null : "info"));
         }}
         onRemoveSelectedReminder={() => {
           if (!selectedReminder) return;
@@ -243,7 +244,6 @@ export function StorytellerApp({ gameId }: { gameId: string }) {
         seats={snapshot.seats}
         gameTokens={snapshot.gameTokens}
         pinned={sheetPinned}
-        childDialogOpen={pickerTarget !== null || playerReveal !== null}
         pendingReminder={pendingReminder}
         nightOrderState={nightOrderState}
         onNightOrderStateChange={setNightOrderState}
