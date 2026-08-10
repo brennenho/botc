@@ -43,6 +43,7 @@ export function GrimoireBoard({
   editionId,
   seats,
   gameTokens,
+  redacted,
   selectedSeatId,
   selectedReminderId,
   placingReminder,
@@ -65,6 +66,7 @@ export function GrimoireBoard({
   editionId: EditionId;
   seats: Seat[];
   gameTokens: GameToken[];
+  redacted: boolean;
   selectedSeatId: string | null;
   selectedReminderId: string | null;
   placingReminder: boolean;
@@ -142,7 +144,9 @@ export function GrimoireBoard({
     }
   }
 
-  const selectedSeat = seats.find((seat) => seat.id === selectedSeatId) ?? null;
+  const selectedSeat = redacted
+    ? null
+    : (seats.find((seat) => seat.id === selectedSeatId) ?? null);
   const playerLabelSides = new Map(
     seats.flatMap((seat): [string, ReminderLabelSide][] => {
       const playerPosition = displayPlayerPositions.get(seat.id);
@@ -158,9 +162,9 @@ export function GrimoireBoard({
         : [];
     }),
   );
-  const reminders = gameTokens.filter(
-    (token) => token.tokenType === "reminder",
-  );
+  const reminders = redacted
+    ? []
+    : gameTokens.filter((token) => token.tokenType === "reminder");
   const anchoredRemindersBySeat = new Map<string, GameToken[]>();
   for (const reminder of reminders) {
     if (!reminder.seatId || readReminderPlacement(reminder).mode !== "anchored")
@@ -407,7 +411,8 @@ export function GrimoireBoard({
                 className={`canvas-player-position ${
                   activeId === `player:${seat.id}` ? "is-dragging" : ""
                 } ${
-                  placingReminder || snapPreview?.seatId === seat.id
+                  !redacted &&
+                  (placingReminder || snapPreview?.seatId === seat.id)
                     ? "is-reminder-target"
                     : ""
                 }`}
@@ -415,9 +420,10 @@ export function GrimoireBoard({
               >
                 <PlayerToken
                   seat={seat}
-                  selected={selectedSeatId === seat.id}
+                  selected={!redacted && selectedSeatId === seat.id}
                   tokenSize={tokenSize}
                   labelSide={playerLabelSides.get(seat.id) ?? "bottom"}
+                  redacted={redacted}
                   onSelect={() =>
                     placingReminder
                       ? onPlaceReminder(seat.id)

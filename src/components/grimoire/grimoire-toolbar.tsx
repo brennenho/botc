@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Check, CircleAlert, Copy } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
+import { Switch } from "@/components/ui/switch";
 import { getEdition } from "@/lib/game-data";
 import type { EditionId } from "@/lib/game-data/types";
 
@@ -12,10 +13,14 @@ export function GrimoireToolbar({
   editionId,
   joinCode,
   saveState,
+  redacted,
+  onRedactedChange,
 }: {
   editionId: EditionId;
   joinCode: string;
   saveState: "saved" | "saving" | "error";
+  redacted: boolean;
+  onRedactedChange: (redacted: boolean) => void;
 }) {
   const edition = getEdition(editionId);
   const [copied, setCopied] = useState(false);
@@ -63,6 +68,14 @@ export function GrimoireToolbar({
         <div>
           <p>{edition.name}</p>
         </div>
+        <label className="grimoire-redaction-setting">
+          <span>Redact</span>
+          <Switch
+            checked={redacted}
+            className="grimoire-redaction-switch"
+            onCheckedChange={onRedactedChange}
+          />
+        </label>
       </div>
 
       <button

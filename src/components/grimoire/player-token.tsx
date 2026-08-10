@@ -2,7 +2,7 @@
 
 import { useDraggable } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
-import { Vote } from "lucide-react";
+import { EyeOff, Vote } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
 import { CharacterToken } from "@/components/grimoire/character-token";
@@ -17,6 +17,7 @@ export function PlayerToken({
   selected,
   tokenSize,
   labelSide,
+  redacted,
   onSelect,
   onRename,
 }: {
@@ -24,6 +25,7 @@ export function PlayerToken({
   selected: boolean;
   tokenSize: number;
   labelSide: ReminderLabelSide;
+  redacted: boolean;
   onSelect: () => void;
   onRename: (playerName: string) => void;
 }) {
@@ -34,6 +36,7 @@ export function PlayerToken({
   const { attributes, listeners, setNodeRef, transform, isDragging } =
     useDraggable({
       id: `player:${seat.id}`,
+      disabled: redacted,
     });
 
   useEffect(() => {
@@ -58,7 +61,7 @@ export function PlayerToken({
       ref={setNodeRef}
       className={cn(
         "player-token-cluster",
-        role && `team-${role.team}`,
+        role && !redacted && `team-${role.team}`,
         `player-name-${labelSide}`,
         isDragging && "is-dragging",
       )}
@@ -72,10 +75,11 @@ export function PlayerToken({
         type="button"
         className={cn(
           "player-token tactile-action tactile-surface",
-          `alignment-${seat.alignment}`,
-          seat.isTraveller && "is-traveller",
+          !redacted && `alignment-${seat.alignment}`,
+          !redacted && seat.isTraveller && "is-traveller",
           selected && "is-selected",
           !seat.alive && "is-dead",
+          redacted && "is-redacted",
         )}
         style={{
           width: tokenSize,
@@ -83,12 +87,22 @@ export function PlayerToken({
         }}
         onClick={(event) => {
           event.stopPropagation();
+          if (redacted) return;
           onSelect();
         }}
+        disabled={redacted}
+        aria-label={
+          redacted ? `${seat.playerName}, Character Hidden` : undefined
+        }
         {...listeners}
         {...attributes}
       >
-        {role ? (
+        {redacted ? (
+          <span className="redacted-role-token" aria-hidden="true">
+            <EyeOff />
+            <span>Hidden</span>
+          </span>
+        ) : role ? (
           <CharacterToken role={role} size="fill" appearance="bare" />
         ) : (
           <span className="empty-role-token">
@@ -121,7 +135,9 @@ export function PlayerToken({
         )}
       </button>
       <div className="player-name-label">
-        {editingName ? (
+        {redacted ? (
+          <span className="player-name-static">{seat.playerName}</span>
+        ) : editingName ? (
           <Input
             ref={nameInputRef}
             variant="inline"
@@ -155,7 +171,7 @@ export function PlayerToken({
             {seat.playerName}
           </button>
         )}
-        {role && <small>{role.name}</small>}
+        {role && !redacted && <small>{role.name}</small>}
       </div>
     </div>
   );

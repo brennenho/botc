@@ -170,6 +170,54 @@
   transform: none;
 }
 
+.ui-switch {
+  position: relative;
+  display: inline-flex;
+  width: 36px;
+  height: 20px;
+  flex: 0 0 36px;
+  align-items: center;
+  padding: 2px;
+  border: 1px solid var(--control-border);
+  border-radius: 999px;
+  outline: none;
+  cursor: pointer;
+  background: var(--control-hover);
+  transition:
+    border-color var(--motion-standard) ease,
+    background-color var(--motion-standard) ease,
+    box-shadow var(--motion-standard) ease;
+}
+
+.ui-switch[data-checked] {
+  border-color: transparent;
+  background: var(--control-primary-bg);
+}
+
+.ui-switch:focus-visible {
+  box-shadow: 0 0 0 2px var(--focus-ring);
+}
+
+.ui-switch[data-disabled] {
+  cursor: default;
+  opacity: 0.45;
+}
+
+.ui-switch-thumb {
+  display: block;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: white;
+  box-shadow: var(--shadow-control-rest);
+  transform: translateX(0);
+  transition: transform var(--motion-standard) var(--ease-out);
+}
+
+.ui-switch[data-checked] .ui-switch-thumb {
+  transform: translateX(16px);
+}
+
 .font-display,
 .entry-step-heading h1,
 .token-case-header h2,
@@ -912,6 +960,29 @@
   font-weight: 680;
 }
 
+.grimoire-redaction-setting {
+  display: flex;
+  height: 30px;
+  align-items: center;
+  gap: 7px;
+  margin-left: 4px;
+  padding: 0 8px 0 11px;
+  border-left: 1px solid rgb(100 76 44 / 22%);
+  color: var(--grimoire-hardware-muted);
+  font-family: var(--font-utility);
+  font-size: var(--text-caption);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.grimoire-redaction-switch[data-checked] {
+  background-color: var(--grimoire-hardware-accent);
+}
+
+.storyteller-shell.is-redacted .grimoire-redaction-setting {
+  color: var(--grimoire-hardware-text);
+}
+
 .join-code-control {
   display: grid;
   min-width: 112px;
@@ -1240,6 +1311,45 @@
   font-size: 24px;
   font-weight: 400;
   line-height: 0.9;
+}
+
+.redacted-role-token {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 4px;
+  border-radius: 50%;
+  color: rgb(64 52 35 / 50%);
+  background-color: #d8cbaa;
+  background-image:
+    radial-gradient(
+      circle at 36% 28%,
+      rgb(255 252 238 / 48%) 0%,
+      rgb(228 215 180 / 18%) 56%,
+      rgb(104 84 54 / 10%) 100%
+    ),
+    url("/assets/grimoire-parchment.png");
+  background-position: center;
+  background-size:
+    100% 100%,
+    150px auto;
+  background-blend-mode: soft-light, multiply;
+}
+
+.redacted-role-token svg {
+  width: 24%;
+  height: 24%;
+  stroke-width: 1.5;
+}
+
+.redacted-role-token span {
+  font-family: var(--font-utility);
+  font-size: var(--text-caption);
+  font-weight: 600;
+  text-transform: uppercase;
 }
 
 .death-overlay {
@@ -3659,6 +3769,19 @@
   box-shadow: var(--tactile-shadow-rest);
 }
 
+.player-token.is-redacted {
+  --player-token-border-color: rgb(82 68 47 / 42%);
+
+  cursor: default;
+}
+
+.player-token.is-redacted:hover,
+.player-token.is-redacted:focus-visible {
+  box-shadow: var(--tactile-shadow-rest);
+  filter: none;
+  transform: none;
+}
+
 :is(.storyteller-shell, .player-reveal-screen) .role-artwork {
   box-shadow: inset 0 0 12px rgb(91 72 45 / 8%);
   background-position: center;
@@ -3768,6 +3891,7 @@
 }
 
 .player-name-label button,
+.player-name-label .player-name-static,
 .player-name-label input {
   max-width: 124px;
   overflow: hidden;
@@ -3785,6 +3909,10 @@
   text-overflow: ellipsis;
   text-shadow: 0 1px rgb(255 250 236 / 72%);
   white-space: nowrap;
+}
+
+.player-name-label .player-name-static {
+  display: block;
 }
 
 .player-name-input {
