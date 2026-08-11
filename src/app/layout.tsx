@@ -11,7 +11,12 @@ export const metadata: Metadata = {
   title: "Blood on the Clocktower Grimoire",
   description:
     "Online grimoire and multiplayer host for Blood on the Clocktower.",
-  icons: [{ rel: "icon", url: "/favicon.ico" }],
+  icons: {
+    icon: [
+      { url: "/favicon.svg", type: "image/svg+xml" },
+      { url: "/favicon.ico", sizes: "32x32" },
+    ],
+  },
 };
 
 export const viewport: Viewport = {
