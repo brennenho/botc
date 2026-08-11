@@ -2006,6 +2006,12 @@
   line-height: 1.55;
 }
 
+.night-order-information-token {
+  border-color: rgb(49 93 90 / 18%);
+  color: #356b72;
+  background: rgb(219 232 229 / 58%);
+}
+
 .night-reminder-actions,
 .night-reveal-actions {
   display: grid;

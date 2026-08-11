@@ -3,6 +3,7 @@
 import { useMemo } from "react";
 import { Check, Moon, Plus, Sun, X } from "lucide-react";
 
+import { InformationTokenIcon } from "@/components/grimoire/information-token-icon";
 import { ReminderIcon } from "@/components/grimoire/reminder-icon";
 import { RevealIcon } from "@/components/grimoire/reveal-icon";
 import { TokenIcon } from "@/components/grimoire/token-icon";
@@ -132,8 +133,14 @@ export function NightOrderPanel({
                 <span className="night-order-index">
                   {done ? <Check className="size-3.5" /> : index + 1}
                 </span>
-                <TokenIcon role={entry.role}>
-                  {entry.id === "dawn" ? <Sun /> : <Moon />}
+                <TokenIcon
+                  role={entry.role}
+                  className={cn(
+                    (entry.id === "minioninfo" || entry.id === "demoninfo") &&
+                      "night-order-information-token",
+                  )}
+                >
+                  <NightOrderSystemIcon entryId={entry.id} />
                 </TokenIcon>
                 <span className="night-order-copy">
                   <span className="night-order-title">
@@ -240,6 +247,16 @@ export function NightOrderPanel({
       </div>
     </>
   );
+}
+
+function NightOrderSystemIcon({ entryId }: { entryId: string }) {
+  if (entryId === "minioninfo") {
+    return <InformationTokenIcon type="minions" />;
+  }
+  if (entryId === "demoninfo") {
+    return <InformationTokenIcon type="demon" />;
+  }
+  return entryId === "dawn" ? <Sun /> : <Moon />;
 }
 
 function FormattedNightText({ text }: { text: string }) {
