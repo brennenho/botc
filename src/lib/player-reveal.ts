@@ -1,4 +1,10 @@
-import type { Alignment, NightOrderEntry } from "@/lib/game-data/types";
+import type {
+  Alignment,
+  GameToken,
+  NightOrderEntry,
+} from "@/lib/game-data/types";
+
+export const DEMON_BLUFF_COUNT = 3;
 
 export type InformationQuestion =
   | "Did You Vote Today?"
@@ -25,6 +31,23 @@ export type NightRevealAction =
       label: string;
       chooseRoleHeading: string;
     };
+
+export function getDemonBluffCount(gameTokens: GameToken[]) {
+  return gameTokens.filter(
+    (token) => token.tokenType === "bluff" && token.roleId,
+  ).length;
+}
+
+export function canShowPlayerReveal(
+  reveal: PlayerReveal,
+  gameTokens: GameToken[],
+) {
+  if (reveal.type !== "demon-bluffs" && reveal.type !== "demon-information") {
+    return true;
+  }
+
+  return getDemonBluffCount(gameTokens) === DEMON_BLUFF_COUNT;
+}
 
 const ROLE_INFO_TOKENS = [
   "THIS CHARACTER SELECTED YOU",

@@ -25,7 +25,11 @@ import {
   type ReminderDefinition,
 } from "@/lib/reminders";
 import { cn } from "@/lib/utils";
-import type { NightRevealAction, PlayerReveal } from "@/lib/player-reveal";
+import {
+  canShowPlayerReveal,
+  type NightRevealAction,
+  type PlayerReveal,
+} from "@/lib/player-reveal";
 
 type PickerTarget =
   | { type: "seat"; seatId: string }
@@ -116,7 +120,12 @@ export function StorytellerApp({ gameCode }: { gameCode: string }) {
       setPickerTarget({ type: "reveal", heading: action.chooseRoleHeading });
       return;
     }
-    setPlayerReveal(action.reveal);
+    handlePlayerReveal(action.reveal);
+  }
+
+  function handlePlayerReveal(reveal: PlayerReveal) {
+    if (!canShowPlayerReveal(reveal, bluffs)) return;
+    setPlayerReveal(reveal);
   }
 
   function handleRedactedChange(nextRedacted: boolean) {
@@ -213,7 +222,6 @@ export function StorytellerApp({ gameCode }: { gameCode: string }) {
             bluffs={bluffs}
             onChooseBluff={(slot) => setPickerTarget({ type: "bluff", slot })}
             onClearBluff={(slot) => chooseBluff(slot, null)}
-            onShowBluffs={() => setPlayerReveal({ type: "demon-bluffs" })}
           />
         )}
       </div>
@@ -291,7 +299,7 @@ export function StorytellerApp({ gameCode }: { gameCode: string }) {
           }}
           onCancelReminderPlacement={() => setPendingReminder(null)}
           onNightReveal={handleNightReveal}
-          onReveal={setPlayerReveal}
+          onReveal={handlePlayerReveal}
           onChooseRevealRole={(heading) =>
             setPickerTarget({ type: "reveal", heading })
           }
@@ -335,7 +343,7 @@ export function StorytellerApp({ gameCode }: { gameCode: string }) {
             if (pickerTarget?.type === "bluff")
               chooseBluff(pickerTarget.slot, roleId);
             if (pickerTarget?.type === "reveal" && roleId) {
-              setPlayerReveal({
+              handlePlayerReveal({
                 type: "role",
                 heading: pickerTarget.heading,
                 roleId,

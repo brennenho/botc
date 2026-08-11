@@ -1509,21 +1509,6 @@
   gap: 6px;
 }
 
-.bluff-rack-reveal {
-  width: 20px;
-  height: 20px;
-  min-height: 20px;
-  padding: 0;
-  border-radius: 50%;
-  color: var(--grimoire-hardware-accent);
-}
-
-.bluff-rack-reveal .reveal-icon {
-  width: 12px;
-  height: 12px;
-  stroke-width: 1.8;
-}
-
 .bluff-slots {
   display: flex;
   gap: 6px;
@@ -2132,6 +2117,17 @@
 
 .night-reveal-actions button {
   grid-template-columns: 18px minmax(0, 1fr) auto;
+}
+
+.night-reveal-actions button:disabled {
+  color: rgb(35 38 34 / 34%);
+  background: transparent;
+  cursor: default;
+}
+
+.night-reveal-actions button:disabled .night-reveal-action-icon,
+.night-reveal-actions button:disabled .night-reveal-action-meta {
+  color: rgb(35 38 34 / 30%);
 }
 
 .night-reveal-action-icon {

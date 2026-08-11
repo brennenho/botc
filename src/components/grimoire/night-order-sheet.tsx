@@ -20,6 +20,7 @@ import {
 import { cn } from "@/lib/utils";
 import type { ReminderDefinition } from "@/lib/reminders";
 import {
+  canShowPlayerReveal,
   getNightRevealActions,
   type NightRevealAction,
 } from "@/lib/player-reveal";
@@ -201,23 +202,30 @@ export function NightOrderPanel({
               )}
               {revealActions.length > 0 && (
                 <div className="night-reveal-actions">
-                  {revealActions.map((action) => (
-                    <button
-                      key={`${entry.key}-${action.id}`}
-                      type="button"
-                      onClick={() => onReveal(action)}
-                    >
-                      <span className="night-reveal-action-icon">
-                        <RevealIcon />
-                      </span>
-                      <span className="night-reveal-action-copy">
-                        {action.label}
-                      </span>
-                      <span className="night-reveal-action-meta">
-                        <strong>Show</strong>
-                      </span>
-                    </button>
-                  ))}
+                  {revealActions.map((action) => {
+                    const disabled =
+                      action.kind === "reveal" &&
+                      !canShowPlayerReveal(action.reveal, gameTokens);
+
+                    return (
+                      <button
+                        key={`${entry.key}-${action.id}`}
+                        type="button"
+                        disabled={disabled}
+                        onClick={() => onReveal(action)}
+                      >
+                        <span className="night-reveal-action-icon">
+                          <RevealIcon />
+                        </span>
+                        <span className="night-reveal-action-copy">
+                          {action.label}
+                        </span>
+                        <span className="night-reveal-action-meta">
+                          <strong>Show</strong>
+                        </span>
+                      </button>
+                    );
+                  })}
                 </div>
               )}
             </div>

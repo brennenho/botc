@@ -4,7 +4,11 @@ import { InformationTokenIcon } from "@/components/grimoire/information-token-ic
 import { Button } from "@/components/ui/button";
 import { roleById } from "@/lib/game-data";
 import type { GameToken, Seat } from "@/lib/game-data/types";
-import type { PlayerReveal } from "@/lib/player-reveal";
+import {
+  DEMON_BLUFF_COUNT,
+  getDemonBluffCount,
+  type PlayerReveal,
+} from "@/lib/player-reveal";
 import { cn } from "@/lib/utils";
 
 export function PlayerRevealPanel({
@@ -24,9 +28,8 @@ export function PlayerRevealPanel({
   const demon = seats.find(
     (seat) => seat.roleId && roleById.get(seat.roleId)?.team === "demon",
   );
-  const bluffCount = gameTokens.filter(
-    (token) => token.tokenType === "bluff" && token.roleId,
-  ).length;
+  const bluffCount = getDemonBluffCount(gameTokens);
+  const bluffsReady = bluffCount === DEMON_BLUFF_COUNT;
 
   return (
     <div className="player-reveal-panel">
@@ -91,10 +94,10 @@ export function PlayerRevealPanel({
           title="Demon Information"
           description={
             demon
-              ? `${minionCount} ${minionCount === 1 ? "Minion" : "Minions"} · ${bluffCount} of 3 Bluffs Set`
+              ? `${minionCount} ${minionCount === 1 ? "Minion" : "Minions"} · ${bluffCount} of ${DEMON_BLUFF_COUNT} Bluffs Set`
               : "Assign a Demon to Enable"
           }
-          disabled={!demon}
+          disabled={!demon || !bluffsReady}
           layout="tile"
           onClick={() => onReveal({ type: "demon-information" })}
         />
@@ -115,8 +118,8 @@ export function PlayerRevealPanel({
         <RevealAction
           icon={<InformationTokenIcon type="bluffs" />}
           title="Demon Bluffs"
-          description={`${bluffCount} of 3 Bluffs Set`}
-          disabled={bluffCount === 0}
+          description={`${bluffCount} of ${DEMON_BLUFF_COUNT} Bluffs Set`}
+          disabled={!bluffsReady}
           layout="tile"
           onClick={() => onReveal({ type: "demon-bluffs" })}
         />

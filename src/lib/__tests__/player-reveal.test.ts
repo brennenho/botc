@@ -1,7 +1,23 @@
 import { describe, expect, it } from "vitest";
 
 import { getNightOrderEntries } from "@/lib/game-data";
-import { getNightRevealActions } from "@/lib/player-reveal";
+import type { GameToken } from "@/lib/game-data/types";
+import {
+  canShowPlayerReveal,
+  getNightRevealActions,
+} from "@/lib/player-reveal";
+
+function bluff(position: number, roleId: string | null): GameToken {
+  return {
+    id: `bluff-${position}`,
+    seatId: null,
+    tokenType: "bluff",
+    roleId,
+    label: "Demon Bluff",
+    position,
+    metadata: {},
+  };
+}
 
 function entry(
   edition: "tb" | "bmr" | "snv",
@@ -59,5 +75,36 @@ describe("night player reveals", () => {
 
   it("does not add reveal controls to ordinary instructions", () => {
     expect(getNightRevealActions(entry("tb", "other", "monk"))).toEqual([]);
+  });
+});
+
+describe("Demon Bluff reveals", () => {
+  it("requires all three bluffs, including after one is cleared", () => {
+    const completeBluffs = [
+      bluff(0, "chef"),
+      bluff(1, "monk"),
+      bluff(2, "soldier"),
+    ];
+
+    expect(canShowPlayerReveal({ type: "demon-bluffs" }, completeBluffs)).toBe(
+      true,
+    );
+    expect(
+      canShowPlayerReveal(
+        { type: "demon-bluffs" },
+        completeBluffs.map((token) =>
+          token.position === 1 ? { ...token, roleId: null } : token,
+        ),
+      ),
+    ).toBe(false);
+  });
+
+  it("also protects the combined Demon Information reveal", () => {
+    expect(
+      canShowPlayerReveal({ type: "demon-information" }, [
+        bluff(0, "chef"),
+        bluff(1, "monk"),
+      ]),
+    ).toBe(false);
   });
 });
