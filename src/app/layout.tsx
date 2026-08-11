@@ -8,7 +8,8 @@ import { type Metadata, type Viewport } from "next";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
 export const metadata: Metadata = {
-  title: "Blood on the Clocktower Grimoire",
+  title: "Blood on the Clocktower",
+  applicationName: "Blood on the Clocktower",
   description:
     "Online grimoire and multiplayer host for Blood on the Clocktower.",
   icons: {
