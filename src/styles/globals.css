@@ -3149,6 +3149,10 @@
   gap: 14px 12px;
 }
 
+.pool-case .character-catalog.has-multiple-demons {
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+}
+
 .pool-case .token-team {
   min-width: 0;
   padding: 10px 11px 12px;
@@ -3185,6 +3189,10 @@
   --team-surface: var(--team-demon-surface);
 
   grid-column: span 2;
+}
+
+.pool-case .has-multiple-demons .token-team.team-demon {
+  grid-column: span 4;
 }
 
 .pool-case .token-team h3 {
@@ -3226,6 +3234,10 @@
 
 .pool-case .team-demon .token-grid {
   grid-template-columns: minmax(0, 1fr);
+}
+
+.pool-case .has-multiple-demons .team-demon .token-grid {
+  grid-template-columns: repeat(auto-fit, minmax(56px, 1fr));
 }
 
 .pool-case .role-choice-item {

@@ -36,9 +36,16 @@ export function CharacterCatalog({
   onSelect: (roleId: string) => void;
 }) {
   const grouped = getRolesByTeam(editionId);
+  const hasMultipleDemons = grouped.demon.length > 1;
 
   return (
-    <div className={cn("character-catalog", `selection-${selectionMode}`)}>
+    <div
+      className={cn(
+        "character-catalog",
+        `selection-${selectionMode}`,
+        hasMultipleDemons && "has-multiple-demons",
+      )}
+    >
       {teams.map((team) => {
         const roles = grouped[team];
         const selectedCount = roles.filter((role) =>
