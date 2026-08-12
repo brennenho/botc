@@ -1,7 +1,7 @@
 import type { CSSProperties } from "react";
 
 import { CharacterToken } from "@/components/grimoire/character-token";
-import { ReminderIcon } from "@/components/grimoire/reminder-icon";
+import { ReminderIcon } from "@/components/storyteller/reminder-icon";
 import { roleById } from "@/lib/game-data";
 import { cn } from "@/lib/utils";
 

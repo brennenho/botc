@@ -26,7 +26,10 @@ export function usePlayerGame(gameCode: string, seatId: string) {
   useEffect(() => {
     void refresh();
     const supabase = getSupabaseBrowser();
-    if (!supabase) return;
+    if (!supabase) {
+      const interval = window.setInterval(() => void refresh(), 2_000);
+      return () => window.clearInterval(interval);
+    }
 
     const channel = supabase
       .channel(`player-game-version-${gameCode}-${seatId}`)

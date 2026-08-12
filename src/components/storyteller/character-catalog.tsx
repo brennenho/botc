@@ -1,7 +1,7 @@
 "use client";
 
 import { CharacterToken } from "@/components/grimoire/character-token";
-import { RoleInfoButton } from "@/components/grimoire/role-info-button";
+import { RoleInfoButton } from "@/components/storyteller/role-info-button";
 import { Button } from "@/components/ui/button";
 import {
   getRolesByTeam,

@@ -26,6 +26,7 @@ function seat(seatIndex: number, roleId: string): Seat {
     id: `seat-${seatIndex}`,
     seatIndex,
     playerName: `Player ${seatIndex + 1}`,
+    claimedByPlayer: false,
     roleId,
     alignment: roleId === "baron" || roleId === "imp" ? "evil" : "good",
     alive: true,

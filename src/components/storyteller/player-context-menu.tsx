@@ -10,9 +10,9 @@ import {
 } from "react";
 
 import { CharacterToken } from "@/components/grimoire/character-token";
-import { PlayerReminderPicker } from "@/components/grimoire/player-reminder-picker";
-import { ReminderIcon } from "@/components/grimoire/reminder-icon";
-import { RemovePlayerButton } from "@/components/grimoire/remove-player-button";
+import { PlayerReminderPicker } from "@/components/storyteller/player-reminder-picker";
+import { ReminderIcon } from "@/components/storyteller/reminder-icon";
+import { RemovePlayerButton } from "@/components/storyteller/remove-player-button";
 import { Button } from "@/components/ui/button";
 import { IconButton } from "@/components/ui/icon-button";
 import { Input } from "@/components/ui/input";

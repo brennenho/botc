@@ -18,9 +18,13 @@ import {
   createSecretToken,
   hashToken,
 } from "@/lib/server/tokens";
+import { createPlayerSeatViews } from "@/lib/player-seat-view";
 
 type StoredGame = Game & { id: string; storytellerTokenHash: string };
-type StoredSeat = Seat & { gameId: string; playerTokenHash: string | null };
+type StoredSeat = Omit<Seat, "claimedByPlayer"> & {
+  gameId: string;
+  playerTokenHash: string | null;
+};
 type StoredGameToken = GameToken & { gameId: string };
 type Store = {
   games: Map<string, StoredGame>;
@@ -118,6 +122,27 @@ function publicSeat(seat: StoredSeat): Seat {
     id: seat.id,
     seatIndex: seat.seatIndex,
     playerName: seat.playerName,
+    claimedByPlayer: Boolean(seat.playerTokenHash),
+    roleId: seat.roleId,
+    alignment: seat.alignment,
+    alive: seat.alive,
+    ghostVoteAvailable: seat.ghostVoteAvailable,
+    isTraveller: seat.isTraveller,
+    joinedAt: seat.joinedAt,
+  };
+}
+
+function storedSeatFromPublic(
+  seat: Seat,
+  gameId: string,
+  playerTokenHash: string | null,
+): StoredSeat {
+  return {
+    id: seat.id,
+    gameId,
+    seatIndex: seat.seatIndex,
+    playerName: seat.playerName,
+    playerTokenHash,
     roleId: seat.roleId,
     alignment: seat.alignment,
     alive: seat.alive,
@@ -332,28 +357,37 @@ export async function joinGame(joinCode: string, playerName: string) {
     if (gameError) throw gameError;
 
     const game = rowToGame(gameRow);
-    const { data: existingRows, error: seatsError } = await supabase
-      .from("seats")
-      .select("*")
-      .eq("game_id", game.id)
-      .order("seat_index", { ascending: true })
-      .returns<SupabaseSeatRow[]>();
-    if (seatsError) throw seatsError;
+    if (game.status !== "active") throw new Error("This game has ended.");
 
-    const existing = existingRows.map(rowToSeat);
-    const openSeat = existing.find((seat) => !seat.playerTokenHash);
-    const seat: StoredSeat = openSeat
-      ? {
-          ...openSeat,
-          playerName: playerName.trim(),
-          playerTokenHash,
-        }
-      : createStoredSeat(game.id, existing.length, playerName, playerTokenHash);
+    let seat: StoredSeat | null = null;
+    for (let attempt = 0; attempt < 3 && !seat; attempt += 1) {
+      const { data: openSeatRow, error: seatError } = await supabase
+        .from("seats")
+        .select("*")
+        .eq("game_id", game.id)
+        .is("player_token_hash", null)
+        .order("seat_index", { ascending: true })
+        .limit(1)
+        .maybeSingle<SupabaseSeatRow>();
+      if (seatError) throw seatError;
+      if (!openSeatRow) throw new Error("This game has no open seats.");
 
-    const { error: upsertError } = await supabase
-      .from("seats")
-      .upsert(seatToRow(seat));
-    if (upsertError) throw upsertError;
+      const { data: claimedSeatRow, error: claimError } = await supabase
+        .from("seats")
+        .update({
+          player_name: playerName.trim(),
+          player_token_hash: playerTokenHash,
+          joined_at: new Date().toISOString(),
+        })
+        .eq("id", openSeatRow.id)
+        .is("player_token_hash", null)
+        .select("*")
+        .maybeSingle<SupabaseSeatRow>();
+      if (claimError) throw claimError;
+      if (claimedSeatRow) seat = rowToSeat(claimedSeatRow);
+    }
+    if (!seat)
+      throw new Error("Unable to claim an open seat. Please try again.");
 
     game.version += 1;
     game.updatedAt = new Date().toISOString();
@@ -363,13 +397,12 @@ export async function joinGame(joinCode: string, playerName: string) {
       .eq("id", game.id);
     if (updateGameError) throw updateGameError;
 
+    const snapshot = await getPlayerSnapshot(game.id, seat.id, playerToken);
+
     return {
       playerToken,
       seatId: seat.id,
-      snapshot: {
-        game: publicGame(game),
-        seat: publicSeat(seat),
-      } satisfies PlayerSnapshot,
+      snapshot,
     };
   }
 
@@ -377,30 +410,30 @@ export async function joinGame(joinCode: string, playerName: string) {
     (candidate) => candidate.joinCode === normalizedCode,
   );
   if (!game) throw new Error("No active game uses that join code.");
+  if (game.status !== "active") throw new Error("This game has ended.");
 
   const seats = memoryStore.seats.get(game.id) ?? [];
   const openSeat = seats.find((seat) => !seat.playerTokenHash);
-  const seat = openSeat
-    ? { ...openSeat, playerName: playerName.trim(), playerTokenHash }
-    : createStoredSeat(game.id, seats.length, playerName, playerTokenHash);
+  if (!openSeat) throw new Error("This game has no open seats.");
 
-  if (openSeat) {
-    const seatIndex = seats.findIndex((candidate) => candidate.id === seat.id);
-    seats[seatIndex] = seat;
-  } else {
-    seats.push(seat);
-  }
+  const seat = {
+    ...openSeat,
+    playerName: playerName.trim(),
+    playerTokenHash,
+    joinedAt: new Date().toISOString(),
+  };
+  const seatIndex = seats.findIndex((candidate) => candidate.id === seat.id);
+  seats[seatIndex] = seat;
   memoryStore.seats.set(game.id, seats);
   game.version += 1;
   game.updatedAt = new Date().toISOString();
 
+  const snapshot = await getPlayerSnapshot(game.id, seat.id, playerToken);
+
   return {
     playerToken,
     seatId: seat.id,
-    snapshot: {
-      game: publicGame(game),
-      seat: publicSeat(seat),
-    },
+    snapshot,
   };
 }
 
@@ -466,7 +499,8 @@ async function getPlayerSnapshot(
   if (supabase) {
     const [
       { data: gameRow, error: gameError },
-      { data: seatRow, error: seatError },
+      { data: seatRows, error: seatError },
+      { data: tokenRows, error: tokenError },
     ] = await Promise.all([
       supabase
         .from("games")
@@ -476,33 +510,48 @@ async function getPlayerSnapshot(
       supabase
         .from("seats")
         .select("*")
-        .eq("id", seatId)
         .eq("game_id", gameId)
-        .single<SupabaseSeatRow>(),
+        .order("seat_index", { ascending: true })
+        .returns<SupabaseSeatRow[]>(),
+      supabase
+        .from("game_tokens")
+        .select("*")
+        .eq("game_id", gameId)
+        .eq("token_type", "custom")
+        .returns<SupabaseTokenRow[]>(),
     ]);
     if (gameError) throw gameError;
     if (seatError) throw seatError;
+    if (tokenError) throw tokenError;
 
     const game = rowToGame(gameRow);
-    const seat = rowToSeat(seatRow);
+    const storedSeats = seatRows.map(rowToSeat);
+    const seat = storedSeats.find((candidate) => candidate.id === seatId);
+    if (!seat) throw new Error("Game or seat not found.");
     assertPlayer(seat, token);
+    const publicSeats = storedSeats.map(publicSeat);
+    const publicTokens = tokenRows.map(rowToToken).map(publicToken);
 
     return {
       game: publicGame(game),
       seat: publicSeat(seat),
+      seats: createPlayerSeatViews(publicSeats, publicTokens),
     } satisfies PlayerSnapshot;
   }
 
   const game = memoryStore.games.get(gameId);
-  const seat = (memoryStore.seats.get(gameId) ?? []).find(
-    (candidate) => candidate.id === seatId,
-  );
+  const storedSeats = memoryStore.seats.get(gameId) ?? [];
+  const seat = storedSeats.find((candidate) => candidate.id === seatId);
   if (!game || !seat) throw new Error("Game or seat not found.");
   assertPlayer(seat, token);
 
   return {
     game: publicGame(game),
     seat: publicSeat(seat),
+    seats: createPlayerSeatViews(
+      storedSeats.map(publicSeat),
+      (memoryStore.tokens.get(gameId) ?? []).map(publicToken),
+    ),
   } satisfies PlayerSnapshot;
 }
 
@@ -544,12 +593,8 @@ async function updateStorytellerGame(
       existingRows.map((seatRow) => [seatRow.id, seatRow.player_token_hash]),
     );
 
-    const nextSeats = normalizedSeats?.map(
-      (seat): StoredSeat => ({
-        ...seat,
-        gameId,
-        playerTokenHash: tokenHashes.get(seat.id) ?? null,
-      }),
+    const nextSeats = normalizedSeats?.map((seat) =>
+      storedSeatFromPublic(seat, gameId, tokenHashes.get(seat.id) ?? null),
     );
 
     const { error: updateError } = await supabase
@@ -615,12 +660,8 @@ async function updateStorytellerGame(
       );
       memoryStore.seats.set(
         gameId,
-        normalizedSeats.map(
-          (seat): StoredSeat => ({
-            ...seat,
-            gameId,
-            playerTokenHash: tokenHashes.get(seat.id) ?? null,
-          }),
+        normalizedSeats.map((seat) =>
+          storedSeatFromPublic(seat, gameId, tokenHashes.get(seat.id) ?? null),
         ),
       );
     }

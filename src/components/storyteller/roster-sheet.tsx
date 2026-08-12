@@ -3,9 +3,9 @@
 import { useState } from "react";
 import { Orbit, Plus, Shuffle, X } from "lucide-react";
 
-import { RemovePlayerButton } from "@/components/grimoire/remove-player-button";
-import { RoleDistributionDialog } from "@/components/grimoire/role-distribution-dialog";
-import { TokenIcon } from "@/components/grimoire/token-icon";
+import { RemovePlayerButton } from "@/components/storyteller/remove-player-button";
+import { RoleDistributionDialog } from "@/components/storyteller/role-distribution-dialog";
+import { TokenIcon } from "@/components/storyteller/token-icon";
 import { Button } from "@/components/ui/button";
 import { IconButton } from "@/components/ui/icon-button";
 import { Input } from "@/components/ui/input";
@@ -97,7 +97,14 @@ export function RosterPanel({
             <div key={seat.id} className="roster-row">
               <button
                 type="button"
-                className="roster-seat-number"
+                className={cn(
+                  "roster-seat-number",
+                  seat.claimedByPlayer && "is-online-player",
+                )}
+                aria-label={`Seat ${index + 1}, ${
+                  seat.claimedByPlayer ? "Online Player" : "Local Seat"
+                }`}
+                title={seat.claimedByPlayer ? "Online Player" : "Local Seat"}
                 onClick={() => {
                   onSelectSeat(seat.id);
                   onClose();

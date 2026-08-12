@@ -3,10 +3,10 @@
 import { useMemo } from "react";
 import { Check, Moon, Plus, Sun, X } from "lucide-react";
 
-import { InformationTokenIcon } from "@/components/grimoire/information-token-icon";
-import { ReminderIcon } from "@/components/grimoire/reminder-icon";
-import { RevealIcon } from "@/components/grimoire/reveal-icon";
-import { TokenIcon } from "@/components/grimoire/token-icon";
+import { InformationTokenIcon } from "@/components/storyteller/information-token-icon";
+import { ReminderIcon } from "@/components/storyteller/reminder-icon";
+import { RevealIcon } from "@/components/storyteller/reveal-icon";
+import { TokenIcon } from "@/components/storyteller/token-icon";
 import { SegmentedControl } from "@/components/ui/segmented-control";
 import {
   getNightOrderEntries,

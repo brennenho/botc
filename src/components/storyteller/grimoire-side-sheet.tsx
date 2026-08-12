@@ -2,9 +2,9 @@
 
 import { Pin } from "lucide-react";
 
-import { NightOrderPanel } from "@/components/grimoire/night-order-sheet";
-import { PlayerRevealPanel } from "@/components/grimoire/player-reveal-panel";
-import { RosterPanel } from "@/components/grimoire/roster-sheet";
+import { NightOrderPanel } from "@/components/storyteller/night-order-sheet";
+import { PlayerRevealPanel } from "@/components/storyteller/player-reveal-panel";
+import { RosterPanel } from "@/components/storyteller/roster-sheet";
 import { IconButton } from "@/components/ui/icon-button";
 import { Sheet } from "@/components/ui/sheet";
 import type { NightReminderAction } from "@/lib/game-data/night-reminder-actions";

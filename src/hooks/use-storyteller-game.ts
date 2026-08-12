@@ -41,6 +41,7 @@ export function useStorytellerGame(gameCode: string) {
   );
   const queueRef = useRef<Promise<void>>(Promise.resolve());
   const pendingRef = useRef(0);
+  const refreshQueuedRef = useRef(false);
   const snapshotRef = useRef<StorytellerSnapshot | null>(null);
 
   const refresh = useCallback(async () => {
@@ -62,9 +63,20 @@ export function useStorytellerGame(gameCode: string) {
     void refresh();
   }, [refresh]);
 
+  const requestRefresh = useCallback(() => {
+    if (pendingRef.current > 0) {
+      refreshQueuedRef.current = true;
+      return;
+    }
+    void refresh();
+  }, [refresh]);
+
   useEffect(() => {
     const supabase = getSupabaseBrowser();
-    if (!supabase) return;
+    if (!supabase) {
+      const interval = window.setInterval(requestRefresh, 2_000);
+      return () => window.clearInterval(interval);
+    }
 
     const channel = supabase
       .channel(`game-version-${gameCode}`)
@@ -76,14 +88,14 @@ export function useStorytellerGame(gameCode: string) {
           table: "games",
           filter: `join_code=eq.${gameCode}`,
         },
-        () => void refresh(),
+        requestRefresh,
       )
       .subscribe();
 
     return () => {
       void supabase.removeChannel(channel);
     };
-  }, [gameCode, refresh]);
+  }, [gameCode, requestRefresh]);
 
   const commit = useCallback(
     (update: StorytellerUpdate) => {
@@ -103,8 +115,13 @@ export function useStorytellerGame(gameCode: string) {
           const result = await updateStorytellerGame(gameCode, patch);
           pendingRef.current -= 1;
           if (pendingRef.current === 0) {
-            snapshotRef.current = result.snapshot;
-            setSnapshot(result.snapshot);
+            if (refreshQueuedRef.current) {
+              refreshQueuedRef.current = false;
+              await refresh();
+            } else {
+              snapshotRef.current = result.snapshot;
+              setSnapshot(result.snapshot);
+            }
             setSaveState("saved");
           }
         } catch (cause) {

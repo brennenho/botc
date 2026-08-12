@@ -20,6 +20,7 @@ const patchSchema = z.object({
         id: z.string(),
         seatIndex: z.number().int(),
         playerName: z.string(),
+        claimedByPlayer: z.boolean(),
         roleId: z.string().nullable(),
         alignment: z.enum(["good", "evil"]),
         alive: z.boolean(),

@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 
-import { StorytellerApp } from "@/components/grimoire/storyteller-app";
+import { StorytellerApp } from "@/components/storyteller/storyteller-app";
 import { normalizeGameCode } from "@/lib/game-code";
 import { gameExistsByCode } from "@/lib/server/store";
 

@@ -2,10 +2,10 @@
 
 import { Moon, Users, X } from "lucide-react";
 
-import { RevealIcon } from "@/components/grimoire/reveal-icon";
-import { ReminderIcon } from "@/components/grimoire/reminder-icon";
-import { ReminderToken } from "@/components/grimoire/reminder-token";
-import { ConfirmRemoveButton } from "@/components/grimoire/remove-player-button";
+import { RevealIcon } from "@/components/storyteller/reveal-icon";
+import { ReminderIcon } from "@/components/storyteller/reminder-icon";
+import { ReminderToken } from "@/components/storyteller/reminder-token";
+import { ConfirmRemoveButton } from "@/components/storyteller/remove-player-button";
 import { IconButton } from "@/components/ui/icon-button";
 import { roleById } from "@/lib/game-data";
 import type { GameToken, Seat } from "@/lib/game-data/types";

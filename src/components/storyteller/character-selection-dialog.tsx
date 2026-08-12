@@ -4,7 +4,7 @@ import { Dialog } from "@base-ui/react/dialog";
 import { X } from "lucide-react";
 import type { ReactNode } from "react";
 
-import { CharacterCatalog } from "@/components/grimoire/character-catalog";
+import { CharacterCatalog } from "@/components/storyteller/character-catalog";
 import { IconButton } from "@/components/ui/icon-button";
 import type { EditionId, TeamCounts } from "@/lib/game-data";
 

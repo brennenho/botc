@@ -1361,7 +1361,7 @@
   stroke-width: 1.8;
 }
 
-.empty-role-token {
+.empty-character-state {
   display: flex;
   width: 100%;
   height: 100%;
@@ -1376,7 +1376,20 @@
   text-transform: uppercase;
 }
 
-.empty-role-plus {
+.empty-character-state.is-unassigned {
+  gap: 5px;
+  color: rgb(40 35 27 / 34%);
+  font-size: 8px;
+  font-weight: 650;
+}
+
+.empty-character-state.is-unassigned svg {
+  width: 20px;
+  height: 20px;
+  stroke-width: 1.35;
+}
+
+.empty-character-plus {
   margin-bottom: 2px;
   font-family: var(--font-display);
   font-size: 24px;
@@ -1805,6 +1818,7 @@
 }
 
 .roster-seat-number {
+  position: relative;
   display: grid;
   width: 23px;
   height: 23px;
@@ -1815,6 +1829,18 @@
   background: transparent;
   font-family: var(--font-utility);
   font-size: var(--text-caption);
+}
+
+.roster-seat-number.is-online-player::after {
+  position: absolute;
+  right: -1px;
+  bottom: -1px;
+  width: 6px;
+  height: 6px;
+  border: 1px solid var(--parchment);
+  border-radius: 50%;
+  content: "";
+  background: #39738f;
 }
 
 .roster-row input {
@@ -3431,53 +3457,333 @@
   color: var(--text-on-dark-muted);
 }
 
-/* Player view */
-.home-surface {
-  color: var(--ink);
-  background-color: var(--parchment);
-  background-image: url("/assets/grimoire-parchment.png");
-  background-position: center;
-  background-size: cover;
+/* Player grimoire */
+.player-grimoire-shell {
+  isolation: isolate;
 }
 
-.player-role-token {
-  position: relative;
-  width: min(220px, 56vw);
-  aspect-ratio: 1;
-  overflow: hidden;
-  border: 6px solid #38352f;
-  border-radius: 50%;
-  background: #dfe9ef;
-  box-shadow:
-    0 12px 28px rgb(56 35 13 / 30%),
-    inset 0 1px 1px rgb(255 255 255 / 54%);
+.player-grimoire-shell .grimoire-workspace {
+  width: 100%;
 }
 
-.player-role-token.character-token {
-  height: auto;
+.player-grimoire-frame .grimoire-board {
+  cursor: default;
 }
 
-.player-role-token.team-minion,
-.player-role-token.team-demon {
-  background: #e4c9c7;
+.player-token-cluster.is-read-only {
+  touch-action: auto;
 }
 
-.player-role-token .role-art-crop {
-  position: absolute;
-  inset: 4% 4% 17%;
+.player-token.is-read-only {
+  cursor: default;
 }
-.player-role-token .role-token-name {
+
+.player-token.is-read-only:hover,
+.player-token.is-read-only:focus-visible,
+.player-token.is-read-only:active {
+  box-shadow: var(--tactile-shadow-rest);
+  filter: none;
+  transform: none;
+}
+
+.player-token.is-public:not(.is-own-seat) {
+  --player-token-border-color: rgb(86 69 43 / 42%);
+}
+
+.player-token.is-public.is-open-seat {
+  --player-token-border-color: rgb(86 69 43 / 30%);
+
+  border-style: dashed;
+  color: rgb(64 52 35 / 48%);
+  background-color: rgb(235 219 181 / 30%);
+  box-shadow: none;
+}
+
+.public-open-seat {
+  display: grid;
+  place-items: center;
+  color: rgb(64 52 35 / 48%);
+  font-family: var(--font-utility);
+  line-height: 1;
+}
+
+.public-open-seat strong {
   font-size: 16px;
+  font-weight: 500;
 }
 
-.empty-player-role {
-  width: min(200px, 52vw);
-  aspect-ratio: 1;
-  border: 2px dashed rgb(35 38 34 / 24%);
+.public-open-seat span {
+  margin-top: 5px;
+  font-size: 8px;
+  font-weight: 550;
+  text-transform: uppercase;
+}
+
+.player-name-line {
+  display: inline-flex;
+  max-width: 124px;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+}
+
+.player-name-line > :first-child {
+  min-width: 0;
+}
+
+.player-presence-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  flex: 0 0 10px;
+  border: 1.5px solid rgb(255 250 235 / 82%);
   border-radius: 50%;
-  background: rgb(255 255 255 / 12%);
+  box-shadow:
+    0 0 0 1px rgb(78 58 35 / 16%),
+    0 1px 3px rgb(55 36 17 / 22%);
 }
 
+.player-presence-dot.is-online {
+  background: #39875a;
+}
+
+.player-presence-dot.is-offline {
+  background: #b33f38;
+}
+
+.player-private-role {
+  position: absolute;
+  bottom: 30px;
+  left: 30px;
+  z-index: 54;
+  display: grid;
+  width: min(330px, calc(100vw - 60px));
+  min-height: 96px;
+  box-sizing: border-box;
+  grid-template-columns: 62px minmax(0, 1fr);
+  align-items: start;
+  gap: 14px;
+  padding: 13px 15px;
+  border: 1px solid var(--grimoire-hardware-border);
+  border-radius: var(--grimoire-hardware-radius);
+  color: var(--grimoire-hardware-text);
+  background-color: var(--grimoire-hardware-surface);
+  background-image: linear-gradient(
+    rgb(255 251 237 / 10%),
+    rgb(198 175 126 / 8%)
+  );
+  box-shadow: var(--grimoire-hardware-shadow);
+  backdrop-filter: blur(8px) saturate(0.82);
+  -webkit-backdrop-filter: blur(8px) saturate(0.82);
+}
+
+.player-private-role-token-slot {
+  display: grid;
+  width: 62px;
+  height: 62px;
+  place-items: center;
+}
+
+.player-private-role-token,
+.player-private-role-empty,
+.player-private-role-redacted {
+  width: 60px;
+  height: 60px;
+  border: 1px solid var(--grimoire-hardware-border);
+  border-radius: 50%;
+  box-shadow: 0 2px 5px rgb(49 31 12 / 13%);
+}
+
+.player-private-role-empty,
+.player-private-role-redacted {
+  display: grid;
+  place-items: center;
+  color: var(--grimoire-hardware-muted);
+  background: rgb(246 236 209 / 28%);
+}
+
+.player-private-role-empty {
+  font-family: var(--font-display);
+  font-size: 24px;
+}
+
+.player-private-role-empty svg,
+.player-private-role-redacted svg {
+  width: 21px;
+  height: 21px;
+  stroke-width: 1.6;
+}
+
+.player-private-role-content,
+.player-private-role-copy {
+  min-width: 0;
+}
+
+.player-private-role-summary {
+  display: flex;
+  min-width: 0;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.player-private-role-copy .utility-label {
+  color: var(--grimoire-hardware-muted);
+}
+
+.player-private-role-copy strong,
+.player-private-role-meta {
+  display: block;
+}
+
+.player-private-role-copy strong {
+  margin-top: 1px;
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 620;
+  line-height: 1.1;
+}
+
+.player-private-role-meta {
+  margin-top: 2px;
+  color: var(--grimoire-hardware-muted);
+  font-family: var(--font-utility);
+  font-size: 8px;
+  font-weight: 550;
+  text-transform: uppercase;
+}
+
+.player-private-role-ability {
+  display: -webkit-box;
+  margin: 7px 0 0;
+  overflow: hidden;
+  color: rgb(64 52 35 / 70%);
+  font-size: 11px;
+  line-height: 1.4;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.player-private-status {
+  display: flex;
+  min-width: 0;
+  align-items: flex-end;
+  flex: 0 0 auto;
+  flex-direction: column;
+  gap: 4px;
+  color: var(--grimoire-hardware-muted);
+  font-size: 8px;
+  font-weight: 650;
+}
+
+.player-private-status span {
+  display: inline-flex;
+  min-height: 23px;
+  align-items: center;
+  gap: 4px;
+  padding: 0 7px;
+  border: 1px solid rgb(100 76 44 / 16%);
+  border-radius: 999px;
+  background: rgb(255 252 241 / 34%);
+  white-space: nowrap;
+}
+
+.player-private-status svg {
+  width: 11px;
+  height: 11px;
+  stroke-width: 1.7;
+}
+
+.player-private-role.is-redacted {
+  background-color: rgb(235 222 188 / 76%);
+}
+
+@media (max-width: 700px) {
+  .player-grimoire-frame .player-token-cluster {
+    transform: scale(0.76);
+    transform-origin: center;
+  }
+
+  .player-private-role {
+    right: 12px;
+    bottom: max(12px, env(safe-area-inset-bottom));
+    left: 12px;
+    width: auto;
+    min-height: 88px;
+    grid-template-columns: 54px minmax(0, 1fr);
+    gap: 11px;
+    padding: 11px 12px;
+  }
+
+  .player-private-role-token-slot,
+  .player-private-role-token,
+  .player-private-role-empty,
+  .player-private-role-redacted {
+    width: 52px;
+    height: 52px;
+  }
+
+  .player-private-role-ability {
+    -webkit-line-clamp: 1;
+  }
+
+  .player-grimoire-shell :is(.toolbar-brand, .join-code-control) {
+    top: max(12px, env(safe-area-inset-top));
+  }
+
+  .player-grimoire-shell .toolbar-brand {
+    left: 12px;
+  }
+
+  .player-grimoire-shell .join-code-control {
+    right: 12px;
+  }
+}
+
+@media (max-width: 430px) {
+  .player-grimoire-frame .player-token-cluster {
+    transform: scale(0.66);
+  }
+
+  .player-grimoire-shell .toolbar-brand {
+    gap: 6px;
+    padding-right: 8px;
+  }
+
+  .player-grimoire-shell .toolbar-brand > div {
+    display: none;
+  }
+
+  .player-grimoire-shell .grimoire-redaction-setting {
+    gap: 5px;
+    margin-left: 0;
+    padding-right: 2px;
+    padding-left: 7px;
+  }
+
+  .player-grimoire-shell .join-code-control {
+    min-width: 108px;
+    padding-right: 8px;
+    padding-left: 10px;
+  }
+
+  .player-private-role-copy strong {
+    font-size: 15px;
+  }
+
+  .player-private-role-summary {
+    gap: 7px;
+  }
+
+  .player-private-status {
+    font-size: 7px;
+  }
+
+  .player-private-status span {
+    min-height: 21px;
+    padding-inline: 6px;
+  }
+}
 .save-error {
   display: flex;
   align-items: center;
@@ -3550,11 +3856,11 @@
 }
 
 @media (orientation: portrait) and (max-width: 900px) {
-  .storyteller-shell > :not(.portrait-notice) {
+  .storyteller-shell:not(.player-grimoire-shell) > :not(.portrait-notice) {
     display: none;
   }
 
-  .portrait-notice {
+  .storyteller-shell:not(.player-grimoire-shell) > .portrait-notice {
     display: flex;
     position: absolute;
     inset: 0;

@@ -1,6 +1,6 @@
 "use client";
 
-import { InformationTokenIcon } from "@/components/grimoire/information-token-icon";
+import { InformationTokenIcon } from "@/components/storyteller/information-token-icon";
 import { Button } from "@/components/ui/button";
 import { roleById } from "@/lib/game-data";
 import type { GameToken, Seat } from "@/lib/game-data/types";

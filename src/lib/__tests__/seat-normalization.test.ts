@@ -8,6 +8,7 @@ function seat(overrides: Partial<Seat> = {}): Seat {
     id: "seat-1",
     seatIndex: 4,
     playerName: "Player 1",
+    claimedByPlayer: false,
     roleId: null,
     alignment: "good",
     alive: true,

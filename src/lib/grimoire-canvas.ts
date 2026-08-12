@@ -11,6 +11,10 @@ export type ReminderPlacement =
 
 export const PLAYER_POSITION_KIND = "player-position";
 
+export function getGrimoirePlayerTokenSize(seatCount: number) {
+  return Math.round(Math.max(66, Math.min(112, 1440 / (seatCount + 5))));
+}
+
 export function getDefaultPlayerPosition(
   index: number,
   count: number,

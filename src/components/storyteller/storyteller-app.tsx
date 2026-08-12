@@ -3,18 +3,19 @@
 import { AlertCircle, AlertTriangle, RotateCcw } from "lucide-react";
 import { useMemo, useState } from "react";
 
-import { DemonBluffRack } from "@/components/grimoire/demon-bluff-rack";
-import { GrimoireBoard } from "@/components/grimoire/grimoire-board";
+import { DemonBluffRack } from "@/components/storyteller/demon-bluff-rack";
+import { GrimoireBoard } from "@/components/storyteller/grimoire-board";
 import {
   GrimoireSideSheet,
   type GrimoirePanel,
-} from "@/components/grimoire/grimoire-side-sheet";
+} from "@/components/storyteller/grimoire-side-sheet";
 import { GrimoireToolbar } from "@/components/grimoire/grimoire-toolbar";
-import { PlayerRevealScreen } from "@/components/grimoire/player-reveal-screen";
-import { ReminderToken } from "@/components/grimoire/reminder-token";
-import { RolePicker } from "@/components/grimoire/role-picker";
-import { StorytellerDock } from "@/components/grimoire/storyteller-dock";
+import { PlayerRevealScreen } from "@/components/storyteller/player-reveal-screen";
+import { ReminderToken } from "@/components/storyteller/reminder-token";
+import { RolePicker } from "@/components/storyteller/role-picker";
+import { StorytellerDock } from "@/components/storyteller/storyteller-dock";
 import { Button } from "@/components/ui/button";
+import { useGamePresence } from "@/hooks/use-game-presence";
 import { useGrimoireActions } from "@/hooks/use-grimoire-actions";
 import { usePersistedGrimoireSheetPin } from "@/hooks/use-persisted-grimoire-sheet-pin";
 import { usePersistedNightOrderState } from "@/hooks/use-persisted-night-order-state";
@@ -40,6 +41,7 @@ type PickerTarget =
 export function StorytellerApp({ gameCode }: { gameCode: string }) {
   const { snapshot, loading, error, saveState, commit, refresh } =
     useStorytellerGame(gameCode);
+  const onlineSeatIds = useGamePresence(gameCode);
   const [openPanel, setOpenPanel] = useState<GrimoirePanel>(null);
   const [sheetPinned, setSheetPinned] = usePersistedGrimoireSheetPin(gameCode);
   const [nightOrderState, setNightOrderState] =
@@ -165,6 +167,7 @@ export function StorytellerApp({ gameCode }: { gameCode: string }) {
           selectedSeatId={selectedSeatId}
           selectedReminderId={selectedReminderId}
           placingReminder={pendingReminder !== null}
+          onlineSeatIds={onlineSeatIds}
           onSelectSeat={(seatId) => {
             if (!sheetPinned) setOpenPanel(null);
             setSelectedReminderId(null);

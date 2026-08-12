@@ -5,7 +5,7 @@ import { CSS } from "@dnd-kit/utilities";
 import { X } from "lucide-react";
 import { useEffect, useState } from "react";
 
-import { ReminderToken } from "@/components/grimoire/reminder-token";
+import { ReminderToken } from "@/components/storyteller/reminder-token";
 import { IconButton } from "@/components/ui/icon-button";
 import {
   Tooltip,

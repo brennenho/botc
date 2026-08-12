@@ -33,6 +33,7 @@ function createSeat(seatIndex: number): Seat {
     id: crypto.randomUUID(),
     seatIndex,
     playerName: `Player ${seatIndex + 1}`,
+    claimedByPlayer: false,
     roleId: null,
     alignment: "good",
     alive: true,

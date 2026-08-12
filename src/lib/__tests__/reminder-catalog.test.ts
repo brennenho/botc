@@ -14,6 +14,7 @@ function seat(id: string, seatIndex: number, roleId: string | null): Seat {
     id,
     seatIndex,
     playerName: `Player ${seatIndex + 1}`,
+    claimedByPlayer: false,
     roleId,
     alignment: "good",
     alive: true,

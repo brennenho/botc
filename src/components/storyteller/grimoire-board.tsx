@@ -13,8 +13,8 @@ import {
 } from "@dnd-kit/core";
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 
-import { DraggableReminderToken } from "@/components/grimoire/draggable-reminder-token";
-import { PlayerContextMenu } from "@/components/grimoire/player-context-menu";
+import { DraggableReminderToken } from "@/components/storyteller/draggable-reminder-token";
+import { PlayerContextMenu } from "@/components/storyteller/player-context-menu";
 import { PlayerToken } from "@/components/grimoire/player-token";
 import type {
   Alignment,
@@ -24,6 +24,7 @@ import type {
 } from "@/lib/game-data/types";
 import {
   clampCanvasPosition,
+  getGrimoirePlayerTokenSize,
   getPlayerPosition,
   getReminderPosition,
   readReminderPlacement,
@@ -47,6 +48,7 @@ export function GrimoireBoard({
   selectedSeatId,
   selectedReminderId,
   placingReminder,
+  onlineSeatIds = new Set<string>(),
   onSelectSeat,
   onSelectReminder,
   onRemoveReminder,
@@ -70,6 +72,7 @@ export function GrimoireBoard({
   selectedSeatId: string | null;
   selectedReminderId: string | null;
   placingReminder: boolean;
+  onlineSeatIds?: ReadonlySet<string>;
   onSelectSeat: (seatId: string) => void;
   onSelectReminder: (tokenId: string) => void;
   onRemoveReminder: (tokenId: string) => void;
@@ -90,9 +93,7 @@ export function GrimoireBoard({
     seatId?: string,
   ) => void;
 }) {
-  const tokenSize = Math.round(
-    Math.max(66, Math.min(112, 1440 / (seats.length + 5))),
-  );
+  const tokenSize = getGrimoirePlayerTokenSize(seats.length);
   const reminderSize = Math.max(60, Math.min(72, tokenSize * 0.64));
   const reminderClearance = Math.max(10, tokenSize * 0.1);
   const reminderGap = Math.max(6, reminderSize * 0.1);
@@ -424,6 +425,13 @@ export function GrimoireBoard({
                   tokenSize={tokenSize}
                   labelSide={playerLabelSides.get(seat.id) ?? "bottom"}
                   redacted={redacted}
+                  presenceStatus={
+                    seat.claimedByPlayer
+                      ? onlineSeatIds.has(seat.id)
+                        ? "online"
+                        : "offline"
+                      : undefined
+                  }
                   onSelect={() =>
                     placingReminder
                       ? onPlaceReminder(seat.id)

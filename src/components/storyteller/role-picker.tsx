@@ -2,7 +2,7 @@
 
 import { X } from "lucide-react";
 
-import { CharacterSelectionDialog } from "@/components/grimoire/character-selection-dialog";
+import { CharacterSelectionDialog } from "@/components/storyteller/character-selection-dialog";
 import { Button } from "@/components/ui/button";
 import type { EditionId } from "@/lib/game-data";
 

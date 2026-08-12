@@ -61,12 +61,27 @@ export type Seat = {
   id: string;
   seatIndex: number;
   playerName: string;
+  claimedByPlayer: boolean;
   roleId: string | null;
   alignment: Alignment;
   alive: boolean;
   ghostVoteAvailable: boolean;
   isTraveller: boolean;
   joinedAt: string;
+};
+
+export type PlayerSeatView = {
+  id: string;
+  seatIndex: number;
+  playerName: string | null;
+  occupied: boolean;
+  alive: boolean;
+  ghostVoteAvailable: boolean;
+  isTraveller: boolean;
+  position: {
+    x: number;
+    y: number;
+  };
 };
 
 export type GameToken = {
@@ -99,4 +114,5 @@ export type PlayerSnapshot = {
     "joinCode" | "edition" | "status" | "phase" | "dayNumber" | "version"
   >;
   seat: Seat;
+  seats: PlayerSeatView[];
 };

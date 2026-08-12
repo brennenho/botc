@@ -6,6 +6,11 @@ import { EyeOff, Vote } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
 import { CharacterToken } from "@/components/grimoire/character-token";
+import { EmptyCharacterState } from "@/components/grimoire/empty-character-state";
+import {
+  PlayerPresenceDot,
+  type PlayerPresenceStatus,
+} from "@/components/grimoire/player-presence-dot";
 import { Input } from "@/components/ui/input";
 import { roleById } from "@/lib/game-data";
 import type { Seat } from "@/lib/game-data/types";
@@ -18,6 +23,10 @@ export function PlayerToken({
   tokenSize,
   labelSide,
   redacted,
+  readOnly = false,
+  publicView = false,
+  isOwnSeat = false,
+  presenceStatus,
   onSelect,
   onRename,
 }: {
@@ -26,17 +35,24 @@ export function PlayerToken({
   tokenSize: number;
   labelSide: ReminderLabelSide;
   redacted: boolean;
+  readOnly?: boolean;
+  publicView?: boolean;
+  isOwnSeat?: boolean;
+  presenceStatus?: PlayerPresenceStatus;
   onSelect: () => void;
   onRename: (playerName: string) => void;
 }) {
   const role = seat.roleId ? roleById.get(seat.roleId) : null;
+  const visibleRole =
+    role && !redacted && (!publicView || isOwnSeat) ? role : null;
+  const interactionsDisabled = redacted || readOnly;
   const [editingName, setEditingName] = useState(false);
   const [draftName, setDraftName] = useState(seat.playerName);
   const nameInputRef = useRef<HTMLInputElement>(null);
   const { attributes, listeners, setNodeRef, transform, isDragging } =
     useDraggable({
       id: `player:${seat.id}`,
-      disabled: redacted,
+      disabled: interactionsDisabled,
     });
 
   useEffect(() => {
@@ -61,8 +77,9 @@ export function PlayerToken({
       ref={setNodeRef}
       className={cn(
         "player-token-cluster",
-        role && !redacted && `team-${role.team}`,
+        visibleRole && !redacted && `team-${visibleRole.team}`,
         `player-name-${labelSide}`,
+        readOnly && "is-read-only",
         isDragging && "is-dragging",
       )}
       style={{
@@ -75,8 +92,14 @@ export function PlayerToken({
         type="button"
         className={cn(
           "player-token tactile-action tactile-surface",
-          !redacted && `alignment-${seat.alignment}`,
+          !redacted &&
+            (!publicView || isOwnSeat) &&
+            `alignment-${seat.alignment}`,
           !redacted && seat.isTraveller && "is-traveller",
+          publicView && "is-public",
+          publicView && isOwnSeat && "is-own-seat",
+          publicView && !seat.claimedByPlayer && "is-open-seat",
+          readOnly && "is-read-only",
           selected && "is-selected",
           !seat.alive && "is-dead",
           redacted && "is-redacted",
@@ -87,17 +110,39 @@ export function PlayerToken({
         }}
         onClick={(event) => {
           event.stopPropagation();
-          if (redacted) return;
+          if (interactionsDisabled) return;
           onSelect();
         }}
-        disabled={redacted}
+        disabled={interactionsDisabled}
         aria-label={
-          redacted ? `${seat.playerName}, Character Hidden` : undefined
+          publicView
+            ? seat.claimedByPlayer
+              ? `${seat.playerName}, ${presenceStatus === "online" ? "Online" : "Disconnected"}`
+              : `Seat ${seat.seatIndex + 1}, Open`
+            : redacted
+              ? `${seat.playerName}, Character Hidden`
+              : undefined
         }
         {...listeners}
         {...attributes}
       >
-        {redacted ? (
+        {publicView ? (
+          redacted && seat.claimedByPlayer ? (
+            <span className="redacted-role-token" aria-hidden="true">
+              <EyeOff />
+              <span>Hidden</span>
+            </span>
+          ) : visibleRole ? (
+            <CharacterToken role={visibleRole} size="fill" appearance="bare" />
+          ) : seat.claimedByPlayer ? (
+            <EmptyCharacterState variant="unassigned" />
+          ) : (
+            <span className="public-open-seat" aria-hidden="true">
+              <strong>{seat.seatIndex + 1}</strong>
+              <span>Open</span>
+            </span>
+          )
+        ) : redacted ? (
           <span className="redacted-role-token" aria-hidden="true">
             <EyeOff />
             <span>Hidden</span>
@@ -105,10 +150,7 @@ export function PlayerToken({
         ) : role ? (
           <CharacterToken role={role} size="fill" appearance="bare" />
         ) : (
-          <span className="empty-role-token">
-            <span className="empty-role-plus">+</span>
-            <span>Character</span>
-          </span>
+          <EmptyCharacterState variant="assignable" />
         )}
         {!seat.alive && <span className="death-overlay" aria-label="Dead" />}
         {!seat.alive && (
@@ -135,8 +177,15 @@ export function PlayerToken({
         )}
       </button>
       <div className="player-name-label">
-        {redacted ? (
-          <span className="player-name-static">{seat.playerName}</span>
+        {redacted || readOnly ? (
+          <span className="player-name-line">
+            <span className="player-name-static">
+              {publicView && !seat.claimedByPlayer
+                ? `Seat ${seat.seatIndex + 1}`
+                : seat.playerName}
+            </span>
+            {presenceStatus && <PlayerPresenceDot status={presenceStatus} />}
+          </span>
         ) : editingName ? (
           <Input
             ref={nameInputRef}
@@ -158,20 +207,23 @@ export function PlayerToken({
             onPointerDown={(event) => event.stopPropagation()}
           />
         ) : (
-          <button
-            type="button"
-            aria-label={`Rename ${seat.playerName}`}
-            onClick={(event) => {
-              event.stopPropagation();
-              onSelect();
-              setEditingName(true);
-            }}
-            onPointerDown={(event) => event.stopPropagation()}
-          >
-            {seat.playerName}
-          </button>
+          <span className="player-name-line">
+            <button
+              type="button"
+              aria-label={`Rename ${seat.playerName}`}
+              onClick={(event) => {
+                event.stopPropagation();
+                onSelect();
+                setEditingName(true);
+              }}
+              onPointerDown={(event) => event.stopPropagation()}
+            >
+              {seat.playerName}
+            </button>
+            {presenceStatus && <PlayerPresenceDot status={presenceStatus} />}
+          </span>
         )}
-        {role && !redacted && <small>{role.name}</small>}
+        {visibleRole && !redacted && <small>{visibleRole.name}</small>}
       </div>
     </div>
   );
