@@ -1,0 +1,2 @@
+-- Preview branches intentionally start without game data.
+-- Rooms and seats are created through the application at runtime.
