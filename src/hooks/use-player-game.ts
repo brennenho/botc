@@ -1,54 +1,40 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
+import { useGameInvalidation } from "@/hooks/use-game-invalidation";
 import { fetchPlayerGame } from "@/lib/api";
 import type { PlayerSnapshot } from "@/lib/game-data/types";
-import { getSupabaseBrowser } from "@/lib/supabase/client";
 
 export function usePlayerGame(gameCode: string, seatId: string) {
   const [snapshot, setSnapshot] = useState<PlayerSnapshot | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const requestIdRef = useRef(0);
 
   const refresh = useCallback(async () => {
+    const requestId = ++requestIdRef.current;
     try {
       const result = await fetchPlayerGame(gameCode, seatId);
+      if (requestId !== requestIdRef.current) return;
       setSnapshot(result.snapshot);
       setError(null);
     } catch (cause) {
+      if (requestId !== requestIdRef.current) return;
       setError(cause instanceof Error ? cause.message : "Unable to load game.");
     } finally {
-      setLoading(false);
+      if (requestId === requestIdRef.current) setLoading(false);
     }
   }, [gameCode, seatId]);
 
   useEffect(() => {
     void refresh();
-    const supabase = getSupabaseBrowser();
-    if (!supabase) {
-      const interval = window.setInterval(() => void refresh(), 2_000);
-      return () => window.clearInterval(interval);
-    }
+  }, [refresh]);
 
-    const channel = supabase
-      .channel(`player-game-version-${gameCode}-${seatId}`)
-      .on(
-        "postgres_changes",
-        {
-          event: "UPDATE",
-          schema: "public",
-          table: "games",
-          filter: `join_code=eq.${gameCode}`,
-        },
-        () => void refresh(),
-      )
-      .subscribe();
+  useGameInvalidation({
+    gameCode,
+    onInvalidate: refresh,
+  });
 
-    return () => {
-      void supabase.removeChannel(channel);
-    };
-  }, [gameCode, refresh, seatId]);
-
-  return { snapshot, loading, error };
+  return { snapshot, loading, error, refresh };
 }

@@ -108,6 +108,10 @@ export type StorytellerPatch = {
   gameTokens?: GameToken[];
 };
 
+export type VersionedStorytellerPatch = StorytellerPatch & {
+  expectedVersion: number;
+};
+
 export type PlayerSnapshot = {
   game: Pick<
     Game,

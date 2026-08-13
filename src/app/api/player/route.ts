@@ -1,29 +1,26 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
-import { normalizeGameCode } from "@/lib/game-code";
+import { playerCookieName } from "@/lib/server/auth-cookies";
+import { gameRouteError } from "@/lib/server/route-errors";
 import { getPlayerSnapshotByCode } from "@/lib/server/store";
+import { gameCodeSchema, seatIdSchema } from "@/lib/server/validation";
 
 export async function GET(request: Request) {
   try {
     const url = new URL(request.url);
-    const gameCode = normalizeGameCode(url.searchParams.get("code") ?? "");
-    const seatId = url.searchParams.get("seatId") ?? "";
-    const explicitToken = url.searchParams.get("token");
-    const cookieToken =
-      (await cookies()).get(`botc_pl_${gameCode}_${seatId}`)?.value ?? "";
-    const token =
-      explicitToken && explicitToken.length > 0 ? explicitToken : cookieToken;
-    const snapshot = await getPlayerSnapshotByCode(gameCode, seatId, token);
+    const gameCode = gameCodeSchema.parse(url.searchParams.get("code") ?? "");
+    const seatId = seatIdSchema.parse(url.searchParams.get("seatId") ?? "");
+    const credential =
+      (await cookies()).get(playerCookieName(gameCode, seatId))?.value ?? "";
+    const snapshot = await getPlayerSnapshotByCode(
+      gameCode,
+      seatId,
+      credential,
+    );
 
     return NextResponse.json({ snapshot });
   } catch (error) {
-    return NextResponse.json(
-      {
-        error:
-          error instanceof Error ? error.message : "Unable to load player.",
-      },
-      { status: 401 },
-    );
+    return gameRouteError(error, "Unable to load player.");
   }
 }

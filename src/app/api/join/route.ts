@@ -1,31 +1,27 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
-import { z } from "zod";
 
-import { normalizeGameCode } from "@/lib/game-code";
+import {
+  playerCookieName,
+  setCredentialCookie,
+} from "@/lib/server/auth-cookies";
+import { gameRouteError } from "@/lib/server/route-errors";
 import { getPlayerSnapshotByCode, joinGame } from "@/lib/server/store";
-
-const joinSchema = z.object({
-  joinCode: z.string().min(4),
-  playerName: z.string().min(1).max(40),
-});
+import { joinGameSchema } from "@/lib/server/validation";
 
 export async function POST(request: Request) {
   try {
-    const input = joinSchema.parse(await request.json());
-    const joinCode = normalizeGameCode(input.joinCode);
-    const existingPlayer = await findExistingPlayer(joinCode, input.playerName);
+    const input = joinGameSchema.parse(await request.json());
+    const existingPlayer = await findExistingPlayer(
+      input.joinCode,
+      input.playerName,
+    );
     if (existingPlayer) return createJoinResponse(existingPlayer);
 
     const joined = await joinGame(input.joinCode, input.playerName);
     return createJoinResponse(joined);
   } catch (error) {
-    return NextResponse.json(
-      {
-        error: error instanceof Error ? error.message : "Unable to join game.",
-      },
-      { status: 400 },
-    );
+    return gameRouteError(error, "Unable to join game.");
   }
 }
 
@@ -49,7 +45,7 @@ async function findExistingPlayer(joinCode: string, playerName: string) {
         snapshot.game.status === "active" &&
         snapshot.seat.playerName.trim().toLocaleLowerCase() === normalizedName
       ) {
-        return { playerToken: cookie.value, seatId, snapshot };
+        return { credential: cookie.value, seatId, snapshot };
       }
     } catch {
       // Ignore expired player cookies and continue looking for a valid seat.
@@ -60,15 +56,16 @@ async function findExistingPlayer(joinCode: string, playerName: string) {
 }
 
 function createJoinResponse(joined: Awaited<ReturnType<typeof joinGame>>) {
-  const response = NextResponse.json(joined);
-
-  response.cookies.set({
-    name: `botc_pl_${joined.snapshot.game.joinCode}_${joined.seatId}`,
-    value: joined.playerToken,
-    httpOnly: true,
-    sameSite: "lax",
-    path: "/",
+  const response = NextResponse.json({
+    seatId: joined.seatId,
+    snapshot: joined.snapshot,
   });
+
+  setCredentialCookie(
+    response,
+    playerCookieName(joined.snapshot.game.joinCode, joined.seatId),
+    joined.credential,
+  );
 
   return response;
 }

@@ -2,19 +2,17 @@ import { createClient } from "@supabase/supabase-js";
 
 import { env } from "@/env";
 
-export function getSupabaseAdmin() {
-  if (!env.NEXT_PUBLIC_SUPABASE_URL || !env.SUPABASE_SERVICE_ROLE_KEY) {
-    return null;
-  }
-
-  return createClient(
-    env.NEXT_PUBLIC_SUPABASE_URL,
-    env.SUPABASE_SERVICE_ROLE_KEY,
-    {
-      auth: {
-        autoRefreshToken: false,
-        persistSession: false,
-      },
+const supabaseAdmin = createClient(
+  env.NEXT_PUBLIC_SUPABASE_URL,
+  env.SUPABASE_SECRET_KEY,
+  {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false,
     },
-  );
+  },
+);
+
+export function getSupabaseAdmin() {
+  return supabaseAdmin;
 }

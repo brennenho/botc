@@ -1,8 +1,8 @@
 import type {
   EditionId,
   PlayerSnapshot,
-  StorytellerPatch,
   StorytellerSnapshot,
+  VersionedStorytellerPatch,
 } from "@/lib/game-data/types";
 
 async function requestJson<T>(url: string, init?: RequestInit): Promise<T> {
@@ -24,7 +24,6 @@ async function requestJson<T>(url: string, init?: RequestInit): Promise<T> {
 
 export function createGame(edition: EditionId, playerCount: number) {
   return requestJson<{
-    storytellerToken: string;
     snapshot: StorytellerSnapshot;
   }>("/api/games", {
     method: "POST",
@@ -34,7 +33,6 @@ export function createGame(edition: EditionId, playerCount: number) {
 
 export function joinGame(joinCode: string, playerName: string) {
   return requestJson<{
-    playerToken: string;
     seatId: string;
     snapshot: PlayerSnapshot;
   }>("/api/join", {
@@ -51,7 +49,7 @@ export function fetchStorytellerGame(gameCode: string) {
 
 export function updateStorytellerGame(
   gameCode: string,
-  patch: StorytellerPatch,
+  patch: VersionedStorytellerPatch,
 ) {
   return requestJson<{ snapshot: StorytellerSnapshot }>("/api/storyteller", {
     method: "PATCH",
