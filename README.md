@@ -40,6 +40,12 @@ is unavoidable, pull it into a migration before continuing development:
 supabase db pull --db-url '<session-pooler-connection-string>'
 ```
 
+### Game Retention
+
+Supabase runs a daily cleanup job at 04:15 UTC. Games that have not been updated
+for seven days are deleted along with their seats and tokens through
+foreign-key cascades.
+
 ## Development
 
 - `pnpm install`
