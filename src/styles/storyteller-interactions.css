@@ -1,0 +1,1028 @@
+/* Reminder tokens */
+.reminder-token {
+  --reminder-token-size: 36px;
+  --reminder-token-accent: #8a754c;
+
+  position: relative;
+  display: grid;
+  width: var(--reminder-token-size);
+  height: var(--reminder-token-size);
+  flex: 0 0 var(--reminder-token-size);
+  place-items: center;
+  overflow: visible;
+  color: #33291f;
+  background: transparent;
+  transition:
+    box-shadow 120ms ease,
+    transform 120ms ease;
+}
+
+.reminder-token[data-team="townsfolk"] {
+  --reminder-token-accent: var(--good);
+}
+
+.reminder-token[data-team="outsider"] {
+  --reminder-token-accent: #75618f;
+}
+
+.reminder-token[data-team="minion"],
+.reminder-token[data-team="demon"] {
+  --reminder-token-accent: var(--evil);
+}
+
+.reminder-token-face {
+  --tactile-shadow-rest:
+    0 2px 4px rgb(49 32 13 / 17%), inset 0 1px 1px rgb(255 253 241 / 58%);
+  --tactile-shadow-hover:
+    0 4px 7px rgb(49 32 13 / 20%), inset 0 1px 1px rgb(255 253 241 / 64%);
+
+  position: absolute;
+  inset: 0;
+  display: grid;
+  overflow: visible;
+  place-items: center;
+  border-radius: 50%;
+}
+
+.reminder-token-face.is-generic {
+  overflow: hidden;
+  border: 1px solid rgb(88 67 39 / 32%);
+  background: #ded3b9;
+  --tactile-shadow-rest: 0 2px 4px rgb(49 32 13 / 18%);
+}
+
+.reminder-token-inline {
+  --reminder-token-size: 26px;
+}
+
+.reminder-token-tray {
+  --reminder-token-size: 36px;
+}
+
+.reminder-token.is-selected {
+  box-shadow: none;
+}
+
+.reminder-token.is-selected .reminder-token-face {
+  --tactile-shadow-rest:
+    0 3px 6px rgb(49 32 13 / 21%), 0 0 0 2px rgb(255 250 235 / 82%),
+    0 0 0 3px color-mix(in srgb, var(--reminder-token-accent) 64%, transparent);
+  --tactile-shadow-hover:
+    0 5px 9px rgb(49 32 13 / 23%), 0 0 0 2px rgb(255 250 235 / 82%),
+    0 0 0 3px color-mix(in srgb, var(--reminder-token-accent) 64%, transparent);
+}
+
+.storyteller-shell .reminder-token-source-art {
+  filter: saturate(0.96);
+  opacity: 1;
+}
+
+.reminder-token-fallback-icon {
+  width: 42%;
+  height: 42%;
+  color: rgb(64 50 33 / 72%);
+  stroke-width: 1.5;
+}
+
+.reminder-token-label {
+  position: absolute;
+  top: 75%;
+  bottom: auto;
+  left: 50%;
+  z-index: 6;
+  display: grid;
+  width: max-content;
+  max-width: calc(var(--reminder-token-size) * 1.08);
+  box-sizing: border-box;
+  place-items: center;
+  isolation: isolate;
+  padding: 2px 6px;
+  color: #35291e;
+  font-family: var(--font-utility);
+  font-size: clamp(7px, calc(var(--reminder-token-size) * 0.115), 8.5px);
+  font-weight: 700;
+  line-height: 1;
+  text-align: center;
+  text-transform: uppercase;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.reminder-token-label::before {
+  position: absolute;
+  inset: -1px -5px;
+  z-index: -1;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgb(255 253 246 / 18%) 5%,
+    rgb(255 253 246 / 66%) 16%,
+    rgb(255 253 246 / 72%) 50%,
+    rgb(255 253 246 / 66%) 84%,
+    rgb(255 253 246 / 18%) 95%,
+    transparent 100%
+  );
+  content: "";
+  filter: blur(0.35px);
+}
+
+.reminder-token-label-text {
+  display: -webkit-box;
+  overflow: hidden;
+  text-wrap: balance;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.reminder-token[data-label-layout="single"] .reminder-token-label-text {
+  display: block;
+  text-wrap: nowrap;
+  white-space: nowrap;
+}
+
+.reminder-token[data-label-layout="wrapped"] .reminder-token-label {
+  max-width: calc(var(--reminder-token-size) * 0.7);
+}
+
+.reminder-token[data-label-layout="compact"] .reminder-token-label {
+  max-width: calc(var(--reminder-token-size) * 0.94);
+  font-size: clamp(6.5px, calc(var(--reminder-token-size) * 0.1), 7.25px);
+  line-height: 1;
+}
+
+.reminder-token-labeled .reminder-token-face {
+  --tactile-shadow-rest:
+    0 2px 4px rgb(49 32 13 / 17%), inset 0 1px 1px rgb(255 253 241 / 58%);
+}
+
+.reminder-token-count {
+  position: absolute;
+  top: -4px;
+  right: -5px;
+  display: grid;
+  min-width: 15px;
+  height: 15px;
+  place-items: center;
+  padding: 0 3px;
+  border: 1px solid rgb(103 77 39 / 34%);
+  border-radius: 999px;
+  color: #3b2e1f;
+  background: rgb(243 226 188 / 96%);
+  box-shadow: 0 1px 3px rgb(45 28 12 / 28%);
+  font-family: var(--font-utility);
+  font-size: 7px;
+  line-height: 1;
+}
+
+.reminder-token-control {
+  position: relative;
+  display: grid;
+  place-items: center;
+}
+
+.reminder-token-trigger {
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  outline: none;
+  background: transparent;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+}
+
+.reminder-token-trigger:focus-visible .reminder-token-face {
+  box-shadow:
+    var(--tactile-shadow-hover),
+    0 0 0 3px var(--focus-ring);
+}
+
+.reminder-token-trigger:active,
+.reminder-token-control.is-dragging .reminder-token-trigger {
+  cursor: grabbing;
+}
+
+.reminder-token-control.is-dragging .reminder-token-face {
+  box-shadow: var(--shadow-tactile-drag);
+  filter: brightness(1.03);
+  transform: translateY(-2px) scale(1.015);
+}
+
+.reminder-token-control.is-dragging .reminder-token-clear {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.reminder-token-tooltip {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.reminder-token-tooltip strong {
+  font-size: 10px;
+  line-height: 1.25;
+}
+
+.reminder-token-tooltip span {
+  color: var(--text-on-dark-muted);
+  font-size: 9px;
+  line-height: 1.25;
+}
+
+.canvas-player-position.is-reminder-target .player-token {
+  box-shadow:
+    0 4px 7px rgb(49 31 12 / 24%),
+    0 0 0 2px rgb(139 108 53 / 32%);
+  cursor: pointer;
+}
+
+.canvas-player-position.is-reminder-target .player-token:hover,
+.canvas-player-position.is-reminder-target .player-token:focus-visible {
+  box-shadow:
+    0 5px 9px rgb(49 31 12 / 26%),
+    0 0 0 3px rgb(139 108 53 / 48%);
+}
+
+.reminder-snap-preview {
+  position: absolute;
+  z-index: 23;
+  border: 1px dotted rgb(92 68 37 / 52%);
+  border-radius: 50%;
+  background: rgb(238 222 187 / 10%);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.canvas-reminder-position.is-reflowing {
+  transition:
+    left 150ms cubic-bezier(0.2, 0.75, 0.2, 1),
+    top 150ms cubic-bezier(0.2, 0.75, 0.2, 1);
+}
+
+.canvas-reminder-position.is-dragging {
+  transition: none;
+}
+
+.player-context-menu {
+  position: absolute;
+  z-index: var(--layer-context-menu);
+  display: flex;
+  max-height: calc(100% - 24px);
+  box-sizing: border-box;
+  flex-direction: column;
+  border: 1px solid var(--grimoire-hardware-border-strong);
+  border-radius: var(--radius-panel);
+  color: var(--grimoire-hardware-text);
+  background-color: rgb(241 231 208 / 94%);
+  background-image:
+    linear-gradient(rgb(255 252 240 / 26%), rgb(215 195 155 / 10%)),
+    url("/assets/grimoire-parchment.png");
+  background-position: center;
+  background-size:
+    100% 100%,
+    420px auto;
+  box-shadow:
+    0 12px 30px rgb(52 37 20 / 24%),
+    inset 0 1px rgb(255 253 243 / 56%);
+  backdrop-filter: blur(12px) saturate(0.76);
+  animation: player-menu-in 120ms cubic-bezier(0.2, 0.75, 0.2, 1);
+}
+
+.player-context-menu::before {
+  position: absolute;
+  top: var(--player-menu-anchor-y);
+  z-index: -1;
+  width: 11px;
+  height: 11px;
+  border: 1px solid var(--grimoire-hardware-border-strong);
+  content: "";
+  background: rgb(235 220 187 / 96%);
+  transform: translateY(-50%) rotate(45deg);
+}
+
+.player-context-menu[data-side="right"]::before {
+  left: -6px;
+  border-top-color: transparent;
+  border-right-color: transparent;
+}
+
+.player-context-menu[data-side="left"]::before {
+  right: -6px;
+  border-bottom-color: transparent;
+  border-left-color: transparent;
+}
+
+.player-menu-header {
+  display: flex;
+  min-height: 64px;
+  align-items: center;
+  gap: 9px;
+  padding: 8px;
+  border-bottom: 1px solid rgb(99 76 46 / 20%);
+}
+
+.player-menu-role {
+  --tactile-shadow-rest: 0 2px 5px rgb(53 37 20 / 12%);
+  --tactile-shadow-hover: 0 4px 7px rgb(53 37 20 / 15%);
+
+  display: grid;
+  width: 46px;
+  height: 46px;
+  flex: 0 0 46px;
+  place-items: center;
+  padding: 0;
+  border: 1px solid var(--grimoire-hardware-border);
+  border-radius: 50%;
+  color: var(--grimoire-hardware-accent);
+  background: rgb(255 252 240 / 28%);
+}
+
+.player-menu-role:hover,
+.player-menu-role:focus-visible {
+  background: rgb(255 252 240 / 52%);
+}
+
+.player-menu-role.has-character {
+  --tactile-shadow-rest: none;
+  --tactile-shadow-hover: 0 3px 6px rgb(53 37 20 / 13%);
+
+  border-color: transparent;
+  background: transparent;
+  box-shadow: none;
+}
+
+.player-menu-role.has-character:hover,
+.player-menu-role.has-character:focus-visible {
+  border-color: transparent;
+  background: rgb(255 252 240 / 34%);
+}
+
+.player-menu-role:focus-visible {
+  outline: 0;
+  outline-offset: 2px;
+}
+
+.player-menu-identity {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.player-menu-identity > button {
+  display: flex;
+  height: auto;
+  min-width: 0;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 5px;
+  padding: 0;
+  border: 0;
+  color: #30271c;
+  background: transparent;
+  text-align: left;
+}
+
+.player-menu-identity > button strong,
+.player-menu-identity > strong {
+  overflow: hidden;
+  font-size: 13px;
+  font-weight: 720;
+  line-height: 1.25;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.player-menu-identity > button svg {
+  width: 11px;
+  height: 11px;
+  flex: 0 0 auto;
+  color: var(--grimoire-hardware-muted);
+}
+
+.player-menu-identity > span {
+  overflow: hidden;
+  color: var(--grimoire-hardware-muted);
+  font-size: 10px;
+  line-height: 1.25;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.player-menu-identity > input {
+  width: 100%;
+  min-width: 0;
+  height: 24px;
+  padding: 1px 3px 2px;
+  text-align: left;
+}
+
+.player-menu-identity > input:focus {
+  box-shadow: none;
+}
+
+.player-menu-header > button:last-child {
+  flex: 0 0 auto;
+  color: var(--grimoire-hardware-muted);
+}
+
+.player-menu-state {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
+}
+
+.player-menu-state-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.player-menu-control {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.player-menu-control > .utility-label,
+.player-reminder-section > .utility-label {
+  color: rgb(64 52 35 / 54%);
+  font-size: 8px;
+}
+
+.player-menu-segmented {
+  display: flex;
+  width: 100%;
+  height: 36px;
+  min-width: 0;
+  background: rgb(81 62 40 / 9%);
+}
+
+.player-menu-segmented button {
+  min-width: 0;
+  height: 32px;
+  flex: 1;
+  padding: 0 6px;
+  color: rgb(64 52 35 / 64%);
+  font-size: 10px;
+}
+
+.player-menu-segmented button[aria-pressed="true"] {
+  color: #30271c;
+  background: rgb(255 252 240 / 72%);
+}
+
+.player-menu-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1px;
+  padding: 8px;
+  border-top: 1px solid rgb(99 76 46 / 16%);
+}
+
+.player-menu-actions > button {
+  position: relative;
+  height: 42px;
+  min-width: 0;
+  padding: 0 8px;
+  color: rgb(64 52 35 / 74%);
+  font-size: 10px;
+}
+
+.player-menu-actions > button:hover {
+  color: #30271c;
+  background: rgb(255 252 240 / 38%);
+}
+
+.player-menu-count {
+  display: grid;
+  min-width: 17px;
+  height: 17px;
+  place-items: center;
+  border: 1px solid rgb(119 90 48 / 30%);
+  border-radius: 50%;
+  color: var(--grimoire-hardware-accent);
+  font-family: var(--font-utility);
+  font-size: 8px;
+}
+
+.player-menu-footer {
+  display: flex;
+  justify-content: flex-end;
+  padding: 7px 9px;
+  border-top: 1px solid rgb(99 76 46 / 18%);
+}
+
+.player-menu-footer .remove-player-button {
+  min-width: 116px;
+  justify-content: center;
+}
+
+.reminder-menu-header {
+  min-height: 56px;
+}
+
+.reminder-menu-header > button:first-child {
+  flex: 0 0 auto;
+  color: var(--grimoire-hardware-muted);
+}
+
+.player-reminder-menu {
+  max-height: min(380px, calc(100vh - 120px));
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.player-reminder-section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 9px 10px 10px;
+  border-bottom: 1px solid rgb(99 76 46 / 16%);
+}
+
+.player-reminder-section:last-child {
+  border-bottom: 0;
+}
+
+.player-reminder-collapsible {
+  border-bottom: 1px solid rgb(99 76 46 / 16%);
+}
+
+.player-reminder-collapsible > summary {
+  display: grid;
+  min-height: 38px;
+  grid-template-columns: minmax(0, 1fr) auto 16px;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 11px;
+  color: var(--grimoire-hardware-muted);
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+}
+
+.player-reminder-collapsible > summary .utility-label {
+  color: inherit;
+  font-size: 8px;
+}
+
+.player-reminder-collapsible > summary::-webkit-details-marker {
+  display: none;
+}
+
+.player-reminder-collapsible > summary:hover {
+  color: var(--grimoire-hardware-text);
+  background: var(--control-hover);
+}
+
+.player-reminder-collapsible > summary:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: -2px;
+}
+
+.player-reminder-collapsible > summary small {
+  color: rgb(64 52 35 / 44%);
+  font-size: 8px;
+}
+
+.player-reminder-collapsible > summary svg {
+  width: 14px;
+  height: 14px;
+  transition: transform 140ms ease;
+}
+
+.player-reminder-collapsible[open] > summary {
+  border-bottom: 1px solid rgb(99 76 46 / 12%);
+}
+
+.player-reminder-collapsible[open] > summary svg {
+  transform: rotate(180deg);
+}
+
+.player-reminder-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 7px 4px;
+}
+
+.player-reminder-grid > button {
+  display: flex;
+  width: 100%;
+  min-width: 0;
+  min-height: 72px;
+  align-items: center;
+  justify-content: flex-start;
+  flex-direction: column;
+  gap: 5px;
+  padding: 3px 2px;
+  border: 0;
+  border-radius: var(--radius-control);
+  color: rgb(48 39 28 / 74%);
+  background: transparent;
+  font-size: 8px;
+  font-weight: 580;
+  line-height: 1.15;
+  text-align: center;
+}
+
+.player-reminder-grid > button:hover,
+.player-reminder-grid > button:focus-visible {
+  color: #30271c;
+  background: transparent;
+}
+
+.player-reminder-grid > button:focus-visible {
+  outline: 0;
+  box-shadow: none;
+}
+
+.player-reminder-grid > button .character-token {
+  --tactile-shadow-rest: none;
+  --tactile-shadow-hover: 0 3px 6px rgb(55 36 17 / 14%);
+}
+
+.player-reminder-grid > button > span:last-child {
+  width: 100%;
+  overflow: hidden;
+  display: -webkit-box;
+  min-height: 18px;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.player-reminder-label small {
+  margin-left: 3px;
+  color: rgb(48 39 28 / 50%);
+  font-family: var(--font-utility);
+  font-size: 7px;
+  font-weight: 600;
+}
+
+.player-reminder-token-wrap {
+  position: relative;
+  display: grid;
+  width: 48px;
+  height: 48px;
+  place-items: center;
+}
+
+.player-reminder-count {
+  position: absolute;
+  top: -3px;
+  right: -4px;
+  display: grid;
+  min-width: 16px;
+  height: 16px;
+  place-items: center;
+  border: 1px solid rgb(103 77 39 / 34%);
+  border-radius: 50%;
+  color: #3b2e1f;
+  background: rgb(243 226 188 / 96%);
+  box-shadow: 0 1px 3px rgb(50 34 17 / 18%);
+  font-family: var(--font-utility);
+  font-size: 8px;
+  line-height: 1;
+}
+
+.player-reminder-empty {
+  margin: 0;
+  padding: 18px 16px 20px;
+  color: var(--grimoire-hardware-muted);
+  font-size: 10px;
+  line-height: 1.45;
+  text-align: center;
+}
+
+@keyframes player-menu-in {
+  from {
+    opacity: 0;
+    transform: translateY(3px) scale(0.99);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.storyteller-context-drawer {
+  position: fixed;
+  z-index: 56;
+  bottom: max(18px, env(safe-area-inset-bottom));
+  left: 50%;
+  display: flex;
+  width: min(720px, calc(100vw - 36px));
+  min-width: 0;
+  box-sizing: border-box;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid rgb(160 127 76 / 72%);
+  border-radius: var(--radius-panel);
+  color: #f4e8d0;
+  background: rgb(35 27 24 / 82%);
+  box-shadow: 0 8px 24px rgb(0 0 0 / 28%);
+  backdrop-filter: blur(14px) saturate(0.72);
+  transform: translateX(-50%);
+}
+
+.storyteller-context-drawer .storyteller-dock.player-dock {
+  position: static;
+  width: 100%;
+  max-width: none;
+  height: 48px;
+  padding: 3px 5px;
+  border: 0;
+  border-radius: 0;
+  background: rgb(17 13 12 / 12%);
+  box-shadow: none;
+  transform: none;
+}
+
+.player-inspector-identity {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.player-inspector-identity strong,
+.player-inspector-identity span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.player-inspector-identity strong {
+  color: #f4e8d0;
+  font-size: 12px;
+  font-weight: 680;
+  line-height: 1.25;
+}
+
+.player-inspector-identity span {
+  color: rgb(244 232 208 / 48%);
+  font-size: 9px;
+  line-height: 1.25;
+}
+
+.reminder-inspector-dock {
+  width: min(480px, calc(100vw - 36px));
+}
+
+.reminder-placement-dock {
+  bottom: max(30px, env(safe-area-inset-bottom));
+  width: min(310px, calc(100vw - 36px));
+  border-radius: var(--grimoire-hardware-radius);
+}
+
+.toolbar-brand,
+.join-code-control,
+.board-bluff-rack,
+.board-setup-warning,
+.reminder-placement-dock {
+  border: 1px solid var(--grimoire-hardware-border);
+  color: var(--grimoire-hardware-text);
+  background-color: var(--grimoire-hardware-surface);
+  background-image: linear-gradient(
+    rgb(255 251 237 / 10%),
+    rgb(198 175 126 / 8%)
+  );
+  box-shadow: var(--grimoire-hardware-shadow);
+  backdrop-filter: blur(8px) saturate(0.82);
+  -webkit-backdrop-filter: blur(8px) saturate(0.82);
+}
+
+.reminder-placement-dock.is-sheet-adjacent {
+  left: calc((100vw - var(--active-grimoire-sheet-width)) / 2);
+  width: min(310px, calc(100vw - var(--active-grimoire-sheet-width) - 36px));
+}
+
+.reminder-placement-dock .player-dock,
+.reminder-inspector-dock .player-dock {
+  align-items: center;
+  gap: 9px;
+  padding: 4px 6px 4px 9px;
+}
+
+.reminder-placement-icon {
+  display: grid;
+  width: 28px;
+  height: 28px;
+  flex: 0 0 28px;
+  place-items: center;
+  color: rgb(103 76 38 / 72%);
+}
+
+.reminder-placement-icon svg {
+  width: 19px;
+  height: 19px;
+}
+
+.reminder-placement-dock .player-dock {
+  color: var(--grimoire-hardware-text);
+  background: transparent;
+}
+
+.reminder-placement-dock .player-inspector-identity strong {
+  color: var(--grimoire-hardware-text);
+}
+
+.reminder-placement-dock .player-inspector-identity span {
+  color: var(--grimoire-hardware-muted);
+}
+
+.reminder-placement-dock .player-inspector-identity,
+.reminder-inspector-dock .player-inspector-identity {
+  min-width: 0;
+}
+
+.reminder-placement-dock .player-dock > button,
+.reminder-inspector-dock .player-dock > button {
+  flex: 0 0 auto;
+}
+
+.storyteller-context-drawer .player-dock > button:last-child {
+  width: 34px;
+  height: 38px;
+  flex: 0 0 34px;
+}
+
+.reminder-placement-dock .player-dock > button:last-child {
+  width: 32px;
+  height: 32px;
+  flex-basis: 32px;
+  padding: 0;
+}
+
+.storyteller-dock.global-dock {
+  --panel-tab-width: 36px;
+  --panel-tab-height: 88px;
+  --panel-tab-content-gap: 10px;
+  position: fixed;
+  z-index: 71;
+  top: auto;
+  right: 0;
+  bottom: 122px;
+  left: auto;
+  display: flex;
+  min-width: 0;
+  height: auto;
+  align-items: stretch;
+  justify-content: flex-start;
+  flex-direction: column;
+  width: var(--panel-tab-width);
+  gap: 0;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid var(--grimoire-hardware-border);
+  border-right: 0;
+  border-radius: var(--grimoire-hardware-radius) 0 0
+    var(--grimoire-hardware-radius);
+  background-color: var(--grimoire-hardware-surface);
+  background-image: linear-gradient(
+    rgb(255 251 237 / 12%),
+    rgb(198 175 126 / 7%)
+  );
+  box-shadow:
+    inset 0 1px rgb(255 252 239 / 32%),
+    -2px 3px 8px rgb(58 38 17 / 10%);
+  backdrop-filter: blur(8px) saturate(0.82);
+  -webkit-backdrop-filter: blur(8px) saturate(0.82);
+  transform: none;
+  transition: right 200ms cubic-bezier(0.2, 0.75, 0.2, 1);
+}
+
+.storyteller-dock.global-dock.is-sheet-open {
+  right: var(--active-grimoire-sheet-width);
+}
+
+.global-dock .panel-tab-button {
+  position: relative;
+  display: flex;
+  width: var(--panel-tab-width);
+  min-width: var(--panel-tab-width);
+  height: var(--panel-tab-height);
+  min-height: var(--panel-tab-height);
+  align-items: stretch;
+  justify-content: flex-end;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  color: var(--grimoire-hardware-text);
+  background: transparent;
+  box-shadow: none;
+  transition:
+    color 120ms ease,
+    background-color 120ms ease;
+}
+
+.global-dock .panel-tab-surface {
+  position: relative;
+  display: flex;
+  width: 100%;
+  height: var(--panel-tab-height);
+  box-sizing: border-box;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: var(--panel-tab-content-gap);
+  padding: 10px 6px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  transition:
+    background-color 120ms ease,
+    box-shadow 120ms ease;
+  pointer-events: none;
+}
+
+.global-dock .panel-tab-icon {
+  display: grid;
+  width: 20px;
+  height: 20px;
+  flex: 0 0 20px;
+  place-items: center;
+  color: var(--grimoire-hardware-accent);
+}
+
+.global-dock .panel-tab-icon > svg {
+  width: 18px;
+  height: 18px;
+  stroke-width: 1.8;
+}
+
+/* Users has wider painted bounds than Moon at the same Lucide canvas size. */
+.global-dock [data-panel-tab="players"] .panel-tab-icon > svg {
+  transform: scaleX(0.9);
+}
+
+.global-dock .panel-tab-label {
+  display: block;
+  color: var(--grimoire-hardware-text);
+  background: transparent;
+  box-shadow: none;
+  font-family: var(--font-utility);
+  font-size: 9.5px;
+  font-weight: 600;
+  line-height: 1;
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  white-space: nowrap;
+}
+
+.global-dock .panel-tab-button + .panel-tab-button::before {
+  position: absolute;
+  z-index: 1;
+  top: 0;
+  right: 10px;
+  left: 10px;
+  height: 1px;
+  content: "";
+  background: rgb(100 76 44 / 20%);
+}
+
+.global-dock .panel-tab-button:hover,
+.global-dock .panel-tab-button:focus-visible,
+.global-dock .panel-tab-button.is-active {
+  color: #332919;
+  background: transparent;
+}
+
+.global-dock .panel-tab-button:focus-visible {
+  outline: 0;
+  box-shadow: none;
+}
+
+.global-dock .panel-tab-button:hover .panel-tab-surface {
+  background-color: rgb(255 250 235 / 18%);
+  box-shadow: none;
+}
+
+.global-dock .panel-tab-button:focus-visible .panel-tab-surface {
+  background-color: rgb(255 250 235 / 22%);
+  box-shadow: inset 0 0 0 2px var(--focus-ring);
+}
+
+.global-dock .panel-tab-button.is-active .panel-tab-surface,
+.global-dock.is-sheet-open .panel-tab-button.is-active .panel-tab-surface {
+  background-color: rgb(255 250 235 / 32%);
+  box-shadow: inset 0 1px rgb(255 252 239 / 30%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .global-dock .panel-tab-button,
+  .global-dock .panel-tab-label {
+    transition: none;
+  }
+}

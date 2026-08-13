@@ -1,9 +1,12 @@
 "use client";
 
-import { useDraggable } from "@dnd-kit/core";
-import { CSS } from "@dnd-kit/utilities";
 import { EyeOff, Vote } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import type {
+  ButtonHTMLAttributes,
+  CSSProperties,
+  ReactNode,
+  Ref,
+} from "react";
 
 import { CharacterToken } from "@/components/grimoire/character-token";
 import { EmptyCharacterState } from "@/components/grimoire/empty-character-state";
@@ -11,162 +14,118 @@ import {
   PlayerPresenceDot,
   type PlayerPresenceStatus,
 } from "@/components/grimoire/player-presence-dot";
-import { Input } from "@/components/ui/input";
-import { roleById } from "@/lib/game-data";
-import type { Seat } from "@/lib/game-data/types";
+import type { PlayerTokenViewModel } from "@/components/grimoire/player-token-model";
 import type { ReminderLabelSide } from "@/lib/reminder-layout";
 import { cn } from "@/lib/utils";
 
-export function PlayerToken({
-  seat,
-  selected,
-  tokenSize,
-  labelSide,
-  redacted,
-  readOnly = false,
-  publicView = false,
-  isOwnSeat = false,
-  presenceStatus,
-  onSelect,
-  onRename,
-}: {
-  seat: Seat;
+type PlayerTokenViewProps = {
+  model: PlayerTokenViewModel;
   selected: boolean;
   tokenSize: number;
   labelSide: ReminderLabelSide;
   redacted: boolean;
-  readOnly?: boolean;
-  publicView?: boolean;
+  variant: "storyteller" | "public";
   isOwnSeat?: boolean;
   presenceStatus?: PlayerPresenceStatus;
-  onSelect: () => void;
-  onRename: (playerName: string) => void;
-}) {
-  const role = seat.roleId ? roleById.get(seat.roleId) : null;
-  const visibleRole =
-    role && !redacted && (!publicView || isOwnSeat) ? role : null;
+  readOnly?: boolean;
+  isDragging?: boolean;
+  transform?: string;
+  containerRef?: Ref<HTMLDivElement>;
+  buttonProps?: Omit<
+    ButtonHTMLAttributes<HTMLButtonElement>,
+    "children" | "className" | "disabled" | "style" | "type"
+  >;
+  onSelect?: () => void;
+  nameControl: ReactNode;
+};
+
+export function PlayerTokenView({
+  model,
+  selected,
+  tokenSize,
+  labelSide,
+  redacted,
+  variant,
+  isOwnSeat = false,
+  presenceStatus,
+  readOnly = false,
+  isDragging = false,
+  transform,
+  containerRef,
+  buttonProps,
+  onSelect,
+  nameControl,
+}: PlayerTokenViewProps) {
+  const publicView = variant === "public";
+  const visibleRole = !redacted ? model.role : null;
   const interactionsDisabled = redacted || readOnly;
-  const [editingName, setEditingName] = useState(false);
-  const [draftName, setDraftName] = useState(seat.playerName);
-  const nameInputRef = useRef<HTMLInputElement>(null);
-  const { attributes, listeners, setNodeRef, transform, isDragging } =
-    useDraggable({
-      id: `player:${seat.id}`,
-      disabled: interactionsDisabled,
-    });
-
-  useEffect(() => {
-    if (!editingName) setDraftName(seat.playerName);
-  }, [editingName, seat.playerName]);
-
-  useEffect(() => {
-    if (!editingName) return;
-    nameInputRef.current?.focus();
-    nameInputRef.current?.select();
-  }, [editingName]);
-
-  function finishEditing() {
-    const nextName = draftName.trim();
-    if (nextName && nextName !== seat.playerName) onRename(nextName);
-    if (!nextName) setDraftName(seat.playerName);
-    setEditingName(false);
-  }
+  const containerStyle: CSSProperties = {
+    width: tokenSize,
+    height: tokenSize,
+    transform,
+  };
 
   return (
     <div
-      ref={setNodeRef}
+      ref={containerRef}
       className={cn(
         "player-token-cluster",
-        visibleRole && !redacted && `team-${visibleRole.team}`,
+        visibleRole && `team-${visibleRole.team}`,
         `player-name-${labelSide}`,
         readOnly && "is-read-only",
         isDragging && "is-dragging",
       )}
-      style={{
-        width: tokenSize,
-        height: tokenSize,
-        transform: CSS.Translate.toString(transform),
-      }}
+      style={containerStyle}
     >
       <button
         type="button"
         className={cn(
           "player-token tactile-action tactile-surface",
-          !redacted &&
-            (!publicView || isOwnSeat) &&
-            `alignment-${seat.alignment}`,
-          !redacted && seat.isTraveller && "is-traveller",
+          !redacted && model.alignment && `alignment-${model.alignment}`,
+          !redacted && model.isTraveller && "is-traveller",
           publicView && "is-public",
           publicView && isOwnSeat && "is-own-seat",
-          publicView && !seat.claimedByPlayer && "is-open-seat",
+          publicView && !model.claimedByPlayer && "is-open-seat",
           readOnly && "is-read-only",
           selected && "is-selected",
-          !seat.alive && "is-dead",
+          !model.alive && "is-dead",
           redacted && "is-redacted",
         )}
-        style={{
-          width: tokenSize,
-          height: tokenSize,
-        }}
+        style={{ width: tokenSize, height: tokenSize }}
         onClick={(event) => {
           event.stopPropagation();
-          if (interactionsDisabled) return;
-          onSelect();
+          if (!interactionsDisabled) onSelect?.();
         }}
         disabled={interactionsDisabled}
-        aria-label={
-          publicView
-            ? seat.claimedByPlayer
-              ? `${seat.playerName}, ${presenceStatus === "online" ? "Online" : "Disconnected"}`
-              : `Seat ${seat.seatIndex + 1}, Open`
-            : redacted
-              ? `${seat.playerName}, Character Hidden`
-              : undefined
-        }
-        {...listeners}
-        {...attributes}
+        aria-label={getTokenAriaLabel({
+          model,
+          publicView,
+          redacted,
+          presenceStatus,
+        })}
+        {...buttonProps}
       >
-        {publicView ? (
-          redacted && seat.claimedByPlayer ? (
-            <span className="redacted-role-token" aria-hidden="true">
-              <EyeOff />
-              <span>Hidden</span>
-            </span>
-          ) : visibleRole ? (
-            <CharacterToken role={visibleRole} size="fill" appearance="bare" />
-          ) : seat.claimedByPlayer ? (
-            <EmptyCharacterState variant="unassigned" />
-          ) : (
-            <span className="public-open-seat" aria-hidden="true">
-              <strong>{seat.seatIndex + 1}</strong>
-              <span>Open</span>
-            </span>
-          )
-        ) : redacted ? (
-          <span className="redacted-role-token" aria-hidden="true">
-            <EyeOff />
-            <span>Hidden</span>
-          </span>
-        ) : role ? (
-          <CharacterToken role={role} size="fill" appearance="bare" />
-        ) : (
-          <EmptyCharacterState variant="assignable" />
-        )}
-        {!seat.alive && <span className="death-overlay" aria-label="Dead" />}
-        {!seat.alive && (
+        <PlayerTokenFace
+          model={model}
+          visibleRole={visibleRole}
+          publicView={publicView}
+          redacted={redacted}
+        />
+        {!model.alive && <span className="death-overlay" aria-label="Dead" />}
+        {!model.alive && (
           <span
             className={cn(
               "ghost-vote-badge",
-              !seat.ghostVoteAvailable && "is-used",
+              !model.ghostVoteAvailable && "is-used",
             )}
             role="status"
             aria-label={
-              seat.ghostVoteAvailable
+              model.ghostVoteAvailable
                 ? "Ghost Vote Available"
                 : "Ghost Vote Used"
             }
             title={
-              seat.ghostVoteAvailable
+              model.ghostVoteAvailable
                 ? "Ghost Vote Available"
                 : "Ghost Vote Used"
             }
@@ -177,54 +136,81 @@ export function PlayerToken({
         )}
       </button>
       <div className="player-name-label">
-        {redacted || readOnly ? (
-          <span className="player-name-line">
-            <span className="player-name-static">
-              {publicView && !seat.claimedByPlayer
-                ? `Seat ${seat.seatIndex + 1}`
-                : seat.playerName}
-            </span>
-            {presenceStatus && <PlayerPresenceDot status={presenceStatus} />}
-          </span>
-        ) : editingName ? (
-          <Input
-            ref={nameInputRef}
-            variant="inline"
-            className="player-name-input"
-            value={draftName}
-            maxLength={40}
-            aria-label={`Rename ${seat.playerName}`}
-            onChange={(event) => setDraftName(event.target.value)}
-            onBlur={finishEditing}
-            onClick={(event) => event.stopPropagation()}
-            onKeyDown={(event) => {
-              if (event.key === "Enter") event.currentTarget.blur();
-              if (event.key === "Escape") {
-                setDraftName(seat.playerName);
-                setEditingName(false);
-              }
-            }}
-            onPointerDown={(event) => event.stopPropagation()}
-          />
-        ) : (
-          <span className="player-name-line">
-            <button
-              type="button"
-              aria-label={`Rename ${seat.playerName}`}
-              onClick={(event) => {
-                event.stopPropagation();
-                onSelect();
-                setEditingName(true);
-              }}
-              onPointerDown={(event) => event.stopPropagation()}
-            >
-              {seat.playerName}
-            </button>
-            {presenceStatus && <PlayerPresenceDot status={presenceStatus} />}
-          </span>
-        )}
-        {visibleRole && !redacted && <small>{visibleRole.name}</small>}
+        {nameControl}
+        {visibleRole && <small>{visibleRole.name}</small>}
       </div>
     </div>
   );
+}
+
+export function StaticPlayerTokenName({
+  name,
+  presenceStatus,
+}: {
+  name: string;
+  presenceStatus?: PlayerPresenceStatus;
+}) {
+  return (
+    <span className="player-name-line">
+      <span className="player-name-static">{name}</span>
+      {presenceStatus && <PlayerPresenceDot status={presenceStatus} />}
+    </span>
+  );
+}
+
+function PlayerTokenFace({
+  model,
+  visibleRole,
+  publicView,
+  redacted,
+}: {
+  model: PlayerTokenViewModel;
+  visibleRole: PlayerTokenViewModel["role"];
+  publicView: boolean;
+  redacted: boolean;
+}) {
+  if (redacted && (!publicView || model.claimedByPlayer)) {
+    return (
+      <span className="redacted-role-token" aria-hidden="true">
+        <EyeOff />
+        <span>Hidden</span>
+      </span>
+    );
+  }
+
+  if (visibleRole) {
+    return <CharacterToken role={visibleRole} size="fill" appearance="bare" />;
+  }
+
+  if (!publicView) return <EmptyCharacterState variant="assignable" />;
+  if (model.claimedByPlayer) {
+    return <EmptyCharacterState variant="unassigned" />;
+  }
+
+  return (
+    <span className="public-open-seat" aria-hidden="true">
+      <strong>{model.seatIndex + 1}</strong>
+      <span>Open</span>
+    </span>
+  );
+}
+
+function getTokenAriaLabel({
+  model,
+  publicView,
+  redacted,
+  presenceStatus,
+}: {
+  model: PlayerTokenViewModel;
+  publicView: boolean;
+  redacted: boolean;
+  presenceStatus?: PlayerPresenceStatus;
+}) {
+  if (publicView) {
+    return model.claimedByPlayer
+      ? `${model.playerName}, ${presenceStatus === "online" ? "Online" : "Disconnected"}`
+      : `Seat ${model.seatIndex + 1}, Open`;
+  }
+
+  return redacted ? `${model.playerName}, Character Hidden` : undefined;
 }

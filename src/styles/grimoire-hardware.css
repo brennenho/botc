@@ -1,0 +1,461 @@
+/* Grimoire hardware */
+
+.storyteller-shell.is-sheet-pinned {
+  --active-grimoire-sheet-width: var(--grimoire-pinned-sheet-width);
+}
+
+.storyteller-shell img {
+  -webkit-user-drag: none;
+  user-select: none;
+}
+
+.storyteller-shell
+  :is(.player-token, .reminder-token-trigger, .bluff-slot)
+  :is(img, svg) {
+  pointer-events: none;
+}
+
+.player-name-top .player-name-label {
+  top: auto;
+  bottom: calc(100% + 6px);
+}
+
+.toolbar-brand .edition-mark {
+  width: 38px;
+  height: 40px;
+}
+
+.toolbar-brand .edition-mark img {
+  width: 36px;
+  height: 40px;
+}
+
+.toolbar-brand .utility-label,
+.join-code-control .utility-label {
+  color: var(--grimoire-hardware-muted);
+  letter-spacing: 0;
+}
+
+.join-code-control:hover {
+  background-color: var(--grimoire-hardware-surface-hover);
+  box-shadow: var(--grimoire-hardware-shadow), var(--shadow-control-hover);
+}
+
+.join-code-control:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+.storyteller-shell.is-sheet-pinned .grimoire-workspace {
+  width: calc(100% - var(--grimoire-pinned-sheet-width));
+}
+
+.storyteller-shell.is-sheet-pinned :is(.join-code-control, .toolbar-status) {
+  right: calc(var(--grimoire-pinned-sheet-width) + 30px);
+}
+
+.board-bluff-rack {
+  position: absolute;
+  right: 30px;
+  bottom: 30px;
+  z-index: 54;
+  display: flex;
+  width: 140px;
+  box-sizing: border-box;
+  align-items: center;
+  flex-direction: column;
+  gap: 7px;
+  padding: 9px 10px 10px;
+  border-radius: var(--grimoire-hardware-radius);
+}
+
+.board-setup-warning {
+  position: absolute;
+  bottom: 30px;
+  left: 30px;
+  z-index: 54;
+  display: flex;
+  width: 230px;
+  min-height: 52px;
+  box-sizing: border-box;
+  flex-direction: column;
+  gap: 8px;
+  padding: 9px 10px 10px;
+  border-radius: var(--grimoire-hardware-radius);
+  pointer-events: none;
+}
+
+.board-setup-warning-header {
+  display: flex;
+  min-height: 18px;
+  align-items: center;
+  gap: 7px;
+}
+
+.board-setup-warning-header > svg {
+  width: 15px;
+  height: 15px;
+  flex: 0 0 15px;
+  color: var(--grimoire-hardware-accent);
+  stroke-width: 1.7;
+}
+
+.board-setup-warning .utility-label {
+  color: var(--grimoire-hardware-muted);
+  font-size: var(--text-caption);
+}
+
+.board-setup-warning-tokens {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: start;
+  gap: 7px 5px;
+}
+
+.board-setup-warning-token {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  flex-direction: column;
+  gap: 4px;
+  color: var(--grimoire-hardware-text);
+  font-size: 8px;
+  font-weight: 600;
+  line-height: 1.1;
+  text-align: center;
+}
+
+.board-setup-warning-token > span:last-child {
+  display: -webkit-box;
+  width: 100%;
+  min-height: 18px;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.board-bluff-rack .bluff-rack-label {
+  align-self: flex-start;
+  color: var(--grimoire-hardware-muted);
+}
+
+.board-bluff-rack .bluff-slots {
+  width: 100%;
+  justify-content: space-between;
+}
+
+.board-bluff-rack .bluff-slot {
+  --tactile-shadow-rest:
+    inset 0 1px rgb(255 252 239 / 46%), 0 1px 2px rgb(58 38 17 / 12%);
+  --tactile-shadow-hover:
+    inset 0 1px rgb(255 252 239 / 52%), 0 3px 6px rgb(58 38 17 / 15%);
+
+  width: 34px;
+  height: 34px;
+  border-color: rgb(91 68 38 / 42%);
+  color: rgb(72 55 32 / 58%);
+  background-color: rgb(248 236 207 / 46%);
+  background-image: url("/assets/grimoire-parchment.png");
+  background-position: center;
+  background-size: 120px auto;
+  background-blend-mode: multiply;
+  box-shadow: var(--tactile-shadow-rest);
+}
+
+.board-bluff-rack .bluff-slot:focus-visible {
+  outline: 0;
+  outline-offset: 2px;
+}
+
+.board-bluff-rack .bluff-slot.has-role {
+  border-color: var(--grimoire-hardware-border-strong);
+  background: transparent;
+}
+
+.token-clear-button {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  z-index: 1;
+  border-radius: 50%;
+  color: rgb(114 47 52 / 56%);
+  background: transparent;
+  box-shadow: none;
+  opacity: 0;
+  pointer-events: none;
+  transform: scale(0.82);
+  transition:
+    color 120ms ease,
+    background-color 120ms ease,
+    opacity 120ms ease,
+    transform 120ms ease;
+}
+
+.board-bluff-rack .bluff-slot-control:hover .bluff-slot-clear,
+.board-bluff-rack .bluff-slot-control:focus-within .bluff-slot-clear,
+.reminder-token-control:hover .reminder-token-clear,
+.reminder-token-control:focus-within .reminder-token-clear,
+.reminder-token-control.is-selected .reminder-token-clear {
+  background: rgb(245 234 207 / 94%);
+  box-shadow: 0 1px 3px rgb(55 36 17 / 18%);
+  opacity: 1;
+  pointer-events: auto;
+  transform: scale(1);
+}
+
+.token-clear-button:hover,
+.token-clear-button:focus-visible {
+  color: var(--oxblood);
+  background: rgb(239 220 190 / 98%);
+}
+
+.player-token {
+  --player-token-border-color: var(--good);
+  --tactile-shadow-rest: 0 3px 5px rgb(49 31 12 / 16%);
+  --tactile-shadow-hover: 0 4px 8px rgb(49 31 12 / 20%);
+  --tactile-shadow-active: 0 2px 5px rgb(49 31 12 / 18%);
+
+  position: relative;
+  z-index: 12;
+  display: grid;
+  overflow: visible;
+  place-items: center;
+  padding: 1px;
+  touch-action: none;
+  border: 1px solid var(--player-token-border-color);
+  border-radius: 50%;
+  outline: none;
+  cursor: grab;
+  background-color: #c8b995;
+  background-image: url("/assets/grimoire-parchment.png");
+  background-position: center;
+  background-size: 150px auto;
+  background-blend-mode: multiply;
+  box-shadow: var(--tactile-shadow-rest);
+  transition:
+    border-color var(--motion-standard) ease,
+    box-shadow var(--motion-fast) ease,
+    filter var(--motion-fast) ease,
+    transform var(--motion-fast) var(--ease-out);
+}
+
+.player-token.alignment-good {
+  --player-token-border-color: var(--good);
+}
+
+.player-token.alignment-evil {
+  --player-token-border-color: var(--evil);
+}
+
+.player-token.is-traveller {
+  border-style: dashed;
+}
+
+.player-token:active {
+  cursor: grabbing;
+}
+
+.player-token.is-selected {
+  --tactile-shadow-rest: 0 3px 6px rgb(49 31 12 / 21%);
+  --tactile-shadow-hover: 0 5px 9px rgb(49 31 12 / 23%);
+
+  box-shadow: var(--tactile-shadow-rest);
+}
+
+.player-token.is-redacted {
+  --player-token-border-color: rgb(82 68 47 / 42%);
+
+  cursor: default;
+}
+
+.player-token.is-redacted:hover,
+.player-token.is-redacted:focus-visible {
+  box-shadow: var(--tactile-shadow-rest);
+  filter: none;
+  transform: none;
+}
+
+:is(.storyteller-shell, .player-reveal-screen) .role-artwork {
+  box-shadow: inset 0 0 12px rgb(91 72 45 / 8%);
+  background-position: center;
+  background-size:
+    100% 100%,
+    150px auto;
+  background-blend-mode: soft-light, multiply;
+}
+
+:is(.storyteller-shell, .player-reveal-screen) .role-artwork.team-townsfolk {
+  background-color: #dbe4df;
+  background-image:
+    radial-gradient(
+      circle at 36% 28%,
+      rgb(255 253 242 / 74%) 0%,
+      rgb(245 241 220 / 18%) 53%,
+      rgb(112 148 157 / 18%) 100%
+    ),
+    url("/assets/grimoire-parchment.png");
+}
+
+:is(.storyteller-shell, .player-reveal-screen) .role-artwork.team-outsider {
+  background-color: #e0dce4;
+  background-image:
+    radial-gradient(
+      circle at 36% 28%,
+      rgb(255 253 242 / 72%) 0%,
+      rgb(244 237 219 / 17%) 53%,
+      rgb(132 112 151 / 17%) 100%
+    ),
+    url("/assets/grimoire-parchment.png");
+}
+
+:is(.storyteller-shell, .player-reveal-screen) .role-artwork.team-minion {
+  background-color: #e5dad3;
+  background-image:
+    radial-gradient(
+      circle at 36% 28%,
+      rgb(255 250 238 / 70%) 0%,
+      rgb(243 232 211 / 16%) 53%,
+      rgb(151 95 87 / 17%) 100%
+    ),
+    url("/assets/grimoire-parchment.png");
+}
+
+:is(.storyteller-shell, .player-reveal-screen) .role-artwork.team-demon {
+  background-color: #e3d5d0;
+  background-image:
+    radial-gradient(
+      circle at 36% 28%,
+      rgb(255 249 237 / 68%) 0%,
+      rgb(242 229 208 / 15%) 53%,
+      rgb(151 79 78 / 19%) 100%
+    ),
+    url("/assets/grimoire-parchment.png");
+}
+
+:is(.storyteller-shell, .player-reveal-screen) .role-artwork.team-traveller {
+  background-color: #ded8ca;
+  background-image:
+    radial-gradient(
+      circle at 36% 28%,
+      rgb(255 253 242 / 72%) 0%,
+      rgb(244 238 220 / 17%) 53%,
+      rgb(132 116 81 / 16%) 100%
+    ),
+    url("/assets/grimoire-parchment.png");
+}
+
+:is(.storyteller-shell, .player-reveal-screen) .role-artwork::after {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  border-radius: 50%;
+  content: "";
+  background-image: url("/assets/grimoire-parchment.png");
+  background-position: center;
+  background-size: 150px auto;
+  mix-blend-mode: multiply;
+  opacity: 0.1;
+  pointer-events: none;
+}
+
+.player-name-label {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 50%;
+  z-index: 22;
+  display: flex;
+  min-width: 104px;
+  max-width: 124px;
+  overflow: visible;
+  align-items: center;
+  flex-direction: column;
+  gap: 1px;
+  padding: 0;
+  border: 0;
+  color: #30271c;
+  background: transparent;
+  box-shadow: none;
+  line-height: 1.08;
+  text-align: center;
+  text-shadow: 0 1px rgb(255 250 236 / 72%);
+  transform: translateX(-50%);
+  white-space: nowrap;
+  pointer-events: auto;
+}
+
+.player-name-label button,
+.player-name-label .player-name-static,
+.player-name-label input {
+  max-width: 124px;
+  overflow: hidden;
+  padding: 1px 3px 2px;
+  border: 0;
+  border-bottom: 1px solid transparent;
+  border-radius: 0;
+  outline: 0;
+  color: #30271c;
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 720;
+  line-height: 1.15;
+  text-align: center;
+  text-overflow: ellipsis;
+  text-shadow: 0 1px rgb(255 250 236 / 72%);
+  white-space: nowrap;
+}
+
+.player-name-label .player-name-static {
+  display: block;
+}
+
+.player-name-input {
+  border: 0;
+  border-bottom: 1px solid #7b4b3e;
+  border-radius: 0;
+  outline: 0;
+  color: #30271c;
+  background: rgb(248 238 210 / 62%);
+  font-size: 13px;
+  font-weight: 720;
+  line-height: 1.15;
+}
+
+.player-name-label button {
+  width: auto;
+  background: transparent;
+  cursor: text;
+}
+
+.player-name-label button:hover,
+.player-name-label button:focus-visible {
+  border-bottom-color: rgb(85 60 31 / 46%);
+}
+
+.player-name-label input {
+  width: 124px;
+  border-bottom-color: #7b4b3e;
+  background: rgb(248 238 210 / 62%);
+}
+
+.player-name-label small {
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 560;
+}
+
+.player-token-cluster.team-townsfolk .player-name-label small {
+  color: #36596a;
+}
+.player-token-cluster.team-outsider .player-name-label small {
+  color: #5c4c73;
+}
+.player-token-cluster.team-minion .player-name-label small {
+  color: #77423f;
+}
+.player-token-cluster.team-demon .player-name-label small {
+  color: #7d3033;
+}
+.player-token-cluster.team-traveller .player-name-label small {
+  color: #685c3d;
+}

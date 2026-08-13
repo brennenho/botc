@@ -15,7 +15,7 @@ import { useEffect, useRef, useState, type CSSProperties } from "react";
 
 import { DraggableReminderToken } from "@/components/storyteller/draggable-reminder-token";
 import { PlayerContextMenu } from "@/components/storyteller/player-context-menu";
-import { PlayerToken } from "@/components/grimoire/player-token";
+import { StorytellerPlayerToken } from "@/components/grimoire/storyteller-player-token";
 import type {
   Alignment,
   EditionId,
@@ -419,7 +419,7 @@ export function GrimoireBoard({
                 }`}
                 style={{ left: `${position.x}%`, top: `${position.y}%` }}
               >
-                <PlayerToken
+                <StorytellerPlayerToken
                   seat={seat}
                   selected={!redacted && selectedSeatId === seat.id}
                   tokenSize={tokenSize}

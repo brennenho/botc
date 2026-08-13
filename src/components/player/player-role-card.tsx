@@ -38,34 +38,30 @@ export function PlayerRoleCard({
         )}
       </div>
 
-      <div className="player-private-role-content">
-        <div className="player-private-role-summary">
-          <div className="player-private-role-copy">
-            <span className="utility-label">
-              {redacted ? "Privacy Mode" : "Your Character"}
-            </span>
-            <strong>
-              {redacted ? "Screen Redacted" : (role?.name ?? "Not Assigned")}
-            </strong>
-            {!redacted && role ? (
-              <span className="player-private-role-meta">
-                {teamLabel(role.team)} ·{" "}
-                {seat.alignment === "good" ? "Good" : "Evil"}
-              </span>
-            ) : null}
-          </div>
-
-          {!redacted ? <PlayerStatus seat={seat} /> : null}
-        </div>
-
-        <p className="player-private-role-ability">
-          {redacted
-            ? "Your private game information is hidden."
-            : role
-              ? role.ability
-              : "Waiting for the Storyteller to assign your character."}
-        </p>
+      <div className="player-private-role-copy">
+        <span className="utility-label">
+          {redacted ? "Privacy Mode" : "Your Character"}
+        </span>
+        <strong>
+          {redacted ? "Screen Redacted" : (role?.name ?? "Not Assigned")}
+        </strong>
+        {!redacted && role ? (
+          <span className="player-private-role-meta">
+            {teamLabel(role.team)} ·{" "}
+            {seat.alignment === "good" ? "Good" : "Evil"}
+          </span>
+        ) : null}
       </div>
+
+      {!redacted ? <PlayerStatus seat={seat} /> : null}
+
+      <p className="player-private-role-ability">
+        {redacted
+          ? "Your private game information is hidden."
+          : role
+            ? role.ability
+            : "Waiting for the Storyteller to assign your character."}
+      </p>
     </aside>
   );
 }
