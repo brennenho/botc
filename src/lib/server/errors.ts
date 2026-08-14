@@ -1,5 +1,4 @@
 export type GameStoreErrorCode =
-  | "archived"
   | "conflict"
   | "invalid_input"
   | "no_open_seats"
@@ -27,7 +26,6 @@ const databaseErrorMap: ReadonlyArray<
   readonly [marker: string, code: GameStoreErrorCode, message: string]
 > = [
   ["BOTC_GAME_NOT_FOUND", "not_found", "Game not found."],
-  ["BOTC_GAME_ARCHIVED", "archived", "This game has ended."],
   ["BOTC_UNAUTHORIZED", "unauthorized", "That game credential is invalid."],
   [
     "BOTC_VERSION_CONFLICT",

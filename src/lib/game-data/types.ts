@@ -4,8 +4,7 @@ export type EditionId = "tb" | "bmr" | "snv";
 export type Team = "townsfolk" | "outsider" | "minion" | "demon" | "traveller";
 export type ResidentTeam = Exclude<Team, "traveller">;
 export type Alignment = "good" | "evil";
-export type Phase = "setup" | "day" | "night" | "finished";
-export type GameStatus = "active" | "archived";
+export type Phase = "setup" | "day" | "night";
 
 export type Role = {
   id: string;
@@ -49,7 +48,6 @@ export type NightOrderEntry = {
 export type Game = {
   joinCode: string;
   edition: EditionId;
-  status: GameStatus;
   phase: Phase;
   dayNumber: number;
   version: number;
@@ -103,7 +101,6 @@ export type StorytellerSnapshot = {
 export type StorytellerPatch = {
   phase?: Phase;
   dayNumber?: number;
-  status?: GameStatus;
   seats?: Seat[];
   gameTokens?: GameToken[];
 };
@@ -113,10 +110,7 @@ export type VersionedStorytellerPatch = StorytellerPatch & {
 };
 
 export type PlayerSnapshot = {
-  game: Pick<
-    Game,
-    "joinCode" | "edition" | "status" | "phase" | "dayNumber" | "version"
-  >;
+  game: Pick<Game, "joinCode" | "edition" | "phase" | "dayNumber" | "version">;
   seat: Seat;
   seats: PlayerSeatView[];
 };

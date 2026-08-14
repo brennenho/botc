@@ -42,7 +42,6 @@ async function findExistingPlayer(joinCode: string, playerName: string) {
         cookie.value,
       );
       if (
-        snapshot.game.status === "active" &&
         snapshot.seat.playerName.trim().toLocaleLowerCase() === normalizedName
       ) {
         return { credential: cookie.value, seatId, snapshot };

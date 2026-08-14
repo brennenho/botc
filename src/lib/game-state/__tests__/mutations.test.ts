@@ -31,7 +31,6 @@ import {
 const game: Game = {
   joinCode: "ABC123",
   edition: "tb",
-  status: "active",
   phase: "setup",
   dayNumber: 1,
   version: 1,
