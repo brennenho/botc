@@ -15,55 +15,12 @@
   background-size: cover;
 }
 
-.player-board-camera {
-  width: 100% !important;
-  height: 100% !important;
-  cursor: grab;
-  touch-action: none;
-}
-
-.player-board-camera:active {
-  cursor: grabbing;
-}
-
-.player-board-camera-content {
-  display: block !important;
-}
-
 .player-grimoire-canvas {
-  flex: 0 0 auto;
   background: transparent;
   box-shadow: none;
 }
 
-.player-board-controls {
-  position: absolute;
-  z-index: 56;
-  right: 30px;
-  bottom: 30px;
-  display: flex;
-  align-items: center;
-  padding: 3px;
-  border: 1px solid var(--grimoire-hardware-border);
-  border-radius: var(--grimoire-hardware-radius);
-  color: var(--grimoire-hardware-text);
-  background: var(--grimoire-hardware-surface);
-  box-shadow: var(--grimoire-hardware-shadow);
-  backdrop-filter: blur(8px) saturate(0.82);
-  -webkit-backdrop-filter: blur(8px) saturate(0.82);
-}
-
-.player-board-controls button {
-  color: var(--grimoire-hardware-text);
-}
-
-.player-board-controls svg {
-  width: 15px;
-  height: 15px;
-  stroke-width: 1.7;
-}
-
-.player-board-camera .player-token-cluster.is-read-only {
+.player-grimoire-canvas .player-token-cluster.is-read-only {
   pointer-events: none;
   touch-action: none;
 }
@@ -126,20 +83,23 @@
 }
 
 .player-presence-dot {
-  display: inline-block;
+  position: relative;
+  display: inline-flex;
   width: 6px;
   height: 6px;
   flex: 0 0 6px;
+  align-items: center;
+  justify-content: center;
   border-radius: 50%;
   transform: translateY(1px);
 }
 
 .player-presence-dot.is-online {
-  background: #39875a;
+  color: #39875a;
 }
 
 .player-presence-dot.is-offline {
-  background: #b33f38;
+  color: #b33f38;
 }
 
 .player-private-role {
@@ -293,11 +253,6 @@
     min-height: 0;
     height: auto;
     overflow: hidden;
-  }
-
-  .player-board-controls {
-    right: 12px;
-    bottom: 12px;
   }
 
   .player-private-role {
@@ -460,14 +415,36 @@
 }
 
 @media (orientation: landscape) and (max-height: 500px) and (min-width: 701px) {
+  .player-grimoire-shell {
+    display: grid;
+    grid-template-rows: minmax(0, 1fr) auto;
+  }
+
+  .player-grimoire-shell .grimoire-workspace {
+    min-height: 0;
+    height: auto;
+    overflow: hidden;
+  }
+
   .player-private-role {
-    bottom: 18px;
-    left: 18px;
-    width: min(400px, calc(100vw - 36px));
+    position: relative;
+    right: auto;
+    bottom: auto;
+    left: auto;
+    width: 100%;
     min-height: 0;
     grid-template-columns: 48px minmax(0, 1fr) auto;
     gap: 4px 10px;
-    padding: 9px 11px;
+    padding: 9px max(14px, env(safe-area-inset-right))
+      max(9px, env(safe-area-inset-bottom))
+      max(14px, env(safe-area-inset-left));
+    border-right: 0;
+    border-bottom: 0;
+    border-left: 0;
+    border-radius: 0;
+    box-shadow:
+      inset 0 1px rgb(255 252 239 / 44%),
+      0 -5px 18px rgb(58 38 17 / 13%);
   }
 
   .player-private-role-token-slot,

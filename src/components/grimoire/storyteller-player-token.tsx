@@ -23,6 +23,7 @@ export function StorytellerPlayerToken({
   tokenSize,
   labelSide,
   redacted,
+  positionLocked = false,
   presenceStatus,
   onSelect,
   onRename,
@@ -32,6 +33,7 @@ export function StorytellerPlayerToken({
   tokenSize: number;
   labelSide: ReminderLabelSide;
   redacted: boolean;
+  positionLocked?: boolean;
   presenceStatus?: PlayerPresenceStatus;
   onSelect: () => void;
   onRename: (playerName: string) => void;
@@ -43,7 +45,7 @@ export function StorytellerPlayerToken({
   const { attributes, listeners, setNodeRef, transform, isDragging } =
     useDraggable({
       id: `player:${seat.id}`,
-      disabled: redacted,
+      disabled: redacted || positionLocked,
     });
 
   useEffect(() => {
@@ -75,7 +77,7 @@ export function StorytellerPlayerToken({
       isDragging={isDragging}
       transform={CSS.Translate.toString(transform)}
       containerRef={setNodeRef}
-      buttonProps={{ ...listeners, ...attributes }}
+      buttonProps={positionLocked ? undefined : { ...listeners, ...attributes }}
       onSelect={onSelect}
       nameControl={
         redacted ? (

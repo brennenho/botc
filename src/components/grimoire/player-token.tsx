@@ -39,6 +39,10 @@ type PlayerTokenViewProps = {
   nameControl: ReactNode;
 };
 
+type PlayerTokenContainerStyle = CSSProperties & {
+  "--player-token-size": string;
+};
+
 export function PlayerTokenView({
   model,
   selected,
@@ -59,7 +63,8 @@ export function PlayerTokenView({
   const publicView = variant === "public";
   const visibleRole = !redacted ? model.role : null;
   const interactionsDisabled = redacted || readOnly;
-  const containerStyle: CSSProperties = {
+  const containerStyle: PlayerTokenContainerStyle = {
+    "--player-token-size": `${tokenSize}px`,
     width: tokenSize,
     height: tokenSize,
     transform,

@@ -21,6 +21,7 @@ export function DraggableReminderToken({
   playerName,
   size,
   selected,
+  positionLocked = false,
   onSelect,
   onRemove,
 }: {
@@ -28,6 +29,7 @@ export function DraggableReminderToken({
   playerName: string;
   size: number;
   selected: boolean;
+  positionLocked?: boolean;
   onSelect: () => void;
   onRemove: () => void;
 }) {
@@ -37,6 +39,7 @@ export function DraggableReminderToken({
   const { attributes, listeners, setNodeRef, transform, isDragging } =
     useDraggable({
       id: `reminder:${reminder.id}`,
+      disabled: positionLocked,
     });
   const [tooltipOpen, setTooltipOpen] = useState(false);
 
@@ -62,8 +65,8 @@ export function DraggableReminderToken({
             event.stopPropagation();
             onSelect();
           }}
-          {...listeners}
-          {...attributes}
+          {...(positionLocked ? {} : listeners)}
+          {...(positionLocked ? {} : attributes)}
         >
           <ReminderToken
             label={reminder.label}
