@@ -4,7 +4,6 @@ import type {
   Alignment,
   EditionId,
   Game,
-  GameStatus,
   GameToken,
   Phase,
   PlayerSnapshot,
@@ -38,7 +37,6 @@ type GameRow = {
   id: string;
   join_code: string;
   edition: EditionId;
-  status: GameStatus;
   phase: Phase;
   day_number: number;
   version: number;
@@ -94,7 +92,7 @@ export type JoinedGame = {
 };
 
 const gameColumns =
-  "id, join_code, edition, status, phase, day_number, version, storyteller_token_hash, created_at, updated_at";
+  "id, join_code, edition, phase, day_number, version, storyteller_token_hash, created_at, updated_at";
 const seatColumns =
   "id, game_id, seat_index, player_name, player_token_hash, role_id, alignment, alive, ghost_vote_available, is_traveller, joined_at";
 const tokenColumns =
@@ -105,7 +103,6 @@ function toStoredGame(row: GameRow): StoredGame {
     id: row.id,
     joinCode: row.join_code,
     edition: row.edition,
-    status: row.status,
     phase: row.phase,
     dayNumber: row.day_number,
     version: row.version,
@@ -148,7 +145,6 @@ function publicGame(game: StoredGame): Game {
   return {
     joinCode: game.joinCode,
     edition: game.edition,
-    status: game.status,
     phase: game.phase,
     dayNumber: game.dayNumber,
     version: game.version,
@@ -161,7 +157,6 @@ function playerGame(game: StoredGame): PlayerSnapshot["game"] {
   return {
     joinCode: game.joinCode,
     edition: game.edition,
-    status: game.status,
     phase: game.phase,
     dayNumber: game.dayNumber,
     version: game.version,
@@ -377,9 +372,6 @@ export async function getPlayerSnapshotByCode(
   const seat = seats.find((candidate) => candidate.id === seatId);
   if (!seat) throw new GameStoreError("not_found", "Game or seat not found.");
   assertCredential(seat.playerTokenHash, credential, "Player");
-  if (game.status !== "active") {
-    throw new GameStoreError("archived", "This game has ended.");
-  }
 
   const positionTokens = await loadTokens(game.id, "custom");
   return {
@@ -428,7 +420,6 @@ export async function updateStorytellerGameByCode(
     p_join_code: normalizedCode,
     p_phase: patch.phase ?? null,
     p_seats: seatPayload ?? null,
-    p_status: patch.status ?? null,
     p_storyteller_token_hash: hashToken(credential),
   })) as RpcResult;
 

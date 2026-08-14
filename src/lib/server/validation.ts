@@ -58,9 +58,8 @@ export const storytellerPatchSchema = z
   .object({
     code: gameCode,
     expectedVersion: z.number().int().positive(),
-    phase: z.enum(["setup", "day", "night", "finished"]).optional(),
+    phase: z.enum(["setup", "day", "night"]).optional(),
     dayNumber: z.number().int().positive().optional(),
-    status: z.enum(["active", "archived"]).optional(),
     seats: z.array(mutableSeat).max(20).optional(),
     gameTokens: z.array(mutableToken).max(250).optional(),
   })

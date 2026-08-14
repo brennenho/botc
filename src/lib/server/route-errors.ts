@@ -4,7 +4,6 @@ import { ZodError } from "zod";
 import { GameStoreError } from "@/lib/server/errors";
 
 const statusByCode = {
-  archived: 410,
   conflict: 409,
   invalid_input: 400,
   no_open_seats: 409,

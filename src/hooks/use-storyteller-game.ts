@@ -25,7 +25,6 @@ function applyPatch(
       ...snapshot.game,
       phase: patch.phase ?? snapshot.game.phase,
       dayNumber: patch.dayNumber ?? snapshot.game.dayNumber,
-      status: patch.status ?? snapshot.game.status,
       version: snapshot.game.version + 1,
     },
     seats: patch.seats ?? snapshot.seats,

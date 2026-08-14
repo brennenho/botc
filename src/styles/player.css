@@ -127,14 +127,11 @@
 
 .player-presence-dot {
   display: inline-block;
-  width: 10px;
-  height: 10px;
-  flex: 0 0 10px;
-  border: 1.5px solid rgb(255 250 235 / 82%);
+  width: 6px;
+  height: 6px;
+  flex: 0 0 6px;
   border-radius: 50%;
-  box-shadow:
-    0 0 0 1px rgb(78 58 35 / 16%),
-    0 1px 3px rgb(55 36 17 / 22%);
+  transform: translateY(1px);
 }
 
 .player-presence-dot.is-online {
