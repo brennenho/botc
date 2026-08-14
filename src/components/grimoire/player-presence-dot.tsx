@@ -15,7 +15,7 @@ export function PlayerPresenceDot({
     <span
       className={cn(
         "player-presence-dot",
-        status === "online" && "is-online animate-pulse",
+        status === "online" && "is-online motion-safe:animate-pulse",
         status === "offline" && "is-offline",
         className,
       )}
