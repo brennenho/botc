@@ -1,6 +1,6 @@
 "use client";
 
-import { CircleSlash2 } from "lucide-react";
+import { notFound } from "next/navigation";
 import { useState } from "react";
 
 import { GrimoireToolbar } from "@/components/grimoire/grimoire-toolbar";
@@ -23,17 +23,7 @@ export function PlayerApp({
   const [redacted, setRedacted] = useState(false);
 
   if (loading) return <PlayerLoading />;
-  if (error || !snapshot) {
-    return (
-      <main className="home-surface grid min-h-svh place-items-center px-6 text-center">
-        <div>
-          <CircleSlash2 className="mx-auto mb-4 size-7 text-black/40" />
-          <p className="font-display text-2xl">This Seat Is Unavailable</p>
-          <p className="mt-2 text-sm text-black/50">{error}</p>
-        </div>
-      </main>
-    );
-  }
+  if (error || !snapshot) notFound();
 
   const role = snapshot.seat.roleId ? roleById.get(snapshot.seat.roleId) : null;
 
