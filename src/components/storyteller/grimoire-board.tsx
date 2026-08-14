@@ -11,7 +11,7 @@ import {
   type DragMoveEvent,
   type DragStartEvent,
 } from "@dnd-kit/core";
-import { useEffect, useRef, useState, type CSSProperties } from "react";
+import { useRef, useState, type CSSProperties } from "react";
 
 import { DraggableReminderToken } from "@/components/storyteller/draggable-reminder-token";
 import { PlayerContextMenu } from "@/components/storyteller/player-context-menu";
@@ -39,6 +39,10 @@ import {
 } from "@/lib/reminder-layout";
 import type { ReminderDefinition } from "@/lib/reminders";
 import { getPlayerMenuPlacement } from "@/lib/player-menu-layout";
+import { useTownCircleLayout } from "@/hooks/use-town-circle-layout";
+import { cn } from "@/lib/utils";
+
+const STORYTELLER_BOARD_INSETS = { top: 94, right: 0, bottom: 20, left: 0 };
 
 export function GrimoireBoard({
   editionId,
@@ -93,12 +97,20 @@ export function GrimoireBoard({
     seatId?: string,
   ) => void;
 }) {
-  const tokenSize = getGrimoirePlayerTokenSize(seats.length);
-  const reminderSize = Math.max(60, Math.min(72, tokenSize * 0.64));
+  const boardRef = useRef<HTMLDivElement>(null);
+  const { boardSize, compact, layout } = useTownCircleLayout(
+    boardRef,
+    seats.length,
+    STORYTELLER_BOARD_INSETS,
+  );
+  const tokenSize = compact
+    ? layout.tokenSize
+    : getGrimoirePlayerTokenSize(seats.length);
+  const reminderSize = compact
+    ? Math.max(38, Math.min(54, tokenSize * 0.72))
+    : Math.max(60, Math.min(72, tokenSize * 0.64));
   const reminderClearance = Math.max(10, tokenSize * 0.1);
   const reminderGap = Math.max(6, reminderSize * 0.1);
-  const boardRef = useRef<HTMLDivElement>(null);
-  const [boardSize, setBoardSize] = useState({ width: 1000, height: 700 });
   const [activeId, setActiveId] = useState<string | null>(null);
   const [dragDelta, setDragDelta] = useState({ x: 0, y: 0 });
   const sensors = useSensors(
@@ -108,24 +120,22 @@ export function GrimoireBoard({
     }),
   );
 
-  useEffect(() => {
-    const board = boardRef.current;
-    if (!board) return;
-    const updateSize = () => {
-      const rect = board.getBoundingClientRect();
-      setBoardSize({ width: rect.width, height: rect.height });
-    };
-    updateSize();
-    const observer = new ResizeObserver(updateSize);
-    observer.observe(board);
-    return () => observer.disconnect();
-  }, []);
-
+  const seatLayoutIndexes = new Map(
+    [...seats]
+      .sort((a, b) => a.seatIndex - b.seatIndex)
+      .map((seat, index) => [seat.id, index]),
+  );
   const playerPositions = new Map(
-    seats.map((seat, index) => [
-      seat.id,
-      getPlayerPosition(gameTokens, seat.id, index, seats.length),
-    ]),
+    seats.map((seat, index) => {
+      const compactPosition =
+        layout.positions[seatLayoutIndexes.get(seat.id) ?? index];
+      return [
+        seat.id,
+        compact && compactPosition
+          ? compactPosition
+          : getPlayerPosition(gameTokens, seat.id, index, seats.length),
+      ];
+    }),
   );
   const activeReminderId = activeId?.startsWith("reminder:")
     ? activeId.slice("reminder:".length)
@@ -168,7 +178,10 @@ export function GrimoireBoard({
     : gameTokens.filter((token) => token.tokenType === "reminder");
   const anchoredRemindersBySeat = new Map<string, GameToken[]>();
   for (const reminder of reminders) {
-    if (!reminder.seatId || readReminderPlacement(reminder).mode !== "anchored")
+    if (
+      !reminder.seatId ||
+      (!compact && readReminderPlacement(reminder).mode !== "anchored")
+    )
       continue;
     const existing = anchoredRemindersBySeat.get(reminder.seatId) ?? [];
     existing.push(reminder);
@@ -186,7 +199,7 @@ export function GrimoireBoard({
   const reminderPositions = new Map<string, CanvasPosition>();
 
   for (const reminder of reminders) {
-    const manualPosition = getReminderPosition(reminder);
+    const manualPosition = compact ? null : getReminderPosition(reminder);
     if (manualPosition) {
       reminderPositions.set(reminder.id, manualPosition);
       continue;
@@ -397,7 +410,8 @@ export function GrimoireBoard({
       <div className="grimoire-frame">
         <div
           ref={boardRef}
-          className="grimoire-board"
+          className={cn("grimoire-board", compact && "is-compact-layout")}
+          data-layout-density={compact ? layout.density : undefined}
           onClick={(event) => {
             if (event.target === event.currentTarget) onClearSelection();
           }}
@@ -425,6 +439,7 @@ export function GrimoireBoard({
                   tokenSize={tokenSize}
                   labelSide={playerLabelSides.get(seat.id) ?? "bottom"}
                   redacted={redacted}
+                  positionLocked={compact}
                   presenceStatus={
                     seat.claimedByPlayer
                       ? onlineSeatIds.has(seat.id)
@@ -467,6 +482,7 @@ export function GrimoireBoard({
                   playerName={seat.playerName}
                   size={reminderSize}
                   selected={selectedReminderId === reminder.id}
+                  positionLocked={compact}
                   onSelect={() => onSelectReminder(reminder.id)}
                   onRemove={() => onRemoveReminder(reminder.id)}
                 />

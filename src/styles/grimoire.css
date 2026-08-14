@@ -181,6 +181,44 @@
   z-index: 24;
 }
 
+.grimoire-board.is-compact-layout .canvas-player-position,
+.grimoire-board.is-compact-layout .canvas-reminder-position {
+  transition:
+    left 180ms var(--ease-out),
+    top 180ms var(--ease-out);
+}
+
+.grimoire-board.is-compact-layout .player-name-label {
+  width: max-content;
+  min-width: 0;
+  max-width: clamp(66px, calc(var(--player-token-size) * 1.35), 104px);
+}
+
+.grimoire-board.is-compact-layout
+  .player-name-label
+  :is(button, .player-name-static, input) {
+  max-width: inherit;
+  font-size: clamp(9px, calc(var(--player-token-size) * 0.15), 12px);
+}
+
+.grimoire-board.is-compact-layout .player-name-label small {
+  font-size: clamp(8px, calc(var(--player-token-size) * 0.13), 11px);
+}
+
+.grimoire-board[data-layout-density="dense"] .player-name-label {
+  gap: 0;
+}
+
+.grimoire-board[data-layout-density="dense"]
+  .player-name-label
+  :is(button, .player-name-static, input) {
+  font-size: 9px;
+}
+
+.grimoire-board[data-layout-density="dense"] .player-name-label small {
+  font-size: 8px;
+}
+
 .canvas-player-position.is-dragging,
 .canvas-reminder-position.is-dragging {
   z-index: 80;
