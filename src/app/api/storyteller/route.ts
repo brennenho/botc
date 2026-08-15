@@ -2,7 +2,10 @@ import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
 import { storytellerCookieName } from "@/lib/server/auth-cookies";
-import { gameRouteError } from "@/lib/server/route-errors";
+import {
+  gameRouteError,
+  privateResponseHeaders,
+} from "@/lib/server/route-errors";
 import {
   getStorytellerSnapshotByCode,
   updateStorytellerGameByCode,
@@ -25,7 +28,7 @@ export async function GET(request: Request) {
       await getCredential(gameCode),
     );
 
-    return NextResponse.json({ snapshot });
+    return NextResponse.json({ snapshot }, { headers: privateResponseHeaders });
   } catch (error) {
     return gameRouteError(error, "Unable to load storyteller game.");
   }
@@ -42,7 +45,7 @@ export async function PATCH(request: Request) {
       patch,
     );
 
-    return NextResponse.json({ snapshot });
+    return NextResponse.json({ snapshot }, { headers: privateResponseHeaders });
   } catch (error) {
     return gameRouteError(error, "Unable to update game.");
   }

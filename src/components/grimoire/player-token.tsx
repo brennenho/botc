@@ -217,5 +217,7 @@ function getTokenAriaLabel({
       : `Seat ${model.seatIndex + 1}, Open`;
   }
 
-  return redacted ? `${model.playerName}, Character Hidden` : undefined;
+  if (redacted) return `${model.playerName}, Character Hidden`;
+
+  return `${model.playerName}, ${model.role?.name ?? "Character not assigned"}. Open player controls`;
 }

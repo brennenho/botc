@@ -48,6 +48,7 @@ foreign-key cascades.
 
 ## Development
 
+- Node.js 20.9 or newer
 - `pnpm install`
 - `pnpm dev`
 
@@ -56,6 +57,7 @@ foreign-key cascades.
 - `pnpm check`
 - `pnpm test`
 - `pnpm build`
+- `pnpm audit --prod`
 - `pnpm supabase:lint` with the local Supabase stack running
 
 ## Assets

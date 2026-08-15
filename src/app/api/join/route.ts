@@ -5,12 +5,25 @@ import {
   playerCookieName,
   setCredentialCookie,
 } from "@/lib/server/auth-cookies";
-import { gameRouteError } from "@/lib/server/route-errors";
+import { takeRequestRateLimit } from "@/lib/server/rate-limit";
+import {
+  gameRouteError,
+  privateResponseHeaders,
+  rateLimitResponse,
+} from "@/lib/server/route-errors";
 import { getPlayerSnapshotByCode, joinGame } from "@/lib/server/store";
 import { joinGameSchema } from "@/lib/server/validation";
 
 export async function POST(request: Request) {
   try {
+    const rateLimit = takeRequestRateLimit(request, "games:join", {
+      limit: 60,
+      windowMs: 10 * 60 * 1_000,
+    });
+    if (!rateLimit.allowed) {
+      return rateLimitResponse(rateLimit.retryAfterSeconds);
+    }
+
     const input = joinGameSchema.parse(await request.json());
     const existingPlayer = await findExistingPlayer(
       input.joinCode,
@@ -55,10 +68,13 @@ async function findExistingPlayer(joinCode: string, playerName: string) {
 }
 
 function createJoinResponse(joined: Awaited<ReturnType<typeof joinGame>>) {
-  const response = NextResponse.json({
-    seatId: joined.seatId,
-    snapshot: joined.snapshot,
-  });
+  const response = NextResponse.json(
+    {
+      seatId: joined.seatId,
+      snapshot: joined.snapshot,
+    },
+    { headers: privateResponseHeaders },
+  );
 
   setCredentialCookie(
     response,

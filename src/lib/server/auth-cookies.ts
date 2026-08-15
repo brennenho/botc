@@ -3,6 +3,8 @@ import type { NextResponse } from "next/server";
 import { env } from "@/env";
 import { normalizeGameCode } from "@/lib/game-code";
 
+const GAME_RETENTION_SECONDS = 60 * 60 * 24 * 7;
+
 export function storytellerCookieName(gameCode: string) {
   return `botc_st_${normalizeGameCode(gameCode)}`;
 }
@@ -23,5 +25,6 @@ export function setCredentialCookie(
     sameSite: "lax",
     secure: env.NODE_ENV === "production",
     path: "/",
+    maxAge: GAME_RETENTION_SECONDS,
   });
 }

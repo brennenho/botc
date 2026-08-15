@@ -428,7 +428,13 @@ export function StorytellerApp({ gameCode }: { gameCode: string }) {
 function GrimoireLoading() {
   return (
     <main className="grimoire-error-screen">
-      <div className="size-6 animate-spin rounded-full border-2 border-white/15 border-t-[var(--brass)]" />
+      <div role="status" aria-live="polite">
+        <div
+          className="size-6 animate-spin rounded-full border-2 border-white/15 border-t-[var(--brass)]"
+          aria-hidden="true"
+        />
+        <span className="sr-only">Opening grimoire</span>
+      </div>
     </main>
   );
 }

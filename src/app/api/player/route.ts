@@ -2,7 +2,10 @@ import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
 import { playerCookieName } from "@/lib/server/auth-cookies";
-import { gameRouteError } from "@/lib/server/route-errors";
+import {
+  gameRouteError,
+  privateResponseHeaders,
+} from "@/lib/server/route-errors";
 import { getPlayerSnapshotByCode } from "@/lib/server/store";
 import { gameCodeSchema, seatIdSchema } from "@/lib/server/validation";
 
@@ -19,7 +22,7 @@ export async function GET(request: Request) {
       credential,
     );
 
-    return NextResponse.json({ snapshot });
+    return NextResponse.json({ snapshot }, { headers: privateResponseHeaders });
   } catch (error) {
     return gameRouteError(error, "Unable to load player.");
   }

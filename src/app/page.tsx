@@ -187,10 +187,13 @@ export default function HomePage() {
                     onChange={(event) => {
                       const count = event.currentTarget.valueAsNumber;
                       if (Number.isNaN(count)) return;
-                      setPlayerCount(
-                        Math.min(20, Math.max(5, Math.round(count))),
-                      );
+                      setPlayerCount(Math.round(count));
                     }}
+                    onBlur={() =>
+                      setPlayerCount((count) =>
+                        Math.min(20, Math.max(5, count)),
+                      )
+                    }
                   />
                   <IconButton
                     label="Add a Player"
@@ -209,7 +212,7 @@ export default function HomePage() {
                 size="lg"
                 className="entry-open-button"
                 onClick={handleCreate}
-                disabled={busy}
+                disabled={busy || playerCount < 5 || playerCount > 20}
               >
                 {busy ? "Opening..." : "Open Grimoire"}
                 <ArrowRight aria-hidden="true" />
@@ -235,10 +238,17 @@ export default function HomePage() {
                 <Input
                   value={joinCode}
                   onChange={(event) =>
-                    setJoinCode(event.target.value.toUpperCase().slice(0, 6))
+                    setJoinCode(
+                      event.target.value
+                        .toUpperCase()
+                        .replace(/[^A-HJ-NP-Z2-9]/g, "")
+                        .slice(0, 6),
+                    )
                   }
                   placeholder="ABC123"
                   className="entry-code-input"
+                  minLength={6}
+                  maxLength={6}
                   autoComplete="off"
                   autoCapitalize="characters"
                   spellCheck={false}
@@ -258,7 +268,7 @@ export default function HomePage() {
               <Button
                 type="submit"
                 size="lg"
-                disabled={busy || joinCode.length < 4 || !playerName.trim()}
+                disabled={busy || joinCode.length !== 6 || !playerName.trim()}
               >
                 {busy ? "Joining..." : "Join Game"}
                 <ArrowRight aria-hidden="true" />

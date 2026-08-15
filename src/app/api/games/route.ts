@@ -4,15 +4,31 @@ import {
   setCredentialCookie,
   storytellerCookieName,
 } from "@/lib/server/auth-cookies";
-import { gameRouteError } from "@/lib/server/route-errors";
+import { takeRequestRateLimit } from "@/lib/server/rate-limit";
+import {
+  gameRouteError,
+  privateResponseHeaders,
+  rateLimitResponse,
+} from "@/lib/server/route-errors";
 import { createGame } from "@/lib/server/store";
 import { createGameSchema } from "@/lib/server/validation";
 
 export async function POST(request: Request) {
   try {
+    const rateLimit = takeRequestRateLimit(request, "games:create", {
+      limit: 12,
+      windowMs: 10 * 60 * 1_000,
+    });
+    if (!rateLimit.allowed) {
+      return rateLimitResponse(rateLimit.retryAfterSeconds);
+    }
+
     const input = createGameSchema.parse(await request.json());
     const game = await createGame(input.edition, input.playerCount);
-    const response = NextResponse.json({ snapshot: game.snapshot });
+    const response = NextResponse.json(
+      { snapshot: game.snapshot },
+      { headers: privateResponseHeaders },
+    );
 
     setCredentialCookie(
       response,
