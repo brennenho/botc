@@ -2,6 +2,7 @@
 
 import { Pin } from "lucide-react";
 
+import { CharacterSheet } from "@/components/character-sheet/character-sheet";
 import { NightOrderPanel } from "@/components/storyteller/night-order-sheet";
 import { PlayerRevealPanel } from "@/components/storyteller/player-reveal-panel";
 import { RosterPanel } from "@/components/storyteller/roster-sheet";
@@ -14,7 +15,7 @@ import type { ReminderDefinition } from "@/lib/reminders";
 import type { NightRevealAction, PlayerReveal } from "@/lib/player-reveal";
 import { cn } from "@/lib/utils";
 
-export type GrimoirePanel = "players" | "night" | "info" | null;
+export type GrimoirePanel = "players" | "night" | "info" | "script" | null;
 
 export function GrimoireSideSheet({
   panel,
@@ -72,7 +73,9 @@ export function GrimoireSideSheet({
       ? "Night Order"
       : panel === "info"
         ? "Player Information"
-        : "Players";
+        : panel === "script"
+          ? "Character Sheet"
+          : "Players";
 
   return (
     <Sheet
@@ -134,6 +137,9 @@ export function GrimoireSideSheet({
           onReveal={onReveal}
           onChooseRole={onChooseRevealRole}
         />
+      </div>
+      <div className="sheet-panel" hidden={panel !== "script"}>
+        <CharacterSheet editionId={editionId} />
       </div>
     </Sheet>
   );

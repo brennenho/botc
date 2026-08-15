@@ -864,7 +864,7 @@
   padding: 0;
 }
 
-.storyteller-dock.global-dock {
+.grimoire-panel-tabs.global-dock {
   --panel-tab-width: 36px;
   --panel-tab-height: 88px;
   --panel-tab-content-gap: 10px;

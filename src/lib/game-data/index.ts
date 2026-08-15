@@ -8,6 +8,10 @@ export {
   roles,
   teamLabel,
 } from "./catalog";
+export {
+  characterSheetTeams,
+  getCharacterSheetDefinition,
+} from "./character-sheet";
 export { getNightOrder, getNightOrderEntries } from "./night-order";
 export { canCreateRandomSetup, createRandomSetup } from "./random-setup";
 export {
@@ -31,3 +35,7 @@ export type {
   Team,
   TeamCounts,
 } from "./types";
+export type {
+  CharacterSheetDefinition,
+  CharacterSheetGroup,
+} from "./character-sheet";
