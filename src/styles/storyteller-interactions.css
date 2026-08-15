@@ -1020,6 +1020,27 @@
   box-shadow: inset 0 1px rgb(255 252 239 / 30%);
 }
 
+@media (orientation: landscape) and (max-height: 500px) {
+  .storyteller-shell:not(.player-grimoire-shell)
+    .grimoire-panel-tabs.global-dock {
+    --panel-tab-height: min(70px, calc((100svh - 32px) / 4));
+    --panel-tab-content-gap: 4px;
+
+    bottom: 16px;
+  }
+
+  .storyteller-shell:not(.player-grimoire-shell)
+    .global-dock
+    .panel-tab-surface {
+    padding: 6px 4px;
+  }
+
+  .storyteller-shell:not(.player-grimoire-shell) .board-bluff-rack {
+    right: 44px;
+    bottom: 16px;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .global-dock .panel-tab-button,
   .global-dock .panel-tab-label {

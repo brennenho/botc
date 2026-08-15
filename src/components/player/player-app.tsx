@@ -1,7 +1,6 @@
 "use client";
 
-import { BookOpen } from "lucide-react";
-import { notFound } from "next/navigation";
+import { AlertCircle, BookOpen, RotateCcw } from "lucide-react";
 import { useState } from "react";
 
 import { CharacterSheet } from "@/components/character-sheet/character-sheet";
@@ -9,6 +8,7 @@ import { GrimoirePanelTabs } from "@/components/grimoire/grimoire-panel-tabs";
 import { GrimoireToolbar } from "@/components/grimoire/grimoire-toolbar";
 import { PlayerRoleCard } from "@/components/player/player-role-card";
 import { ReadOnlyGrimoireBoard } from "@/components/player/read-only-grimoire-board";
+import { Button } from "@/components/ui/button";
 import { Sheet } from "@/components/ui/sheet";
 import { useGamePresence } from "@/hooks/use-game-presence";
 import { usePlayerGame } from "@/hooks/use-player-game";
@@ -22,13 +22,15 @@ export function PlayerApp({
   gameCode: string;
   seatId: string;
 }) {
-  const { snapshot, loading, error } = usePlayerGame(gameCode, seatId);
+  const { snapshot, loading, error, refresh } = usePlayerGame(gameCode, seatId);
   const onlineSeatIds = useGamePresence(gameCode, seatId);
   const [redacted, setRedacted] = useState(false);
   const [scriptOpen, setScriptOpen] = useState(false);
 
   if (loading) return <PlayerLoading />;
-  if (error || !snapshot) notFound();
+  if (error || !snapshot) {
+    return <PlayerError message={error} onRetry={() => void refresh()} />;
+  }
 
   const role = snapshot.seat.roleId ? roleById.get(snapshot.seat.roleId) : null;
 
@@ -98,7 +100,44 @@ export function PlayerApp({
 function PlayerLoading() {
   return (
     <main className="home-surface grid min-h-svh place-items-center">
-      <div className="size-6 animate-spin rounded-full border-2 border-black/15 border-t-black/60" />
+      <div role="status" aria-live="polite">
+        <div
+          className="size-6 animate-spin rounded-full border-2 border-black/15 border-t-black/60"
+          aria-hidden="true"
+        />
+        <span className="sr-only">Loading player grimoire</span>
+      </div>
+    </main>
+  );
+}
+
+function PlayerError({
+  message,
+  onRetry,
+}: {
+  message: string | null;
+  onRetry: () => void;
+}) {
+  return (
+    <main className="grimoire-error-screen">
+      <div>
+        <AlertCircle className="mx-auto mb-4 size-7 text-red-300/80" />
+        <h1 className="font-display text-3xl">Unable to Load Your Game</h1>
+        <p>{message ?? "The player grimoire could not be loaded."}</p>
+        <div className="grimoire-error-actions">
+          <Button variant="secondary" onClick={onRetry}>
+            <RotateCcw className="size-4" />
+            Try Again
+          </Button>
+          <Button
+            className="text-white/60 hover:bg-white/8 hover:text-white"
+            variant="quiet"
+            onClick={() => window.location.assign("/")}
+          >
+            Back Home
+          </Button>
+        </div>
+      </div>
     </main>
   );
 }

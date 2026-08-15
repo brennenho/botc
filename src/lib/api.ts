@@ -6,14 +6,31 @@ import type {
 } from "@/lib/game-data/types";
 
 async function requestJson<T>(url: string, init?: RequestInit): Promise<T> {
-  const response = await fetch(url, {
-    ...init,
-    headers: {
-      "Content-Type": "application/json",
-      ...init?.headers,
-    },
-  });
-  const body = (await response.json()) as T & { error?: string };
+  let response: Response;
+  try {
+    response = await fetch(url, {
+      ...init,
+      headers: {
+        "Content-Type": "application/json",
+        ...init?.headers,
+      },
+    });
+  } catch {
+    throw new Error(
+      "Unable to reach the game server. Check your connection and try again.",
+    );
+  }
+
+  let body: T & { error?: string };
+  try {
+    body = (await response.json()) as T & { error?: string };
+  } catch {
+    throw new Error(
+      response.ok
+        ? "The game server returned an invalid response."
+        : "The game server could not complete the request.",
+    );
+  }
 
   if (!response.ok) {
     throw new Error(body.error ?? "The request could not be completed.");
