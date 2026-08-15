@@ -243,6 +243,7 @@ export function StorytellerApp({ gameCode }: { gameCode: string }) {
           playersOpen={openPanel === "players"}
           nightOpen={openPanel === "night"}
           infoOpen={openPanel === "info"}
+          scriptOpen={openPanel === "script"}
           onOpenPlayers={() => {
             setSelectedSeatId(null);
             setSelectedReminderId(null);
@@ -262,6 +263,12 @@ export function StorytellerApp({ gameCode }: { gameCode: string }) {
             setSelectedReminderId(null);
             setPendingReminder(null);
             setOpenPanel((current) => (current === "info" ? null : "info"));
+          }}
+          onOpenScript={() => {
+            setSelectedSeatId(null);
+            setSelectedReminderId(null);
+            setPendingReminder(null);
+            setOpenPanel((current) => (current === "script" ? null : "script"));
           }}
           onRemoveSelectedReminder={() => {
             if (!selectedReminder) return;

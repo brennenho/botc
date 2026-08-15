@@ -14,8 +14,7 @@ export default function NotFoundPage() {
         <div className="not-found-code" aria-hidden="true">
           404
         </div>
-        <h1 id="not-found-title">Game Not Found</h1>
-        <p>This game doesn’t exist or may have ended.</p>
+        <h1 id="not-found-title">Page Not Found</h1>
         <Link
           href="/"
           className={cn(

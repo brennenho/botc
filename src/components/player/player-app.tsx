@@ -1,11 +1,15 @@
 "use client";
 
+import { BookOpen } from "lucide-react";
 import { notFound } from "next/navigation";
 import { useState } from "react";
 
+import { CharacterSheet } from "@/components/character-sheet/character-sheet";
+import { GrimoirePanelTabs } from "@/components/grimoire/grimoire-panel-tabs";
 import { GrimoireToolbar } from "@/components/grimoire/grimoire-toolbar";
 import { PlayerRoleCard } from "@/components/player/player-role-card";
 import { ReadOnlyGrimoireBoard } from "@/components/player/read-only-grimoire-board";
+import { Sheet } from "@/components/ui/sheet";
 import { useGamePresence } from "@/hooks/use-game-presence";
 import { usePlayerGame } from "@/hooks/use-player-game";
 import { roleById } from "@/lib/game-data";
@@ -21,6 +25,7 @@ export function PlayerApp({
   const { snapshot, loading, error } = usePlayerGame(gameCode, seatId);
   const onlineSeatIds = useGamePresence(gameCode, seatId);
   const [redacted, setRedacted] = useState(false);
+  const [scriptOpen, setScriptOpen] = useState(false);
 
   if (loading) return <PlayerLoading />;
   if (error || !snapshot) notFound();
@@ -38,7 +43,10 @@ export function PlayerApp({
         editionId={snapshot.game.edition}
         joinCode={snapshot.game.joinCode}
         redacted={redacted}
-        onRedactedChange={setRedacted}
+        onRedactedChange={(nextRedacted) => {
+          setRedacted(nextRedacted);
+          if (nextRedacted) setScriptOpen(false);
+        }}
       />
 
       <div className="grimoire-workspace">
@@ -49,6 +57,34 @@ export function PlayerApp({
           redacted={redacted}
         />
       </div>
+
+      {!redacted && (
+        <>
+          <GrimoirePanelTabs
+            sheetOpen={scriptOpen}
+            tabs={[
+              {
+                id: "script",
+                icon: <BookOpen />,
+                label: "Script",
+                active: scriptOpen,
+                onClick: () => setScriptOpen((current) => !current),
+              },
+            ]}
+          />
+          <Sheet
+            open={scriptOpen}
+            onOpenChange={setScriptOpen}
+            title="Character Sheet"
+            modal={false}
+            backdrop={false}
+            disablePointerDismissal
+            className="character-sheet-side-sheet max-[700px]:!w-screen max-[700px]:!max-w-none max-[700px]:!basis-full"
+          >
+            <CharacterSheet editionId={snapshot.game.edition} />
+          </Sheet>
+        </>
+      )}
 
       <PlayerRoleCard
         role={role ?? null}

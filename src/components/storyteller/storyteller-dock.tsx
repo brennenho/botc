@@ -1,7 +1,8 @@
 "use client";
 
-import { Moon, Users, X } from "lucide-react";
+import { BookOpen, Moon, Users, X } from "lucide-react";
 
+import { GrimoirePanelTabs } from "@/components/grimoire/grimoire-panel-tabs";
 import { RevealIcon } from "@/components/storyteller/reveal-icon";
 import { ReminderIcon } from "@/components/storyteller/reminder-icon";
 import { ReminderToken } from "@/components/storyteller/reminder-token";
@@ -19,9 +20,11 @@ export function StorytellerDock({
   playersOpen,
   nightOpen,
   infoOpen,
+  scriptOpen,
   onOpenPlayers,
   onOpenNight,
   onOpenInfo,
+  onOpenScript,
   onRemoveSelectedReminder,
   onCloseSelectedReminder,
   onCancelReminderPlacement,
@@ -32,44 +35,50 @@ export function StorytellerDock({
   playersOpen: boolean;
   nightOpen: boolean;
   infoOpen: boolean;
+  scriptOpen: boolean;
   onOpenPlayers: () => void;
   onOpenNight: () => void;
   onOpenInfo: () => void;
+  onOpenScript: () => void;
   onRemoveSelectedReminder: () => void;
   onCloseSelectedReminder: () => void;
   onCancelReminderPlacement: () => void;
 }) {
   const panelTabs = (
-    <nav
-      className={cn(
-        "storyteller-dock global-dock",
-        (playersOpen || nightOpen || infoOpen) && "is-sheet-open",
-      )}
-      aria-label="Grimoire Panels"
-    >
-      <PanelTabButton
-        tab="players"
-        icon={<Users />}
-        label="Players"
-        active={playersOpen}
-        onClick={onOpenPlayers}
-      />
-      <PanelTabButton
-        tab="night-order"
-        icon={<Moon />}
-        label="Night Order"
-        displayLabel="Night"
-        active={nightOpen}
-        onClick={onOpenNight}
-      />
-      <PanelTabButton
-        tab="info"
-        icon={<RevealIcon />}
-        label="Info"
-        active={infoOpen}
-        onClick={onOpenInfo}
-      />
-    </nav>
+    <GrimoirePanelTabs
+      sheetOpen={playersOpen || nightOpen || infoOpen || scriptOpen}
+      tabs={[
+        {
+          id: "players",
+          icon: <Users />,
+          label: "Players",
+          active: playersOpen,
+          onClick: onOpenPlayers,
+        },
+        {
+          id: "night-order",
+          icon: <Moon />,
+          label: "Night Order",
+          displayLabel: "Night",
+          active: nightOpen,
+          onClick: onOpenNight,
+        },
+        {
+          id: "info",
+          icon: <RevealIcon />,
+          label: "Info",
+          active: infoOpen,
+          onClick: onOpenInfo,
+        },
+        {
+          id: "script",
+          icon: <BookOpen />,
+          label: "Script",
+          active: scriptOpen,
+          onClick: onOpenScript,
+        },
+      ]}
+    />
   );
 
   if (pendingReminder) {
@@ -151,38 +160,4 @@ export function StorytellerDock({
   }
 
   return panelTabs;
-}
-
-function PanelTabButton({
-  tab,
-  icon,
-  label,
-  displayLabel = label,
-  active = false,
-  onClick,
-}: {
-  tab: "players" | "night-order" | "info";
-  icon: React.ReactNode;
-  label: string;
-  displayLabel?: string;
-  active?: boolean;
-  onClick: () => void;
-}) {
-  return (
-    <IconButton
-      label={label}
-      tooltip={false}
-      variant="quiet"
-      focusStyle="surface"
-      aria-pressed={active}
-      className={cn("panel-tab-button", active && "is-active")}
-      data-panel-tab={tab}
-      onClick={onClick}
-    >
-      <span className="panel-tab-surface">
-        <span className="panel-tab-icon">{icon}</span>
-        <span className="panel-tab-label">{displayLabel}</span>
-      </span>
-    </IconButton>
-  );
 }

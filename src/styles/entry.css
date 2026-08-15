@@ -560,13 +560,6 @@
   text-shadow: 0 2px 18px rgb(0 0 0 / 38%);
 }
 
-.not-found-content p {
-  margin: 12px auto 0;
-  color: rgb(241 232 213 / 56%);
-  font-size: 13px;
-  line-height: 1.5;
-}
-
 .not-found-action {
   margin-top: 22px;
   border-color: rgb(199 167 99 / 24%);
