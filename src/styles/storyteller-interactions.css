@@ -902,7 +902,7 @@
   transition: right 200ms cubic-bezier(0.2, 0.75, 0.2, 1);
 }
 
-.storyteller-dock.global-dock.is-sheet-open {
+.grimoire-panel-tabs.global-dock.is-sheet-open {
   right: var(--active-grimoire-sheet-width);
 }
 
