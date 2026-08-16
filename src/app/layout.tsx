@@ -1,6 +1,7 @@
 import "@/styles/globals.css";
 import "@fontsource-variable/commissioner";
 import "@fontsource-variable/fraunces";
+import "@fontsource-variable/fraunces/full-italic.css";
 import "@fontsource/ibm-plex-mono/500.css";
 
 import { type Metadata, type Viewport } from "next";
