@@ -53,6 +53,7 @@ export function GrimoireBoard({
   selectedReminderId,
   placingReminder,
   onlineSeatIds = new Set<string>(),
+  presenceAvailable = false,
   onSelectSeat,
   onSelectReminder,
   onRemoveReminder,
@@ -77,6 +78,7 @@ export function GrimoireBoard({
   selectedReminderId: string | null;
   placingReminder: boolean;
   onlineSeatIds?: ReadonlySet<string>;
+  presenceAvailable?: boolean;
   onSelectSeat: (seatId: string) => void;
   onSelectReminder: (tokenId: string) => void;
   onRemoveReminder: (tokenId: string) => void;
@@ -441,7 +443,7 @@ export function GrimoireBoard({
                   redacted={redacted}
                   positionLocked={compact}
                   presenceStatus={
-                    seat.claimedByPlayer
+                    presenceAvailable && seat.claimedByPlayer
                       ? onlineSeatIds.has(seat.id)
                         ? "online"
                         : "offline"

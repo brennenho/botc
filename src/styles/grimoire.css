@@ -127,10 +127,21 @@
   align-items: center;
   gap: 5px;
   justify-self: end;
-  color: #9a3e39;
+  color: var(--grimoire-hardware-accent);
   font-size: var(--text-caption);
   font-weight: 650;
   pointer-events: none;
+}
+
+.toolbar-status.is-saving {
+  width: 20px;
+  height: 20px;
+  justify-content: center;
+}
+
+.toolbar-status.is-saving .ui-spinner {
+  width: 14px;
+  height: 14px;
 }
 
 .grimoire-workspace {

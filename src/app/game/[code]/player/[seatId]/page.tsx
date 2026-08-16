@@ -18,7 +18,18 @@ export default async function PlayerPage({
     (await cookies()).get(playerCookieName(gameCode, seatId))?.value ?? "";
 
   try {
-    await getPlayerSnapshotByCode(gameCode, seatId, credential);
+    const snapshot = await getPlayerSnapshotByCode(
+      gameCode,
+      seatId,
+      credential,
+    );
+    return (
+      <PlayerApp
+        gameCode={gameCode}
+        seatId={seatId}
+        initialSnapshot={snapshot}
+      />
+    );
   } catch (error) {
     if (
       error instanceof GameStoreError &&
@@ -29,6 +40,4 @@ export default async function PlayerPage({
 
     throw error;
   }
-
-  return <PlayerApp gameCode={gameCode} seatId={seatId} />;
 }

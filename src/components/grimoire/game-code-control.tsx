@@ -3,6 +3,8 @@
 import { Check, Copy } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
+import { notify } from "@/lib/notifications";
+
 export function GameCodeControl({ joinCode }: { joinCode: string }) {
   const [copied, setCopied] = useState(false);
   const copyResetTimeout = useRef<number | null>(null);
@@ -20,6 +22,7 @@ export function GameCodeControl({ joinCode }: { joinCode: string }) {
     try {
       await navigator.clipboard.writeText(joinCode);
       setCopied(true);
+      notify.success("Join code copied", { id: "join-code-copy" });
 
       if (copyResetTimeout.current !== null) {
         window.clearTimeout(copyResetTimeout.current);
@@ -31,6 +34,9 @@ export function GameCodeControl({ joinCode }: { joinCode: string }) {
       }, 1500);
     } catch {
       setCopied(false);
+      notify.error("Couldn’t copy join code", {
+        id: "join-code-copy",
+      });
     }
   }
 
@@ -55,10 +61,6 @@ export function GameCodeControl({ joinCode }: { joinCode: string }) {
           <Copy className="size-3.5" />
         )}
       </button>
-
-      <span className="sr-only" role="status" aria-live="polite">
-        {copied ? "Player Join Code Copied" : ""}
-      </span>
     </>
   );
 }
