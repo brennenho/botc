@@ -11,11 +11,16 @@ type PlayerPresence = {
 };
 
 export function useGamePresence(gameCode: string, ownSeatId?: string) {
+  const [status, setStatus] = useState<
+    "connecting" | "connected" | "unavailable"
+  >("connecting");
   const [onlineSeatIds, setOnlineSeatIds] = useState<ReadonlySet<string>>(
     () => new Set(),
   );
 
   useEffect(() => {
+    setStatus("connecting");
+    setOnlineSeatIds(new Set());
     const supabase = getSupabaseBrowser();
     if (!supabase) return;
 
@@ -44,11 +49,14 @@ export function useGamePresence(gameCode: string, ownSeatId?: string) {
       .subscribe((status) => {
         const statusName = String(status);
 
-        if (statusName === "SUBSCRIBED" && ownSeatId) {
-          void channel.track({
-            seatId: ownSeatId,
-            onlineAt: new Date().toISOString(),
-          } satisfies PlayerPresence);
+        if (statusName === "SUBSCRIBED") {
+          setStatus("connected");
+          if (ownSeatId) {
+            void channel.track({
+              seatId: ownSeatId,
+              onlineAt: new Date().toISOString(),
+            } satisfies PlayerPresence);
+          }
         }
 
         if (
@@ -56,6 +64,7 @@ export function useGamePresence(gameCode: string, ownSeatId?: string) {
           statusName === "TIMED_OUT" ||
           statusName === "CLOSED"
         ) {
+          setStatus("unavailable");
           setOnlineSeatIds(new Set());
         }
       });
@@ -66,5 +75,5 @@ export function useGamePresence(gameCode: string, ownSeatId?: string) {
     };
   }, [gameCode, ownSeatId]);
 
-  return onlineSeatIds;
+  return { status, onlineSeatIds };
 }

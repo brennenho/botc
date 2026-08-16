@@ -7,6 +7,7 @@ import "@fontsource/ibm-plex-mono/500.css";
 import { type Metadata, type Viewport } from "next";
 
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { Toaster } from "@/components/ui/sonner";
 
 export const metadata: Metadata = {
   title: "Blood on the Clocktower",
@@ -35,6 +36,7 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <TooltipProvider>{children}</TooltipProvider>
+        <Toaster />
       </body>
     </html>
   );

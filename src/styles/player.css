@@ -345,54 +345,8 @@
     padding-inline: 6px;
   }
 }
-.save-error {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.save-error-action {
-  height: 26px;
-  gap: 4px;
-  margin-left: 5px;
-  padding: 0 6px;
-  color: white;
-  font-size: 10px;
-  font-weight: 650;
-}
-
 .portrait-notice {
   display: none;
-}
-
-.grimoire-error-screen {
-  display: grid;
-  min-height: 100svh;
-  place-items: center;
-  padding: 24px;
-  color: var(--chalk);
-  background: var(--night-ink);
-  text-align: center;
-}
-
-.grimoire-error-screen h1 {
-  margin: 0;
-  font-size: 30px;
-  font-weight: 510;
-}
-
-.grimoire-error-screen p {
-  margin: 8px 0 0;
-  color: rgb(244 240 230 / 48%);
-  font-size: 13px;
-}
-
-.grimoire-error-actions {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 7px;
-  margin-top: 20px;
 }
 
 @media (orientation: portrait) and (max-width: 900px) {

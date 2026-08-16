@@ -1,8 +1,11 @@
+import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
 
 import { StorytellerApp } from "@/components/storyteller/storyteller-app";
 import { normalizeGameCode } from "@/lib/game-code";
-import { gameExistsByCode } from "@/lib/server/store";
+import { storytellerCookieName } from "@/lib/server/auth-cookies";
+import { GameStoreError } from "@/lib/server/errors";
+import { getStorytellerSnapshotByCode } from "@/lib/server/store";
 
 export default async function StorytellerPage({
   params,
@@ -11,7 +14,20 @@ export default async function StorytellerPage({
 }) {
   const { code } = await params;
   const gameCode = normalizeGameCode(code);
-  if (!(await gameExistsByCode(gameCode))) notFound();
+  const credential =
+    (await cookies()).get(storytellerCookieName(gameCode))?.value ?? "";
 
-  return <StorytellerApp gameCode={gameCode} />;
+  try {
+    const snapshot = await getStorytellerSnapshotByCode(gameCode, credential);
+    return <StorytellerApp gameCode={gameCode} initialSnapshot={snapshot} />;
+  } catch (error) {
+    if (
+      error instanceof GameStoreError &&
+      (error.code === "not_found" || error.code === "unauthorized")
+    ) {
+      notFound();
+    }
+
+    throw error;
+  }
 }

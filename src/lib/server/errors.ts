@@ -1,10 +1,14 @@
-export type GameStoreErrorCode =
+import type { AppErrorCode } from "@/lib/app-error";
+
+export type GameStoreErrorCode = Extract<
+  AppErrorCode,
   | "conflict"
   | "invalid_input"
   | "no_open_seats"
   | "not_found"
   | "unauthorized"
-  | "unavailable";
+  | "unavailable"
+>;
 
 export class GameStoreError extends Error {
   constructor(

@@ -15,11 +15,13 @@ export function ReadOnlyGrimoireBoard({
   seats,
   ownSeat,
   onlineSeatIds,
+  presenceAvailable,
   redacted,
 }: {
   seats: PlayerSeatView[];
   ownSeat: Seat;
   onlineSeatIds: ReadonlySet<string>;
+  presenceAvailable: boolean;
   redacted: boolean;
 }) {
   const orderedSeats = [...seats].sort((a, b) => a.seatIndex - b.seatIndex);
@@ -68,7 +70,7 @@ export function ReadOnlyGrimoireBoard({
                 labelSide={labelSide}
                 redacted={redacted}
                 presenceStatus={
-                  seatView.occupied
+                  presenceAvailable && seatView.occupied
                     ? onlineSeatIds.has(seatView.id)
                       ? "online"
                       : "offline"

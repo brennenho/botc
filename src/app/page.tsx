@@ -18,7 +18,9 @@ import { Button } from "@/components/ui/button";
 import { IconButton } from "@/components/ui/icon-button";
 import { Input } from "@/components/ui/input";
 import { createGame, joinGame } from "@/lib/api";
+import { toAppError } from "@/lib/app-error";
 import { editions, type EditionId } from "@/lib/game-data";
+import { notify } from "@/lib/notifications";
 import { cn } from "@/lib/utils";
 
 type EntryView = "cover" | "storytell" | "join";
@@ -42,40 +44,57 @@ export default function HomePage() {
   const [playerCount, setPlayerCount] = useState(7);
   const [joinCode, setJoinCode] = useState("");
   const [playerName, setPlayerName] = useState("");
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [pendingAction, setPendingAction] = useState<"create" | "join" | null>(
+    null,
+  );
+  const [joinCodeError, setJoinCodeError] = useState<string | null>(null);
+  const [playerNameError, setPlayerNameError] = useState<string | null>(null);
+  const createPending = pendingAction === "create";
+  const joinPending = pendingAction === "join";
 
   function showView(nextView: EntryView) {
+    if (pendingAction) return;
     setView(nextView);
-    setError(null);
+    setJoinCodeError(null);
+    setPlayerNameError(null);
   }
 
   async function handleCreate() {
-    setBusy(true);
-    setError(null);
+    if (pendingAction) return;
+    setPendingAction("create");
     try {
       const result = await createGame(edition, playerCount);
       router.push(`/game/${result.snapshot.game.joinCode}/storyteller`);
     } catch (cause) {
-      setBusy(false);
-      setError(
-        cause instanceof Error ? cause.message : "Unable to create game.",
-      );
+      setPendingAction(null);
+      notify.appError(toAppError(cause, "Unable to create game."));
     }
   }
 
   async function handleJoin(event: React.FormEvent) {
     event.preventDefault();
-    setBusy(true);
-    setError(null);
+    if (pendingAction) return;
+    const codeError =
+      joinCode.length === 6 ? null : "Enter a six-character game code.";
+    const nameError = playerName.trim() ? null : "Enter your name.";
+    setJoinCodeError(codeError);
+    setPlayerNameError(nameError);
+    if (codeError || nameError) return;
+
+    setPendingAction("join");
     try {
       const result = await joinGame(joinCode, playerName);
       router.push(
         `/game/${result.snapshot.game.joinCode}/player/${result.seatId}`,
       );
     } catch (cause) {
-      setBusy(false);
-      setError(cause instanceof Error ? cause.message : "Unable to join game.");
+      setPendingAction(null);
+      const error = toAppError(cause, "Unable to join game.");
+      if (error.code === "not_found") {
+        setJoinCodeError("Game not found. Check the code and try again.");
+      } else {
+        notify.appError(error);
+      }
     }
   }
 
@@ -105,6 +124,7 @@ export default function HomePage() {
                 <button
                   type="button"
                   className="entry-back"
+                  disabled={pendingAction !== null}
                   onClick={() => showView("cover")}
                 >
                   <ArrowLeft aria-hidden="true" />
@@ -173,6 +193,7 @@ export default function HomePage() {
                       <button
                         key={item.id}
                         type="button"
+                        disabled={createPending}
                         aria-pressed={edition === item.id}
                         onClick={() => setEdition(item.id)}
                         className={cn(
@@ -205,7 +226,7 @@ export default function HomePage() {
                           label="Remove a Player"
                           size="sm"
                           variant="quiet"
-                          disabled={playerCount <= 5}
+                          disabled={createPending || playerCount <= 5}
                           onClick={() =>
                             setPlayerCount((count) => Math.max(5, count - 1))
                           }
@@ -220,6 +241,7 @@ export default function HomePage() {
                           aria-label="Player Count"
                           className="entry-player-count-input"
                           value={playerCount}
+                          disabled={createPending}
                           onFocus={(event) => event.currentTarget.select()}
                           onChange={(event) => {
                             const count = event.currentTarget.valueAsNumber;
@@ -236,7 +258,7 @@ export default function HomePage() {
                           label="Add a Player"
                           size="sm"
                           variant="quiet"
-                          disabled={playerCount >= 20}
+                          disabled={createPending || playerCount >= 20}
                           onClick={() =>
                             setPlayerCount((count) => Math.min(20, count + 1))
                           }
@@ -249,9 +271,10 @@ export default function HomePage() {
                       size="lg"
                       className="entry-open-button"
                       onClick={handleCreate}
-                      disabled={busy || playerCount < 5 || playerCount > 20}
+                      pending={createPending}
+                      disabled={playerCount < 5 || playerCount > 20}
                     >
-                      {busy ? "Opening..." : "Open grimoire"}
+                      Open grimoire
                       <ArrowRight aria-hidden="true" />
                     </Button>
                   </div>
@@ -273,16 +296,29 @@ export default function HomePage() {
                       <span>Game code</span>
                       <Input
                         value={joinCode}
-                        onChange={(event) =>
+                        onChange={(event) => {
+                          setJoinCodeError(null);
                           setJoinCode(
                             event.target.value
                               .toUpperCase()
                               .replace(/[^A-HJ-NP-Z2-9]/g, "")
                               .slice(0, 6),
+                          );
+                        }}
+                        onBlur={() =>
+                          setJoinCodeError(
+                            joinCode.length > 0 && joinCode.length !== 6
+                              ? "Enter a six-character game code."
+                              : null,
                           )
                         }
                         placeholder="ABC123"
                         className="entry-code-input"
+                        aria-invalid={joinCodeError ? true : undefined}
+                        aria-describedby={
+                          joinCodeError ? "join-code-error" : undefined
+                        }
+                        disabled={joinPending}
                         minLength={6}
                         maxLength={6}
                         autoComplete="off"
@@ -290,25 +326,55 @@ export default function HomePage() {
                         spellCheck={false}
                         autoFocus
                       />
+                      {joinCodeError ? (
+                        <span
+                          id="join-code-error"
+                          className="entry-field-error"
+                        >
+                          {joinCodeError}
+                        </span>
+                      ) : null}
                     </label>
                     <label>
                       <span>Your name</span>
                       <Input
                         value={playerName}
-                        onChange={(event) => setPlayerName(event.target.value)}
+                        onChange={(event) => {
+                          setPlayerNameError(null);
+                          setPlayerName(event.target.value);
+                        }}
+                        onBlur={() =>
+                          setPlayerNameError(
+                            playerName.length > 0 && !playerName.trim()
+                              ? "Enter your name."
+                              : null,
+                          )
+                        }
                         placeholder="Player name"
+                        aria-invalid={playerNameError ? true : undefined}
+                        aria-describedby={
+                          playerNameError ? "player-name-error" : undefined
+                        }
+                        disabled={joinPending}
                         maxLength={40}
                         autoComplete="name"
                       />
+                      {playerNameError ? (
+                        <span
+                          id="player-name-error"
+                          className="entry-field-error"
+                        >
+                          {playerNameError}
+                        </span>
+                      ) : null}
                     </label>
                     <Button
                       type="submit"
                       size="lg"
-                      disabled={
-                        busy || joinCode.length !== 6 || !playerName.trim()
-                      }
+                      pending={joinPending}
+                      disabled={joinCode.length !== 6 || !playerName.trim()}
                     >
-                      {busy ? "Joining..." : "Join game"}
+                      Join game
                       <ArrowRight aria-hidden="true" />
                     </Button>
                   </form>
@@ -363,12 +429,6 @@ export default function HomePage() {
           </nav>
         </footer>
       </div>
-
-      {error && (
-        <div className="home-error" role="alert">
-          {error}
-        </div>
-      )}
     </main>
   );
 }

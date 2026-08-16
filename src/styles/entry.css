@@ -360,6 +360,11 @@
   color: #3d2e25;
 }
 
+.entry-back:disabled {
+  cursor: default;
+  opacity: 0.45;
+}
+
 .entry-back svg {
   width: 14px;
   height: 14px;
@@ -684,6 +689,21 @@
   font-size: 9px;
   font-weight: 500;
   text-transform: uppercase;
+}
+
+.entry-join-form label > .entry-field-error {
+  margin: 6px 2px 0;
+  color: var(--status-danger);
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 560;
+  line-height: 1.35;
+  text-transform: none;
+}
+
+.entry-join-form input[aria-invalid="true"] {
+  border-color: rgb(143 47 52 / 58%);
+  box-shadow: 0 0 0 2px rgb(143 47 52 / 12%);
 }
 
 .entry-join-form input {
@@ -1339,20 +1359,4 @@
   .entry-character-copy small {
     transition: none;
   }
-}
-
-.home-error,
-.save-error {
-  position: fixed;
-  z-index: 100;
-  bottom: 18px;
-  left: 50%;
-  padding: 10px 14px;
-  border: 1px solid rgb(255 255 255 / 12%);
-  border-radius: var(--grimoire-hardware-radius);
-  color: white;
-  background: #641f25;
-  box-shadow: 0 10px 30px rgb(0 0 0 / 35%);
-  font-size: 12px;
-  transform: translateX(-50%);
 }

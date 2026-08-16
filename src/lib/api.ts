@@ -4,6 +4,28 @@ import type {
   StorytellerSnapshot,
   VersionedStorytellerPatch,
 } from "@/lib/game-data/types";
+import {
+  AppError,
+  isApiErrorPayload,
+  type AppErrorCode,
+} from "@/lib/app-error";
+
+function fallbackCodeForStatus(status: number): AppErrorCode {
+  if (status === 400) return "invalid_input";
+  if (status === 401 || status === 403) return "unauthorized";
+  if (status === 404) return "not_found";
+  if (status === 409) return "conflict";
+  if (status === 429) return "rate_limited";
+  if (status >= 500) return "unavailable";
+  return "unknown";
+}
+
+function retryAfterSeconds(response: Response) {
+  const value = response.headers.get("Retry-After");
+  if (!value) return undefined;
+  const seconds = Number.parseInt(value, 10);
+  return Number.isFinite(seconds) ? seconds : undefined;
+}
 
 async function requestJson<T>(url: string, init?: RequestInit): Promise<T> {
   let response: Response;
@@ -15,28 +37,50 @@ async function requestJson<T>(url: string, init?: RequestInit): Promise<T> {
         ...init?.headers,
       },
     });
-  } catch {
-    throw new Error(
+  } catch (cause) {
+    if (cause instanceof DOMException && cause.name === "AbortError")
+      throw cause;
+    throw new AppError(
+      "network",
       "Unable to reach the game server. Check your connection and try again.",
+      { cause, retryable: true },
     );
   }
 
-  let body: T & { error?: string };
+  let body: unknown;
   try {
-    body = (await response.json()) as T & { error?: string };
-  } catch {
-    throw new Error(
+    body = await response.json();
+  } catch (cause) {
+    throw new AppError(
+      "invalid_response",
       response.ok
         ? "The game server returned an invalid response."
         : "The game server could not complete the request.",
+      { cause, status: response.status, retryable: true },
     );
   }
 
   if (!response.ok) {
-    throw new Error(body.error ?? "The request could not be completed.");
+    if (isApiErrorPayload(body)) {
+      throw new AppError(body.error.code, body.error.message, {
+        status: response.status,
+        retryable: body.error.retryable,
+        retryAfterSeconds: retryAfterSeconds(response),
+      });
+    }
+
+    throw new AppError(
+      fallbackCodeForStatus(response.status),
+      "The request could not be completed.",
+      {
+        status: response.status,
+        retryable: response.status === 429 || response.status >= 500,
+        retryAfterSeconds: retryAfterSeconds(response),
+      },
+    );
   }
 
-  return body;
+  return body as T;
 }
 
 export function createGame(edition: EditionId, playerCount: number) {

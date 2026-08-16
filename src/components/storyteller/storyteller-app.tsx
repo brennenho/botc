@@ -1,6 +1,6 @@
 "use client";
 
-import { AlertCircle, AlertTriangle, RotateCcw } from "lucide-react";
+import { AlertTriangle, RotateCcw } from "lucide-react";
 import { useMemo, useState } from "react";
 
 import { DemonBluffRack } from "@/components/storyteller/demon-bluff-rack";
@@ -14,13 +14,16 @@ import { PlayerRevealScreen } from "@/components/storyteller/player-reveal-scree
 import { ReminderToken } from "@/components/storyteller/reminder-token";
 import { RolePicker } from "@/components/storyteller/role-picker";
 import { StorytellerDock } from "@/components/storyteller/storyteller-dock";
-import { Button } from "@/components/ui/button";
+import { PageError } from "@/components/ui/page-error";
+import { StatusNotice } from "@/components/ui/status-notice";
 import { useGamePresence } from "@/hooks/use-game-presence";
 import { useGrimoireActions } from "@/hooks/use-grimoire-actions";
 import { usePersistedGrimoireSheetPin } from "@/hooks/use-persisted-grimoire-sheet-pin";
 import { usePersistedNightOrderState } from "@/hooks/use-persisted-night-order-state";
 import { useStorytellerGame } from "@/hooks/use-storyteller-game";
+import { isTerminalGameError } from "@/lib/app-error";
 import { getSetupReminderWarnings } from "@/lib/game-data";
+import type { StorytellerSnapshot } from "@/lib/game-data/types";
 import {
   getReminderDefinition,
   type ReminderDefinition,
@@ -38,10 +41,25 @@ type PickerTarget =
   | { type: "reveal"; heading: string }
   | null;
 
-export function StorytellerApp({ gameCode }: { gameCode: string }) {
-  const { snapshot, loading, error, saveState, commit, refresh } =
-    useStorytellerGame(gameCode);
-  const onlineSeatIds = useGamePresence(gameCode);
+export function StorytellerApp({
+  gameCode,
+  initialSnapshot,
+}: {
+  gameCode: string;
+  initialSnapshot: StorytellerSnapshot;
+}) {
+  const {
+    snapshot,
+    refresh,
+    refreshError,
+    isRefreshing,
+    saveState,
+    saveError,
+    commit,
+    recoverSave,
+    dismissSaveError,
+  } = useStorytellerGame(gameCode, initialSnapshot);
+  const presence = useGamePresence(gameCode);
   const [openPanel, setOpenPanel] = useState<GrimoirePanel>(null);
   const [sheetPinned, setSheetPinned] = usePersistedGrimoireSheetPin(gameCode);
   const [nightOrderState, setNightOrderState] =
@@ -72,23 +90,28 @@ export function StorytellerApp({ gameCode }: { gameCode: string }) {
 
   const bluffs = useMemo(
     () =>
-      snapshot?.gameTokens
+      snapshot.gameTokens
         .filter((token) => token.tokenType === "bluff")
-        .sort((a, b) => a.position - b.position) ?? [],
-    [snapshot?.gameTokens],
+        .sort((a, b) => a.position - b.position),
+    [snapshot.gameTokens],
   );
   const selectedReminder = useMemo(
     () =>
-      snapshot?.gameTokens.find(
+      snapshot.gameTokens.find(
         (token) =>
           token.tokenType === "reminder" && token.id === selectedReminderId,
       ) ?? null,
-    [selectedReminderId, snapshot?.gameTokens],
+    [selectedReminderId, snapshot.gameTokens],
   );
 
-  if (loading) return <GrimoireLoading />;
-  if (!snapshot)
-    return <GrimoireError message={error} onRetry={() => void refresh()} />;
+  if (isTerminalGameError(refreshError)) {
+    return (
+      <PageError
+        title="Game unavailable"
+        message="This game may have ended, or this link is no longer valid."
+      />
+    );
+  }
 
   const setupReminderWarnings = getSetupReminderWarnings(
     snapshot.seats,
@@ -167,7 +190,8 @@ export function StorytellerApp({ gameCode }: { gameCode: string }) {
           selectedSeatId={selectedSeatId}
           selectedReminderId={selectedReminderId}
           placingReminder={pendingReminder !== null}
-          onlineSeatIds={onlineSeatIds}
+          onlineSeatIds={presence.onlineSeatIds}
+          presenceAvailable={presence.status === "connected"}
           onSelectSeat={(seatId) => {
             if (!sheetPinned) setOpenPanel(null);
             setSelectedReminderId(null);
@@ -401,70 +425,39 @@ export function StorytellerApp({ gameCode }: { gameCode: string }) {
         </aside>
       )}
 
-      {error && (
-        <div className="save-error" role="alert">
-          <AlertCircle className="size-4" />
-          <span>{error}</span>
-          <Button
-            type="button"
-            size="sm"
-            variant="quiet"
-            className="save-error-action"
-            onClick={() => void refresh()}
-          >
-            <RotateCcw className="size-3.5" />
-            Retry
-          </Button>
+      {(saveError ?? refreshError) && (
+        <div className="status-notice-stack">
+          {saveError ? (
+            <StatusNotice
+              tone="danger"
+              title="Changes weren’t saved"
+              message={
+                saveError.reconciled
+                  ? "The latest saved game is shown."
+                  : "The latest saved game couldn’t be restored."
+              }
+              actionLabel={saveError.reconciled ? undefined : "Reload latest"}
+              actionPending={isRefreshing}
+              onAction={
+                saveError.reconciled ? undefined : () => void recoverSave()
+              }
+              onDismiss={saveError.reconciled ? dismissSaveError : undefined}
+            />
+          ) : refreshError ? (
+            <StatusNotice
+              tone="connection"
+              title="Connection interrupted"
+              message="Showing the latest available game."
+              actionLabel="Retry"
+              actionPending={isRefreshing}
+              onAction={() => void refresh()}
+            />
+          ) : null}
         </div>
       )}
       <div className="portrait-notice">
         <RotateCcw className="size-5" />
         <p>Rotate to landscape for the grimoire.</p>
-      </div>
-    </main>
-  );
-}
-
-function GrimoireLoading() {
-  return (
-    <main className="grimoire-error-screen">
-      <div role="status" aria-live="polite">
-        <div
-          className="size-6 animate-spin rounded-full border-2 border-white/15 border-t-[var(--brass)]"
-          aria-hidden="true"
-        />
-        <span className="sr-only">Opening grimoire</span>
-      </div>
-    </main>
-  );
-}
-
-function GrimoireError({
-  message,
-  onRetry,
-}: {
-  message: string | null;
-  onRetry: () => void;
-}) {
-  return (
-    <main className="grimoire-error-screen">
-      <div>
-        <AlertCircle className="mx-auto mb-4 size-7 text-red-300/80" />
-        <h1 className="font-display text-3xl">Unable to Open This Grimoire</h1>
-        <p>{message}</p>
-        <div className="grimoire-error-actions">
-          <Button variant="secondary" onClick={onRetry}>
-            <RotateCcw className="size-4" />
-            Try Again
-          </Button>
-          <Button
-            className="text-white/60 hover:bg-white/8 hover:text-white"
-            variant="quiet"
-            onClick={() => window.location.assign("/")}
-          >
-            Back Home
-          </Button>
-        </div>
       </div>
     </main>
   );

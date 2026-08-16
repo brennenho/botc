@@ -212,9 +212,9 @@ function getTokenAriaLabel({
   presenceStatus?: PlayerPresenceStatus;
 }) {
   if (publicView) {
-    return model.claimedByPlayer
-      ? `${model.playerName}, ${presenceStatus === "online" ? "Online" : "Disconnected"}`
-      : `Seat ${model.seatIndex + 1}, Open`;
+    if (!model.claimedByPlayer) return `Seat ${model.seatIndex + 1}, Open`;
+    if (!presenceStatus) return model.playerName;
+    return `${model.playerName}, ${presenceStatus === "online" ? "Online" : "Disconnected"}`;
   }
 
   if (redacted) return `${model.playerName}, Character Hidden`;

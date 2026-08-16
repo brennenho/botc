@@ -1,9 +1,10 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 
 import { useGameInvalidation } from "@/hooks/use-game-invalidation";
 import { fetchStorytellerGame, updateStorytellerGame } from "@/lib/api";
+import { toAppError, type AppError } from "@/lib/app-error";
 import type {
   StorytellerPatch,
   StorytellerSnapshot,
@@ -14,6 +15,11 @@ export type StorytellerUpdate =
   | ((snapshot: StorytellerSnapshot) => StorytellerPatch);
 
 export type StorytellerCommit = (update: StorytellerUpdate) => void;
+
+export type StorytellerSaveError = {
+  error: AppError;
+  reconciled: boolean;
+};
 
 function applyPatch(
   snapshot: StorytellerSnapshot,
@@ -36,46 +42,50 @@ function hasChanges(patch: StorytellerPatch) {
   return Object.keys(patch).length > 0;
 }
 
-export function useStorytellerGame(gameCode: string) {
-  const [snapshot, setSnapshot] = useState<StorytellerSnapshot | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [saveState, setSaveState] = useState<"saved" | "saving" | "error">(
-    "saved",
+export function useStorytellerGame(
+  gameCode: string,
+  initialSnapshot: StorytellerSnapshot,
+) {
+  const [snapshot, setSnapshot] = useState(initialSnapshot);
+  const [refreshStatus, setRefreshStatus] = useState<
+    "idle" | "refreshing" | "error"
+  >("idle");
+  const [refreshError, setRefreshError] = useState<AppError | null>(null);
+  const [saveState, setSaveState] = useState<"idle" | "saving" | "error">(
+    "idle",
   );
+  const [saveError, setSaveError] = useState<StorytellerSaveError | null>(null);
   const queueRef = useRef<Promise<void>>(Promise.resolve());
   const pendingRef = useRef(0);
   const refreshQueuedRef = useRef(false);
-  const snapshotRef = useRef<StorytellerSnapshot | null>(null);
-  const serverVersionRef = useRef<number | null>(null);
+  const snapshotRef = useRef<StorytellerSnapshot>(initialSnapshot);
+  const serverVersionRef = useRef(initialSnapshot.game.version);
   const queueFailedRef = useRef(false);
-  const queueFailureMessageRef = useRef<string | null>(null);
+  const queueFailureRef = useRef<AppError | null>(null);
   const requestIdRef = useRef(0);
 
   const refresh = useCallback(async () => {
     const requestId = ++requestIdRef.current;
+    setRefreshStatus("refreshing");
+
     try {
       const result = await fetchStorytellerGame(gameCode);
-      if (requestId === requestIdRef.current && pendingRef.current === 0) {
+      if (requestId !== requestIdRef.current) return false;
+      if (pendingRef.current === 0) {
         serverVersionRef.current = result.snapshot.game.version;
         snapshotRef.current = result.snapshot;
         setSnapshot(result.snapshot);
       }
-      if (requestId === requestIdRef.current) setError(null);
+      setRefreshError(null);
+      setRefreshStatus("idle");
+      return true;
     } catch (cause) {
-      if (requestId === requestIdRef.current) {
-        setError(
-          cause instanceof Error ? cause.message : "Unable to load game.",
-        );
-      }
-    } finally {
-      if (requestId === requestIdRef.current) setLoading(false);
+      if (requestId !== requestIdRef.current) return false;
+      setRefreshError(toAppError(cause, "Unable to refresh the game."));
+      setRefreshStatus("error");
+      return false;
     }
   }, [gameCode]);
-
-  useEffect(() => {
-    void refresh();
-  }, [refresh]);
 
   const requestRefresh = useCallback(() => {
     if (pendingRef.current > 0) {
@@ -93,7 +103,6 @@ export function useStorytellerGame(gameCode: string) {
   const commit = useCallback(
     (update: StorytellerUpdate) => {
       const current = snapshotRef.current;
-      if (!current) return;
       const patch = typeof update === "function" ? update(current) : update;
       if (!hasChanges(patch)) return;
       const optimisticSnapshot = applyPatch(current, patch);
@@ -102,58 +111,83 @@ export function useStorytellerGame(gameCode: string) {
 
       pendingRef.current += 1;
       setSaveState("saving");
-      setError(null);
+      setSaveError(null);
 
       queueRef.current = queueRef.current.then(async () => {
         let savedSnapshot: StorytellerSnapshot | null = null;
 
         if (!queueFailedRef.current) {
           try {
-            const expectedVersion = serverVersionRef.current;
-            if (expectedVersion === null) {
-              throw new Error("The game is still loading. Try again.");
-            }
-
             const result = await updateStorytellerGame(gameCode, {
               ...patch,
-              expectedVersion,
+              expectedVersion: serverVersionRef.current,
             });
             serverVersionRef.current = result.snapshot.game.version;
             savedSnapshot = result.snapshot;
           } catch (cause) {
             queueFailedRef.current = true;
-            queueFailureMessageRef.current =
-              cause instanceof Error ? cause.message : "Unable to save game.";
+            queueFailureRef.current = toAppError(
+              cause,
+              "Unable to save game changes.",
+            );
           }
         }
 
         pendingRef.current = Math.max(0, pendingRef.current - 1);
         if (pendingRef.current > 0) return;
 
-        const failureMessage = queueFailureMessageRef.current;
+        const failure = queueFailureRef.current;
         const shouldReconcile =
           queueFailedRef.current || refreshQueuedRef.current;
         queueFailedRef.current = false;
-        queueFailureMessageRef.current = null;
+        queueFailureRef.current = null;
         refreshQueuedRef.current = false;
 
+        let reconciled = true;
         if (shouldReconcile) {
-          await refresh();
+          reconciled = await refresh();
         } else if (savedSnapshot) {
           snapshotRef.current = savedSnapshot;
           setSnapshot(savedSnapshot);
         }
 
-        if (failureMessage) {
+        if (failure) {
           setSaveState("error");
-          setError(failureMessage);
+          setSaveError({ error: failure, reconciled });
         } else {
-          setSaveState("saved");
+          setSaveState("idle");
         }
       });
     },
     [gameCode, refresh],
   );
 
-  return { snapshot, loading, error, saveState, commit, refresh };
+  const recoverSave = useCallback(async () => {
+    const reconciled = await refresh();
+    if (reconciled) {
+      setSaveState("idle");
+      setSaveError(null);
+    } else {
+      setSaveError((current) =>
+        current ? { ...current, reconciled: false } : current,
+      );
+    }
+  }, [refresh]);
+
+  const dismissSaveError = useCallback(() => {
+    setSaveState("idle");
+    setSaveError(null);
+  }, []);
+
+  return {
+    snapshot,
+    refresh,
+    refreshError,
+    isRefreshing: refreshStatus === "refreshing",
+    saveState,
+    saveError,
+    commit,
+    recoverSave,
+    dismissSaveError,
+  };
 }

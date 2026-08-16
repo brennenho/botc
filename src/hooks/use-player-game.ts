@@ -1,40 +1,54 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 
 import { useGameInvalidation } from "@/hooks/use-game-invalidation";
 import { fetchPlayerGame } from "@/lib/api";
+import { toAppError, type AppError } from "@/lib/app-error";
 import type { PlayerSnapshot } from "@/lib/game-data/types";
 
-export function usePlayerGame(gameCode: string, seatId: string) {
-  const [snapshot, setSnapshot] = useState<PlayerSnapshot | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+export function usePlayerGame(
+  gameCode: string,
+  seatId: string,
+  initialSnapshot: PlayerSnapshot,
+) {
+  const [snapshot, setSnapshot] = useState(initialSnapshot);
+  const [refreshStatus, setRefreshStatus] = useState<
+    "idle" | "refreshing" | "error"
+  >("idle");
+  const [refreshError, setRefreshError] = useState<AppError | null>(null);
   const requestIdRef = useRef(0);
 
   const refresh = useCallback(async () => {
     const requestId = ++requestIdRef.current;
+    setRefreshStatus("refreshing");
+
     try {
       const result = await fetchPlayerGame(gameCode, seatId);
-      if (requestId !== requestIdRef.current) return;
+      if (requestId !== requestIdRef.current) return false;
       setSnapshot(result.snapshot);
-      setError(null);
+      setRefreshError(null);
+      setRefreshStatus("idle");
+      return true;
     } catch (cause) {
-      if (requestId !== requestIdRef.current) return;
-      setError(cause instanceof Error ? cause.message : "Unable to load game.");
-    } finally {
-      if (requestId === requestIdRef.current) setLoading(false);
+      if (requestId !== requestIdRef.current) return false;
+      setRefreshError(toAppError(cause, "Unable to refresh the game."));
+      setRefreshStatus("error");
+      return false;
     }
   }, [gameCode, seatId]);
 
-  useEffect(() => {
-    void refresh();
-  }, [refresh]);
-
   useGameInvalidation({
     gameCode,
-    onInvalidate: refresh,
+    onInvalidate: () => {
+      void refresh();
+    },
   });
 
-  return { snapshot, loading, error, refresh };
+  return {
+    snapshot,
+    refresh,
+    refreshError,
+    isRefreshing: refreshStatus === "refreshing",
+  };
 }

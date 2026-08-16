@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { ZodError } from "zod";
 
+import type { ApiErrorPayload, AppErrorCode } from "@/lib/app-error";
 import { GameStoreError } from "@/lib/server/errors";
 
 const statusByCode = {
@@ -16,37 +17,57 @@ export const privateResponseHeaders = {
   "Cache-Control": "private, no-store, max-age=0",
 } as const;
 
-export function rateLimitResponse(retryAfterSeconds: number) {
-  return NextResponse.json(
-    { error: "Too many requests. Wait a moment and try again." },
+const retryableCodes: ReadonlySet<AppErrorCode> = new Set([
+  "rate_limited",
+  "unavailable",
+  "network",
+  "invalid_response",
+  "unknown",
+]);
+
+function errorResponse(
+  code: AppErrorCode,
+  message: string,
+  status: number,
+  headers: HeadersInit = privateResponseHeaders,
+) {
+  return NextResponse.json<ApiErrorPayload>(
     {
-      status: 429,
-      headers: {
-        ...privateResponseHeaders,
-        "Retry-After": String(retryAfterSeconds),
+      error: {
+        code,
+        message,
+        retryable: retryableCodes.has(code),
       },
+    },
+    { status, headers },
+  );
+}
+
+export function rateLimitResponse(retryAfterSeconds: number) {
+  return errorResponse(
+    "rate_limited",
+    "Too many requests. Wait a moment and try again.",
+    429,
+    {
+      ...privateResponseHeaders,
+      "Retry-After": String(retryAfterSeconds),
     },
   );
 }
 
 export function gameRouteError(error: unknown, fallbackMessage: string) {
   if (error instanceof ZodError) {
-    return NextResponse.json(
-      { error: error.issues[0]?.message ?? "The request is invalid." },
-      { status: 400, headers: privateResponseHeaders },
+    return errorResponse(
+      "invalid_input",
+      error.issues[0]?.message ?? "The request is invalid.",
+      400,
     );
   }
 
   if (error instanceof GameStoreError) {
-    return NextResponse.json(
-      { error: error.message },
-      { status: statusByCode[error.code], headers: privateResponseHeaders },
-    );
+    return errorResponse(error.code, error.message, statusByCode[error.code]);
   }
 
   console.error(error);
-  return NextResponse.json(
-    { error: fallbackMessage },
-    { status: 500, headers: privateResponseHeaders },
-  );
+  return errorResponse("unknown", fallbackMessage, 500);
 }
