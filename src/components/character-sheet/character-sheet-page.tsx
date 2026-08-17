@@ -1,16 +1,28 @@
 import Link from "next/link";
 
-import { CharacterSheet } from "@/components/character-sheet/character-sheet";
+import {
+  CharacterSheet,
+  type CharacterSheetId,
+} from "@/components/character-sheet/character-sheet";
 import { CharacterSheetHomeLink } from "@/components/character-sheet/character-sheet-home-link";
-import { editions, type EditionId } from "@/lib/game-data";
+import { editions } from "@/lib/game-data";
 import { cn } from "@/lib/utils";
 
-export function CharacterSheetPage({ editionId }: { editionId: EditionId }) {
+const referenceSheets: {
+  id: CharacterSheetId;
+  name: string;
+  shortName: string;
+}[] = [
+  ...editions,
+  { id: "travellers", name: "Travellers", shortName: "Trav." },
+];
+
+export function CharacterSheetPage({ sheetId }: { sheetId: CharacterSheetId }) {
   return (
     <main className="min-h-svh bg-[var(--parchment)] bg-[url('/assets/grimoire-parchment.png')] bg-cover bg-fixed text-[var(--ink)]">
       <div className="mx-auto max-w-6xl px-3 py-4 sm:px-6 sm:py-7">
         <CharacterSheet
-          editionId={editionId}
+          sheetId={sheetId}
           variant="standalone"
           headerActions={
             <nav
@@ -18,19 +30,19 @@ export function CharacterSheetPage({ editionId }: { editionId: EditionId }) {
               aria-label="Character Sheet Navigation"
             >
               <div className="flex min-w-0 flex-1 rounded-[var(--radius-control)] bg-black/[0.055] p-0.5 sm:flex-none">
-                {editions.map((edition) => (
+                {referenceSheets.map((sheet) => (
                   <Link
-                    key={edition.id}
-                    href={`/${edition.id}`}
-                    aria-current={edition.id === editionId ? "page" : undefined}
+                    key={sheet.id}
+                    href={`/${sheet.id}`}
+                    aria-current={sheet.id === sheetId ? "page" : undefined}
                     className={cn(
-                      "flex min-h-8 min-w-0 flex-1 items-center justify-center rounded-[calc(var(--radius-control)-2px)] px-3 text-xs font-semibold whitespace-nowrap text-black/52 transition-colors hover:text-black/78 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-[var(--focus-ring)] sm:min-w-28 sm:flex-none",
-                      edition.id === editionId &&
+                      "flex min-h-8 min-w-0 flex-1 items-center justify-center rounded-[calc(var(--radius-control)-2px)] px-2.5 text-xs font-semibold whitespace-nowrap text-black/52 transition-colors hover:text-black/78 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-[var(--focus-ring)] sm:min-w-24 sm:flex-none sm:px-3",
+                      sheet.id === sheetId &&
                         "bg-[#fbf6e9] text-black/82 shadow-[0_1px_3px_rgb(54_37_17/0.14)]",
                     )}
                   >
-                    <span className="sm:hidden">{edition.shortName}</span>
-                    <span className="hidden sm:inline">{edition.name}</span>
+                    <span className="sm:hidden">{sheet.shortName}</span>
+                    <span className="hidden sm:inline">{sheet.name}</span>
                   </Link>
                 ))}
               </div>

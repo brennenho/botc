@@ -8,5 +8,5 @@ export const metadata: Metadata = {
 };
 
 export default function SectsAndVioletsCharacterSheetPage() {
-  return <CharacterSheetPage editionId="snv" />;
+  return <CharacterSheetPage sheetId="snv" />;
 }

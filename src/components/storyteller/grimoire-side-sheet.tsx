@@ -2,7 +2,7 @@
 
 import { Pin } from "lucide-react";
 
-import { CharacterSheet } from "@/components/character-sheet/character-sheet";
+import { CharacterReference } from "@/components/character-sheet/character-reference";
 import { NightOrderPanel } from "@/components/storyteller/night-order-sheet";
 import { PlayerRevealPanel } from "@/components/storyteller/player-reveal-panel";
 import { RosterPanel } from "@/components/storyteller/roster-sheet";
@@ -74,7 +74,7 @@ export function GrimoireSideSheet({
       : panel === "info"
         ? "Player Information"
         : panel === "script"
-          ? "Character Sheet"
+          ? "Character Reference"
           : "Players";
 
   return (
@@ -139,7 +139,7 @@ export function GrimoireSideSheet({
         />
       </div>
       <div className="sheet-panel" hidden={panel !== "script"}>
-        <CharacterSheet editionId={editionId} />
+        <CharacterReference editionId={editionId} />
       </div>
     </Sheet>
   );

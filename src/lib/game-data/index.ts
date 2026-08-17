@@ -13,6 +13,7 @@ export {
 export {
   characterSheetTeams,
   getCharacterSheetDefinition,
+  getTravellerSheetDefinition,
 } from "./character-sheet";
 export { getNightOrder, getNightOrderEntries } from "./night-order";
 export { canCreateRandomSetup, createRandomSetup } from "./random-setup";
@@ -40,4 +41,6 @@ export type {
 export type {
   CharacterSheetDefinition,
   CharacterSheetGroup,
+  TravellerSheetDefinition,
+  TravellerSheetGroup,
 } from "./character-sheet";

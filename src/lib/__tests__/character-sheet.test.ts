@@ -7,13 +7,14 @@ import {
   getEditionRoles,
   getRolesByTeam,
   getTravellerRoles,
+  getTravellerSheetDefinition,
   type EditionId,
 } from "@/lib/game-data";
 
 const expectedCounts: Record<EditionId, number[]> = {
-  tb: [13, 4, 4, 1, 5],
-  bmr: [13, 4, 4, 4, 5],
-  snv: [13, 4, 4, 4, 5],
+  tb: [13, 4, 4, 1],
+  bmr: [13, 4, 4, 4],
+  snv: [13, 4, 4, 4],
 };
 
 describe("character sheet definitions", () => {
@@ -29,22 +30,46 @@ describe("character sheet definitions", () => {
         expectedCounts[editionId],
       );
       expect(definition.groups.flatMap((group) => group.roles)).toEqual(
-        getEditionRoles(editionId),
+        getEditionRoles(editionId).filter((role) => role.team !== "traveller"),
       );
     },
   );
 
   it("provides official ability text and a local image for every character", () => {
-    for (const editionId of ["tb", "bmr", "snv"] as const) {
-      const roles = getCharacterSheetDefinition(editionId).groups.flatMap(
-        (group) => group.roles,
-      );
+    const roles = [
+      ...(["tb", "bmr", "snv"] as const).flatMap((editionId) =>
+        getCharacterSheetDefinition(editionId).groups.flatMap(
+          (group) => group.roles,
+        ),
+      ),
+      ...getTravellerSheetDefinition().groups.flatMap((group) => group.roles),
+    ];
 
-      for (const role of roles) {
-        expect(role.ability.trim()).not.toBe("");
-        expect(role.imagePath).toBe(`/assets/roles/${role.id}.webp`);
-      }
+    for (const role of roles) {
+      expect(role.ability.trim()).not.toBe("");
+      expect(role.imagePath).toBe(`/assets/roles/${role.id}.webp`);
     }
+  });
+
+  it("provides one dedicated Traveller group per supported script", () => {
+    const definition = getTravellerSheetDefinition();
+
+    expect(definition.groups.map((group) => group.edition.id)).toEqual([
+      "tb",
+      "bmr",
+      "snv",
+    ]);
+    expect(definition.groups.map((group) => group.roles.length)).toEqual([
+      5, 5, 5,
+    ]);
+    expect(definition.roleCount).toBe(15);
+    expect(
+      new Set(
+        definition.groups.flatMap((group) =>
+          group.roles.map((role) => role.id),
+        ),
+      ),
+    ).toEqual(new Set(getTravellerRoles().map((role) => role.id)));
   });
 
   it.each(["tb", "bmr", "snv"] as const)(

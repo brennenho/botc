@@ -8,5 +8,5 @@ export const metadata: Metadata = {
 };
 
 export default function BadMoonRisingCharacterSheetPage() {
-  return <CharacterSheetPage editionId="bmr" />;
+  return <CharacterSheetPage sheetId="bmr" />;
 }

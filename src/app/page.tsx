@@ -31,7 +31,7 @@ function CharacterReferenceLink({ className }: { className?: string }) {
     <Link href="/tb" className={cn("entry-character-sheets", className)}>
       <span className="entry-character-copy">
         <strong>Character Reference</strong>
-        <small>Browse all editions</small>
+        <small>Scripts &amp; Travellers</small>
       </span>
       <ArrowRight aria-hidden="true" />
     </Link>

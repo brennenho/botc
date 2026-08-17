@@ -3,7 +3,7 @@
 import { BookOpen } from "lucide-react";
 import { useState } from "react";
 
-import { CharacterSheet } from "@/components/character-sheet/character-sheet";
+import { CharacterReference } from "@/components/character-sheet/character-reference";
 import { GrimoirePanelTabs } from "@/components/grimoire/grimoire-panel-tabs";
 import { GrimoireToolbar } from "@/components/grimoire/grimoire-toolbar";
 import { PlayerRoleCard } from "@/components/player/player-role-card";
@@ -82,7 +82,7 @@ export function PlayerApp({
               {
                 id: "script",
                 icon: <BookOpen />,
-                label: "Script",
+                label: "Reference",
                 active: scriptOpen,
                 onClick: () => setScriptOpen((current) => !current),
               },
@@ -91,13 +91,13 @@ export function PlayerApp({
           <Sheet
             open={scriptOpen}
             onOpenChange={setScriptOpen}
-            title="Character Sheet"
+            title="Character Reference"
             modal={false}
             backdrop={false}
             disablePointerDismissal
             className="character-sheet-side-sheet max-[700px]:!w-screen max-[700px]:!max-w-none max-[700px]:!basis-full"
           >
-            <CharacterSheet editionId={snapshot.game.edition} />
+            <CharacterReference editionId={snapshot.game.edition} />
           </Sheet>
         </>
       )}
