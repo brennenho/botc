@@ -5,29 +5,55 @@ const posthog = vi.hoisted(() => ({
   captureException: vi.fn(),
   init: vi.fn(),
 }));
-
-vi.mock("posthog-js", () => ({ default: posthog }));
-vi.mock("@/env", () => ({
-  env: {
-    NEXT_PUBLIC_POSTHOG_CAPTURE_IN_DEVELOPMENT: "true",
-    NEXT_PUBLIC_POSTHOG_HOST: "https://us.i.posthog.com",
-    NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN: "phc_test",
-  },
+const mockEnv = vi.hoisted(() => ({
+  NEXT_PUBLIC_DISABLE_OBSERVABILITY: "false",
+  NEXT_PUBLIC_POSTHOG_HOST: "https://us.i.posthog.com",
+  NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN: "phc_test",
 }));
 
+vi.mock("posthog-js", () => ({ default: posthog }));
+vi.mock("@/env", () => ({ env: mockEnv }));
+
 beforeEach(() => {
+  vi.stubEnv("NODE_ENV", "production");
   vi.resetModules();
   posthog.capture.mockReset();
   posthog.captureException.mockReset();
   posthog.init.mockReset();
+  mockEnv.NEXT_PUBLIC_DISABLE_OBSERVABILITY = "false";
   vi.spyOn(console, "error").mockImplementation(() => undefined);
 });
 
 afterEach(() => {
+  vi.unstubAllEnvs();
   vi.restoreAllMocks();
 });
 
 describe("client observability", () => {
+  it("honors the explicit observability kill switch", async () => {
+    mockEnv.NEXT_PUBLIC_DISABLE_OBSERVABILITY = "true";
+    const { initializeClientObservability, trackEvent } =
+      await import("@/lib/observability/client");
+
+    initializeClientObservability();
+    trackEvent("game_joined", { actor_role: "player" });
+
+    expect(posthog.init).not.toHaveBeenCalled();
+    expect(posthog.capture).not.toHaveBeenCalled();
+  });
+
+  it("keeps observability disabled outside production", async () => {
+    vi.stubEnv("NODE_ENV", "development");
+    const { initializeClientObservability, trackEvent } =
+      await import("@/lib/observability/client");
+
+    initializeClientObservability();
+    trackEvent("game_joined", { actor_role: "player" });
+
+    expect(posthog.init).not.toHaveBeenCalled();
+    expect(posthog.capture).not.toHaveBeenCalled();
+  });
+
   it("disables reporting when initialization fails", async () => {
     posthog.init.mockImplementationOnce(() => {
       throw new Error("storage unavailable");

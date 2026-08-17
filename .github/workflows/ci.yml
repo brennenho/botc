@@ -176,3 +176,177 @@ jobs:
         run: pnpm build
         env:
           SKIP_ENV_VALIDATION: "1"
+
+  integration:
+    name: multiplayer integration
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+    outputs:
+      report-url: ${{ steps.integration-report.outputs.artifact-url }}
+      summary: ${{ steps.integration-summary.outputs.markdown }}
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9.12.2
+          run_install: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install Chromium
+        run: pnpm exec playwright install chromium --with-deps
+
+      - name: Start local Supabase
+        run: pnpm supabase:start
+        env:
+          SUPABASE_TELEMETRY_DISABLED: "true"
+
+      - name: Reset local database
+        run: pnpm supabase:reset
+        env:
+          SUPABASE_TELEMETRY_DISABLED: "true"
+
+      - name: Lint local database
+        run: pnpm supabase:lint
+        env:
+          SUPABASE_TELEMETRY_DISABLED: "true"
+
+      - name: Export local application environment
+        shell: bash
+        run: |
+          eval "$(pnpm exec supabase status -o env)"
+          {
+            echo "NEXT_PUBLIC_SUPABASE_URL=$API_URL"
+            echo "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=$PUBLISHABLE_KEY"
+            echo "SUPABASE_SECRET_KEY=$SECRET_KEY"
+            echo "NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN=integration-disabled"
+            echo "NEXT_PUBLIC_POSTHOG_HOST=https://us.i.posthog.com"
+            echo "NEXT_PUBLIC_DISABLE_OBSERVABILITY=true"
+          } >> "$GITHUB_ENV"
+        env:
+          SUPABASE_TELEMETRY_DISABLED: "true"
+
+      - name: Build application for integration tests
+        run: pnpm build
+
+      - name: Run multiplayer integration tests
+        run: pnpm test:integration
+
+      - name: Summarize integration test results
+        id: integration-summary
+        if: ${{ !cancelled() }}
+        run: node scripts/summarize-integration-report.js integration-results.json
+
+      - name: Upload integration test report
+        id: integration-report
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: integration-test-report
+          path: |
+            integration-report/
+            integration-results.json
+            integration-test-results/
+          if-no-files-found: ignore
+          retention-days: 14
+
+      - name: Stop local Supabase
+        if: ${{ always() }}
+        run: pnpm supabase:stop
+        env:
+          SUPABASE_TELEMETRY_DISABLED: "true"
+
+  integration-comment:
+    name: integration report comment
+    needs: integration
+    if: >-
+      ${{ always() &&
+          github.event_name == 'pull_request' &&
+          github.event.pull_request.head.repo.full_name == github.repository &&
+          github.actor != 'dependabot[bot]' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+
+    steps:
+      - name: Update integration report comment
+        uses: actions/github-script@v9
+        env:
+          INTEGRATION_RESULT: ${{ needs.integration.result }}
+          REPORT_URL: ${{ needs.integration.outputs.report-url }}
+          RUN_URL: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          TEST_SUMMARY: ${{ needs.integration.outputs.summary }}
+        with:
+          script: |
+            const marker = "<!-- botc-multiplayer-integration-report -->";
+            const labels = {
+              success: "✅ Passed",
+              failure: "❌ Failed",
+              cancelled: "⚪ Cancelled",
+              skipped: "⚪ Skipped",
+            };
+            const result = labels[process.env.INTEGRATION_RESULT] ?? "❓ Unknown";
+            const lastRunIso = new Date().toISOString();
+            const lastRunFallback = lastRunIso
+              .replace("T", " ")
+              .replace(/\.\d{3}Z$/, " UTC");
+            const resources = [
+              process.env.REPORT_URL
+                ? `[View full report & artifacts](${process.env.REPORT_URL})`
+                : undefined,
+              `[View workflow run](${process.env.RUN_URL})`,
+            ].filter(Boolean).join(" · ");
+            const reportUnavailable = process.env.REPORT_URL
+              ? undefined
+              : "_No report artifact was produced._";
+            const body = [
+              marker,
+              "## Multiplayer Integration Tests",
+              "",
+              `### ${result}`,
+              `_Last run: <relative-time datetime="${lastRunIso}">${lastRunFallback}</relative-time>_`,
+              "",
+              process.env.TEST_SUMMARY || "_Detailed test results were unavailable._",
+              "",
+              "---",
+              "",
+              resources,
+              ...(reportUnavailable ? ["", reportUnavailable] : []),
+              "",
+              "_Available report artifacts are retained for 14 days._",
+            ].join("\n");
+            const comments = await github.paginate(
+              github.rest.issues.listComments,
+              { ...context.repo, issue_number: context.issue.number, per_page: 100 },
+            );
+            const existing = comments.find(
+              (comment) =>
+                comment.user?.type === "Bot" && comment.body?.includes(marker),
+            );
+            if (existing) {
+              await github.rest.issues.updateComment({
+                ...context.repo,
+                comment_id: existing.id,
+                body,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                ...context.repo,
+                issue_number: context.issue.number,
+                body,
+              });
+            }

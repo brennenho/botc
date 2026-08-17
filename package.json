@@ -11,12 +11,14 @@
     "build": "next build",
     "check": "eslint . && tsc --noEmit",
     "dev": "next dev --turbo",
+    "dev:integration": "next dev --turbo --hostname localhost --port 3100",
     "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,mdx}\" --cache",
     "format:write": "prettier --write \"**/*.{ts,tsx,js,jsx,mdx}\" --cache",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "preview": "next build && next start",
     "start": "next start",
+    "start:integration": "next start --hostname localhost --port 3100",
     "supabase:lint": "supabase db lint --local --fail-on error",
     "supabase:reset": "supabase db reset",
     "supabase:start": "supabase start",
@@ -24,6 +26,9 @@
     "supabase:stop": "supabase stop",
     "sync:assets": "node scripts/sync-assets.mjs",
     "test": "vitest run",
+    "test:integration": "playwright test",
+    "test:integration:report": "playwright show-report integration-report",
+    "test:integration:ui": "playwright test --ui",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
@@ -55,6 +60,7 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.1",
+    "@playwright/test": "^1.62.1",
     "@tailwindcss/postcss": "^4.0.15",
     "@types/node": "^20.14.10",
     "@types/react": "^19.0.0",
