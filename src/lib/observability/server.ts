@@ -7,8 +7,9 @@ type ErrorContext = Record<string, string | number | boolean>;
 
 let posthogServer: PostHog | undefined;
 const captureInCurrentEnvironment =
-  env.NODE_ENV === "production" ||
-  env.NEXT_PUBLIC_POSTHOG_CAPTURE_IN_DEVELOPMENT === "true";
+  env.NEXT_PUBLIC_POSTHOG_DISABLED !== "true" &&
+  (env.NODE_ENV === "production" ||
+    env.NEXT_PUBLIC_POSTHOG_CAPTURE_IN_DEVELOPMENT === "true");
 
 function getPostHogServer() {
   posthogServer ??= new PostHog(env.NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN, {

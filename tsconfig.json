@@ -39,5 +39,12 @@
     "**/*.js",
     ".next/types/**/*.ts"
   ],
-  "exclude": ["node_modules", "generated"]
+  "exclude": [
+    "node_modules",
+    "generated",
+    "integration-report",
+    "integration-test-results",
+    "playwright-report",
+    "test-results"
+  ]
 }

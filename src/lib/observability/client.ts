@@ -10,8 +10,9 @@ type ErrorContext = Record<string, string | number | boolean>;
 type InitializationState = "disabled" | "failed" | "ready" | "waiting";
 
 const captureInCurrentEnvironment =
-  process.env.NODE_ENV === "production" ||
-  env.NEXT_PUBLIC_POSTHOG_CAPTURE_IN_DEVELOPMENT === "true";
+  env.NEXT_PUBLIC_POSTHOG_DISABLED !== "true" &&
+  (process.env.NODE_ENV === "production" ||
+    env.NEXT_PUBLIC_POSTHOG_CAPTURE_IN_DEVELOPMENT === "true");
 
 let initializationState: InitializationState = captureInCurrentEnvironment
   ? "waiting"

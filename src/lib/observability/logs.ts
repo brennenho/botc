@@ -15,8 +15,9 @@ type Logger = ReturnType<LoggerProvider["getLogger"]>;
 type LoggingState = { logger: Logger; provider: LoggerProvider };
 
 const captureInCurrentEnvironment =
-  env.NODE_ENV === "production" ||
-  env.NEXT_PUBLIC_POSTHOG_CAPTURE_IN_DEVELOPMENT === "true";
+  env.NEXT_PUBLIC_POSTHOG_DISABLED !== "true" &&
+  (env.NODE_ENV === "production" ||
+    env.NEXT_PUBLIC_POSTHOG_CAPTURE_IN_DEVELOPMENT === "true");
 
 let loggingState: LoggingState | null | undefined;
 
