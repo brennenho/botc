@@ -91,3 +91,9 @@ locally and must never interrupt application behavior.
 Official character data and artwork are committed under `public/assets` so the
 application does not depend on toolmaker resource URLs at runtime. Refresh them
 with `pnpm sync:assets`.
+
+## License
+
+Original software and documentation are licensed under the [MIT License](LICENSE).
+Blood on the Clocktower material and other third-party content are not covered
+by that license. See [Third-Party Notices](THIRD_PARTY_NOTICES.md) for details.
