@@ -2,7 +2,6 @@
 
 import type { ReactNode } from "react";
 
-import { IconButton } from "@/components/ui/icon-button";
 import { cn } from "@/lib/utils";
 
 export type GrimoirePanelTab = {
@@ -33,24 +32,22 @@ export function GrimoirePanelTabs({
       aria-label="Grimoire Panels"
     >
       {tabs.map((tab) => (
-        <IconButton
+        <button
           key={tab.id}
-          label={tab.label}
-          tooltip={false}
-          variant="quiet"
-          focusStyle="surface"
+          type="button"
+          aria-label={tab.label}
           aria-pressed={tab.active}
           className={cn("panel-tab-button", tab.active && "is-active")}
           data-panel-tab={tab.id}
           onClick={tab.onClick}
         >
-          <span className="panel-tab-surface">
-            <span className="panel-tab-icon">{tab.icon}</span>
-            <span className="panel-tab-label">
-              {tab.displayLabel ?? tab.label}
-            </span>
+          <span className="panel-tab-icon" aria-hidden="true">
+            {tab.icon}
           </span>
-        </IconButton>
+          <span className="panel-tab-label">
+            {tab.displayLabel ?? tab.label}
+          </span>
+        </button>
       ))}
     </nav>
   );

@@ -866,8 +866,8 @@
 
 .grimoire-panel-tabs.global-dock {
   --panel-tab-width: 36px;
-  --panel-tab-height: 84px;
   --panel-tab-content-gap: 8px;
+  --panel-tab-padding-block: 12px;
   position: fixed;
   z-index: 71;
   top: auto;
@@ -882,7 +882,7 @@
   flex-direction: column;
   width: var(--panel-tab-width);
   gap: 0;
-  padding: 12px 0;
+  padding: 0;
   overflow: hidden;
   border: 1px solid var(--grimoire-hardware-border);
   border-right: 0;
@@ -911,40 +911,27 @@
   display: flex;
   width: var(--panel-tab-width);
   min-width: var(--panel-tab-width);
-  height: var(--panel-tab-height);
-  min-height: var(--panel-tab-height);
-  align-items: stretch;
-  justify-content: flex-end;
-  padding: 0;
-  border: 0;
-  border-radius: 0;
-  color: var(--grimoire-hardware-text);
-  background: transparent;
-  box-shadow: none;
-  transition:
-    color 120ms ease,
-    background-color 120ms ease;
-}
-
-.global-dock .panel-tab-surface {
-  position: relative;
-  display: flex;
-  width: 100%;
-  height: var(--panel-tab-height);
+  height: auto;
+  min-height: 0;
   box-sizing: border-box;
+  flex: 0 0 auto;
   align-items: center;
   justify-content: center;
   flex-direction: column;
   gap: var(--panel-tab-content-gap);
-  padding: 0 4px;
+  padding: var(--panel-tab-padding-block) 4px;
   border: 0;
   border-radius: 0;
+  appearance: none;
+  color: var(--grimoire-hardware-text);
   background: transparent;
   box-shadow: none;
+  font: inherit;
+  cursor: pointer;
   transition:
+    color 120ms ease,
     background-color 120ms ease,
     box-shadow 120ms ease;
-  pointer-events: none;
 }
 
 .global-dock .panel-tab-icon {
@@ -996,44 +983,32 @@
 .global-dock .panel-tab-button:focus-visible,
 .global-dock .panel-tab-button.is-active {
   color: #332919;
-  background: transparent;
 }
 
-.global-dock .panel-tab-button:focus-visible {
-  outline: 0;
-  box-shadow: none;
-}
-
-.global-dock .panel-tab-button:hover .panel-tab-surface {
+.global-dock .panel-tab-button:hover {
   background-color: rgb(255 250 235 / 18%);
   box-shadow: none;
 }
 
-.global-dock .panel-tab-button:focus-visible .panel-tab-surface {
-  background-color: rgb(255 250 235 / 22%);
-  box-shadow: inset 0 0 0 2px var(--focus-ring);
-}
-
-.global-dock .panel-tab-button.is-active .panel-tab-surface,
-.global-dock.is-sheet-open .panel-tab-button.is-active .panel-tab-surface {
+.global-dock .panel-tab-button.is-active,
+.global-dock.is-sheet-open .panel-tab-button.is-active {
   background-color: rgb(255 250 235 / 32%);
   box-shadow: inset 0 1px rgb(255 252 239 / 30%);
+}
+
+.global-dock .panel-tab-button:focus-visible {
+  outline: 0;
+  background-color: rgb(255 250 235 / 22%);
+  box-shadow: inset 0 0 0 2px var(--focus-ring);
 }
 
 @media (orientation: landscape) and (max-height: 500px) {
   .storyteller-shell:not(.player-grimoire-shell)
     .grimoire-panel-tabs.global-dock {
-    --panel-tab-height: min(70px, calc((100svh - 48px) / 4));
     --panel-tab-content-gap: 4px;
+    --panel-tab-padding-block: 8px;
 
     bottom: 16px;
-    padding: 8px 0;
-  }
-
-  .storyteller-shell:not(.player-grimoire-shell)
-    .global-dock
-    .panel-tab-surface {
-    padding: 0 4px;
   }
 
   .storyteller-shell:not(.player-grimoire-shell)
