@@ -847,28 +847,28 @@
   overflow-y: auto;
 }
 
-.privacy-sheet {
-  width: min(980px, 100%);
+.privacy-panel {
+  width: 100%;
   min-height: calc(100svh - clamp(20px, 2.7vw, 44px));
-  margin: 0 auto;
-  padding: clamp(42px, 7vw, 88px) clamp(30px, 8vw, 108px) 44px;
-  border: 1px solid rgb(62 39 23 / 48%);
-  border-radius: 10px;
-  color: #342821;
-  background-color: #eee3cf;
-  background-image:
-    linear-gradient(rgb(247 241 227 / 92%), rgb(237 226 207 / 93%)),
-    url("/assets/grimoire-parchment.png");
+  overflow: hidden;
+  border: 1px solid rgb(62 39 23 / 52%);
+  border-radius: 12px 10px 10px 12px;
+  color: #2b211b;
+  background-color: var(--parchment);
+  background-image: url("/assets/grimoire-parchment.png");
   background-position: center;
   background-size: cover;
   box-shadow:
     0 22px 54px rgb(0 0 0 / 42%),
-    0 0 0 3px rgb(73 42 26 / 48%),
-    inset 0 0 54px rgb(99 70 38 / 8%);
+    0 4px 10px rgb(0 0 0 / 34%),
+    0 0 0 3px rgb(73 42 26 / 48%);
 }
 
-.privacy-header {
-  max-width: 690px;
+.privacy-inner {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: clamp(34px, 5.5vh, 58px) clamp(28px, 5vw, 52px)
+    clamp(44px, 7vh, 72px);
 }
 
 .privacy-back {
@@ -876,13 +876,14 @@
   min-height: 36px;
   align-items: center;
   gap: 8px;
-  margin-bottom: clamp(36px, 6vw, 68px);
-  color: #6f6257;
+  margin-bottom: clamp(30px, 4vw, 44px);
+  color: #66594f;
   font-family: var(--font-utility);
-  font-size: 9px;
+  font-size: 10px;
   font-weight: 500;
   text-decoration: none;
   text-transform: uppercase;
+  transition: color var(--motion-standard) ease;
 }
 
 .privacy-back:hover {
@@ -894,93 +895,86 @@
   height: 14px;
 }
 
-.privacy-header > p:first-of-type {
-  margin: 0 0 12px;
-  color: #7d6340;
-  font-family: var(--font-utility);
-  font-size: 9px;
-  font-weight: 500;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+.privacy-header {
+  padding-bottom: clamp(26px, 4vw, 36px);
+  border-bottom: 1px solid rgb(68 46 31 / 13%);
 }
 
 .privacy-header h1 {
   margin: 0;
   color: #291e18;
   font-family: var(--font-display);
-  font-size: clamp(48px, 7vw, 78px);
-  font-weight: 455;
-  line-height: 0.96;
+  font-size: clamp(42px, 6vw, 56px);
+  font-weight: 480;
+  letter-spacing: -0.015em;
+  line-height: 1;
   font-variation-settings:
     "SOFT" 16,
     "WONK" 0;
 }
 
-.privacy-summary {
-  max-width: 620px;
-  margin: 24px 0 14px;
-  color: #5f5248;
-  font-size: clamp(15px, 1.8vw, 18px);
-  line-height: 1.6;
-}
-
 .privacy-header time {
-  color: #817468;
+  display: block;
+  margin-top: 14px;
+  color: #75685d;
   font-family: var(--font-utility);
-  font-size: 9px;
+  font-size: 10px;
   text-transform: uppercase;
 }
 
 .privacy-content {
-  display: grid;
-  margin-top: clamp(48px, 7vw, 76px);
-  padding-top: clamp(36px, 5vw, 54px);
-  border-top: 1px solid rgb(68 46 31 / 16%);
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  column-gap: clamp(38px, 7vw, 76px);
-  row-gap: 38px;
+  margin-top: clamp(30px, 4vw, 40px);
 }
 
 .privacy-content section {
-  min-width: 0;
+  padding-bottom: clamp(26px, 3.5vw, 34px);
 }
 
-.privacy-content h2 {
+.privacy-content section + section {
+  padding-top: clamp(26px, 3.5vw, 34px);
+  border-top: 1px solid rgb(68 46 31 / 11%);
+}
+
+.privacy-content h2,
+.privacy-footer h2 {
   margin: 0 0 10px;
-  color: #392b23;
+  color: #30231d;
   font-family: var(--font-display);
-  font-size: 21px;
-  font-weight: 560;
+  font-size: clamp(22px, 2.5vw, 25px);
+  font-weight: 540;
   line-height: 1.2;
+  font-variation-settings:
+    "SOFT" 16,
+    "WONK" 0;
 }
 
-.privacy-content p {
+.privacy-content p,
+.privacy-footer p {
   margin: 0;
-  color: #675a50;
-  font-size: 12px;
-  line-height: 1.75;
+  color: #51453d;
+  font-size: 14px;
+  line-height: 1.72;
+}
+
+.privacy-content p + p {
+  margin-top: 14px;
+}
+
+.privacy-content strong {
+  color: #352820;
+  font-weight: 620;
 }
 
 .privacy-footer {
-  display: flex;
-  margin-top: 54px;
-  align-items: center;
-  justify-content: space-between;
-  gap: 20px;
-  padding-top: 22px;
-  border-top: 1px solid rgb(68 46 31 / 16%);
-  color: #796d62;
-  font-size: 11px;
-}
-
-.privacy-footer p {
-  margin: 0;
+  padding-top: clamp(26px, 3.5vw, 34px);
+  border-top: 1px solid rgb(68 46 31 / 13%);
 }
 
 .privacy-footer a {
   display: inline-flex;
   align-items: center;
   gap: 6px;
+  margin-top: 12px;
   color: #653336;
   font-weight: 600;
   text-decoration-color: rgb(101 51 54 / 35%);
@@ -1012,31 +1006,6 @@
   .not-found-content h1 {
     font-size: 28px;
   }
-
-  .privacy-cover {
-    padding: 7px;
-  }
-
-  .privacy-sheet {
-    min-height: calc(100svh - 14px);
-    padding: 32px 24px 28px;
-    border-radius: 7px;
-  }
-
-  .privacy-back {
-    margin-bottom: 40px;
-  }
-
-  .privacy-content {
-    grid-template-columns: 1fr;
-    row-gap: 30px;
-  }
-
-  .privacy-footer {
-    align-items: flex-start;
-    flex-direction: column;
-    gap: 7px;
-  }
 }
 
 @media (max-width: 720px) {
@@ -1056,6 +1025,15 @@
     background-image: url("/assets/grimoire-parchment.png");
     background-position: center;
     background-size: cover;
+  }
+
+  .privacy-panel {
+    min-height: calc(100svh - 14px);
+    border-radius: 7px;
+  }
+
+  .privacy-inner {
+    padding: 28px 24px 40px;
   }
 
   .entry-book::after {
@@ -1357,6 +1335,11 @@
   .entry-character-sheets > svg,
   .entry-character-copy strong,
   .entry-character-copy small {
+    transition: none;
+  }
+
+  .privacy-back,
+  .privacy-footer a {
     transition: none;
   }
 }

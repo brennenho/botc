@@ -6,6 +6,22 @@ import {
 import { normalizeGameCode } from "@/lib/game-code";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 
+async function reportInvalidationFailure(message: string, error?: unknown) {
+  console.error(message, error);
+
+  try {
+    const { flushServerLogs, logServerEvent } =
+      await import("@/lib/observability/logs");
+    logServerEvent("warn", message, {
+      component: "game_invalidation",
+      error_type: error instanceof Error ? error.name : "unknown",
+    });
+    await flushServerLogs();
+  } catch (loggingError) {
+    console.error("Unable to report game invalidation failure.", loggingError);
+  }
+}
+
 export async function broadcastGameInvalidation(
   gameCode: string,
   version: number,
@@ -21,16 +37,22 @@ export async function broadcastGameInvalidation(
   try {
     const result = await channel.httpSend(GAME_INVALIDATION_EVENT, payload);
     if (!result.success) {
-      console.error("Unable to broadcast game invalidation.", { result });
+      await reportInvalidationFailure("Unable to broadcast game invalidation.");
     }
   } catch (error) {
     // Polling reconciles clients if Realtime is temporarily unavailable.
-    console.error("Unable to broadcast game invalidation.", error);
+    await reportInvalidationFailure(
+      "Unable to broadcast game invalidation.",
+      error,
+    );
   } finally {
     try {
       await supabase.removeChannel(channel);
     } catch (error) {
-      console.error("Unable to release game invalidation channel.", error);
+      await reportInvalidationFailure(
+        "Unable to release game invalidation channel.",
+        error,
+      );
     }
   }
 }

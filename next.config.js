@@ -1,8 +1,6 @@
-/**
- * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially useful
- * for Docker builds.
- */
-import "./src/env.js";
+import { withPostHogConfig } from "@posthog/nextjs-config";
+
+import { env } from "./src/env.js";
 
 const securityHeaders = [
   {
@@ -27,4 +25,35 @@ const config = {
   },
 };
 
-export default config;
+const personalApiKey = env.POSTHOG_API_KEY;
+const projectId = env.POSTHOG_PROJECT_ID;
+const sourceMapCredentials = [personalApiKey, projectId];
+const hasCompleteSourceMapConfig = sourceMapCredentials.every(Boolean);
+const postHogCliHost =
+  env.POSTHOG_CLI_HOST ??
+  env.NEXT_PUBLIC_POSTHOG_HOST?.replace("://us.i.", "://us.").replace(
+    "://eu.i.",
+    "://eu.",
+  );
+
+if (sourceMapCredentials.some(Boolean) && !hasCompleteSourceMapConfig) {
+  throw new Error(
+    "POSTHOG_API_KEY and POSTHOG_PROJECT_ID must be configured together.",
+  );
+}
+
+const productionConfig =
+  personalApiKey && projectId
+    ? withPostHogConfig(config, {
+        host: postHogCliHost,
+        personalApiKey,
+        projectId,
+        sourcemaps: {
+          deleteAfterUpload: true,
+          enabled: true,
+          releaseName: "botc",
+        },
+      })
+    : config;
+
+export default productionConfig;

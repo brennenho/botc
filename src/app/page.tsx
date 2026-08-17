@@ -21,6 +21,7 @@ import { createGame, joinGame } from "@/lib/api";
 import { toAppError } from "@/lib/app-error";
 import { editions, type EditionId } from "@/lib/game-data";
 import { notify } from "@/lib/notifications";
+import { trackEvent } from "@/lib/observability/client";
 import { cn } from "@/lib/utils";
 
 type EntryView = "cover" | "storytell" | "join";
@@ -64,6 +65,11 @@ export default function HomePage() {
     setPendingAction("create");
     try {
       const result = await createGame(edition, playerCount);
+      trackEvent("game_created", {
+        actor_role: "storyteller",
+        edition,
+        player_count: playerCount,
+      });
       router.push(`/game/${result.snapshot.game.joinCode}/storyteller`);
     } catch (cause) {
       setPendingAction(null);
@@ -84,6 +90,7 @@ export default function HomePage() {
     setPendingAction("join");
     try {
       const result = await joinGame(joinCode, playerName);
+      trackEvent("game_joined", { actor_role: "player" });
       router.push(
         `/game/${result.snapshot.game.joinCode}/player/${result.seatId}`,
       );

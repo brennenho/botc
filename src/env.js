@@ -4,22 +4,41 @@ import { z } from "zod";
 export const env = createEnv({
   server: {
     NODE_ENV: z.enum(["development", "test", "production"]),
+    POSTHOG_API_KEY: z.string().trim().min(1).optional(),
+    POSTHOG_CLI_HOST: z.string().trim().url().optional(),
+    POSTHOG_PROJECT_ID: z.string().trim().min(1).optional(),
     SUPABASE_SECRET_KEY: z.string().trim().min(1),
   },
 
   client: {
+    NEXT_PUBLIC_POSTHOG_CAPTURE_IN_DEVELOPMENT: z
+      .enum(["true", "false"])
+      .default("false"),
+    NEXT_PUBLIC_POSTHOG_HOST: z.string().trim().url(),
+    NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN: z.string().trim().min(1),
     NEXT_PUBLIC_SUPABASE_URL: z.string().trim().url(),
     NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: z.string().trim().min(1),
   },
 
   runtimeEnv: {
     NODE_ENV: process.env.NODE_ENV,
+    POSTHOG_API_KEY: process.env.POSTHOG_API_KEY,
+    POSTHOG_CLI_HOST: process.env.POSTHOG_CLI_HOST,
+    POSTHOG_PROJECT_ID: process.env.POSTHOG_PROJECT_ID,
     SUPABASE_SECRET_KEY:
       process.env.SUPABASE_SECRET_KEY ?? process.env.SUPABASE_SERVICE_ROLE_KEY,
+    NEXT_PUBLIC_POSTHOG_CAPTURE_IN_DEVELOPMENT:
+      process.env.NEXT_PUBLIC_POSTHOG_CAPTURE_IN_DEVELOPMENT,
+    NEXT_PUBLIC_POSTHOG_HOST: process.env.NEXT_PUBLIC_POSTHOG_HOST,
+    NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN:
+      process.env.NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN,
     NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
     NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY:
       process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ??
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
   },
+  // Deployment builds validate their real environment. Generic verification
+  // builds may opt out when deployment configuration is intentionally absent.
+  skipValidation: !!process.env.SKIP_ENV_VALIDATION,
   emptyStringAsUndefined: true,
 });

@@ -1,10 +1,21 @@
 "use client";
 
 import { PageError } from "@/components/ui/page-error";
-import { useTransition } from "react";
+import { reportError } from "@/lib/observability/client";
+import { useEffect, useTransition } from "react";
 
-export default function ApplicationError({ reset }: { reset: () => void }) {
+export default function ApplicationError({
+  error,
+  reset,
+}: {
+  error: Error & { digest?: string };
+  reset: () => void;
+}) {
   const [retryPending, startRetry] = useTransition();
+
+  useEffect(() => {
+    reportError(error, { error_boundary: "application" });
+  }, [error]);
 
   return (
     <PageError

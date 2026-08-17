@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { after, NextResponse } from "next/server";
 import { ZodError } from "zod";
 
 import type { ApiErrorPayload, AppErrorCode } from "@/lib/app-error";
@@ -65,9 +65,35 @@ export function gameRouteError(error: unknown, fallbackMessage: string) {
   }
 
   if (error instanceof GameStoreError) {
+    if (error.code === "unavailable") {
+      after(async () => {
+        try {
+          const { flushServerLogs, logServerEvent } =
+            await import("@/lib/observability/logs");
+          logServerEvent("warn", "Game storage operation unavailable", {
+            error_code: error.code,
+          });
+          await flushServerLogs();
+        } catch (reportingError) {
+          console.error(
+            "Unable to report game storage failure.",
+            reportingError,
+          );
+        }
+      });
+    }
+
     return errorResponse(error.code, error.message, statusByCode[error.code]);
   }
 
   console.error(error);
+  after(async () => {
+    try {
+      const { reportError } = await import("@/lib/observability/server");
+      await reportError(error, { source: "game_api" });
+    } catch (reportingError) {
+      console.error("Unable to report game API error.", reportingError);
+    }
+  });
   return errorResponse("unknown", fallbackMessage, 500);
 }
