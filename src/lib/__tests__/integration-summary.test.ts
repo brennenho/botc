@@ -60,7 +60,7 @@ describe("integration report summary", () => {
     );
 
     expect(summary).toContain("| 2 | 0 | 0 | 1 | 11.7 s |");
-    expect(summary).not.toContain("### Failed tests");
+    expect(summary).not.toContain("### Failed Tests");
   });
 
   it("includes actionable failed and flaky test details", () => {
@@ -78,10 +78,10 @@ describe("integration report summary", () => {
       ]),
     );
 
-    expect(summary).toContain("### Failed tests");
+    expect(summary).toContain("### Failed Tests");
     expect(summary).toContain("storyteller changes reach a connected player");
     expect(summary).toContain("Error: expected player snapshot to update");
-    expect(summary).toContain("### Flaky tests");
+    expect(summary).toContain("### Flaky Tests");
     expect(summary).toContain("focus reconciliation recovers an update");
   });
 

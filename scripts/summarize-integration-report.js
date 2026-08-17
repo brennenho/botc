@@ -41,11 +41,11 @@ export function formatIntegrationSummary(report) {
     `| ${expected} | ${unexpected} | ${flaky} | ${skipped} | ${formatDuration(duration)} |`,
   ];
 
-  appendTestDetails(lines, "Failed tests", failures, true);
-  appendTestDetails(lines, "Flaky tests", flakyTests, false);
+  appendTestDetails(lines, "Failed Tests", failures, true);
+  appendTestDetails(lines, "Flaky Tests", flakyTests, false);
 
   if (runErrors.length > 0) {
-    lines.push("", "### Run errors");
+    lines.push("", "### Run Errors");
     for (const message of runErrors.slice(0, MAX_LISTED_TESTS)) {
       lines.push(`- ${escapeMarkdown(message)}`);
     }
@@ -182,7 +182,7 @@ function writeGitHubOutputs(summary) {
   if (stepSummaryPath) {
     appendFileSync(
       stepSummaryPath,
-      `## Multiplayer integration tests\n\n${summary}\n`,
+      `## Multiplayer Integration Tests\n\n${summary}\n`,
     );
   }
 }

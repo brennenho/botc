@@ -304,22 +304,30 @@ jobs:
             const lastRunFallback = lastRunIso
               .replace("T", " ")
               .replace(/\.\d{3}Z$/, " UTC");
-            const report = process.env.REPORT_URL
-              ? `[Download the HTML report and failure artifacts](${process.env.REPORT_URL})`
-              : "No report artifact was produced.";
+            const resources = [
+              process.env.REPORT_URL
+                ? `[View full report & artifacts](${process.env.REPORT_URL})`
+                : undefined,
+              `[View workflow run](${process.env.RUN_URL})`,
+            ].filter(Boolean).join(" · ");
+            const reportUnavailable = process.env.REPORT_URL
+              ? undefined
+              : "_No report artifact was produced._";
             const body = [
               marker,
-              "## Multiplayer integration tests",
+              "## Multiplayer Integration Tests",
               "",
-              `**Result:** ${result}`,
-              `**Last run:** <relative-time datetime="${lastRunIso}">${lastRunFallback}</relative-time>`,
+              `### ${result}`,
+              `_Last run: <relative-time datetime="${lastRunIso}">${lastRunFallback}</relative-time>_`,
               "",
               process.env.TEST_SUMMARY || "_Detailed test results were unavailable._",
               "",
-              report,
-              `[Open the workflow run](${process.env.RUN_URL})`,
+              "---",
               "",
-              "_The report artifact is retained for 14 days._",
+              resources,
+              ...(reportUnavailable ? ["", reportUnavailable] : []),
+              "",
+              "_Available report artifacts are retained for 14 days._",
             ].join("\n");
             const comments = await github.paginate(
               github.rest.issues.listComments,

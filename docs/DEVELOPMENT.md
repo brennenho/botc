@@ -154,7 +154,7 @@ With the local Supabase stack running, also lint the database:
 pnpm supabase:lint
 ```
 
-### Multiplayer integration tests
+### Multiplayer Integration Tests
 
 The Playwright suite runs the real Next.js application against the local
 Supabase database and Realtime service. Each Storyteller and player uses an
