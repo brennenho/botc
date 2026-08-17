@@ -16,6 +16,7 @@ export default defineConfig({
     ? [
         ["line"],
         ["html", { open: "never", outputFolder: "integration-report" }],
+        ["json", { outputFile: "integration-results.json" }],
       ]
     : [
         ["list"],

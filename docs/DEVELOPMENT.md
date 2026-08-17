@@ -189,7 +189,9 @@ credentials, builds the production application, and runs Chromium with one
 worker. It does not connect to the hosted Supabase or PostHog projects. Every
 run uploads the HTML report, with traces, screenshots, and videos retained on
 failure, as the 14-day `integration-test-report` artifact. Same-repository pull
-requests receive a sticky comment linking to that artifact.
+requests receive a sticky comment with pass, failure, flaky, and skipped totals;
+duration; a UTC last-run timestamp; failed test details; and a link to that
+artifact.
 
 When adding tests, create a new game for every scenario, give every actor a
 separate browser context, prefer accessible labels over test IDs, and wait on

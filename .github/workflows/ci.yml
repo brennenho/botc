@@ -185,6 +185,7 @@ jobs:
       contents: read
     outputs:
       report-url: ${{ steps.integration-report.outputs.artifact-url }}
+      summary: ${{ steps.integration-summary.outputs.markdown }}
 
     steps:
       - name: Check out repository
@@ -244,6 +245,11 @@ jobs:
       - name: Run multiplayer integration tests
         run: pnpm test:integration
 
+      - name: Summarize integration test results
+        id: integration-summary
+        if: ${{ !cancelled() }}
+        run: node scripts/summarize-integration-report.js integration-results.json
+
       - name: Upload integration test report
         id: integration-report
         if: ${{ !cancelled() }}
@@ -252,6 +258,7 @@ jobs:
           name: integration-test-report
           path: |
             integration-report/
+            integration-results.json
             integration-test-results/
           if-no-files-found: ignore
           retention-days: 14
@@ -282,6 +289,7 @@ jobs:
           INTEGRATION_RESULT: ${{ needs.integration.result }}
           REPORT_URL: ${{ needs.integration.outputs.report-url }}
           RUN_URL: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          TEST_SUMMARY: ${{ needs.integration.outputs.summary }}
         with:
           script: |
             const marker = "<!-- botc-multiplayer-integration-report -->";
@@ -292,6 +300,10 @@ jobs:
               skipped: "⚪ Skipped",
             };
             const result = labels[process.env.INTEGRATION_RESULT] ?? "❓ Unknown";
+            const lastRunAt = new Date()
+              .toISOString()
+              .replace("T", " ")
+              .replace(/\.\d{3}Z$/, " UTC");
             const report = process.env.REPORT_URL
               ? `[Download the HTML report and failure artifacts](${process.env.REPORT_URL})`
               : "No report artifact was produced.";
@@ -300,6 +312,9 @@ jobs:
               "## Multiplayer integration tests",
               "",
               `**Result:** ${result}`,
+              `**Last run:** ${lastRunAt}`,
+              "",
+              process.env.TEST_SUMMARY || "_Detailed test results were unavailable._",
               "",
               report,
               `[Open the workflow run](${process.env.RUN_URL})`,
