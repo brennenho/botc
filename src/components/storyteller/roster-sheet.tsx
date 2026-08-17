@@ -45,6 +45,7 @@ export function RosterPanel({
   const [distributionOpen, setDistributionOpen] = useState(false);
   const assessment = getSetupAssessment(seats, gameTokens);
   const residentCount = seats.filter((seat) => !seat.isTraveller).length;
+  const travellerCount = seats.length - residentCount;
 
   const defaultSetup = assessment.expected
     ? (["townsfolk", "outsider", "minion", "demon"] as const)
@@ -198,7 +199,8 @@ export function RosterPanel({
       <RoleDistributionDialog
         open={distributionOpen}
         editionId={editionId}
-        playerCount={residentCount}
+        residentCount={residentCount}
+        travellerCount={travellerCount}
         onOpenChange={setDistributionOpen}
         onDistribute={onDistributeRoles}
       />

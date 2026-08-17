@@ -22,6 +22,8 @@ export function CharacterSelectionDialog({
   targetTeamCounts,
   teams,
   collapsibleTeams,
+  collapsibleTeamDetails,
+  unavailableRoleIds,
   footer,
   onOpenChange,
   onSelect,
@@ -39,6 +41,8 @@ export function CharacterSelectionDialog({
   targetTeamCounts?: TeamCounts;
   teams: readonly Team[];
   collapsibleTeams?: readonly Team[];
+  collapsibleTeamDetails?: Partial<Record<Team, string>>;
+  unavailableRoleIds?: readonly string[];
   footer?: ReactNode;
   onOpenChange: (open: boolean) => void;
   onSelect: (roleId: string) => void;
@@ -75,6 +79,8 @@ export function CharacterSelectionDialog({
                 targetTeamCounts={targetTeamCounts}
                 teams={teams}
                 collapsibleTeams={collapsibleTeams}
+                collapsibleTeamDetails={collapsibleTeamDetails}
+                unavailableRoleIds={unavailableRoleIds}
                 onSelect={onSelect}
               />
             </div>

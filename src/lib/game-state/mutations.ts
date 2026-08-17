@@ -68,6 +68,15 @@ function roleState(seat: Seat, roleId: string | null) {
   };
 }
 
+function shuffledRoleIds(roleIds: readonly string[], random: () => number) {
+  const result = [...roleIds];
+  for (let index = result.length - 1; index > 0; index -= 1) {
+    const other = Math.floor(random() * (index + 1));
+    [result[index], result[other]] = [result[other]!, result[index]!];
+  }
+  return result;
+}
+
 export function createSeat(
   seatIndex: number,
   factories?: GameStateFactoryOverrides,
@@ -201,8 +210,25 @@ export function dealRoles(
 ): StorytellerPatch {
   const { createId, random } = resolveGameStateFactories(factories);
   const drunkSelected = rolePoolIds.includes(DRUNK_ROLE_ID);
-  const dealtRoleIds = rolePoolIds.filter((roleId) => roleId !== DRUNK_ROLE_ID);
+  const travellerRoleIds = rolePoolIds.filter(
+    (roleId) => roleById.get(roleId)?.team === "traveller",
+  );
+  const dealtRoleIds = rolePoolIds.filter(
+    (roleId) =>
+      roleId !== DRUNK_ROLE_ID && roleById.get(roleId)?.team !== "traveller",
+  );
   const residentSeats = current.seats.filter((seat) => !seat.isTraveller);
+  const travellerSeats = current.seats.filter((seat) => seat.isTraveller);
+  if (
+    (travellerRoleIds.length > 0 &&
+      travellerRoleIds.length !== travellerSeats.length) ||
+    new Set(travellerRoleIds).size !== travellerRoleIds.length ||
+    travellerRoleIds.some(
+      (roleId) => roleById.get(roleId)?.edition !== current.game.edition,
+    )
+  ) {
+    return {};
+  }
   const roleIds = createRandomSetup(
     current.game.edition,
     residentSeats.length,
@@ -210,11 +236,20 @@ export function dealRoles(
     dealtRoleIds,
   );
   if (roleIds.length !== residentSeats.length) return {};
+  const shuffledTravellerRoleIds = shuffledRoleIds(travellerRoleIds, random);
 
   let residentIndex = 0;
+  let travellerIndex = 0;
   const seats = normalizeSeatIndexes(
     current.seats.map((seat) => {
-      if (seat.isTraveller) return seat;
+      if (seat.isTraveller) {
+        if (shuffledTravellerRoleIds.length === 0) return seat;
+        const nextRoleState = roleState(
+          seat,
+          shuffledTravellerRoleIds[travellerIndex++] ?? null,
+        );
+        return nextRoleState ? { ...seat, ...nextRoleState } : seat;
+      }
       const nextRoleState = roleState(seat, roleIds[residentIndex++] ?? null);
       return nextRoleState ? { ...seat, ...nextRoleState } : seat;
     }),

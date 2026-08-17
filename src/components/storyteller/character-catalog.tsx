@@ -26,6 +26,8 @@ export function CharacterCatalog({
   targetTeamCounts,
   teams,
   collapsibleTeams = [],
+  collapsibleTeamDetails = {},
+  unavailableRoleIds = [],
   onSelect,
 }: {
   editionId: EditionId;
@@ -38,6 +40,8 @@ export function CharacterCatalog({
   targetTeamCounts?: TeamCounts;
   teams: readonly Team[];
   collapsibleTeams?: readonly Team[];
+  collapsibleTeamDetails?: Partial<Record<Team, string>>;
+  unavailableRoleIds?: readonly string[];
   onSelect: (roleId: string) => void;
 }) {
   const grouped = getRolesByTeam(editionId);
@@ -104,8 +108,15 @@ export function CharacterCatalog({
                     })
                   }
                 >
-                  <span>{teamLabel(team)}</span>
-                  <small>{roles.length} optional characters</small>
+                  <span className="token-team-toggle-copy">
+                    <span>
+                      {team === "traveller" ? "Travellers" : teamLabel(team)}
+                    </span>
+                    <small>
+                      {collapsibleTeamDetails[team] ??
+                        `Optional · ${roles.length} characters`}
+                    </small>
+                  </span>
                   <ChevronDown aria-hidden="true" />
                 </button>
               ) : (
@@ -133,9 +144,10 @@ export function CharacterCatalog({
                   const selectionUnavailable =
                     selectionMode === "multiple" &&
                     !selected &&
-                    selectionLimit !== undefined &&
-                    selectedRoleIds.length >= selectionLimit &&
-                    !expandableRoleIds.includes(role.id);
+                    ((selectionLimit !== undefined &&
+                      selectedRoleIds.length >= selectionLimit &&
+                      !expandableRoleIds.includes(role.id)) ||
+                      unavailableRoleIds.includes(role.id));
                   const stateClasses = {
                     "is-used":
                       selectionMode === "single" &&
