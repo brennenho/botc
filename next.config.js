@@ -1,7 +1,3 @@
-/**
- * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially useful
- * for Docker builds.
- */
 import { withPostHogConfig } from "@posthog/nextjs-config";
 
 import { env } from "./src/env.js";
@@ -35,7 +31,7 @@ const sourceMapCredentials = [personalApiKey, projectId];
 const hasCompleteSourceMapConfig = sourceMapCredentials.every(Boolean);
 const postHogCliHost =
   env.POSTHOG_CLI_HOST ??
-  env.NEXT_PUBLIC_POSTHOG_HOST.replace("://us.i.", "://us.").replace(
+  env.NEXT_PUBLIC_POSTHOG_HOST?.replace("://us.i.", "://us.").replace(
     "://eu.i.",
     "://eu.",
   );

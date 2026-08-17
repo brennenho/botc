@@ -152,10 +152,6 @@ jobs:
     name: build
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    env:
-      NEXT_PUBLIC_SUPABASE_URL: http://127.0.0.1:54321
-      NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ci-publishable-key
-      SUPABASE_SECRET_KEY: ci-secret-key
 
     steps:
       - name: Check out repository
@@ -178,3 +174,5 @@ jobs:
 
       - name: Build
         run: pnpm build
+        env:
+          SKIP_ENV_VALIDATION: "1"

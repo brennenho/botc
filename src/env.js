@@ -37,5 +37,8 @@ export const env = createEnv({
       process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ??
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
   },
+  // Deployment builds validate their real environment. Generic verification
+  // builds may opt out when deployment configuration is intentionally absent.
+  skipValidation: !!process.env.SKIP_ENV_VALIDATION,
   emptyStringAsUndefined: true,
 });
