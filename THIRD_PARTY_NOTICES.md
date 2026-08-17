@@ -11,8 +11,8 @@ icons, edition logos, information tokens, Community Created Content marks, and
 other material owned by third parties are not licensed under the MIT License,
 wherever they appear in this repository.
 
-The following paths contain substantial material obtained from the official
-Blood on the Clocktower toolmaker resources:
+The following paths contain or reproduce substantial material from the
+official Blood on the Clocktower toolmaker resources:
 
 - `public/assets/community/`
 - `public/assets/data/`
