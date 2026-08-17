@@ -866,8 +866,8 @@
 
 .grimoire-panel-tabs.global-dock {
   --panel-tab-width: 36px;
-  --panel-tab-height: 88px;
-  --panel-tab-content-gap: 6px;
+  --panel-tab-height: 84px;
+  --panel-tab-content-gap: 8px;
   position: fixed;
   z-index: 71;
   top: auto;
@@ -882,7 +882,7 @@
   flex-direction: column;
   width: var(--panel-tab-width);
   gap: 0;
-  padding: 0;
+  padding: 12px 0;
   overflow: hidden;
   border: 1px solid var(--grimoire-hardware-border);
   border-right: 0;
@@ -928,13 +928,13 @@
 
 .global-dock .panel-tab-surface {
   position: relative;
-  display: grid;
+  display: flex;
   width: 100%;
   height: var(--panel-tab-height);
   box-sizing: border-box;
-  grid-template-rows: 20px 52px;
-  align-content: center;
-  justify-items: center;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
   gap: var(--panel-tab-content-gap);
   padding: 0 4px;
   border: 0;
@@ -969,7 +969,6 @@
 
 .global-dock .panel-tab-label {
   display: block;
-  align-self: start;
   color: var(--grimoire-hardware-text);
   background: transparent;
   box-shadow: none;
@@ -1024,26 +1023,39 @@
 @media (orientation: landscape) and (max-height: 500px) {
   .storyteller-shell:not(.player-grimoire-shell)
     .grimoire-panel-tabs.global-dock {
-    --panel-tab-height: min(70px, calc((100svh - 32px) / 4));
+    --panel-tab-height: min(70px, calc((100svh - 48px) / 4));
     --panel-tab-content-gap: 4px;
 
     bottom: 16px;
+    padding: 8px 0;
   }
 
   .storyteller-shell:not(.player-grimoire-shell)
     .global-dock
     .panel-tab-surface {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    padding: 6px 4px;
+    padding: 0 4px;
+  }
+
+  .storyteller-shell:not(.player-grimoire-shell)
+    .global-dock
+    .panel-tab-icon {
+    width: 16px;
+    height: 16px;
+    flex-basis: 16px;
+  }
+
+  .storyteller-shell:not(.player-grimoire-shell)
+    .global-dock
+    .panel-tab-icon
+    > svg {
+    width: 16px;
+    height: 16px;
   }
 
   .storyteller-shell:not(.player-grimoire-shell)
     .global-dock
     .panel-tab-label {
-    align-self: auto;
+    font-size: 8.5px;
   }
 
   .storyteller-shell:not(.player-grimoire-shell) .board-bluff-rack {
