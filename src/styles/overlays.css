@@ -106,6 +106,12 @@
   grid-column: 5 / 7;
 }
 
+.token-team.team-traveller {
+  --team-accent: var(--team-traveller-accent);
+
+  grid-column: 1 / -1;
+}
+
 .token-team h3 {
   min-height: 24px;
   margin: 0 0 7px;
@@ -114,6 +120,67 @@
   font-size: var(--text-caption);
   font-weight: 500;
   text-transform: uppercase;
+}
+
+.token-team.is-collapsible {
+  padding: 0;
+  border: 1px solid color-mix(in srgb, var(--team-accent) 24%, transparent);
+  border-top-width: 2px;
+  border-radius: var(--radius-control);
+  background: color-mix(in srgb, var(--team-accent) 5%, transparent);
+}
+
+.token-team.is-collapsible h3 {
+  min-height: 0;
+  margin: 0;
+}
+
+.token-team.is-collapsible:not(.is-collapsed) .token-grid,
+.token-team.is-collapsible:not(.is-collapsed) .token-team-empty {
+  margin: 0 11px 11px;
+}
+
+.token-team-toggle {
+  display: grid;
+  width: 100%;
+  min-height: 38px;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 9px;
+  padding: 8px 11px;
+  border: 0;
+  color: var(--team-accent);
+  background: transparent;
+  font: inherit;
+  text-align: left;
+  text-transform: uppercase;
+}
+
+.token-team-toggle small {
+  color: var(--text-on-dark-subtle);
+  font-size: 8px;
+  font-weight: 500;
+  text-transform: none;
+}
+
+.token-team-toggle svg {
+  width: 15px;
+  height: 15px;
+  transition: transform var(--motion-standard) var(--ease-out);
+}
+
+.token-team-toggle[aria-expanded="true"] svg {
+  transform: rotate(180deg);
+}
+
+.token-team-toggle:hover {
+  color: color-mix(in srgb, var(--team-accent) 76%, white);
+  background: color-mix(in srgb, var(--team-accent) 8%, transparent);
+}
+
+.token-team-toggle:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: -3px;
 }
 
 .token-grid {
@@ -445,6 +512,19 @@
   grid-column: span 2;
 }
 
+.pool-case .token-team.team-traveller {
+  --team-accent: var(--team-traveller-accent);
+  --team-surface: var(--team-traveller-surface);
+
+  grid-column: 1 / -1;
+}
+
+.pool-case .token-team.team-traveller.is-collapsible {
+  padding: 0;
+  border: 1px solid color-mix(in srgb, var(--team-accent) 24%, transparent);
+  border-top-width: 2px;
+}
+
 .pool-case .has-multiple-demons .token-team.team-demon {
   grid-column: span 4;
 }
@@ -488,6 +568,10 @@
 
 .pool-case .team-demon .token-grid {
   grid-template-columns: minmax(0, 1fr);
+}
+
+.pool-case .team-traveller .token-grid {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
 }
 
 .pool-case .has-multiple-demons .team-demon .token-grid {

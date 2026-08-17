@@ -14,6 +14,7 @@ export type PlayerReveal =
   | { type: "demon-bluffs" }
   | { type: "demon-information" }
   | { type: "minion-information" }
+  | { type: "traveller-information" }
   | { type: "role"; heading: string; roleId: string }
   | { type: "alignment"; alignment: Alignment }
   | { type: "question"; question: InformationQuestion };

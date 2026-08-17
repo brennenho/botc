@@ -1,5 +1,8 @@
 "use client";
 
+import { ChevronDown } from "lucide-react";
+import { useEffect, useId, useState } from "react";
+
 import { CharacterToken } from "@/components/grimoire/character-token";
 import { RoleInfoButton } from "@/components/storyteller/role-info-button";
 import { Button } from "@/components/ui/button";
@@ -7,12 +10,10 @@ import {
   getRolesByTeam,
   teamLabel,
   type EditionId,
-  type ResidentTeam,
+  type Team,
   type TeamCounts,
 } from "@/lib/game-data";
 import { cn } from "@/lib/utils";
-
-const teams: ResidentTeam[] = ["townsfolk", "outsider", "minion", "demon"];
 
 export function CharacterCatalog({
   editionId,
@@ -23,6 +24,8 @@ export function CharacterCatalog({
   selectionLimit,
   expandableRoleIds = [],
   targetTeamCounts,
+  teams,
+  collapsibleTeams = [],
   onSelect,
 }: {
   editionId: EditionId;
@@ -33,10 +36,30 @@ export function CharacterCatalog({
   selectionLimit?: number;
   expandableRoleIds?: string[];
   targetTeamCounts?: TeamCounts;
+  teams: readonly Team[];
+  collapsibleTeams?: readonly Team[];
   onSelect: (roleId: string) => void;
 }) {
   const grouped = getRolesByTeam(editionId);
   const hasMultipleDemons = grouped.demon.length > 1;
+  const catalogId = useId();
+  const [expandedTeams, setExpandedTeams] = useState<Set<Team>>(
+    () => new Set(),
+  );
+  const selectedCollapsibleTeams = collapsibleTeams.filter((team) =>
+    grouped[team].some((role) => selectedRoleIds.includes(role.id)),
+  );
+  const selectedCollapsibleTeamKey = selectedCollapsibleTeams.join("|");
+
+  useEffect(() => {
+    if (!selectedCollapsibleTeamKey) return;
+    const selectedTeams = selectedCollapsibleTeamKey.split("|") as Team[];
+    setExpandedTeams((current) => {
+      const next = new Set(current);
+      selectedTeams.forEach((team) => next.add(team));
+      return next;
+    });
+  }, [selectedCollapsibleTeamKey]);
 
   return (
     <div
@@ -51,24 +74,58 @@ export function CharacterCatalog({
         const selectedCount = roles.filter((role) =>
           selectedRoleIds.includes(role.id),
         ).length;
+        const collapsible = collapsibleTeams.includes(team);
+        const expanded = !collapsible || expandedTeams.has(team);
+        const contentId = `${catalogId}-${team}`;
 
         return (
-          <section key={team} className={cn("token-team", `team-${team}`)}>
+          <section
+            key={team}
+            className={cn(
+              "token-team",
+              `team-${team}`,
+              collapsible && "is-collapsible",
+              !expanded && "is-collapsed",
+            )}
+          >
             <h3>
-              <span>{teamLabel(team)}</span>
-              {selectionMode === "multiple" && targetTeamCounts && (
-                <span
-                  className="token-team-count"
-                  aria-label={`${selectedCount} selected, ${targetTeamCounts[team]} in the current setup`}
+              {collapsible ? (
+                <button
+                  type="button"
+                  className="token-team-toggle"
+                  aria-expanded={expanded}
+                  aria-controls={contentId}
+                  onClick={() =>
+                    setExpandedTeams((current) => {
+                      const next = new Set(current);
+                      if (next.has(team)) next.delete(team);
+                      else next.add(team);
+                      return next;
+                    })
+                  }
                 >
-                  <strong>{selectedCount}</strong>
-                  <span aria-hidden="true">/</span>
-                  <span>{targetTeamCounts[team]}</span>
-                </span>
+                  <span>{teamLabel(team)}</span>
+                  <small>{roles.length} optional characters</small>
+                  <ChevronDown aria-hidden="true" />
+                </button>
+              ) : (
+                <span>{teamLabel(team)}</span>
               )}
+              {team !== "traveller" &&
+                selectionMode === "multiple" &&
+                targetTeamCounts && (
+                  <span
+                    className="token-team-count"
+                    aria-label={`${selectedCount} selected, ${targetTeamCounts[team]} in the current setup`}
+                  >
+                    <strong>{selectedCount}</strong>
+                    <span aria-hidden="true">/</span>
+                    <span>{targetTeamCounts[team]}</span>
+                  </span>
+                )}
             </h3>
-            {roles.length > 0 ? (
-              <div className="token-grid">
+            {expanded && roles.length > 0 ? (
+              <div id={contentId} className="token-grid">
                 {roles.map((role) => {
                   const used = usedRoleIds.includes(role.id);
                   const bluff = bluffRoleIds.includes(role.id);
@@ -141,9 +198,9 @@ export function CharacterCatalog({
                   );
                 })}
               </div>
-            ) : (
+            ) : expanded ? (
               <p className="token-team-empty">No Matches</p>
-            )}
+            ) : null}
           </section>
         );
       })}

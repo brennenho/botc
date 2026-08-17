@@ -47,14 +47,24 @@ export type MutableSeatPatch = Partial<
   >
 >;
 
-function roleState(roleId: string | null) {
+function roleState(seat: Seat, roleId: string | null) {
   const role = roleId ? roleById.get(roleId) : null;
   if (roleId && !role) return null;
 
+  if (!role) {
+    return {
+      roleId: null,
+      alignment: seat.isTraveller ? seat.alignment : ("good" as const),
+      isTraveller: seat.isTraveller,
+    };
+  }
+
+  const isTraveller = seat.isTraveller || role.team === "traveller";
+
   return {
-    roleId: role?.id ?? null,
-    alignment: role ? getDefaultAlignment(role) : ("good" as const),
-    isTraveller: role?.team === "traveller",
+    roleId: role.id,
+    alignment: seat.isTraveller ? seat.alignment : getDefaultAlignment(role),
+    isTraveller,
   };
 }
 
@@ -108,8 +118,9 @@ export function assignSeatRole(
   seatId: string,
   roleId: string | null,
 ): StorytellerPatch {
-  if (!current.seats.some((seat) => seat.id === seatId)) return {};
-  const nextRoleState = roleState(roleId);
+  const targetSeat = current.seats.find((seat) => seat.id === seatId);
+  if (!targetSeat) return {};
+  const nextRoleState = roleState(targetSeat, roleId);
   if (!nextRoleState) return {};
 
   return {
@@ -204,7 +215,7 @@ export function dealRoles(
   const seats = normalizeSeatIndexes(
     current.seats.map((seat) => {
       if (seat.isTraveller) return seat;
-      const nextRoleState = roleState(roleIds[residentIndex++] ?? null);
+      const nextRoleState = roleState(seat, roleIds[residentIndex++] ?? null);
       return nextRoleState ? { ...seat, ...nextRoleState } : seat;
     }),
   );
@@ -237,8 +248,7 @@ export function clearRoleAssignments(current: GameState): StorytellerPatch {
       current.seats.map((seat) => ({
         ...seat,
         roleId: null,
-        alignment: "good",
-        isTraveller: false,
+        alignment: seat.isTraveller ? seat.alignment : "good",
       })),
     ),
     gameTokens: current.gameTokens.filter(

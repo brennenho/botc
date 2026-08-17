@@ -4,7 +4,7 @@ import { X } from "lucide-react";
 
 import { CharacterSelectionDialog } from "@/components/storyteller/character-selection-dialog";
 import { Button } from "@/components/ui/button";
-import type { EditionId } from "@/lib/game-data";
+import type { EditionId, Team } from "@/lib/game-data";
 
 export function RolePicker({
   open,
@@ -14,6 +14,8 @@ export function RolePicker({
   selectedRoleId,
   usedRoleIds,
   bluffRoleIds,
+  teams,
+  collapsibleTeams,
   onOpenChange,
   onSelect,
 }: {
@@ -24,6 +26,8 @@ export function RolePicker({
   selectedRoleId: string | null;
   usedRoleIds: string[];
   bluffRoleIds: string[];
+  teams: readonly Team[];
+  collapsibleTeams?: readonly Team[];
   onOpenChange: (open: boolean) => void;
   onSelect: (roleId: string | null) => void;
 }) {
@@ -37,6 +41,8 @@ export function RolePicker({
       selectedRoleIds={selectedRoleId ? [selectedRoleId] : []}
       usedRoleIds={usedRoleIds}
       bluffRoleIds={bluffRoleIds}
+      teams={teams}
+      collapsibleTeams={collapsibleTeams}
       onOpenChange={onOpenChange}
       onSelect={onSelect}
       footer={

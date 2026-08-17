@@ -19,6 +19,8 @@ const emptyDefaultCounts: TeamCounts = {
   demon: 0,
 };
 
+const residentTeams = ["townsfolk", "outsider", "minion", "demon"] as const;
+
 export function RoleDistributionDialog({
   open,
   editionId,
@@ -69,6 +71,7 @@ export function RoleDistributionDialog({
       selectionLimit={selectionTarget}
       expandableRoleIds={[DRUNK_ROLE_ID]}
       targetTeamCounts={targetTeamCounts}
+      teams={residentTeams}
       onOpenChange={onOpenChange}
       onSelect={toggleRole}
       footer={

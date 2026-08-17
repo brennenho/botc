@@ -18,6 +18,7 @@ import {
   appendPlayer,
   appendReminder,
   assignSeatRole,
+  clearRoleAssignments,
   dealRoles,
   deletePlayer,
   deleteReminder,
@@ -191,6 +192,73 @@ describe("seat mutations", () => {
       isTraveller: false,
     });
     expect(assignSeatRole(current, "seat-a", "not-a-role")).toEqual({});
+  });
+
+  it("preserves a Storyteller-controlled Traveller override across roles", () => {
+    const current = state([
+      seat("seat-a", 0, {
+        roleId: "imp",
+        alignment: "evil",
+        isTraveller: true,
+      }),
+    ]);
+
+    const residentRole = assignSeatRole(current, "seat-a", "chef");
+    expect(residentRole.seats?.[0]).toMatchObject({
+      roleId: "chef",
+      alignment: "evil",
+      isTraveller: true,
+    });
+
+    const nativeTraveller = assignSeatRole(
+      { ...current, seats: residentRole.seats! },
+      "seat-a",
+      "bureaucrat",
+    );
+    expect(nativeTraveller.seats?.[0]).toMatchObject({
+      roleId: "bureaucrat",
+      alignment: "evil",
+      isTraveller: true,
+    });
+
+    const cleared = assignSeatRole(
+      { ...current, seats: nativeTraveller.seats! },
+      "seat-a",
+      null,
+    );
+    expect(cleared.seats?.[0]).toMatchObject({
+      roleId: null,
+      alignment: "evil",
+      isTraveller: true,
+    });
+  });
+
+  it("preserves Traveller overrides when clearing all assignments", () => {
+    const current = state([
+      seat("resident", 0, { roleId: "imp", alignment: "evil" }),
+      seat("traveller", 1, {
+        roleId: "chef",
+        alignment: "evil",
+        isTraveller: true,
+      }),
+    ]);
+
+    const patch = clearRoleAssignments(current);
+
+    expect(patch.seats).toEqual([
+      expect.objectContaining({
+        id: "resident",
+        roleId: null,
+        alignment: "good",
+        isTraveller: false,
+      }),
+      expect.objectContaining({
+        id: "traveller",
+        roleId: null,
+        alignment: "evil",
+        isTraveller: true,
+      }),
+    ]);
   });
 
   it("removes every token attached to a player and reindexes seats", () => {

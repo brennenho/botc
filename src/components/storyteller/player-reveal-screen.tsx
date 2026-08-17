@@ -175,6 +175,28 @@ function RevealContent({
     );
   }
 
+  if (reveal.type === "traveller-information") {
+    return (
+      <main className="player-reveal-content is-group-information">
+        <section className="player-reveal-information-section">
+          <Dialog.Title
+            ref={titleRef}
+            tabIndex={-1}
+            className="player-reveal-title"
+          >
+            This Is the Demon
+          </Dialog.Title>
+          <p className="player-reveal-player-name">
+            {demon?.playerName ?? "No Demon Assigned"}
+          </p>
+          <p className="player-reveal-empty">
+            You do not learn the Minions or Demon bluffs.
+          </p>
+        </section>
+      </main>
+    );
+  }
+
   if (reveal.type === "demon-bluffs") {
     return (
       <main className="player-reveal-content is-bluffs">

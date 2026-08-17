@@ -5,13 +5,13 @@ import { CharacterToken } from "@/components/grimoire/character-token";
 import {
   getCharacterSheetDefinition,
   type EditionId,
-  type ResidentTeam,
   type Role,
+  type Team,
 } from "@/lib/game-data";
 import { cn } from "@/lib/utils";
 
 const teamPresentation: Record<
-  ResidentTeam,
+  Team,
   { pluralLabel: string; sectionClass: string; labelClass: string }
 > = {
   townsfolk: {
@@ -33,6 +33,11 @@ const teamPresentation: Record<
     pluralLabel: "Demons",
     sectionClass: "border-red-800/65 bg-red-950/[0.06]",
     labelClass: "text-red-900",
+  },
+  traveller: {
+    pluralLabel: "Travellers",
+    sectionClass: "border-amber-800/45 bg-amber-950/[0.04]",
+    labelClass: "text-amber-900",
   },
 };
 

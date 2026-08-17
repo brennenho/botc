@@ -1,15 +1,16 @@
 import { getEdition, getRolesByTeam } from "./catalog";
-import type { EditionId, ResidentTeam, Role } from "./types";
+import type { EditionId, Role, Team } from "./types";
 
 export const characterSheetTeams = [
   "townsfolk",
   "outsider",
   "minion",
   "demon",
-] as const satisfies readonly ResidentTeam[];
+  "traveller",
+] as const satisfies readonly Team[];
 
 export type CharacterSheetGroup = {
-  team: ResidentTeam;
+  team: Team;
   roles: Role[];
 };
 

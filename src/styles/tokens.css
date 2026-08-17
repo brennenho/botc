@@ -68,6 +68,8 @@
   --team-minion-surface: rgb(148 65 69 / 18%);
   --team-demon-accent: #c94d55;
   --team-demon-surface: rgb(126 35 41 / 24%);
+  --team-traveller-accent: #b9a675;
+  --team-traveller-surface: rgb(150 132 88 / 16%);
 
   --radius-control: 4px;
   --radius-panel: 8px;

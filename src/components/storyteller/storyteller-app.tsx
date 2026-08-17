@@ -41,6 +41,9 @@ type PickerTarget =
   | { type: "reveal"; heading: string }
   | null;
 
+const residentTeams = ["townsfolk", "outsider", "minion", "demon"] as const;
+const assignableTeams = [...residentTeams, "traveller"] as const;
+
 export function StorytellerApp({
   gameCode,
   initialSnapshot,
@@ -370,6 +373,10 @@ export function StorytellerApp({
           bluffRoleIds={bluffs.flatMap((bluff) =>
             bluff.roleId ? [bluff.roleId] : [],
           )}
+          teams={
+            pickerTarget?.type === "bluff" ? residentTeams : assignableTeams
+          }
+          collapsibleTeams={pickerTarget?.type === "bluff" ? [] : ["traveller"]}
           onOpenChange={(open) => !open && setPickerTarget(null)}
           onSelect={(roleId) => {
             if (pickerTarget?.type === "seat")

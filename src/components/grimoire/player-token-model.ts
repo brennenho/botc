@@ -39,15 +39,14 @@ export function createPublicPlayerTokenModel(
   ownSeat: Seat,
 ): PlayerTokenViewModel {
   const privateSeat = seat.id === ownSeat.id ? ownSeat : null;
+  const visibleRoleId = privateSeat?.roleId ?? seat.publicRoleId;
 
   return {
     id: seat.id,
     seatIndex: seat.seatIndex,
     playerName: seat.playerName ?? `Seat ${seat.seatIndex + 1}`,
     claimedByPlayer: seat.occupied,
-    role: privateSeat?.roleId
-      ? (roleById.get(privateSeat.roleId) ?? null)
-      : null,
+    role: visibleRoleId ? (roleById.get(visibleRoleId) ?? null) : null,
     alignment: privateSeat?.alignment ?? null,
     alive: seat.alive,
     ghostVoteAvailable: seat.ghostVoteAvailable,

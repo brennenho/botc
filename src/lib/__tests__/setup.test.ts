@@ -37,6 +37,30 @@ function seat(seatIndex: number, roleId: string): Seat {
 }
 
 describe("setup modifiers", () => {
+  it("excludes a Storyteller-marked Traveller regardless of native team", () => {
+    const residents = [
+      seat(0, "washerwoman"),
+      seat(1, "librarian"),
+      seat(2, "chef"),
+      seat(3, "empath"),
+      seat(4, "monk"),
+      seat(5, "poisoner"),
+      seat(6, "imp"),
+    ];
+    const customTraveller = {
+      ...seat(7, "baron"),
+      alignment: "evil" as const,
+      isTraveller: true,
+    };
+
+    expect(getSetupAssessment([...residents, customTraveller])).toMatchObject({
+      legal: true,
+      assignedCount: 7,
+      expected: sevenPlayerCounts,
+      actual: sevenPlayerCounts,
+    });
+  });
+
   it("adds a Townsfolk token to a Drunk distribution pool", () => {
     expect(getSetupSelectionTargetCounts(7, ["baron", DRUNK_ROLE_ID])).toEqual({
       townsfolk: 4,

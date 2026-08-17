@@ -10,6 +10,7 @@ export function createPlayerSeatView(
     seatIndex: seat.seatIndex,
     playerName: seat.claimedByPlayer ? seat.playerName : null,
     occupied: seat.claimedByPlayer,
+    publicRoleId: seat.isTraveller ? seat.roleId : null,
     alive: seat.alive,
     ghostVoteAvailable: seat.ghostVoteAvailable,
     isTraveller: seat.isTraveller,

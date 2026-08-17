@@ -8,14 +8,14 @@ import {
 } from "@/lib/game-data";
 
 const expectedCounts: Record<EditionId, number[]> = {
-  tb: [13, 4, 4, 1],
-  bmr: [13, 4, 4, 4],
-  snv: [13, 4, 4, 4],
+  tb: [13, 4, 4, 1, 5],
+  bmr: [13, 4, 4, 4, 5],
+  snv: [13, 4, 4, 4, 5],
 };
 
 describe("character sheet definitions", () => {
   it.each(["tb", "bmr", "snv"] as const)(
-    "contains the complete %s resident script in physical-sheet order",
+    "contains the complete %s script in physical-sheet order",
     (editionId) => {
       const definition = getCharacterSheetDefinition(editionId);
 
@@ -26,7 +26,7 @@ describe("character sheet definitions", () => {
         expectedCounts[editionId],
       );
       expect(definition.groups.flatMap((group) => group.roles)).toEqual(
-        getEditionRoles(editionId).filter((role) => role.team !== "traveller"),
+        getEditionRoles(editionId),
       );
     },
   );

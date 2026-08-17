@@ -212,9 +212,13 @@ function getTokenAriaLabel({
   presenceStatus?: PlayerPresenceStatus;
 }) {
   if (publicView) {
-    if (!model.claimedByPlayer) return `Seat ${model.seatIndex + 1}, Open`;
-    if (!presenceStatus) return model.playerName;
-    return `${model.playerName}, ${presenceStatus === "online" ? "Online" : "Disconnected"}`;
+    const roleStatus = model.role
+      ? `, ${model.role.name}${model.isTraveller ? ", Traveller" : ""}`
+      : "";
+    if (!model.claimedByPlayer)
+      return `Seat ${model.seatIndex + 1}${roleStatus}, Open`;
+    if (!presenceStatus) return `${model.playerName}${roleStatus}`;
+    return `${model.playerName}${roleStatus}, ${presenceStatus === "online" ? "Online" : "Disconnected"}`;
   }
 
   if (redacted) return `${model.playerName}, Character Hidden`;

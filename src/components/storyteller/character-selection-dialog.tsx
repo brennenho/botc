@@ -6,7 +6,7 @@ import type { ReactNode } from "react";
 
 import { CharacterCatalog } from "@/components/storyteller/character-catalog";
 import { IconButton } from "@/components/ui/icon-button";
-import type { EditionId, TeamCounts } from "@/lib/game-data";
+import type { EditionId, Team, TeamCounts } from "@/lib/game-data";
 
 export function CharacterSelectionDialog({
   open,
@@ -20,6 +20,8 @@ export function CharacterSelectionDialog({
   selectionLimit,
   expandableRoleIds,
   targetTeamCounts,
+  teams,
+  collapsibleTeams,
   footer,
   onOpenChange,
   onSelect,
@@ -35,6 +37,8 @@ export function CharacterSelectionDialog({
   selectionLimit?: number;
   expandableRoleIds?: string[];
   targetTeamCounts?: TeamCounts;
+  teams: readonly Team[];
+  collapsibleTeams?: readonly Team[];
   footer?: ReactNode;
   onOpenChange: (open: boolean) => void;
   onSelect: (roleId: string) => void;
@@ -69,6 +73,8 @@ export function CharacterSelectionDialog({
                 selectionLimit={selectionLimit}
                 expandableRoleIds={expandableRoleIds}
                 targetTeamCounts={targetTeamCounts}
+                teams={teams}
+                collapsibleTeams={collapsibleTeams}
                 onSelect={onSelect}
               />
             </div>

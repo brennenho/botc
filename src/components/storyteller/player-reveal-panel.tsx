@@ -91,6 +91,18 @@ export function PlayerRevealPanel({
       <RevealSection title="Setup Info" className="is-setup-board">
         <RevealAction
           icon={<InformationTokenIcon type="demon" />}
+          title="Evil Traveller Information"
+          description={
+            demon
+              ? `Demon: ${demon.playerName} · No Minions or Bluffs`
+              : "Assign a Demon to Enable"
+          }
+          disabled={!demon}
+          layout="tile"
+          onClick={() => onReveal({ type: "traveller-information" })}
+        />
+        <RevealAction
+          icon={<InformationTokenIcon type="demon" />}
           title="Demon Information"
           description={
             demon
