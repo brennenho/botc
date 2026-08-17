@@ -1,99 +1,118 @@
 # Blood on the Clocktower
 
-An online grimoire for running Blood on the Clocktower games in person or with
-connected players.
+An unofficial online grimoire for running [Blood on the Clocktower](https://bloodontheclocktower.com/) either in person or online.
 
-## Supabase
+> Learn more about Blood on the Clocktower from the [wiki](https://wiki.bloodontheclocktower.com/Main_Page).
 
-Supabase is the application's only persistence layer. Database changes live in
-[`supabase/migrations`](supabase/migrations) and are the single source of truth
-for local, preview, and production environments.
+This project gives Storytellers a shared digital grimoire.
+It intentionally does not automate gameplay and is meant to be used with a human Storyteller.
 
-### Local Development
+The grimoire can manage characters, reminders, alignment, voting, and more. Players can connect from their own devices and follow along.
 
-Local Supabase requires Docker and the Supabase CLI.
+> [!NOTE]
+> This is a community-made project and is not affiliated with or endorsed by The Pandemonium Institute.
 
-1. Start the local stack with `pnpm supabase:start`.
-2. Apply all migrations and the preview seed with `pnpm supabase:reset`.
-3. Run `pnpm supabase:status` and copy the local API URL, publishable key, and
-   secret key into `.env` using the names in `.env.example`.
-4. Start Next.js with `pnpm dev`.
+![Home Page](docs/screenshots/home.jpeg)
 
-The secret key is server-only. Never expose it in a public environment
-variable or browser bundle. Existing deployments may continue using the legacy
-`NEXT_PUBLIC_SUPABASE_ANON_KEY` and `SUPABASE_SERVICE_ROLE_KEY` aliases while
-they are migrated to the current key names.
+## Features
 
-### Database Workflow
+- A private Storyteller grimoire arranged around the town circle.
+- Player joining and live presence through a short game code.
+- Character assignment and private player role reveals.
+- Life, alignment, reminder-token, Demon-bluff, and day/night tracking.
+- Storyteller night order and information-token references.
+- Trouble Brewing, Bad Moon Rising, and Sects & Violets character sheets.
+- Responsive layouts for running a game from a laptop, tablet, or phone.
 
-Create a migration for every schema change:
+## Playing a Game
 
-```sh
-supabase migration new describe_the_change
-```
+1. The Storyteller selects an edition and player count, then opens a new
+   grimoire.
+2. Players choose **Player**, enter the game code and their name, and join the
+   town from their own device.
+3. The Storyteller assigns characters and uses the grimoire, reminders, night
+   order, and information panels to run the game.
 
-Edit the generated SQL file, run `pnpm supabase:reset`, and commit the migration.
-Do not edit the production database directly. If an emergency Dashboard change
-is unavoidable, pull it into a migration before continuing development:
+Character reference sheets are also available without creating a game.
 
-```sh
-supabase db pull --db-url '<session-pooler-connection-string>'
-```
+## Preview
 
-### Game Retention
+### The Grimoire
 
-Supabase runs a daily cleanup job at 04:15 UTC. Games that have not been updated
-for seven days are deleted along with their seats and tokens through
-foreign-key cascades.
+![Populated grimoire running Trouble Brewing](docs/screenshots/grimoire.jpeg)
 
-## PostHog
+### In-Person Game Information
 
-Production uses PostHog for anonymous product analytics, Web Vitals, client and
-server error tracking, and limited structured server logs. Configure
-`NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN` and `NEXT_PUBLIC_POSTHOG_HOST` in the
-deployment environment. Development capture is off by default; set
-`NEXT_PUBLIC_POSTHOG_CAPTURE_IN_DEVELOPMENT=true` only when testing the
-integration against PostHog.
+![Demon bluffs shown in an in-person game](docs/screenshots/bluffs.jpeg)
 
-For readable client stack traces, also configure the server-only
-`POSTHOG_API_KEY`, `POSTHOG_PROJECT_ID`, and `POSTHOG_CLI_HOST` variables. The
-personal API key must have error-tracking write access. Production builds
-upload source maps when the key and project ID are both present and fail when
-only one is configured.
+### Character Reference Sheet
 
-The integration intentionally disables person profiles, DOM autocapture, and
-session recording. Analytics URLs are sanitized before transmission so game
-codes, seat IDs, query strings, and fragments are not sent to PostHog. Do not
-add player names, game credentials, character assignments, or reminder content
-to analytics properties or operational logs.
+![Trouble Brewing character reference sheet](docs/screenshots/reference.jpeg)
 
-Application code must use the vendor-neutral helpers in
-`src/lib/observability` (`trackEvent` and `reportError`) rather than importing a
-PostHog SDK directly. Observability is fail-open: reporting failures are logged
-locally and must never interrupt application behavior.
+## Local Setup
 
-## Development
+### Requirements
 
 - Node.js 20.9 or newer
-- `pnpm install`
-- `pnpm dev`
+- pnpm 9
+- Docker
+
+### Run locally
+
+1. Install the dependencies:
+
+   ```sh
+   pnpm install
+   ```
+
+2. Copy `.env.example` to `.env`.
+3. Start Supabase and apply the migrations and preview seed:
+
+   ```sh
+   pnpm supabase:start
+   pnpm supabase:reset
+   pnpm supabase:status
+   ```
+
+4. Copy the local API URL, publishable key, and secret key reported by
+   `supabase:status` into the matching variables in `.env`.
+5. Start the application:
+
+   ```sh
+   pnpm dev
+   ```
+
+Open [http://localhost:3000](http://localhost:3000).
+See [DEVELOPMENT.md](docs/DEVELOPMENT.md) for environment
+variables, database migrations, observability, asset syncing, and deployment checks.
 
 ## Verification
 
-- `pnpm check`
-- `pnpm test`
-- `pnpm build`
-- `pnpm audit --prod`
-- `pnpm supabase:lint` with the local Supabase stack running
+```sh
+pnpm check
+pnpm test
+pnpm build
+```
 
-## Assets
-
-Official character data and artwork are committed under `public/assets` so the
-application does not depend on toolmaker resource URLs at runtime. Refresh them
-with `pnpm sync:assets`.
+Additional database and dependency checks are documented in the
+[development guide](docs/DEVELOPMENT.md#verification).
 
 ## License
 
 Original software and documentation are licensed under the [MIT License](LICENSE).
 Blood on the Clocktower material and other third-party content are not covered
 by that license. See [Third-Party Notices](THIRD_PARTY_NOTICES.md) for details.
+
+## Acknowledgements
+
+- Blood on the Clocktower was created by Steven Medway and is published by
+  [The Pandemonium Institute](https://bloodontheclocktower.com/).
+- Official character data and artwork come from TPI's
+  [toolmaker resources](https://release.botc.app/resources/) and remain subject
+  to its
+  [Community Created Content Policy](https://bloodontheclocktower.com/pages/community-created-content-policy).
+- This project was created by [Brennen Ho](https://brennen.dev).
+
+Blood on the Clocktower is a trademark of Steven Medway and The Pandemonium
+Institute. This project is not affiliated with or endorsed by The Pandemonium
+Institute.
