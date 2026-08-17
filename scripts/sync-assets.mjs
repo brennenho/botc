@@ -4,7 +4,8 @@ import { fileURLToPath } from "node:url";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const baseUrl = "https://release.botc.app/resources";
-const editions = new Set(["tb", "bmr", "snv"]);
+const roleEditions = new Set(["tb", "bmr", "snv"]);
+const logoEditions = [...roleEditions, "taf"];
 
 async function download(path, destination) {
   const response = await fetch(`${baseUrl}/${path}`);
@@ -25,7 +26,7 @@ await download("data/jinxes.json", "public/assets/data/jinxes.json");
 await download("community/ccc-parchment.png", "public/assets/community/ccc-parchment.png");
 await download("community/ccc-sleeve.png", "public/assets/community/ccc-sleeve.png");
 
-for (const edition of editions) {
+for (const edition of logoEditions) {
   await download(`editions/${edition}/logo.webp`, `public/assets/editions/${edition}.webp`);
 }
 
@@ -36,7 +37,7 @@ if (!rolesResponse.ok) {
 
 const roles = await rolesResponse.json();
 
-for (const role of roles.filter((role) => editions.has(role.edition))) {
+for (const role of roles.filter((role) => roleEditions.has(role.edition))) {
   const suffix =
     role.team === "townsfolk" || role.team === "outsider"
       ? "_g"

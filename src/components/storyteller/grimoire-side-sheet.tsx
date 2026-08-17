@@ -2,7 +2,10 @@
 
 import { Pin } from "lucide-react";
 
-import { CharacterSheet } from "@/components/character-sheet/character-sheet";
+import {
+  CharacterReference,
+  type CharacterReferenceView,
+} from "@/components/character-sheet/character-reference";
 import { NightOrderPanel } from "@/components/storyteller/night-order-sheet";
 import { PlayerRevealPanel } from "@/components/storyteller/player-reveal-panel";
 import { RosterPanel } from "@/components/storyteller/roster-sheet";
@@ -24,9 +27,11 @@ export function GrimoireSideSheet({
   gameTokens,
   pinned,
   pendingReminder,
+  referenceView,
   nightOrderState,
   onNightOrderStateChange,
   onPinnedChange,
+  onReferenceViewChange,
   onClose,
   onSelectSeat,
   onChooseRole,
@@ -49,9 +54,11 @@ export function GrimoireSideSheet({
   gameTokens: GameToken[];
   pinned: boolean;
   pendingReminder: ReminderDefinition | null;
+  referenceView: CharacterReferenceView;
   nightOrderState: NightOrderState;
   onNightOrderStateChange: (state: NightOrderState) => void;
   onPinnedChange: (pinned: boolean) => void;
+  onReferenceViewChange: (view: CharacterReferenceView) => void;
   onClose: () => void;
   onSelectSeat: (seatId: string) => void;
   onChooseRole: (seatId: string) => void;
@@ -74,7 +81,7 @@ export function GrimoireSideSheet({
       : panel === "info"
         ? "Player Information"
         : panel === "script"
-          ? "Character Sheet"
+          ? "Character Reference"
           : "Players";
 
   return (
@@ -139,7 +146,11 @@ export function GrimoireSideSheet({
         />
       </div>
       <div className="sheet-panel" hidden={panel !== "script"}>
-        <CharacterSheet editionId={editionId} />
+        <CharacterReference
+          editionId={editionId}
+          view={referenceView}
+          onViewChange={onReferenceViewChange}
+        />
       </div>
     </Sheet>
   );

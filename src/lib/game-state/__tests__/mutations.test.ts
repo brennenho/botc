@@ -18,6 +18,7 @@ import {
   appendPlayer,
   appendReminder,
   assignSeatRole,
+  clearRoleAssignments,
   dealRoles,
   deletePlayer,
   deleteReminder,
@@ -191,6 +192,73 @@ describe("seat mutations", () => {
       isTraveller: false,
     });
     expect(assignSeatRole(current, "seat-a", "not-a-role")).toEqual({});
+  });
+
+  it("preserves a Storyteller-controlled Traveller override across roles", () => {
+    const current = state([
+      seat("seat-a", 0, {
+        roleId: "imp",
+        alignment: "evil",
+        isTraveller: true,
+      }),
+    ]);
+
+    const residentRole = assignSeatRole(current, "seat-a", "chef");
+    expect(residentRole.seats?.[0]).toMatchObject({
+      roleId: "chef",
+      alignment: "evil",
+      isTraveller: true,
+    });
+
+    const nativeTraveller = assignSeatRole(
+      { ...current, seats: residentRole.seats! },
+      "seat-a",
+      "bureaucrat",
+    );
+    expect(nativeTraveller.seats?.[0]).toMatchObject({
+      roleId: "bureaucrat",
+      alignment: "evil",
+      isTraveller: true,
+    });
+
+    const cleared = assignSeatRole(
+      { ...current, seats: nativeTraveller.seats! },
+      "seat-a",
+      null,
+    );
+    expect(cleared.seats?.[0]).toMatchObject({
+      roleId: null,
+      alignment: "evil",
+      isTraveller: true,
+    });
+  });
+
+  it("preserves Traveller overrides when clearing all assignments", () => {
+    const current = state([
+      seat("resident", 0, { roleId: "imp", alignment: "evil" }),
+      seat("traveller", 1, {
+        roleId: "chef",
+        alignment: "evil",
+        isTraveller: true,
+      }),
+    ]);
+
+    const patch = clearRoleAssignments(current);
+
+    expect(patch.seats).toEqual([
+      expect.objectContaining({
+        id: "resident",
+        roleId: null,
+        alignment: "good",
+        isTraveller: false,
+      }),
+      expect.objectContaining({
+        id: "traveller",
+        roleId: null,
+        alignment: "evil",
+        isTraveller: true,
+      }),
+    ]);
   });
 
   it("removes every token attached to a player and reindexes seats", () => {
@@ -427,5 +495,75 @@ describe("role distribution", () => {
     );
 
     expect(patch.gameTokens?.map(({ id }) => id)).toEqual(["position"]);
+  });
+
+  it("distributes selected Traveller roles only among marked Traveller seats", () => {
+    const current = state([
+      ...Array.from({ length: 5 }, (_, index) => seat(`seat-${index}`, index)),
+      seat("traveller-good", 5, {
+        roleId: "chef",
+        alignment: "good",
+        isTraveller: true,
+      }),
+      seat("traveller-evil", 6, {
+        roleId: "imp",
+        alignment: "evil",
+        isTraveller: true,
+      }),
+    ]);
+
+    const patch = dealRoles(
+      current,
+      [
+        "washerwoman",
+        "chef",
+        "empath",
+        "poisoner",
+        "imp",
+        "bureaucrat",
+        "barista",
+      ],
+      { random: () => 0.5 },
+    );
+
+    expect(
+      patch.seats
+        ?.slice(0, 5)
+        .map(({ roleId }) => roleId)
+        .sort(),
+    ).toEqual(["chef", "empath", "imp", "poisoner", "washerwoman"]);
+    expect(
+      patch.seats
+        ?.slice(5)
+        .map(({ roleId }) => roleId)
+        .sort(),
+    ).toEqual(["barista", "bureaucrat"]);
+    expect(patch.seats?.[5]).toMatchObject({
+      isTraveller: true,
+      alignment: "good",
+    });
+    expect(patch.seats?.[6]).toMatchObject({
+      isTraveller: true,
+      alignment: "evil",
+    });
+  });
+
+  it("rejects a partial Traveller pool rather than assigning it ambiguously", () => {
+    const current = state([
+      ...Array.from({ length: 5 }, (_, index) => seat(`seat-${index}`, index)),
+      seat("traveller-a", 5, { isTraveller: true }),
+      seat("traveller-b", 6, { isTraveller: true }),
+    ]);
+
+    expect(
+      dealRoles(current, [
+        "washerwoman",
+        "chef",
+        "empath",
+        "poisoner",
+        "imp",
+        "bureaucrat",
+      ]),
+    ).toEqual({});
   });
 });

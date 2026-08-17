@@ -47,7 +47,7 @@ export function PlayerRoleCard({
         </strong>
         {!redacted && role ? (
           <span className="player-private-role-meta">
-            {teamLabel(role.team)} ·{" "}
+            {seat.isTraveller ? "Traveller" : teamLabel(role.team)} ·{" "}
             {seat.alignment === "good" ? "Good" : "Evil"}
           </span>
         ) : null}

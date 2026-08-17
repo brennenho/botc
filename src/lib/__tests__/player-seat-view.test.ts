@@ -29,6 +29,7 @@ describe("player seat views", () => {
       seatIndex: 0,
       playerName: "Alice",
       occupied: true,
+      publicRoleId: null,
       alive: false,
       ghostVoteAvailable: false,
       isTraveller: false,
@@ -47,10 +48,30 @@ describe("player seat views", () => {
       seatIndex: 0,
       playerName: null,
       occupied: false,
+      publicRoleId: null,
       alive: false,
       ghostVoteAvailable: false,
       isTraveller: false,
       position: { x: 50, y: 15 },
+    });
+  });
+
+  it("exposes a marked Traveller's character without exposing alignment", () => {
+    expect(
+      createPlayerSeatView(
+        seat({ roleId: "chef", alignment: "evil", isTraveller: true }),
+        { x: 20, y: 30 },
+      ),
+    ).toEqual({
+      id: "seat-1",
+      seatIndex: 0,
+      playerName: "Alice",
+      occupied: true,
+      publicRoleId: "chef",
+      alive: false,
+      ghostVoteAvailable: false,
+      isTraveller: true,
+      position: { x: 20, y: 30 },
     });
   });
 

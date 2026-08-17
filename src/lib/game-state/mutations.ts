@@ -47,15 +47,34 @@ export type MutableSeatPatch = Partial<
   >
 >;
 
-function roleState(roleId: string | null) {
+function roleState(seat: Seat, roleId: string | null) {
   const role = roleId ? roleById.get(roleId) : null;
   if (roleId && !role) return null;
 
+  if (!role) {
+    return {
+      roleId: null,
+      alignment: seat.isTraveller ? seat.alignment : ("good" as const),
+      isTraveller: seat.isTraveller,
+    };
+  }
+
+  const isTraveller = seat.isTraveller || role.team === "traveller";
+
   return {
-    roleId: role?.id ?? null,
-    alignment: role ? getDefaultAlignment(role) : ("good" as const),
-    isTraveller: role?.team === "traveller",
+    roleId: role.id,
+    alignment: seat.isTraveller ? seat.alignment : getDefaultAlignment(role),
+    isTraveller,
   };
+}
+
+function shuffledRoleIds(roleIds: readonly string[], random: () => number) {
+  const result = [...roleIds];
+  for (let index = result.length - 1; index > 0; index -= 1) {
+    const other = Math.floor(random() * (index + 1));
+    [result[index], result[other]] = [result[other]!, result[index]!];
+  }
+  return result;
 }
 
 export function createSeat(
@@ -108,8 +127,9 @@ export function assignSeatRole(
   seatId: string,
   roleId: string | null,
 ): StorytellerPatch {
-  if (!current.seats.some((seat) => seat.id === seatId)) return {};
-  const nextRoleState = roleState(roleId);
+  const targetSeat = current.seats.find((seat) => seat.id === seatId);
+  if (!targetSeat) return {};
+  const nextRoleState = roleState(targetSeat, roleId);
   if (!nextRoleState) return {};
 
   return {
@@ -190,8 +210,22 @@ export function dealRoles(
 ): StorytellerPatch {
   const { createId, random } = resolveGameStateFactories(factories);
   const drunkSelected = rolePoolIds.includes(DRUNK_ROLE_ID);
-  const dealtRoleIds = rolePoolIds.filter((roleId) => roleId !== DRUNK_ROLE_ID);
+  const travellerRoleIds = rolePoolIds.filter(
+    (roleId) => roleById.get(roleId)?.team === "traveller",
+  );
+  const dealtRoleIds = rolePoolIds.filter(
+    (roleId) =>
+      roleId !== DRUNK_ROLE_ID && roleById.get(roleId)?.team !== "traveller",
+  );
   const residentSeats = current.seats.filter((seat) => !seat.isTraveller);
+  const travellerSeats = current.seats.filter((seat) => seat.isTraveller);
+  if (
+    (travellerRoleIds.length > 0 &&
+      travellerRoleIds.length !== travellerSeats.length) ||
+    new Set(travellerRoleIds).size !== travellerRoleIds.length
+  ) {
+    return {};
+  }
   const roleIds = createRandomSetup(
     current.game.edition,
     residentSeats.length,
@@ -199,12 +233,21 @@ export function dealRoles(
     dealtRoleIds,
   );
   if (roleIds.length !== residentSeats.length) return {};
+  const shuffledTravellerRoleIds = shuffledRoleIds(travellerRoleIds, random);
 
   let residentIndex = 0;
+  let travellerIndex = 0;
   const seats = normalizeSeatIndexes(
     current.seats.map((seat) => {
-      if (seat.isTraveller) return seat;
-      const nextRoleState = roleState(roleIds[residentIndex++] ?? null);
+      if (seat.isTraveller) {
+        if (shuffledTravellerRoleIds.length === 0) return seat;
+        const nextRoleState = roleState(
+          seat,
+          shuffledTravellerRoleIds[travellerIndex++] ?? null,
+        );
+        return nextRoleState ? { ...seat, ...nextRoleState } : seat;
+      }
+      const nextRoleState = roleState(seat, roleIds[residentIndex++] ?? null);
       return nextRoleState ? { ...seat, ...nextRoleState } : seat;
     }),
   );
@@ -237,8 +280,7 @@ export function clearRoleAssignments(current: GameState): StorytellerPatch {
       current.seats.map((seat) => ({
         ...seat,
         roleId: null,
-        alignment: "good",
-        isTraveller: false,
+        alignment: seat.isTraveller ? seat.alignment : "good",
       })),
     ),
     gameTokens: current.gameTokens.filter(

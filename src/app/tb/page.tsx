@@ -8,5 +8,5 @@ export const metadata: Metadata = {
 };
 
 export default function TroubleBrewingCharacterSheetPage() {
-  return <CharacterSheetPage editionId="tb" />;
+  return <CharacterSheetPage sheetId="tb" />;
 }

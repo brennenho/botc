@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { CharacterToken } from "@/components/grimoire/character-token";
 import {
   getCharacterSheetDefinition,
+  getTravellerSheetDefinition,
   type EditionId,
   type ResidentTeam,
   type Role,
@@ -36,19 +37,29 @@ const teamPresentation: Record<
   },
 };
 
+const travellerPresentation = {
+  sectionClass: "border-amber-800/45 bg-amber-950/[0.04]",
+  labelClass: "text-amber-900",
+};
+
+export type CharacterSheetId = EditionId | "travellers";
+
 export function CharacterSheet({
-  editionId,
+  sheetId,
   variant = "embedded",
-  headerActions,
+  topNavigation,
   className,
 }: {
-  editionId: EditionId;
+  sheetId: CharacterSheetId;
   variant?: "embedded" | "standalone";
-  headerActions?: ReactNode;
+  topNavigation?: ReactNode;
   className?: string;
 }) {
-  const definition = getCharacterSheetDefinition(editionId);
-  const [townsfolk, ...otherGroups] = definition.groups;
+  const editionDefinition =
+    sheetId === "travellers" ? null : getCharacterSheetDefinition(sheetId);
+  const travellerDefinition =
+    sheetId === "travellers" ? getTravellerSheetDefinition() : null;
+  const [townsfolk, ...otherGroups] = editionDefinition?.groups ?? [];
 
   return (
     <article
@@ -58,12 +69,13 @@ export function CharacterSheet({
         className,
       )}
     >
+      {topNavigation}
       <header
         className={cn(
           "flex items-center border-b border-black/10",
           variant === "standalone"
-            ? "flex-wrap justify-between gap-x-5 gap-y-2 px-4 py-4 sm:gap-x-6 sm:gap-y-4 sm:px-7 sm:py-5"
-            : "px-5 py-4",
+            ? "px-4 py-4 sm:px-7 sm:py-5"
+            : "min-h-28 px-5 py-4",
         )}
       >
         <div
@@ -73,7 +85,9 @@ export function CharacterSheet({
           )}
         >
           <Image
-            src={definition.edition.logoPath}
+            src={
+              editionDefinition?.edition.logoPath ?? "/assets/editions/taf.webp"
+            }
             alt=""
             width={120}
             height={90}
@@ -82,7 +96,7 @@ export function CharacterSheet({
               "shrink-0 object-contain",
               variant === "standalone"
                 ? "h-20 w-24 sm:h-24 sm:w-28"
-                : "h-auto w-20",
+                : "h-20 w-20",
             )}
           />
           <div className="min-w-0 border-l border-black/12 pl-4">
@@ -94,35 +108,76 @@ export function CharacterSheet({
                 "font-display font-semibold text-balance",
                 variant === "standalone"
                   ? "mt-1 text-[26px] leading-[1.05] sm:text-4xl sm:leading-tight"
-                  : "mt-0.5 text-2xl",
+                  : "mt-0.5 text-2xl leading-tight",
               )}
             >
-              {definition.edition.name}
+              {travellerDefinition
+                ? "Travellers"
+                : editionDefinition?.edition.name}
             </h1>
           </div>
         </div>
-        {headerActions && (
-          <div className="flex w-full min-w-0 items-center gap-3 sm:w-auto sm:justify-end">
-            {headerActions}
-          </div>
-        )}
       </header>
 
       <div
-        className={cn(
-          "grid items-start gap-5 p-4 sm:p-5",
-          variant === "standalone" &&
-            "lg:grid-cols-[minmax(0,1.08fr)_minmax(0,0.92fr)] lg:gap-6 lg:p-7",
-        )}
+        className={cn("grid items-start gap-5 p-4 sm:p-5", {
+          "lg:grid-cols-[minmax(0,1.08fr)_minmax(0,0.92fr)] lg:gap-6 lg:p-7":
+            variant === "standalone" && editionDefinition,
+          "lg:grid-cols-3 lg:gap-6 lg:p-7":
+            variant === "standalone" && travellerDefinition,
+        })}
       >
-        {townsfolk && <CharacterGroup group={townsfolk} />}
-        <div className="grid min-w-0 gap-5">
-          {otherGroups.map((group) => (
-            <CharacterGroup key={group.team} group={group} />
-          ))}
-        </div>
+        {travellerDefinition ? (
+          travellerDefinition.groups.map((group) => (
+            <TravellerGroup key={group.edition.id} group={group} />
+          ))
+        ) : (
+          <>
+            {townsfolk && <CharacterGroup group={townsfolk} />}
+            <div className="grid min-w-0 gap-5">
+              {otherGroups.map((group) => (
+                <CharacterGroup key={group.team} group={group} />
+              ))}
+            </div>
+          </>
+        )}
       </div>
     </article>
+  );
+}
+
+function TravellerGroup({
+  group,
+}: {
+  group: ReturnType<typeof getTravellerSheetDefinition>["groups"][number];
+}) {
+  const headingId = `traveller-sheet-${group.edition.id}`;
+
+  return (
+    <section
+      aria-labelledby={headingId}
+      className={cn("min-w-0 border-t-2", travellerPresentation.sectionClass)}
+    >
+      <header className="flex items-baseline justify-between gap-3 px-3 pt-3 pb-2">
+        <h2
+          id={headingId}
+          className={cn(
+            "font-mono text-[11px] font-medium tracking-normal uppercase",
+            travellerPresentation.labelClass,
+          )}
+        >
+          {group.edition.name}
+        </h2>
+        <span className="font-mono text-[10px] text-black/38">
+          {group.roles.length}
+        </span>
+      </header>
+      <ul className="divide-y divide-black/[0.075] px-3">
+        {group.roles.map((role) => (
+          <CharacterEntry key={role.id} role={role} />
+        ))}
+      </ul>
+    </section>
   );
 }
 

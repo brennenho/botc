@@ -24,6 +24,7 @@ const publicSeat: PlayerSeatView = {
   seatIndex: 0,
   playerName: "Alice",
   occupied: true,
+  publicRoleId: null,
   alive: true,
   ghostVoteAvailable: true,
   isTraveller: false,
@@ -75,5 +76,22 @@ describe("player token models", () => {
       role: null,
       alignment: null,
     });
+  });
+
+  it("shows a marked Traveller's character to other players without alignment", () => {
+    const model = createPublicPlayerTokenModel(
+      {
+        ...publicSeat,
+        id: "seat-2",
+        playerName: "Bob",
+        publicRoleId: "chef",
+        isTraveller: true,
+      },
+      ownSeat,
+    );
+
+    expect(model.role?.id).toBe("chef");
+    expect(model.isTraveller).toBe(true);
+    expect(model.alignment).toBeNull();
   });
 });

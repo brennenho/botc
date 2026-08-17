@@ -107,4 +107,10 @@ describe("Demon Bluff reveals", () => {
       ]),
     ).toBe(false);
   });
+
+  it("does not require Demon bluffs for Traveller information", () => {
+    expect(canShowPlayerReveal({ type: "traveller-information" }, [])).toBe(
+      true,
+    );
+  });
 });

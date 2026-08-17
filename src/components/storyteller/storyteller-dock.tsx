@@ -73,7 +73,7 @@ export function StorytellerDock({
         {
           id: "script",
           icon: <BookOpen />,
-          label: "Script",
+          label: "Reference",
           active: scriptOpen,
           onClick: onOpenScript,
         },

@@ -73,6 +73,7 @@ export type PlayerSeatView = {
   seatIndex: number;
   playerName: string | null;
   occupied: boolean;
+  publicRoleId: string | null;
   alive: boolean;
   ghostVoteAvailable: boolean;
   isTraveller: boolean;
