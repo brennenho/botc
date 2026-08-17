@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 
-import { GameCodeControl } from "@/components/grimoire/game-code-control";
+import { GameInviteControl } from "@/components/grimoire/game-invite-control";
 import { Spinner } from "@/components/ui/spinner";
 import { Switch } from "@/components/ui/switch";
 import { getEdition } from "@/lib/game-data";
@@ -12,12 +12,14 @@ import type { EditionId } from "@/lib/game-data/types";
 export function GrimoireToolbar({
   editionId,
   joinCode,
+  actorRole,
   saveState,
   redacted,
   onRedactedChange,
 }: {
   editionId: EditionId;
   joinCode: string;
+  actorRole: "storyteller" | "player";
   saveState?: "idle" | "saving" | "error";
   redacted: boolean;
   onRedactedChange: (redacted: boolean) => void;
@@ -49,7 +51,7 @@ export function GrimoireToolbar({
         </label>
       </div>
 
-      <GameCodeControl joinCode={joinCode} />
+      <GameInviteControl joinCode={joinCode} actorRole={actorRole} />
 
       {saveState === "saving" ? (
         <div className="toolbar-status is-saving" role="status">
