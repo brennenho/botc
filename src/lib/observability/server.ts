@@ -1,15 +1,12 @@
 import { PostHog } from "posthog-node";
 
 import { env } from "@/env";
+import { observabilityEnabled } from "@/lib/observability/config";
 import { flushServerLogs, logServerEvent } from "@/lib/observability/logs";
 
 type ErrorContext = Record<string, string | number | boolean>;
 
 let posthogServer: PostHog | undefined;
-const captureInCurrentEnvironment =
-  env.NEXT_PUBLIC_POSTHOG_DISABLED !== "true" &&
-  (env.NODE_ENV === "production" ||
-    env.NEXT_PUBLIC_POSTHOG_CAPTURE_IN_DEVELOPMENT === "true");
 
 function getPostHogServer() {
   posthogServer ??= new PostHog(env.NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN, {
@@ -33,7 +30,7 @@ async function sendException(error: unknown, context: ErrorContext) {
 }
 
 export async function reportError(error: unknown, context: ErrorContext = {}) {
-  if (!captureInCurrentEnvironment) return;
+  if (!observabilityEnabled) return;
 
   try {
     logServerEvent("error", "Server error reported", {

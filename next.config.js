@@ -27,6 +27,7 @@ const config = {
 
 const personalApiKey = env.POSTHOG_API_KEY;
 const projectId = env.POSTHOG_PROJECT_ID;
+const observabilityDisabled = env.NEXT_PUBLIC_DISABLE_OBSERVABILITY === "true";
 const sourceMapCredentials = [personalApiKey, projectId];
 const hasCompleteSourceMapConfig = sourceMapCredentials.every(Boolean);
 const postHogCliHost =
@@ -36,14 +37,18 @@ const postHogCliHost =
     "://eu.",
   );
 
-if (sourceMapCredentials.some(Boolean) && !hasCompleteSourceMapConfig) {
+if (
+  !observabilityDisabled &&
+  sourceMapCredentials.some(Boolean) &&
+  !hasCompleteSourceMapConfig
+) {
   throw new Error(
     "POSTHOG_API_KEY and POSTHOG_PROJECT_ID must be configured together.",
   );
 }
 
 const productionConfig =
-  personalApiKey && projectId
+  !observabilityDisabled && personalApiKey && projectId
     ? withPostHogConfig(config, {
         host: postHogCliHost,
         personalApiKey,

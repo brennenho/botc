@@ -44,10 +44,9 @@ with `NEXT_PUBLIC_`. Existing deployments can temporarily use the legacy
 `NEXT_PUBLIC_SUPABASE_ANON_KEY` and `SUPABASE_SERVICE_ROLE_KEY` aliases while
 they migrate to the current names.
 
-PostHog capture is disabled during development by default. When working without
-a PostHog project, keep `NEXT_PUBLIC_POSTHOG_CAPTURE_IN_DEVELOPMENT="false"` and
-use a non-empty local placeholder for `NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN`; no
-development events will be sent.
+Observability is disabled during development by default. When working without a
+PostHog project, use a non-empty local placeholder for
+`NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN`; no development events will be sent.
 
 Start Next.js after the environment is configured:
 
@@ -97,12 +96,10 @@ server error tracking, and limited structured server logs. Configure:
 - `NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN`
 - `NEXT_PUBLIC_POSTHOG_HOST`
 
-Set `NEXT_PUBLIC_POSTHOG_CAPTURE_IN_DEVELOPMENT="true"` only when deliberately
-testing the integration against PostHog.
-
-`NEXT_PUBLIC_POSTHOG_DISABLED="true"` is an explicit kill switch for automated
-tests or an observability incident. Normal production deployments should leave
-it set to `false`.
+`NEXT_PUBLIC_DISABLE_OBSERVABILITY="true"` disables client analytics, client and
+server error reporting, structured log export, and source-map uploads in every
+environment. Automated tests set it to `true`; normal production deployments
+should leave it set to `false`.
 
 Readable client stack traces additionally require these server-only build
 variables:
