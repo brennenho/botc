@@ -119,6 +119,32 @@
   color: var(--grimoire-hardware-accent);
 }
 
+.shortcut-help-button {
+  position: absolute;
+  top: 38px;
+  right: 154px;
+  z-index: 1;
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--grimoire-hardware-border);
+  border-radius: var(--grimoire-hardware-radius);
+  color: var(--grimoire-hardware-muted);
+  background-color: var(--grimoire-hardware-surface);
+  box-shadow: var(--grimoire-hardware-shadow);
+  pointer-events: auto;
+  transition:
+    color var(--motion-fast) ease,
+    background-color var(--motion-fast) ease,
+    right 200ms var(--ease-out);
+  backdrop-filter: blur(8px) saturate(0.82);
+  -webkit-backdrop-filter: blur(8px) saturate(0.82);
+}
+
+.shortcut-help-button:hover {
+  color: var(--grimoire-hardware-text);
+  background-color: var(--grimoire-hardware-surface-hover);
+}
+
 .toolbar-status {
   position: absolute;
   top: 87px;

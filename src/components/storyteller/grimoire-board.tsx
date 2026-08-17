@@ -52,6 +52,7 @@ export function GrimoireBoard({
   selectedSeatId,
   selectedReminderId,
   placingReminder,
+  shortcutsEnabled,
   onlineSeatIds = new Set<string>(),
   presenceAvailable = false,
   onSelectSeat,
@@ -77,6 +78,7 @@ export function GrimoireBoard({
   selectedSeatId: string | null;
   selectedReminderId: string | null;
   placingReminder: boolean;
+  shortcutsEnabled: boolean;
   onlineSeatIds?: ReadonlySet<string>;
   presenceAvailable?: boolean;
   onSelectSeat: (seatId: string) => void;
@@ -509,6 +511,7 @@ export function GrimoireBoard({
               seat={selectedSeat}
               seats={seats}
               gameTokens={gameTokens}
+              shortcutsEnabled={shortcutsEnabled}
               side={playerMenu.side}
               style={
                 {

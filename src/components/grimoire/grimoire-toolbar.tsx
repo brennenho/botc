@@ -1,11 +1,16 @@
 "use client";
 
+import { Keyboard } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { useState } from "react";
 
 import { GameInviteControl } from "@/components/grimoire/game-invite-control";
+import { KeyboardShortcutsDialog } from "@/components/grimoire/keyboard-shortcuts-dialog";
+import { IconButton } from "@/components/ui/icon-button";
 import { Spinner } from "@/components/ui/spinner";
 import { Switch } from "@/components/ui/switch";
+import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts";
 import { getEdition } from "@/lib/game-data";
 import type { EditionId } from "@/lib/game-data/types";
 
@@ -25,6 +30,29 @@ export function GrimoireToolbar({
   onRedactedChange: (redacted: boolean) => void;
 }) {
   const edition = getEdition(editionId);
+  const [inviteOpen, setInviteOpen] = useState(false);
+  const [shortcutsOpen, setShortcutsOpen] = useState(false);
+
+  useKeyboardShortcuts([
+    {
+      id: "show-shortcuts",
+      key: "?",
+      shift: true,
+      onTrigger: () => setShortcutsOpen(true),
+    },
+    {
+      id: "invite-players",
+      key: "i",
+      shift: true,
+      onTrigger: () => setInviteOpen(true),
+    },
+    {
+      id: "toggle-redaction",
+      key: "r",
+      shift: true,
+      onTrigger: () => onRedactedChange(!redacted),
+    },
+  ]);
 
   return (
     <header className="grimoire-toolbar">
@@ -46,12 +74,37 @@ export function GrimoireToolbar({
           <Switch
             checked={redacted}
             className="grimoire-redaction-switch"
+            aria-keyshortcuts="Shift+R"
+            title="Toggle redaction · Shift+R"
             onCheckedChange={onRedactedChange}
           />
         </label>
       </div>
 
-      <GameInviteControl joinCode={joinCode} actorRole={actorRole} />
+      <IconButton
+        label="Keyboard Shortcuts"
+        shortcut="?"
+        size="sm"
+        variant="quiet"
+        tooltipSide="bottom"
+        className="shortcut-help-button"
+        onClick={() => setShortcutsOpen(true)}
+      >
+        <Keyboard className="size-4" />
+      </IconButton>
+
+      <GameInviteControl
+        joinCode={joinCode}
+        actorRole={actorRole}
+        open={inviteOpen}
+        onOpenChange={setInviteOpen}
+      />
+
+      <KeyboardShortcutsDialog
+        actorRole={actorRole}
+        open={shortcutsOpen}
+        onOpenChange={setShortcutsOpen}
+      />
 
       {saveState === "saving" ? (
         <div className="toolbar-status is-saving" role="status">
