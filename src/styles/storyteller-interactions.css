@@ -867,7 +867,7 @@
 .grimoire-panel-tabs.global-dock {
   --panel-tab-width: 36px;
   --panel-tab-height: 88px;
-  --panel-tab-content-gap: 10px;
+  --panel-tab-content-gap: 6px;
   position: fixed;
   z-index: 71;
   top: auto;
@@ -928,15 +928,15 @@
 
 .global-dock .panel-tab-surface {
   position: relative;
-  display: flex;
+  display: grid;
   width: 100%;
   height: var(--panel-tab-height);
   box-sizing: border-box;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
+  grid-template-rows: 20px 52px;
+  align-content: center;
+  justify-items: center;
   gap: var(--panel-tab-content-gap);
-  padding: 10px 6px;
+  padding: 0 4px;
   border: 0;
   border-radius: 0;
   background: transparent;
@@ -969,6 +969,7 @@
 
 .global-dock .panel-tab-label {
   display: block;
+  align-self: start;
   color: var(--grimoire-hardware-text);
   background: transparent;
   box-shadow: none;
@@ -1032,7 +1033,17 @@
   .storyteller-shell:not(.player-grimoire-shell)
     .global-dock
     .panel-tab-surface {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
     padding: 6px 4px;
+  }
+
+  .storyteller-shell:not(.player-grimoire-shell)
+    .global-dock
+    .panel-tab-label {
+    align-self: auto;
   }
 
   .storyteller-shell:not(.player-grimoire-shell) .board-bluff-rack {

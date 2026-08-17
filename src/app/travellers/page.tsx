@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { CharacterSheetPage } from "@/components/character-sheet/character-sheet-page";
 
 export const metadata: Metadata = {
-  title: "Travellers & Fabled Character Sheet | Blood on the Clocktower",
+  title: "Travellers Character Sheet | Blood on the Clocktower",
   description: "Traveller characters and abilities across supported scripts.",
 };
 

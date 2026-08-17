@@ -3,6 +3,7 @@
 import { AlertTriangle, RotateCcw } from "lucide-react";
 import { useMemo, useState } from "react";
 
+import type { CharacterReferenceView } from "@/components/character-sheet/character-reference";
 import { DemonBluffRack } from "@/components/storyteller/demon-bluff-rack";
 import { GrimoireBoard } from "@/components/storyteller/grimoire-board";
 import {
@@ -64,6 +65,8 @@ export function StorytellerApp({
   } = useStorytellerGame(gameCode, initialSnapshot);
   const presence = useGamePresence(gameCode);
   const [openPanel, setOpenPanel] = useState<GrimoirePanel>(null);
+  const [referenceView, setReferenceView] =
+    useState<CharacterReferenceView>("script");
   const [sheetPinned, setSheetPinned] = usePersistedGrimoireSheetPin(gameCode);
   const [nightOrderState, setNightOrderState] =
     usePersistedNightOrderState(gameCode);
@@ -314,9 +317,11 @@ export function StorytellerApp({
           gameTokens={snapshot.gameTokens}
           pinned={sheetPinned}
           pendingReminder={pendingReminder}
+          referenceView={referenceView}
           nightOrderState={nightOrderState}
           onNightOrderStateChange={setNightOrderState}
           onPinnedChange={setSheetPinned}
+          onReferenceViewChange={setReferenceView}
           onClose={() => setOpenPanel(null)}
           onSelectSeat={(seatId) => {
             if (!sheetPinned) setOpenPanel(null);

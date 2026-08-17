@@ -112,7 +112,7 @@ export function CharacterSheet({
               )}
             >
               {travellerDefinition
-                ? "Travellers & Fabled"
+                ? "Travellers"
                 : editionDefinition?.edition.name}
             </h1>
           </div>

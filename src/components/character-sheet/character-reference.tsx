@@ -1,7 +1,5 @@
 "use client";
 
-import { useState } from "react";
-
 import {
   CharacterSheet,
   type CharacterSheetId,
@@ -9,12 +7,23 @@ import {
 import type { EditionId } from "@/lib/game-data";
 import { cn } from "@/lib/utils";
 
-export function CharacterReference({ editionId }: { editionId: EditionId }) {
-  const [sheetId, setSheetId] = useState<CharacterSheetId>(editionId);
-  const travellersSelected = sheetId === "travellers";
+export type CharacterReferenceView = "script" | "travellers";
 
-  function selectTab(nextSheetId: CharacterSheetId) {
-    setSheetId(nextSheetId);
+export function CharacterReference({
+  editionId,
+  view,
+  onViewChange,
+}: {
+  editionId: EditionId;
+  view: CharacterReferenceView;
+  onViewChange: (view: CharacterReferenceView) => void;
+}) {
+  const sheetId: CharacterSheetId =
+    view === "travellers" ? "travellers" : editionId;
+  const travellersSelected = view === "travellers";
+
+  function selectTab(nextView: CharacterReferenceView) {
+    onViewChange(nextView);
   }
 
   return (
@@ -22,21 +31,21 @@ export function CharacterReference({ editionId }: { editionId: EditionId }) {
       <div
         role="tablist"
         aria-label="Character Reference"
-        className="flex shrink-0 border-b border-black/12 bg-black/[0.025] px-4"
+        className="flex shrink-0 border-b border-black/12 bg-black/[0.025]"
       >
         <ReferenceTab
           id="reference-script-tab"
           active={!travellersSelected}
           label="Script"
-          onSelect={() => selectTab(editionId)}
+          onSelect={() => selectTab("script")}
           onMove={() => selectTab("travellers")}
         />
         <ReferenceTab
           id="reference-travellers-tab"
           active={travellersSelected}
-          label="Travellers & Fabled"
+          label="Travellers"
           onSelect={() => selectTab("travellers")}
-          onMove={() => selectTab(editionId)}
+          onMove={() => selectTab("script")}
         />
       </div>
       <div

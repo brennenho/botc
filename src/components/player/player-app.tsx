@@ -3,7 +3,10 @@
 import { BookOpen } from "lucide-react";
 import { useState } from "react";
 
-import { CharacterReference } from "@/components/character-sheet/character-reference";
+import {
+  CharacterReference,
+  type CharacterReferenceView,
+} from "@/components/character-sheet/character-reference";
 import { GrimoirePanelTabs } from "@/components/grimoire/grimoire-panel-tabs";
 import { GrimoireToolbar } from "@/components/grimoire/grimoire-toolbar";
 import { PlayerRoleCard } from "@/components/player/player-role-card";
@@ -35,6 +38,8 @@ export function PlayerApp({
   const presence = useGamePresence(gameCode, seatId);
   const [redacted, setRedacted] = useState(false);
   const [scriptOpen, setScriptOpen] = useState(false);
+  const [referenceView, setReferenceView] =
+    useState<CharacterReferenceView>("script");
 
   if (isTerminalGameError(refreshError)) {
     return (
@@ -97,7 +102,11 @@ export function PlayerApp({
             disablePointerDismissal
             className="character-sheet-side-sheet max-[700px]:!w-screen max-[700px]:!max-w-none max-[700px]:!basis-full"
           >
-            <CharacterReference editionId={snapshot.game.edition} />
+            <CharacterReference
+              editionId={snapshot.game.edition}
+              view={referenceView}
+              onViewChange={setReferenceView}
+            />
           </Sheet>
         </>
       )}

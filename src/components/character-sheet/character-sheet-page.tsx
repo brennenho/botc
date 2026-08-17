@@ -16,8 +16,8 @@ const referenceSheets: {
   ...editions,
   {
     id: "travellers",
-    name: "Travellers & Fabled",
-    shortName: "T&F",
+    name: "Travellers",
+    shortName: "Trav.",
   },
 ];
 
@@ -30,7 +30,7 @@ export function CharacterSheetPage({ sheetId }: { sheetId: CharacterSheetId }) {
           variant="standalone"
           topNavigation={
             <nav
-              className="flex min-w-0 items-stretch border-b border-black/12 bg-black/[0.025] px-3 sm:px-6"
+              className="flex min-w-0 items-stretch border-b border-black/12 bg-black/[0.025]"
               aria-label="Character Sheet Navigation"
             >
               <div className="flex min-w-0 flex-1 overflow-x-auto">
