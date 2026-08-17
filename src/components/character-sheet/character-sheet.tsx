@@ -73,7 +73,9 @@ export function CharacterSheet({
       <header
         className={cn(
           "flex items-center border-b border-black/10",
-          variant === "standalone" ? "px-4 py-4 sm:px-7 sm:py-5" : "px-5 py-4",
+          variant === "standalone"
+            ? "px-4 py-4 sm:px-7 sm:py-5"
+            : "min-h-28 px-5 py-4",
         )}
       >
         <div
@@ -94,7 +96,7 @@ export function CharacterSheet({
               "shrink-0 object-contain",
               variant === "standalone"
                 ? "h-20 w-24 sm:h-24 sm:w-28"
-                : "h-auto w-20",
+                : "h-20 w-20",
             )}
           />
           <div className="min-w-0 border-l border-black/12 pl-4">
@@ -106,7 +108,7 @@ export function CharacterSheet({
                 "font-display font-semibold text-balance",
                 variant === "standalone"
                   ? "mt-1 text-[26px] leading-[1.05] sm:text-4xl sm:leading-tight"
-                  : "mt-0.5 text-2xl",
+                  : "mt-0.5 text-2xl leading-tight",
               )}
             >
               {travellerDefinition

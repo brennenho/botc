@@ -40,7 +40,7 @@ export function CharacterSheetPage({ sheetId }: { sheetId: CharacterSheetId }) {
                     href={`/${sheet.id}`}
                     aria-current={sheet.id === sheetId ? "page" : undefined}
                     className={cn(
-                      "-mb-px flex min-h-11 min-w-0 flex-1 items-center justify-center border-b-2 border-transparent px-2.5 text-[11px] font-semibold whitespace-nowrap text-black/48 transition-colors hover:text-black/76 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-[var(--focus-ring)] sm:min-w-24 sm:flex-none sm:px-3",
+                      "-mb-px flex min-h-11 min-w-0 flex-1 items-center justify-center border-b-2 border-transparent px-2.5 text-[11px] font-semibold whitespace-nowrap text-black/48 transition-colors hover:text-black/76 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-[var(--focus-ring)] sm:px-3",
                       sheet.id === sheetId && "border-black/55 text-black/82",
                     )}
                   >
@@ -49,7 +49,7 @@ export function CharacterSheetPage({ sheetId }: { sheetId: CharacterSheetId }) {
                   </Link>
                 ))}
               </div>
-              <div className="ml-2 flex shrink-0 items-center border-l border-black/12 pl-2">
+              <div className="ml-2 flex min-h-11 w-11 shrink-0 items-center justify-center">
                 <CharacterSheetHomeLink />
               </div>
             </nav>
