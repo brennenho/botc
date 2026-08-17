@@ -300,8 +300,8 @@ jobs:
               skipped: "⚪ Skipped",
             };
             const result = labels[process.env.INTEGRATION_RESULT] ?? "❓ Unknown";
-            const lastRunAt = new Date()
-              .toISOString()
+            const lastRunIso = new Date().toISOString();
+            const lastRunFallback = lastRunIso
               .replace("T", " ")
               .replace(/\.\d{3}Z$/, " UTC");
             const report = process.env.REPORT_URL
@@ -312,7 +312,7 @@ jobs:
               "## Multiplayer integration tests",
               "",
               `**Result:** ${result}`,
-              `**Last run:** ${lastRunAt}`,
+              `**Last run:** <relative-time datetime="${lastRunIso}">${lastRunFallback}</relative-time>`,
               "",
               process.env.TEST_SUMMARY || "_Detailed test results were unavailable._",
               "",
