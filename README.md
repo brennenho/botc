@@ -94,6 +94,14 @@ pnpm test
 pnpm build
 ```
 
+Multiplayer browser tests additionally require the local Supabase stack:
+
+```sh
+pnpm supabase:start
+pnpm supabase:reset
+pnpm test:integration
+```
+
 Additional database and dependency checks are documented in the
 [development guide](docs/DEVELOPMENT.md#verification).
 

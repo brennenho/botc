@@ -182,6 +182,7 @@ export function StorytellerApp({
       <GrimoireToolbar
         editionId={snapshot.game.edition}
         joinCode={snapshot.game.joinCode}
+        actorRole="storyteller"
         saveState={saveState}
         redacted={redacted}
         onRedactedChange={handleRedactedChange}

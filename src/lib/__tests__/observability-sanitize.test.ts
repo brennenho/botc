@@ -14,6 +14,7 @@ describe("observability privacy sanitization", () => {
     expect(
       sanitizePath("/game/7KPYGH/player/6ee6b850-5747-4637-97f8-7adf47c3a913"),
     ).toBe("/game/[code]/player/[seatId]");
+    expect(sanitizePath("/join/7KPYGH")).toBe("/join/[code]");
   });
 
   it("keeps public routes intact", () => {
@@ -28,6 +29,7 @@ describe("observability privacy sanitization", () => {
       ),
     ).toBe("https://example.com/game/[code]/storyteller");
     expect(sanitizeUrl("/privacy?source=footer#questions")).toBe("/privacy");
+    expect(sanitizeUrl("/join/7KPYGH?source=qr")).toBe("/join/[code]");
   });
 
   it("sanitizes every URL property without mutating the input", () => {

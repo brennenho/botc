@@ -11,6 +11,13 @@ export type ProductEvents = {
     edition: EditionId;
     player_count: number;
   };
+  game_invitation_opened: {
+    actor_role: "storyteller" | "player";
+  };
+  game_invitation_shared: {
+    actor_role: "storyteller" | "player";
+    method: "native" | "link" | "code";
+  };
   game_joined: { actor_role: "player" };
   player_added: { actor_role: "storyteller" };
   player_removed: { actor_role: "storyteller" };

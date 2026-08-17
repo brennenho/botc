@@ -11,7 +11,7 @@ export const env = createEnv({
   },
 
   client: {
-    NEXT_PUBLIC_POSTHOG_CAPTURE_IN_DEVELOPMENT: z
+    NEXT_PUBLIC_DISABLE_OBSERVABILITY: z
       .enum(["true", "false"])
       .default("false"),
     NEXT_PUBLIC_POSTHOG_HOST: z.string().trim().url(),
@@ -27,8 +27,8 @@ export const env = createEnv({
     POSTHOG_PROJECT_ID: process.env.POSTHOG_PROJECT_ID,
     SUPABASE_SECRET_KEY:
       process.env.SUPABASE_SECRET_KEY ?? process.env.SUPABASE_SERVICE_ROLE_KEY,
-    NEXT_PUBLIC_POSTHOG_CAPTURE_IN_DEVELOPMENT:
-      process.env.NEXT_PUBLIC_POSTHOG_CAPTURE_IN_DEVELOPMENT,
+    NEXT_PUBLIC_DISABLE_OBSERVABILITY:
+      process.env.NEXT_PUBLIC_DISABLE_OBSERVABILITY,
     NEXT_PUBLIC_POSTHOG_HOST: process.env.NEXT_PUBLIC_POSTHOG_HOST,
     NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN:
       process.env.NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN,

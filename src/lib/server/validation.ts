@@ -1,12 +1,13 @@
 import { z } from "zod";
 
 import { roleById } from "@/lib/game-data";
+import { GAME_CODE_PATTERN } from "@/lib/game-code";
 
 const gameCode = z
   .string()
   .trim()
   .transform((value) => value.toUpperCase())
-  .pipe(z.string().regex(/^[A-HJ-NP-Z2-9]{6}$/, "Enter a valid game code."));
+  .pipe(z.string().regex(GAME_CODE_PATTERN, "Enter a valid game code."));
 
 const roleId = z
   .string()

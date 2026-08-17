@@ -7,6 +7,7 @@ import {
 } from "@opentelemetry/sdk-logs";
 
 import { env } from "@/env";
+import { observabilityEnabled } from "@/lib/observability/config";
 
 type LogAttribute = string | number | boolean;
 type LogAttributes = Record<string, LogAttribute>;
@@ -14,15 +15,11 @@ type LogLevel = "error" | "info" | "warn";
 type Logger = ReturnType<LoggerProvider["getLogger"]>;
 type LoggingState = { logger: Logger; provider: LoggerProvider };
 
-const captureInCurrentEnvironment =
-  env.NODE_ENV === "production" ||
-  env.NEXT_PUBLIC_POSTHOG_CAPTURE_IN_DEVELOPMENT === "true";
-
 let loggingState: LoggingState | null | undefined;
 
 function getLoggingState() {
   if (loggingState !== undefined) return loggingState;
-  if (!captureInCurrentEnvironment) {
+  if (!observabilityEnabled) {
     loggingState = null;
     return loggingState;
   }

@@ -7,6 +7,11 @@
 
 # testing
 /coverage
+/integration-report
+/integration-results.json
+/integration-test-results
+/playwright-report
+/test-results
 
 # database
 /prisma/db.sqlite

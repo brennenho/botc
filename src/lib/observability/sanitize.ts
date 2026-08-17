@@ -19,6 +19,10 @@ export function sanitizePath(pathname: string) {
     segments[2] = "[code]";
   }
 
+  if (segments[1] === "join" && segments[2]) {
+    segments[2] = "[code]";
+  }
+
   if (segments[1] === "game" && segments[3] === "player" && segments[4]) {
     segments[4] = "[seatId]";
   }
