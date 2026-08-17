@@ -1,7 +1,5 @@
 "use client";
 
-import { BookOpen, Compass } from "lucide-react";
-import type { ReactNode } from "react";
 import { useState } from "react";
 
 import {
@@ -13,58 +11,90 @@ import { cn } from "@/lib/utils";
 
 export function CharacterReference({ editionId }: { editionId: EditionId }) {
   const [sheetId, setSheetId] = useState<CharacterSheetId>(editionId);
+  const travellersSelected = sheetId === "travellers";
+
+  function selectTab(nextSheetId: CharacterSheetId) {
+    setSheetId(nextSheetId);
+  }
 
   return (
-    <CharacterSheet
-      sheetId={sheetId}
-      headerActions={
-        <div
-          role="tablist"
-          aria-label="Character Reference"
-          className="grid w-full grid-cols-2 rounded-[var(--radius-control)] bg-black/[0.055] p-0.5"
-        >
-          <ReferenceTab
-            active={sheetId !== "travellers"}
-            icon={<BookOpen aria-hidden="true" />}
-            label="Script"
-            onClick={() => setSheetId(editionId)}
-          />
-          <ReferenceTab
-            active={sheetId === "travellers"}
-            icon={<Compass aria-hidden="true" />}
-            label="Travellers"
-            onClick={() => setSheetId("travellers")}
-          />
-        </div>
-      }
-    />
+    <div className="flex h-full min-h-0 flex-col">
+      <div
+        role="tablist"
+        aria-label="Character Reference"
+        className="flex shrink-0 border-b border-black/12 bg-black/[0.025] px-4"
+      >
+        <ReferenceTab
+          id="reference-script-tab"
+          active={!travellersSelected}
+          label="Script"
+          onSelect={() => selectTab(editionId)}
+          onMove={() => selectTab("travellers")}
+        />
+        <ReferenceTab
+          id="reference-travellers-tab"
+          active={travellersSelected}
+          label="Travellers & Fabled"
+          onSelect={() => selectTab("travellers")}
+          onMove={() => selectTab(editionId)}
+        />
+      </div>
+      <div
+        id="character-reference-panel"
+        role="tabpanel"
+        aria-labelledby={
+          travellersSelected
+            ? "reference-travellers-tab"
+            : "reference-script-tab"
+        }
+        className="min-h-0 flex-1"
+      >
+        <CharacterSheet sheetId={sheetId} />
+      </div>
+    </div>
   );
 }
 
 function ReferenceTab({
+  id,
   active,
-  icon,
   label,
-  onClick,
+  onSelect,
+  onMove,
 }: {
+  id: string;
   active: boolean;
-  icon: ReactNode;
   label: string;
-  onClick: () => void;
+  onSelect: () => void;
+  onMove: () => void;
 }) {
   return (
     <button
+      id={id}
       type="button"
       role="tab"
       aria-selected={active}
+      aria-controls="character-reference-panel"
+      tabIndex={active ? 0 : -1}
       className={cn(
-        "flex min-h-8 items-center justify-center gap-1.5 rounded-[calc(var(--radius-control)-2px)] px-3 text-[11px] font-semibold text-black/50 transition-colors hover:text-black/78 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-[var(--focus-ring)]",
-        active &&
-          "bg-[#fbf6e9] text-black/82 shadow-[0_1px_3px_rgb(54_37_17/0.14)]",
+        "-mb-px min-h-11 flex-1 border-b-2 border-transparent px-3 text-[11px] font-semibold text-black/48 transition-colors hover:text-black/76 focus-visible:outline-none",
+        active && "border-black/55 text-black/82",
       )}
-      onClick={onClick}
+      onClick={onSelect}
+      onKeyDown={(event) => {
+        if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
+        event.preventDefault();
+        const tabs = Array.from(
+          event.currentTarget.parentElement?.querySelectorAll<HTMLButtonElement>(
+            '[role="tab"]',
+          ) ?? [],
+        );
+        const currentIndex = tabs.indexOf(event.currentTarget);
+        const direction = event.key === "ArrowRight" ? 1 : -1;
+        tabs[(currentIndex + direction + tabs.length) % tabs.length]?.focus();
+        onMove();
+      }}
     >
-      <span className="[&>svg]:size-3.5">{icon}</span>
       {label}
     </button>
   );

@@ -1,5 +1,4 @@
 import Image from "next/image";
-import { Compass } from "lucide-react";
 import type { ReactNode } from "react";
 
 import { CharacterToken } from "@/components/grimoire/character-token";
@@ -48,12 +47,12 @@ export type CharacterSheetId = EditionId | "travellers";
 export function CharacterSheet({
   sheetId,
   variant = "embedded",
-  headerActions,
+  topNavigation,
   className,
 }: {
   sheetId: CharacterSheetId;
   variant?: "embedded" | "standalone";
-  headerActions?: ReactNode;
+  topNavigation?: ReactNode;
   className?: string;
 }) {
   const editionDefinition =
@@ -70,12 +69,11 @@ export function CharacterSheet({
         className,
       )}
     >
+      {topNavigation}
       <header
         className={cn(
           "flex items-center border-b border-black/10",
-          variant === "standalone"
-            ? "flex-wrap justify-between gap-x-5 gap-y-2 px-4 py-4 sm:gap-x-6 sm:gap-y-4 sm:px-7 sm:py-5"
-            : "flex-wrap justify-between gap-3 px-5 py-4",
+          variant === "standalone" ? "px-4 py-4 sm:px-7 sm:py-5" : "px-5 py-4",
         )}
       >
         <div
@@ -84,41 +82,24 @@ export function CharacterSheet({
             variant === "standalone" ? "gap-4 sm:gap-5" : "gap-4",
           )}
         >
-          {editionDefinition ? (
-            <Image
-              src={editionDefinition.edition.logoPath}
-              alt=""
-              width={120}
-              height={90}
-              priority={variant === "standalone"}
-              className={cn(
-                "shrink-0 object-contain",
-                variant === "standalone"
-                  ? "h-20 w-24 sm:h-24 sm:w-28"
-                  : "h-auto w-20",
-              )}
-            />
-          ) : (
-            <div
-              aria-hidden="true"
-              className={cn(
-                "grid shrink-0 place-items-center rounded-full border-4 border-double border-amber-800/45 bg-amber-950/[0.055] text-amber-900",
-                variant === "standalone"
-                  ? "h-20 w-20 sm:h-24 sm:w-24"
-                  : "h-16 w-16",
-              )}
-            >
-              <Compass
-                className={cn(
-                  variant === "standalone" ? "size-10 sm:size-12" : "size-8",
-                )}
-                strokeWidth={1.35}
-              />
-            </div>
-          )}
+          <Image
+            src={
+              editionDefinition?.edition.logoPath ?? "/assets/editions/taf.webp"
+            }
+            alt=""
+            width={120}
+            height={90}
+            priority={variant === "standalone"}
+            className={cn(
+              "shrink-0 object-contain",
+              variant === "standalone"
+                ? "h-20 w-24 sm:h-24 sm:w-28"
+                : "h-auto w-20",
+            )}
+          />
           <div className="min-w-0 border-l border-black/12 pl-4">
             <p className="font-mono text-[10px] font-medium tracking-normal text-black/48 uppercase">
-              {travellerDefinition ? "Character Reference" : "Character Sheet"}
+              Character Sheet
             </p>
             <h1
               className={cn(
@@ -129,27 +110,11 @@ export function CharacterSheet({
               )}
             >
               {travellerDefinition
-                ? "Travellers"
+                ? "Travellers & Fabled"
                 : editionDefinition?.edition.name}
             </h1>
-            {travellerDefinition && (
-              <p className="mt-1 font-mono text-[9px] text-black/42">
-                {travellerDefinition.roleCount} characters · all supported
-                scripts
-              </p>
-            )}
           </div>
         </div>
-        {headerActions && (
-          <div
-            className={cn(
-              "flex w-full min-w-0 items-center gap-3",
-              variant === "standalone" && "sm:w-auto sm:justify-end",
-            )}
-          >
-            {headerActions}
-          </div>
-        )}
       </header>
 
       <div
@@ -192,20 +157,15 @@ function TravellerGroup({
       className={cn("min-w-0 border-t-2", travellerPresentation.sectionClass)}
     >
       <header className="flex items-baseline justify-between gap-3 px-3 pt-3 pb-2">
-        <div>
-          <h2
-            id={headingId}
-            className={cn(
-              "font-mono text-[11px] font-medium tracking-normal uppercase",
-              travellerPresentation.labelClass,
-            )}
-          >
-            {group.edition.name}
-          </h2>
-          <p className="mt-0.5 font-mono text-[9px] text-black/38">
-            Travellers
-          </p>
-        </div>
+        <h2
+          id={headingId}
+          className={cn(
+            "font-mono text-[11px] font-medium tracking-normal uppercase",
+            travellerPresentation.labelClass,
+          )}
+        >
+          {group.edition.name}
+        </h2>
         <span className="font-mono text-[10px] text-black/38">
           {group.roles.length}
         </span>

@@ -14,7 +14,11 @@ const referenceSheets: {
   shortName: string;
 }[] = [
   ...editions,
-  { id: "travellers", name: "Travellers", shortName: "Trav." },
+  {
+    id: "travellers",
+    name: "Travellers & Fabled",
+    shortName: "T&F",
+  },
 ];
 
 export function CharacterSheetPage({ sheetId }: { sheetId: CharacterSheetId }) {
@@ -24,21 +28,20 @@ export function CharacterSheetPage({ sheetId }: { sheetId: CharacterSheetId }) {
         <CharacterSheet
           sheetId={sheetId}
           variant="standalone"
-          headerActions={
+          topNavigation={
             <nav
-              className="flex w-full min-w-0 items-center gap-2 sm:w-auto"
+              className="flex min-w-0 items-stretch border-b border-black/12 bg-black/[0.025] px-3 sm:px-6"
               aria-label="Character Sheet Navigation"
             >
-              <div className="flex min-w-0 flex-1 rounded-[var(--radius-control)] bg-black/[0.055] p-0.5 sm:flex-none">
+              <div className="flex min-w-0 flex-1 overflow-x-auto">
                 {referenceSheets.map((sheet) => (
                   <Link
                     key={sheet.id}
                     href={`/${sheet.id}`}
                     aria-current={sheet.id === sheetId ? "page" : undefined}
                     className={cn(
-                      "flex min-h-8 min-w-0 flex-1 items-center justify-center rounded-[calc(var(--radius-control)-2px)] px-2.5 text-xs font-semibold whitespace-nowrap text-black/52 transition-colors hover:text-black/78 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-[var(--focus-ring)] sm:min-w-24 sm:flex-none sm:px-3",
-                      sheet.id === sheetId &&
-                        "bg-[#fbf6e9] text-black/82 shadow-[0_1px_3px_rgb(54_37_17/0.14)]",
+                      "-mb-px flex min-h-11 min-w-0 flex-1 items-center justify-center border-b-2 border-transparent px-2.5 text-[11px] font-semibold whitespace-nowrap text-black/48 transition-colors hover:text-black/76 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-[var(--focus-ring)] sm:min-w-24 sm:flex-none sm:px-3",
+                      sheet.id === sheetId && "border-black/55 text-black/82",
                     )}
                   >
                     <span className="sm:hidden">{sheet.shortName}</span>
@@ -46,8 +49,9 @@ export function CharacterSheetPage({ sheetId }: { sheetId: CharacterSheetId }) {
                   </Link>
                 ))}
               </div>
-              <span aria-hidden="true" className="h-5 w-px bg-black/12" />
-              <CharacterSheetHomeLink />
+              <div className="ml-2 flex shrink-0 items-center border-l border-black/12 pl-2">
+                <CharacterSheetHomeLink />
+              </div>
             </nav>
           }
           className="overflow-hidden border border-black/12 bg-[#f4ecd9]/84 shadow-[0_12px_36px_rgb(62_41_18/0.14)] backdrop-blur-[2px]"
