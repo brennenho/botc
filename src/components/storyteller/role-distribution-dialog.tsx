@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import {
   getRolesByTeam,
   getSetupSelectionTargetCounts,
+  getTravellerRoles,
   roleById,
   type EditionId,
   type TeamCounts,
@@ -65,6 +66,7 @@ export function RoleDistributionDialog({
   const selectionComplete =
     residentSelectionComplete && travellerSelectionComplete;
   const grouped = getRolesByTeam(editionId);
+  const travellerRoles = getTravellerRoles();
   const residentLimitReached =
     selectedResidentRoleIds.length >= residentSelectionTarget;
   const travellerLimitReached =
@@ -77,7 +79,7 @@ export function RoleDistributionDialog({
             .map((role) => role.id),
         )
       : []),
-    ...(travellerLimitReached ? grouped.traveller.map((role) => role.id) : []),
+    ...(travellerLimitReached ? travellerRoles.map((role) => role.id) : []),
   ];
   const travellerDetail =
     travellerCount === 0
@@ -128,7 +130,7 @@ export function RoleDistributionDialog({
       targetTeamCounts={targetTeamCounts}
       teams={assignableTeams}
       collapsibleTeams={["traveller"]}
-      collapsibleTeamDetails={{ traveller: travellerDetail }}
+      teamDetails={{ traveller: travellerDetail }}
       unavailableRoleIds={unavailableRoleIds}
       onOpenChange={onOpenChange}
       onSelect={toggleRole}

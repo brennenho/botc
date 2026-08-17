@@ -521,7 +521,7 @@ describe("role distribution", () => {
         "poisoner",
         "imp",
         "bureaucrat",
-        "thief",
+        "barista",
       ],
       { random: () => 0.5 },
     );
@@ -537,7 +537,7 @@ describe("role distribution", () => {
         ?.slice(5)
         .map(({ roleId }) => roleId)
         .sort(),
-    ).toEqual(["bureaucrat", "thief"]);
+    ).toEqual(["barista", "bureaucrat"]);
     expect(patch.seats?.[5]).toMatchObject({
       isTraveller: true,
       alignment: "good",

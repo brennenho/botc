@@ -7,9 +7,11 @@ import { CharacterToken } from "@/components/grimoire/character-token";
 import { RoleInfoButton } from "@/components/storyteller/role-info-button";
 import { Button } from "@/components/ui/button";
 import {
+  getCrossEditionTravellerRoles,
   getRolesByTeam,
   teamLabel,
   type EditionId,
+  type Role,
   type Team,
   type TeamCounts,
 } from "@/lib/game-data";
@@ -26,7 +28,7 @@ export function CharacterCatalog({
   targetTeamCounts,
   teams,
   collapsibleTeams = [],
-  collapsibleTeamDetails = {},
+  teamDetails = {},
   unavailableRoleIds = [],
   onSelect,
 }: {
@@ -40,30 +42,78 @@ export function CharacterCatalog({
   targetTeamCounts?: TeamCounts;
   teams: readonly Team[];
   collapsibleTeams?: readonly Team[];
-  collapsibleTeamDetails?: Partial<Record<Team, string>>;
+  teamDetails?: Partial<Record<Team, string>>;
   unavailableRoleIds?: readonly string[];
   onSelect: (roleId: string) => void;
 }) {
   const grouped = getRolesByTeam(editionId);
+  const crossEditionTravellers = getCrossEditionTravellerRoles(editionId);
+  const catalogGroups = teams.flatMap<{
+    key: string;
+    team: Team;
+    roles: Role[];
+    label: string;
+    detail?: string;
+    collapsible: boolean;
+  }>((team) => {
+    if (team !== "traveller") {
+      return [
+        {
+          key: team,
+          team,
+          roles: grouped[team],
+          label: teamLabel(team),
+          detail: teamDetails[team],
+          collapsible: collapsibleTeams.includes(team),
+        },
+      ];
+    }
+
+    const travellerGroups = [
+      {
+        key: "traveller",
+        team,
+        roles: grouped.traveller,
+        label: "Travellers",
+        detail: teamDetails.traveller,
+        collapsible: false,
+      },
+    ];
+    if (collapsibleTeams.includes("traveller")) {
+      travellerGroups.push({
+        key: "traveller-other",
+        team,
+        roles: crossEditionTravellers,
+        label: "Other Travellers",
+        detail: `${crossEditionTravellers.length} from other scripts`,
+        collapsible: true,
+      });
+    }
+    return travellerGroups;
+  });
   const hasMultipleDemons = grouped.demon.length > 1;
   const catalogId = useId();
-  const [expandedTeams, setExpandedTeams] = useState<Set<Team>>(
+  const [expandedGroups, setExpandedGroups] = useState<Set<string>>(
     () => new Set(),
   );
-  const selectedCollapsibleTeams = collapsibleTeams.filter((team) =>
-    grouped[team].some((role) => selectedRoleIds.includes(role.id)),
-  );
-  const selectedCollapsibleTeamKey = selectedCollapsibleTeams.join("|");
+  const selectedCollapsibleGroupKey = catalogGroups
+    .filter(
+      (group) =>
+        group.collapsible &&
+        group.roles.some((role) => selectedRoleIds.includes(role.id)),
+    )
+    .map((group) => group.key)
+    .join("|");
 
   useEffect(() => {
-    if (!selectedCollapsibleTeamKey) return;
-    const selectedTeams = selectedCollapsibleTeamKey.split("|") as Team[];
-    setExpandedTeams((current) => {
+    if (!selectedCollapsibleGroupKey) return;
+    const selectedGroups = selectedCollapsibleGroupKey.split("|");
+    setExpandedGroups((current) => {
       const next = new Set(current);
-      selectedTeams.forEach((team) => next.add(team));
+      selectedGroups.forEach((group) => next.add(group));
       return next;
     });
-  }, [selectedCollapsibleTeamKey]);
+  }, [selectedCollapsibleGroupKey]);
 
   return (
     <div
@@ -73,21 +123,21 @@ export function CharacterCatalog({
         hasMultipleDemons && "has-multiple-demons",
       )}
     >
-      {teams.map((team) => {
-        const roles = grouped[team];
+      {catalogGroups.map((group) => {
+        const { key, team, roles, label, detail, collapsible } = group;
         const selectedCount = roles.filter((role) =>
           selectedRoleIds.includes(role.id),
         ).length;
-        const collapsible = collapsibleTeams.includes(team);
-        const expanded = !collapsible || expandedTeams.has(team);
-        const contentId = `${catalogId}-${team}`;
+        const expanded = !collapsible || expandedGroups.has(key);
+        const contentId = `${catalogId}-${key}`;
 
         return (
           <section
-            key={team}
+            key={key}
             className={cn(
               "token-team",
               `team-${team}`,
+              key === "traveller-other" && "team-traveller-other",
               collapsible && "is-collapsible",
               !expanded && "is-collapsed",
             )}
@@ -100,27 +150,25 @@ export function CharacterCatalog({
                   aria-expanded={expanded}
                   aria-controls={contentId}
                   onClick={() =>
-                    setExpandedTeams((current) => {
+                    setExpandedGroups((current) => {
                       const next = new Set(current);
-                      if (next.has(team)) next.delete(team);
-                      else next.add(team);
+                      if (next.has(key)) next.delete(key);
+                      else next.add(key);
                       return next;
                     })
                   }
                 >
                   <span className="token-team-toggle-copy">
-                    <span>
-                      {team === "traveller" ? "Travellers" : teamLabel(team)}
-                    </span>
-                    <small>
-                      {collapsibleTeamDetails[team] ??
-                        `Optional · ${roles.length} characters`}
-                    </small>
+                    <span>{label}</span>
+                    {detail && <small>{detail}</small>}
                   </span>
                   <ChevronDown aria-hidden="true" />
                 </button>
               ) : (
-                <span>{teamLabel(team)}</span>
+                <span className="token-team-heading">
+                  <span>{label}</span>
+                  {detail && <small>{detail}</small>}
+                </span>
               )}
               {team !== "traveller" &&
                 selectionMode === "multiple" &&

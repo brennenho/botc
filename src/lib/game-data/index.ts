@@ -1,9 +1,11 @@
 export {
   editions,
+  getCrossEditionTravellerRoles,
   getDefaultAlignment,
   getEdition,
   getEditionRoles,
   getRolesByTeam,
+  getTravellerRoles,
   roleById,
   roles,
   teamLabel,

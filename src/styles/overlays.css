@@ -173,7 +173,14 @@
   white-space: nowrap;
 }
 
-.token-team-toggle small {
+.token-team-heading {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.token-team-toggle small,
+.token-team-heading small {
   color: var(--text-on-dark-subtle);
   font-size: 8px;
   font-weight: 500;
@@ -594,6 +601,10 @@
 
 .pool-case .team-traveller .token-grid {
   grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.pool-case .team-traveller-other .token-grid {
+  grid-template-columns: repeat(auto-fit, minmax(64px, 1fr));
 }
 
 .pool-case .has-multiple-demons .team-demon .token-grid {

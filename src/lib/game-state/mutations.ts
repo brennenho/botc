@@ -222,10 +222,7 @@ export function dealRoles(
   if (
     (travellerRoleIds.length > 0 &&
       travellerRoleIds.length !== travellerSeats.length) ||
-    new Set(travellerRoleIds).size !== travellerRoleIds.length ||
-    travellerRoleIds.some(
-      (roleId) => roleById.get(roleId)?.edition !== current.game.edition,
-    )
+    new Set(travellerRoleIds).size !== travellerRoleIds.length
   ) {
     return {};
   }

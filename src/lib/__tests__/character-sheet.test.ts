@@ -2,8 +2,11 @@ import { describe, expect, it } from "vitest";
 
 import {
   characterSheetTeams,
+  getCrossEditionTravellerRoles,
   getCharacterSheetDefinition,
   getEditionRoles,
+  getRolesByTeam,
+  getTravellerRoles,
   type EditionId,
 } from "@/lib/game-data";
 
@@ -43,4 +46,21 @@ describe("character sheet definitions", () => {
       }
     }
   });
+
+  it.each(["tb", "bmr", "snv"] as const)(
+    "separates %s Travellers from cross-script options",
+    (editionId) => {
+      const editionTravellers = getRolesByTeam(editionId).traveller;
+      const crossScriptTravellers = getCrossEditionTravellerRoles(editionId);
+
+      expect(editionTravellers).toHaveLength(5);
+      expect(crossScriptTravellers).toHaveLength(10);
+      expect(
+        crossScriptTravellers.every((role) => role.edition !== editionId),
+      ).toBe(true);
+      expect(new Set([...editionTravellers, ...crossScriptTravellers])).toEqual(
+        new Set(getTravellerRoles()),
+      );
+    },
+  );
 });

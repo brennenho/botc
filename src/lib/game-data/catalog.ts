@@ -72,6 +72,14 @@ export function getRolesByTeam(edition: EditionId) {
   );
 }
 
+export function getTravellerRoles() {
+  return roles.filter((role) => role.team === "traveller");
+}
+
+export function getCrossEditionTravellerRoles(edition: EditionId) {
+  return getTravellerRoles().filter((role) => role.edition !== edition);
+}
+
 export function getDefaultAlignment(role: Role): Alignment {
   return role.team === "minion" || role.team === "demon" ? "evil" : "good";
 }
