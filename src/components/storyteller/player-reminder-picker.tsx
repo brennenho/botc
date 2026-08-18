@@ -54,9 +54,10 @@ export function PlayerReminderPicker({
       <header className="player-menu-header reminder-menu-header">
         <IconButton
           label="Back"
+          shortcut="B"
           size="sm"
           variant="quiet"
-          tooltip={false}
+          tooltipSide="bottom"
           onClick={onBack}
         >
           <ArrowLeft className="size-4" />

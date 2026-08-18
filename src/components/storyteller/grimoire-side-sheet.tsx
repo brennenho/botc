@@ -22,6 +22,7 @@ export type GrimoirePanel = "players" | "night" | "info" | "script" | null;
 
 export function GrimoireSideSheet({
   panel,
+  shortcutsEnabled,
   editionId,
   seats,
   gameTokens,
@@ -49,6 +50,7 @@ export function GrimoireSideSheet({
   onChooseRevealRole,
 }: {
   panel: GrimoirePanel;
+  shortcutsEnabled: boolean;
   editionId: EditionId;
   seats: Seat[];
   gameTokens: GameToken[];
@@ -109,6 +111,7 @@ export function GrimoireSideSheet({
     >
       <div className="sheet-panel" hidden={panel !== "players"}>
         <RosterPanel
+          shortcutsEnabled={shortcutsEnabled && panel === "players"}
           editionId={editionId}
           seats={seats}
           gameTokens={gameTokens}
@@ -126,6 +129,7 @@ export function GrimoireSideSheet({
       </div>
       <div className="sheet-panel" hidden={panel !== "night"}>
         <NightOrderPanel
+          shortcutsEnabled={shortcutsEnabled && panel === "night"}
           editionId={editionId}
           seats={seats}
           gameTokens={gameTokens}

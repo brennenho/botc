@@ -191,6 +191,16 @@
   font-size: 10px;
 }
 
+.roster-sheet-footer .shortcut-key {
+  margin-left: auto;
+}
+
+@media (max-width: 700px), (pointer: coarse) {
+  .toolbar-shortcuts-button {
+    display: none;
+  }
+}
+
 .roster-sheet-footer .roster-clear-assignments:not(:disabled) {
   color: var(--oxblood);
 }

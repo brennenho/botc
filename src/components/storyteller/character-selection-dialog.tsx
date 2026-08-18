@@ -52,7 +52,10 @@ export function CharacterSelectionDialog({
       <Dialog.Portal>
         <Dialog.Backdrop className="dialog-backdrop" />
         <Dialog.Viewport className="dialog-viewport">
-          <Dialog.Popup className="token-case pool-case">
+          <Dialog.Popup
+            className="token-case pool-case"
+            data-keyboard-shortcuts-modal
+          >
             <header className="token-case-header">
               <Dialog.Title>{title}</Dialog.Title>
               <IconButton

@@ -17,6 +17,8 @@ import { Button } from "@/components/ui/button";
 import { IconButton } from "@/components/ui/icon-button";
 import { Input } from "@/components/ui/input";
 import { SegmentedControl } from "@/components/ui/segmented-control";
+import { ShortcutKey } from "@/components/ui/shortcut-key";
+import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts";
 import { roleById } from "@/lib/game-data";
 import type {
   Alignment,
@@ -34,6 +36,7 @@ export function PlayerContextMenu({
   seat,
   seats,
   gameTokens,
+  shortcutsEnabled,
   side,
   style,
   onClose,
@@ -50,6 +53,7 @@ export function PlayerContextMenu({
   seat: Seat;
   seats: Seat[];
   gameTokens: GameToken[];
+  shortcutsEnabled: boolean;
   side: "left" | "right";
   style: CSSProperties;
   onClose: () => void;
@@ -86,13 +90,59 @@ export function PlayerContextMenu({
     nameInputRef.current?.select();
   }, [editingName]);
 
-  useEffect(() => {
-    function closeOnEscape(event: KeyboardEvent) {
-      if (event.key === "Escape") onClose();
-    }
-    window.addEventListener("keydown", closeOnEscape);
-    return () => window.removeEventListener("keydown", closeOnEscape);
-  }, [onClose]);
+  useKeyboardShortcuts(
+    [
+      {
+        id: "choose-player-character",
+        key: "c",
+        onTrigger: onChooseRole,
+      },
+      {
+        id: "rename-player",
+        key: "e",
+        onTrigger: () => setEditingName(true),
+      },
+      {
+        id: "add-player-reminder",
+        key: "m",
+        onTrigger: () => setView("reminders"),
+      },
+      {
+        id: "toggle-player-life",
+        key: "d",
+        onTrigger: () => onSetAlive(!seat.alive),
+      },
+      {
+        id: "toggle-player-alignment",
+        key: "a",
+        onTrigger: () =>
+          onSetAlignment(seat.alignment === "good" ? "evil" : "good"),
+      },
+      {
+        id: "toggle-player-ghost-vote",
+        key: "v",
+        enabled: !seat.alive,
+        onTrigger: () => onSetGhostVote(!seat.ghostVoteAvailable),
+      },
+      {
+        id: "toggle-player-type",
+        key: "t",
+        onTrigger: () => onSetTraveller(!seat.isTraveller),
+      },
+    ],
+    shortcutsEnabled && view === "player",
+  );
+
+  useKeyboardShortcuts(
+    [
+      {
+        id: "back-from-reminders",
+        key: "b",
+        onTrigger: () => setView("player"),
+      },
+    ],
+    shortcutsEnabled && view === "reminders",
+  );
 
   function finishEditingName() {
     const nextName = draftName.trim();
@@ -124,6 +174,7 @@ export function PlayerContextMenu({
                 role && "has-character",
               )}
               onClick={onChooseRole}
+              aria-keyshortcuts="C"
               aria-label={
                 role
                   ? `Change ${seat.playerName}'s Character`
@@ -161,10 +212,12 @@ export function PlayerContextMenu({
                   type="button"
                   size="sm"
                   variant="quiet"
+                  aria-keyshortcuts="E"
                   onClick={() => setEditingName(true)}
                 >
                   <strong>{seat.playerName}</strong>
                   <Pencil aria-hidden="true" />
+                  <ShortcutKey shortcut="E" size="sm" />
                 </Button>
               )}
               <span>
@@ -183,7 +236,7 @@ export function PlayerContextMenu({
           </header>
 
           <div className="player-menu-state">
-            <MenuControl label="Status">
+            <MenuControl label="Status" shortcut="D">
               <SegmentedControl
                 value={seat.alive ? "alive" : "dead"}
                 label="Life Status"
@@ -196,7 +249,7 @@ export function PlayerContextMenu({
               />
             </MenuControl>
             {!seat.alive && (
-              <MenuControl label="Ghost Vote">
+              <MenuControl label="Ghost Vote" shortcut="V">
                 <SegmentedControl
                   value={seat.ghostVoteAvailable ? "available" : "used"}
                   label="Ghost Vote"
@@ -210,7 +263,7 @@ export function PlayerContextMenu({
               </MenuControl>
             )}
             <div className="player-menu-state-grid">
-              <MenuControl label="Alignment">
+              <MenuControl label="Alignment" shortcut="A">
                 <SegmentedControl
                   value={seat.alignment}
                   label="Alignment"
@@ -222,7 +275,7 @@ export function PlayerContextMenu({
                   onChange={onSetAlignment}
                 />
               </MenuControl>
-              <MenuControl label="Player Type">
+              <MenuControl label="Player Type" shortcut="T">
                 <SegmentedControl
                   value={seat.isTraveller ? "traveller" : "resident"}
                   label="Player Type"
@@ -238,13 +291,20 @@ export function PlayerContextMenu({
           </div>
 
           <div className="player-menu-actions">
-            <Button type="button" variant="quiet" onClick={onChooseRole}>
+            <Button
+              type="button"
+              variant="quiet"
+              aria-keyshortcuts="C"
+              onClick={onChooseRole}
+            >
               <LibraryBig className="size-4" />
               {role ? "Change Character" : "Choose Character"}
+              <ShortcutKey shortcut="C" size="sm" />
             </Button>
             <Button
               type="button"
               variant="quiet"
+              aria-keyshortcuts="M"
               onClick={() => setView("reminders")}
             >
               <ReminderIcon className="size-4" />
@@ -252,6 +312,7 @@ export function PlayerContextMenu({
               {targetReminderCount > 0 && (
                 <span className="player-menu-count">{targetReminderCount}</span>
               )}
+              <ShortcutKey shortcut="M" size="sm" />
             </Button>
           </div>
 
@@ -279,14 +340,19 @@ export function PlayerContextMenu({
 
 function MenuControl({
   label,
+  shortcut,
   children,
 }: {
   label: string;
+  shortcut?: string;
   children: ReactNode;
 }) {
   return (
-    <div className="player-menu-control">
-      <span className="utility-label">{label}</span>
+    <div className="player-menu-control" aria-keyshortcuts={shortcut}>
+      <span className="player-menu-control-label">
+        <span className="utility-label">{label}</span>
+        {shortcut ? <ShortcutKey shortcut={shortcut} size="sm" /> : null}
+      </span>
       {children}
     </div>
   );

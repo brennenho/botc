@@ -6,6 +6,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { ShortcutHint } from "@/components/ui/shortcut-key";
 import { cn } from "@/lib/utils";
 
 type IconButtonProps = Omit<ButtonProps, "size"> & {
@@ -13,6 +14,7 @@ type IconButtonProps = Omit<ButtonProps, "size"> & {
   size?: "sm" | "md";
   tooltip?: React.ReactNode | false;
   tooltipSide?: "top" | "right" | "bottom" | "left";
+  shortcut?: string;
 };
 
 export function IconButton({
@@ -21,6 +23,7 @@ export function IconButton({
   size = "md",
   tooltip,
   tooltipSide = "top",
+  shortcut,
   ...props
 }: IconButtonProps) {
   const button = (
@@ -28,6 +31,7 @@ export function IconButton({
       aria-label={label}
       size="icon"
       className={cn(size === "sm" && "size-8", className)}
+      aria-keyshortcuts={shortcut}
       {...props}
     />
   );
@@ -37,7 +41,13 @@ export function IconButton({
   return (
     <Tooltip>
       <TooltipTrigger render={button} />
-      <TooltipContent side={tooltipSide}>{tooltip ?? label}</TooltipContent>
+      <TooltipContent side={tooltipSide}>
+        {shortcut ? (
+          <ShortcutHint label={tooltip ?? label} shortcuts={[shortcut]} />
+        ) : (
+          (tooltip ?? label)
+        )}
+      </TooltipContent>
     </Tooltip>
   );
 }

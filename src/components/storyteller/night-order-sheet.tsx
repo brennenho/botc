@@ -8,6 +8,7 @@ import { ReminderIcon } from "@/components/storyteller/reminder-icon";
 import { RevealIcon } from "@/components/storyteller/reveal-icon";
 import { TokenIcon } from "@/components/storyteller/token-icon";
 import { SegmentedControl } from "@/components/ui/segmented-control";
+import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts";
 import {
   getNightOrderEntries,
   type EditionId,
@@ -29,6 +30,7 @@ import {
 type DisplayEntry = NightOrderEntry & { key: string; playerName?: string };
 
 export function NightOrderPanel({
+  shortcutsEnabled,
   editionId,
   seats,
   gameTokens,
@@ -39,6 +41,7 @@ export function NightOrderPanel({
   onCancelReminderPlacement,
   onReveal,
 }: {
+  shortcutsEnabled: boolean;
   editionId: EditionId;
   seats: Seat[];
   gameTokens: GameToken[];
@@ -57,6 +60,32 @@ export function NightOrderPanel({
   const completed = useMemo(
     () => new Set(state.completed[viewKey] ?? []),
     [state.completed, viewKey],
+  );
+
+  useKeyboardShortcuts(
+    [
+      {
+        id: "show-first-night",
+        key: "1",
+        onTrigger: () => onStateChange({ ...state, night: "first" }),
+      },
+      {
+        id: "show-other-nights",
+        key: "2",
+        onTrigger: () => onStateChange({ ...state, night: "other" }),
+      },
+      {
+        id: "show-living-characters",
+        key: "l",
+        onTrigger: () => onStateChange({ ...state, scope: "alive" }),
+      },
+      {
+        id: "show-all-characters",
+        key: "a",
+        onTrigger: () => onStateChange({ ...state, scope: "all" }),
+      },
+    ],
+    shortcutsEnabled,
   );
 
   const entries = useMemo(() => {

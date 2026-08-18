@@ -2,10 +2,14 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useState } from "react";
 
 import { GameInviteControl } from "@/components/grimoire/game-invite-control";
+import { KeyboardShortcutsDialog } from "@/components/grimoire/keyboard-shortcuts-dialog";
+import { ShortcutHint } from "@/components/ui/shortcut-key";
 import { Spinner } from "@/components/ui/spinner";
 import { Switch } from "@/components/ui/switch";
+import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts";
 import { getEdition } from "@/lib/game-data";
 import type { EditionId } from "@/lib/game-data/types";
 
@@ -25,6 +29,30 @@ export function GrimoireToolbar({
   onRedactedChange: (redacted: boolean) => void;
 }) {
   const edition = getEdition(editionId);
+  const [inviteOpen, setInviteOpen] = useState(false);
+  const [shortcutsOpen, setShortcutsOpen] = useState(false);
+
+  useKeyboardShortcuts([
+    {
+      id: "show-shortcuts",
+      key: "g",
+      enabled: !inviteOpen,
+      allowInModal: true,
+      onTrigger: () => setShortcutsOpen((current) => !current),
+    },
+    {
+      id: "invite-players",
+      key: "j",
+      enabled: !shortcutsOpen,
+      allowInModal: true,
+      onTrigger: () => setInviteOpen((current) => !current),
+    },
+    {
+      id: "toggle-hide",
+      key: "h",
+      onTrigger: () => onRedactedChange(!redacted),
+    },
+  ]);
 
   return (
     <header className="grimoire-toolbar">
@@ -42,16 +70,39 @@ export function GrimoireToolbar({
           <p>{edition.name}</p>
         </div>
         <label className="grimoire-redaction-setting">
-          <span>Redact</span>
+          <span>Hide</span>
           <Switch
             checked={redacted}
             className="grimoire-redaction-switch"
+            aria-keyshortcuts="H"
+            title="Toggle hide · H"
             onCheckedChange={onRedactedChange}
           />
         </label>
+        <button
+          type="button"
+          className="toolbar-shortcuts-button"
+          aria-label="Open shortcut guide"
+          aria-keyshortcuts="G"
+          title="Open shortcut guide · G"
+          onClick={() => setShortcutsOpen((current) => !current)}
+        >
+          <ShortcutHint label="Keys" shortcuts={["G"]} size="sm" />
+        </button>
       </div>
 
-      <GameInviteControl joinCode={joinCode} actorRole={actorRole} />
+      <GameInviteControl
+        joinCode={joinCode}
+        actorRole={actorRole}
+        open={inviteOpen}
+        onOpenChange={setInviteOpen}
+      />
+
+      <KeyboardShortcutsDialog
+        actorRole={actorRole}
+        open={shortcutsOpen}
+        onOpenChange={setShortcutsOpen}
+      />
 
       {saveState === "saving" ? (
         <div className="toolbar-status is-saving" role="status">
