@@ -59,7 +59,7 @@ test("private invitations stay out of search and use generic previews", async ({
   expect(head).not.toContain("ABC234");
 });
 
-test("instructions replace the legacy guide without losing its URL", async ({
+test("instructions use the canonical document route", async ({
   page,
   request,
 }) => {
@@ -67,8 +67,7 @@ test("instructions replace the legacy guide without losing its URL", async ({
     maxRedirects: 0,
   });
 
-  expect(legacyResponse.status()).toBe(308);
-  expect(legacyResponse.headers().location).toBe("/instructions");
+  expect(legacyResponse.status()).toBe(404);
 
   await page.goto("/instructions");
   await expect(page).toHaveTitle("Instructions | BOTC Town");
@@ -89,10 +88,25 @@ test("instructions replace the legacy guide without losing its URL", async ({
 test("public page copy treats BOTC Town as metadata, not prose", async ({
   page,
 }) => {
-  for (const path of ["/", "/instructions", "/characters", "/privacy"]) {
+  for (const path of ["/", "/instructions", "/tb", "/privacy"]) {
     await page.goto(path);
     expect(await page.locator("body").innerText()).not.toContain("BOTC Town");
   }
+});
+
+test("character reference opens a sheet and retires the hub", async ({
+  page,
+  request,
+}) => {
+  await page.goto("/");
+  await expect(
+    page.getByRole("link", { name: /Character Reference/ }).first(),
+  ).toHaveAttribute("href", "/tb");
+
+  const legacyResponse = await request.get("/characters", {
+    maxRedirects: 0,
+  });
+  expect(legacyResponse.status()).toBe(404);
 });
 
 test("robots and sitemap expose only public routes", async ({ request }) => {
@@ -105,8 +119,9 @@ test("robots and sitemap expose only public routes", async ({ request }) => {
   const sitemapResponse = await request.get("/sitemap.xml");
   const sitemapText = await sitemapResponse.text();
   expect(sitemapResponse.ok()).toBe(true);
-  expect(sitemapText).toContain("https://botc.town/characters");
+  expect(sitemapText).toContain("https://botc.town/tb");
   expect(sitemapText).toContain("https://botc.town/instructions");
+  expect(sitemapText).not.toContain("https://botc.town/characters");
   expect(sitemapText).not.toContain("https://botc.town/how-it-works");
   expect(sitemapText).not.toContain("/game/");
   expect(sitemapText).not.toContain("/join/");

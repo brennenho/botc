@@ -5,7 +5,6 @@ import { siteConfig } from "@/lib/site-config";
 const publicRoutes = [
   { path: "/", priority: 1 },
   { path: "/instructions", priority: 0.8 },
-  { path: "/characters", priority: 0.8 },
   { path: "/tb", priority: 0.7 },
   { path: "/bmr", priority: 0.7 },
   { path: "/snv", priority: 0.7 },

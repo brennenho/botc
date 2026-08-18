@@ -26,7 +26,6 @@ export function CharacterSheetPage({ sheetId }: { sheetId: CharacterSheetId }) {
   const activeSheet = referenceSheets.find((sheet) => sheet.id === sheetId);
   const breadcrumbs = createBreadcrumbStructuredData([
     { name: "Home", path: "/" },
-    { name: "Characters", path: "/characters" },
     { name: activeSheet?.name ?? "Character Sheet", path: `/${sheetId}` },
   ]);
 

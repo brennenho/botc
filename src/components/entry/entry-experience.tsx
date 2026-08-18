@@ -29,10 +29,7 @@ type EntryView = "cover" | "storytell" | "join";
 
 function CharacterReferenceLink({ className }: { className?: string }) {
   return (
-    <Link
-      href="/characters"
-      className={cn("entry-character-sheets", className)}
-    >
+    <Link href="/tb" className={cn("entry-character-sheets", className)}>
       <span className="entry-character-copy">
         <strong>Character Reference</strong>
         <small>Scripts &amp; Travellers</small>

@@ -28,11 +28,6 @@ const config = {
   async redirects() {
     return [
       {
-        source: "/how-it-works",
-        destination: "/instructions",
-        permanent: true,
-      },
-      {
         source: "/:path*",
         has: [{ type: "host", value: "www.botc.town" }],
         destination: "https://botc.town/:path*",

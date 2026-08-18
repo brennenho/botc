@@ -61,12 +61,12 @@ describe("site metadata", () => {
   it("creates absolute breadcrumb items", () => {
     const data = createBreadcrumbStructuredData([
       { name: "Home", path: "/" },
-      { name: "Characters", path: "/characters" },
+      { name: "Trouble Brewing", path: "/tb" },
     ]);
 
     expect(data.itemListElement[1]).toMatchObject({
       position: 2,
-      item: "https://botc.town/characters",
+      item: "https://botc.town/tb",
     });
   });
 });
@@ -85,7 +85,7 @@ describe("crawl discovery", () => {
 
     expect(urls).toContain("https://botc.town/");
     expect(urls).toContain("https://botc.town/instructions");
-    expect(urls).toContain("https://botc.town/characters");
+    expect(urls).toContain("https://botc.town/tb");
     expect(urls.some((url) => url.includes("/game/"))).toBe(false);
     expect(urls.some((url) => url.includes("/join/"))).toBe(false);
     expect(urls.some((url) => url.includes("/api/"))).toBe(false);
