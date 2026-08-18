@@ -144,8 +144,8 @@ export function GameInviteControl({
         className="join-code-control"
         onClick={() => handleOpenChange(true)}
         aria-label={`Invite players to game ${joinCode}`}
-        aria-keyshortcuts="V"
-        title="Invite players · V"
+        aria-keyshortcuts="J"
+        title="Invite players · J"
       >
         <span className="utility-label">Invite players</span>
         <strong>{joinCode}</strong>

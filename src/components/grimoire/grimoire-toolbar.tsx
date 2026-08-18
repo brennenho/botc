@@ -6,7 +6,7 @@ import { useState } from "react";
 
 import { GameInviteControl } from "@/components/grimoire/game-invite-control";
 import { KeyboardShortcutsDialog } from "@/components/grimoire/keyboard-shortcuts-dialog";
-import { ShortcutKey } from "@/components/ui/shortcut-key";
+import { ShortcutHint } from "@/components/ui/shortcut-key";
 import { Spinner } from "@/components/ui/spinner";
 import { Switch } from "@/components/ui/switch";
 import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts";
@@ -42,7 +42,7 @@ export function GrimoireToolbar({
     },
     {
       id: "invite-players",
-      key: "v",
+      key: "j",
       enabled: !shortcutsOpen,
       allowInModal: true,
       onTrigger: () => setInviteOpen((current) => !current),
@@ -87,8 +87,7 @@ export function GrimoireToolbar({
           title="Open shortcut guide · G"
           onClick={() => setShortcutsOpen((current) => !current)}
         >
-          <span>Keys</span>
-          <ShortcutKey shortcut="G" />
+          <ShortcutHint label="Keys" shortcuts={["G"]} size="sm" />
         </button>
       </div>
 

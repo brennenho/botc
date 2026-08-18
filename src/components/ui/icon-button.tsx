@@ -6,7 +6,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { ShortcutTooltip } from "@/components/ui/shortcut-key";
+import { ShortcutHint } from "@/components/ui/shortcut-key";
 import { cn } from "@/lib/utils";
 
 type IconButtonProps = Omit<ButtonProps, "size"> & {
@@ -43,7 +43,7 @@ export function IconButton({
       <TooltipTrigger render={button} />
       <TooltipContent side={tooltipSide}>
         {shortcut ? (
-          <ShortcutTooltip label={tooltip ?? label} shortcut={shortcut} />
+          <ShortcutHint label={tooltip ?? label} shortcuts={[shortcut]} />
         ) : (
           (tooltip ?? label)
         )}

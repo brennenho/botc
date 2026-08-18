@@ -120,7 +120,7 @@ export function PlayerContextMenu({
       },
       {
         id: "toggle-player-ghost-vote",
-        key: "o",
+        key: "v",
         enabled: !seat.alive,
         onTrigger: () => onSetGhostVote(!seat.ghostVoteAvailable),
       },
@@ -131,6 +131,17 @@ export function PlayerContextMenu({
       },
     ],
     shortcutsEnabled && view === "player",
+  );
+
+  useKeyboardShortcuts(
+    [
+      {
+        id: "back-from-reminders",
+        key: "b",
+        onTrigger: () => setView("player"),
+      },
+    ],
+    shortcutsEnabled && view === "reminders",
   );
 
   function finishEditingName() {
@@ -206,7 +217,7 @@ export function PlayerContextMenu({
                 >
                   <strong>{seat.playerName}</strong>
                   <Pencil aria-hidden="true" />
-                  <ShortcutKey shortcut="E" />
+                  <ShortcutKey shortcut="E" size="sm" />
                 </Button>
               )}
               <span>
@@ -238,7 +249,7 @@ export function PlayerContextMenu({
               />
             </MenuControl>
             {!seat.alive && (
-              <MenuControl label="Ghost Vote" shortcut="O">
+              <MenuControl label="Ghost Vote" shortcut="V">
                 <SegmentedControl
                   value={seat.ghostVoteAvailable ? "available" : "used"}
                   label="Ghost Vote"
@@ -288,7 +299,7 @@ export function PlayerContextMenu({
             >
               <LibraryBig className="size-4" />
               {role ? "Change Character" : "Choose Character"}
-              <ShortcutKey shortcut="C" />
+              <ShortcutKey shortcut="C" size="sm" />
             </Button>
             <Button
               type="button"
@@ -301,7 +312,7 @@ export function PlayerContextMenu({
               {targetReminderCount > 0 && (
                 <span className="player-menu-count">{targetReminderCount}</span>
               )}
-              <ShortcutKey shortcut="M" />
+              <ShortcutKey shortcut="M" size="sm" />
             </Button>
           </div>
 
@@ -340,7 +351,7 @@ function MenuControl({
     <div className="player-menu-control" aria-keyshortcuts={shortcut}>
       <span className="player-menu-control-label">
         <span className="utility-label">{label}</span>
-        {shortcut ? <ShortcutKey shortcut={shortcut} /> : null}
+        {shortcut ? <ShortcutKey shortcut={shortcut} size="sm" /> : null}
       </span>
       {children}
     </div>

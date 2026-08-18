@@ -399,8 +399,6 @@
 }
 
 .shortcut-card .shortcut-key {
-  min-width: 21px;
-  height: 20px;
   border-color: rgb(244 240 230 / 44%);
   border-bottom-color: rgb(118 92 49 / 82%);
   color: #3b3226;
@@ -428,9 +426,24 @@
   line-height: 1;
 }
 
-.shortcut-tooltip {
+.shortcut-key[data-size="sm"] {
+  min-width: 18px;
+  height: 17px;
+  padding-inline: 4px;
+  font-size: 7px;
+}
+
+.shortcut-key-list,
+.shortcut-hint {
   display: inline-flex;
   align-items: center;
+}
+
+.shortcut-key-list {
+  gap: 4px;
+}
+
+.shortcut-hint {
   gap: 10px;
 }
 

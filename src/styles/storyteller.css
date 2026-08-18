@@ -192,11 +192,7 @@
 }
 
 .roster-sheet-footer .shortcut-key {
-  min-width: 17px;
-  height: 17px;
   margin-left: auto;
-  padding-inline: 4px;
-  font-size: 7px;
 }
 
 @media (max-width: 700px), (pointer: coarse) {

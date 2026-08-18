@@ -198,7 +198,7 @@ export function RosterPanel({
         >
           <Shuffle className="size-4" />
           Distribute Roles
-          <ShortcutKey shortcut="D" />
+          <ShortcutKey shortcut="D" size="sm" />
         </Button>
         <Button
           size="sm"
@@ -208,7 +208,7 @@ export function RosterPanel({
         >
           <Plus className="size-4" />
           Add Player
-          <ShortcutKey shortcut="A" />
+          <ShortcutKey shortcut="A" size="sm" />
         </Button>
         <Button size="sm" variant="secondary" onClick={onArrangeCircle}>
           <Orbit className="size-4" />

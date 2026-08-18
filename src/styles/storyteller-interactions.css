@@ -510,11 +510,7 @@
 .player-menu-identity .shortcut-key,
 .player-menu-control .shortcut-key,
 .player-menu-actions .shortcut-key {
-  min-width: 18px;
-  height: 17px;
-  padding-inline: 4px;
   background: rgb(255 252 240 / 34%);
-  font-size: 7px;
 }
 
 .player-menu-actions > button:hover {

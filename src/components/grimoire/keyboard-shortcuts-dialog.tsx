@@ -5,7 +5,7 @@ import { X } from "lucide-react";
 import { useRef } from "react";
 
 import { IconButton } from "@/components/ui/icon-button";
-import { ShortcutKey } from "@/components/ui/shortcut-key";
+import { ShortcutKeys } from "@/components/ui/shortcut-key";
 
 type ActorRole = "storyteller" | "player";
 
@@ -19,7 +19,7 @@ const sharedGroups: ShortcutGroup[] = [
     title: "Anywhere",
     shortcuts: [
       { label: "Shortcut guide", keys: ["G"] },
-      { label: "Invite players", keys: ["V"] },
+      { label: "Invite / join code", keys: ["J"] },
       { label: "Toggle hide", keys: ["H"] },
       { label: "Close or cancel", keys: ["Escape"] },
     ],
@@ -43,9 +43,10 @@ const storytellerGroups: ShortcutGroup[] = [
       { label: "Choose character", keys: ["C"] },
       { label: "Rename", keys: ["E"] },
       { label: "Add reminder", keys: ["M"] },
+      { label: "Back from reminders", keys: ["B"] },
       { label: "Toggle alive or dead", keys: ["D"] },
       { label: "Toggle alignment", keys: ["A"] },
-      { label: "Toggle ghost vote", keys: ["O"] },
+      { label: "Toggle ghost vote", keys: ["V"] },
       { label: "Toggle Traveller", keys: ["T"] },
     ],
   },
@@ -122,16 +123,7 @@ export function KeyboardShortcutsDialog({
                       <div key={shortcut.label} className="shortcut-row">
                         <dt>{shortcut.label}</dt>
                         <dd>
-                          {shortcut.keys.map((key, index) => (
-                            <span key={key}>
-                              {index > 0 ? (
-                                <span className="shortcut-key-separator">
-                                  or
-                                </span>
-                              ) : null}
-                              <ShortcutKey shortcut={key} />
-                            </span>
-                          ))}
+                          <ShortcutKeys shortcuts={shortcut.keys} />
                         </dd>
                       </div>
                     ))}

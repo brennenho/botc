@@ -150,12 +150,12 @@
 }
 
 .toolbar-shortcuts-button .shortcut-key {
-  min-width: 18px;
-  height: 18px;
-  padding: 0 4px;
   color: currentcolor;
   background: rgb(255 252 240 / 28%);
-  font-size: 7px;
+}
+
+.toolbar-shortcuts-button .shortcut-hint {
+  gap: 6px;
 }
 
 .toolbar-status {
