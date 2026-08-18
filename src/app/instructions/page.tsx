@@ -16,11 +16,11 @@ export const metadata: Metadata = createPageMetadata({
   title: "Instructions",
   path: "/instructions",
   description:
-    "How to start, join, and run a Blood on the Clocktower game with BOTC Town.",
+    "How to start, join, and run a Blood on the Clocktower game with the shared grimoire.",
 });
 
 const breadcrumbs = createBreadcrumbStructuredData([
-  { name: "BOTC Town", path: "/" },
+  { name: "Home", path: "/" },
   { name: "Instructions", path: "/instructions" },
 ]);
 
@@ -42,9 +42,9 @@ export default function InstructionsPage() {
     >
       <DocumentSection title="Start a game">
         <p>
-          Choose an edition, enter the player count, and create a game. BOTC
-          Town opens the grimoire and gives you a six-character code, invite
-          link, and QR code.
+          Choose an edition, enter the player count, and create the game. The
+          grimoire opens with a six-character code, invite link, and QR code to
+          share.
         </p>
       </DocumentSection>
 
@@ -67,15 +67,15 @@ export default function InstructionsPage() {
       <DocumentSection title="Play in person or online">
         <p>
           In person, players can use their phones while the Storyteller uses a
-          laptop or tablet. Online, pair BOTC Town with the voice or video call
-          your group already uses.
+          laptop or tablet. Online, pair the grimoire with the voice or video
+          call your group already uses.
         </p>
       </DocumentSection>
 
       <DocumentSection title="Keep the Storyteller in charge">
         <p>
-          BOTC Town does not automate rules, narration, voice, or video. It
-          keeps the grimoire and player views in sync.
+          The grimoire does not automate rules, narration, voice, or video. It
+          keeps the Storyteller and player views in sync.
         </p>
       </DocumentSection>
     </DocumentPage>

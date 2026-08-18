@@ -7,8 +7,7 @@ export const siteConfig = {
   description:
     "A shared digital grimoire for running Blood on the Clocktower online or in person. Invite players and manage the game from any device.",
   socialImage: "/opengraph-image",
-  socialImageAlt:
-    "BOTC Town, the shared online grimoire for Blood on the Clocktower",
+  socialImageAlt: "A shared online grimoire for Blood on the Clocktower",
 } as const;
 
 type PageMetadataOptions = {

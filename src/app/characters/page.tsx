@@ -32,7 +32,7 @@ const referenceSheets = [
 ];
 
 const breadcrumbs = createBreadcrumbStructuredData([
-  { name: "BOTC Town", path: "/" },
+  { name: "Home", path: "/" },
   { name: "Characters", path: "/characters" },
 ]);
 
@@ -55,7 +55,7 @@ export default function CharactersPage() {
             className="inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-[#653336] underline decoration-[#653336]/30 underline-offset-4 hover:decoration-current"
           >
             <ArrowLeft className="size-4" aria-hidden="true" />
-            BOTC Town
+            Home
           </Link>
           <Link
             href="/instructions"

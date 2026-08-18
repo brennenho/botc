@@ -5,7 +5,7 @@ import { createPageMetadata } from "@/lib/site-config";
 export const metadata: Metadata = createPageMetadata({
   title: "Game",
   path: "/game",
-  description: "A private Blood on the Clocktower game on BOTC Town.",
+  description: "A private Blood on the Clocktower game.",
   index: false,
 });
 

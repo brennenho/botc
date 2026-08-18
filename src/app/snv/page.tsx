@@ -7,7 +7,7 @@ export const metadata: Metadata = createPageMetadata({
   title: "Sects & Violets",
   path: "/snv",
   description:
-    "Explore every Sects & Violets character and ability in this Blood on the Clocktower reference sheet from BOTC Town.",
+    "Explore every Sects & Violets character and ability in this Blood on the Clocktower reference sheet.",
 });
 
 export default function SectsAndVioletsCharacterSheetPage() {

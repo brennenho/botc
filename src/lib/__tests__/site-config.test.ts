@@ -60,7 +60,7 @@ describe("site metadata", () => {
 
   it("creates absolute breadcrumb items", () => {
     const data = createBreadcrumbStructuredData([
-      { name: "BOTC Town", path: "/" },
+      { name: "Home", path: "/" },
       { name: "Characters", path: "/characters" },
     ]);
 

@@ -7,7 +7,7 @@ export const metadata: Metadata = createPageMetadata({
   title: "Bad Moon Rising",
   path: "/bmr",
   description:
-    "Explore every Bad Moon Rising character and ability in this Blood on the Clocktower reference sheet from BOTC Town.",
+    "Explore every Bad Moon Rising character and ability in this Blood on the Clocktower reference sheet.",
 });
 
 export default function BadMoonRisingCharacterSheetPage() {

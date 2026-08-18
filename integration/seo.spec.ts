@@ -86,6 +86,15 @@ test("instructions replace the legacy guide without losing its URL", async ({
   );
 });
 
+test("public page copy treats BOTC Town as metadata, not prose", async ({
+  page,
+}) => {
+  for (const path of ["/", "/instructions", "/characters", "/privacy"]) {
+    await page.goto(path);
+    expect(await page.locator("body").innerText()).not.toContain("BOTC Town");
+  }
+});
+
 test("robots and sitemap expose only public routes", async ({ request }) => {
   const robotsResponse = await request.get("/robots.txt");
   const robotsText = await robotsResponse.text();

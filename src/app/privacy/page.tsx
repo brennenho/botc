@@ -11,7 +11,7 @@ import { createPageMetadata } from "@/lib/site-config";
 export const metadata: Metadata = createPageMetadata({
   title: "Privacy",
   path: "/privacy",
-  description: "How BOTC Town handles game information and site usage data.",
+  description: "How game information and site usage data are handled.",
 });
 
 export default function PrivacyPage() {

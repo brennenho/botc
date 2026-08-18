@@ -7,7 +7,7 @@ export const metadata: Metadata = createPageMetadata({
   title: "Trouble Brewing",
   path: "/tb",
   description:
-    "Explore every Trouble Brewing character and ability in this Blood on the Clocktower reference sheet from BOTC Town.",
+    "Explore every Trouble Brewing character and ability in this Blood on the Clocktower reference sheet.",
 });
 
 export default function TroubleBrewingCharacterSheetPage() {
