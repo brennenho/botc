@@ -2,11 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowLeft, ExternalLink } from "lucide-react";
 
-export const metadata: Metadata = {
-  title: "Privacy Policy | Blood on the Clocktower",
-  description:
-    "How the community digital grimoire handles game and usage information.",
-};
+import { createPageMetadata } from "@/lib/site-config";
+
+export const metadata: Metadata = createPageMetadata({
+  title: "Privacy",
+  path: "/privacy",
+  description: "How BOTC Town handles game information and site usage data.",
+});
 
 export default function PrivacyPage() {
   return (

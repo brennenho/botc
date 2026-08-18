@@ -279,7 +279,7 @@
   background-color: rgb(241 231 208 / 94%);
   background-image:
     linear-gradient(rgb(255 252 240 / 26%), rgb(215 195 155 / 10%)),
-    url("/assets/grimoire-parchment.png");
+    url("/assets/grimoire-parchment.webp");
   background-position: center;
   background-size:
     100% 100%,

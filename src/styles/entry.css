@@ -76,7 +76,7 @@
   min-height: 0;
   overflow-y: auto;
   background-color: var(--parchment);
-  background-image: url("/assets/grimoire-parchment.png");
+  background-image: url("/assets/grimoire-parchment.webp");
   background-position: center;
   background-size: cover;
 }
@@ -144,6 +144,15 @@
 
 .entry-wordmark span {
   display: block;
+}
+
+.entry-tagline {
+  max-width: 340px;
+  margin: 24px 0 0;
+  color: #6f6155;
+  font-size: 14px;
+  line-height: 1.55;
+  text-wrap: balance;
 }
 
 .entry-action-heading h2,
@@ -309,6 +318,7 @@
 
 .entry-author-link,
 .entry-project-github,
+.entry-project-how,
 .entry-project-privacy {
   color: #653336;
   font-weight: 590;
@@ -331,6 +341,7 @@
 
 .entry-author-link:hover,
 .entry-project-github:hover,
+.entry-project-how:hover,
 .entry-project-privacy:hover {
   color: #3f1d20;
   text-decoration-color: currentColor;
@@ -855,7 +866,7 @@
   border-radius: 12px 10px 10px 12px;
   color: #2b211b;
   background-color: var(--parchment);
-  background-image: url("/assets/grimoire-parchment.png");
+  background-image: url("/assets/grimoire-parchment.webp");
   background-position: center;
   background-size: cover;
   box-shadow:
@@ -1022,7 +1033,7 @@
     overflow: hidden;
     border-radius: 7px;
     background-color: var(--parchment);
-    background-image: url("/assets/grimoire-parchment.png");
+    background-image: url("/assets/grimoire-parchment.webp");
     background-position: center;
     background-size: cover;
   }
@@ -1075,6 +1086,12 @@
 
   .entry-wordmark {
     font-size: clamp(46px, 14vw, 56px);
+  }
+
+  .entry-tagline {
+    max-width: 300px;
+    margin-top: 14px;
+    font-size: 12px;
   }
 
   .entry-intro-content {
@@ -1231,6 +1248,13 @@
 
   .entry-wordmark {
     font-size: 48px;
+  }
+
+  .entry-tagline {
+    max-width: 280px;
+    margin-top: 10px;
+    font-size: 11px;
+    line-height: 1.4;
   }
 
   .entry-intro-content {

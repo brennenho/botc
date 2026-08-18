@@ -29,7 +29,10 @@ type EntryView = "cover" | "storytell" | "join";
 
 function CharacterReferenceLink({ className }: { className?: string }) {
   return (
-    <Link href="/tb" className={cn("entry-character-sheets", className)}>
+    <Link
+      href="/characters"
+      className={cn("entry-character-sheets", className)}
+    >
       <span className="entry-character-copy">
         <strong>Character Reference</strong>
         <small>Scripts &amp; Travellers</small>
@@ -132,9 +135,12 @@ export function EntryExperience({
             <div className="entry-intro-content">
               <header className="entry-brand">
                 <h1 className="entry-wordmark">
-                  <span>Blood on the</span>
-                  <span>Clocktower</span>
+                  <span>BOTC</span>
+                  <span>Town</span>
                 </h1>
+                <p className="entry-tagline">
+                  The shared online grimoire for Blood on the Clocktower.
+                </p>
               </header>
 
               <CharacterReferenceLink className="entry-character-sheets-desktop" />
@@ -448,6 +454,10 @@ export function EntryExperience({
               GitHub
               <ExternalLink aria-hidden="true" />
             </a>
+            <span aria-hidden="true">·</span>
+            <Link href="/how-it-works" className="entry-project-how">
+              How it works
+            </Link>
             <span aria-hidden="true">·</span>
             <Link href="/privacy" className="entry-project-privacy">
               Privacy

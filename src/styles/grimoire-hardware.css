@@ -156,7 +156,7 @@
   border-color: rgb(91 68 38 / 42%);
   color: rgb(72 55 32 / 58%);
   background-color: rgb(248 236 207 / 46%);
-  background-image: url("/assets/grimoire-parchment.png");
+  background-image: url("/assets/grimoire-parchment.webp");
   background-position: center;
   background-size: 120px auto;
   background-blend-mode: multiply;
@@ -228,7 +228,7 @@
   outline: none;
   cursor: grab;
   background-color: #c8b995;
-  background-image: url("/assets/grimoire-parchment.png");
+  background-image: url("/assets/grimoire-parchment.webp");
   background-position: center;
   background-size: 150px auto;
   background-blend-mode: multiply;
@@ -294,7 +294,7 @@
       rgb(245 241 220 / 18%) 53%,
       rgb(112 148 157 / 18%) 100%
     ),
-    url("/assets/grimoire-parchment.png");
+    url("/assets/grimoire-parchment.webp");
 }
 
 :is(.storyteller-shell, .player-reveal-screen) .role-artwork.team-outsider {
@@ -306,7 +306,7 @@
       rgb(244 237 219 / 17%) 53%,
       rgb(132 112 151 / 17%) 100%
     ),
-    url("/assets/grimoire-parchment.png");
+    url("/assets/grimoire-parchment.webp");
 }
 
 :is(.storyteller-shell, .player-reveal-screen) .role-artwork.team-minion {
@@ -318,7 +318,7 @@
       rgb(243 232 211 / 16%) 53%,
       rgb(151 95 87 / 17%) 100%
     ),
-    url("/assets/grimoire-parchment.png");
+    url("/assets/grimoire-parchment.webp");
 }
 
 :is(.storyteller-shell, .player-reveal-screen) .role-artwork.team-demon {
@@ -330,7 +330,7 @@
       rgb(242 229 208 / 15%) 53%,
       rgb(151 79 78 / 19%) 100%
     ),
-    url("/assets/grimoire-parchment.png");
+    url("/assets/grimoire-parchment.webp");
 }
 
 :is(.storyteller-shell, .player-reveal-screen) .role-artwork.team-traveller {
@@ -342,7 +342,7 @@
       rgb(244 238 220 / 17%) 53%,
       rgb(132 116 81 / 16%) 100%
     ),
-    url("/assets/grimoire-parchment.png");
+    url("/assets/grimoire-parchment.webp");
 }
 
 :is(.storyteller-shell, .player-reveal-screen) .role-artwork::after {
@@ -351,7 +351,7 @@
   z-index: 4;
   border-radius: 50%;
   content: "";
-  background-image: url("/assets/grimoire-parchment.png");
+  background-image: url("/assets/grimoire-parchment.webp");
   background-position: center;
   background-size: 150px auto;
   mix-blend-mode: multiply;
