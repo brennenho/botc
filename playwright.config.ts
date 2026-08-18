@@ -34,6 +34,23 @@ export default defineConfig({
       name: "chromium",
       use: { ...devices["Desktop Chrome"] },
     },
+    {
+      name: "tablet-landscape",
+      grep: /@smoke/,
+      use: {
+        ...devices["Desktop Chrome"],
+        viewport: { width: 844, height: 390 },
+      },
+    },
+    {
+      name: "mobile-webkit",
+      grep: /@smoke/,
+      use: {
+        ...devices["iPhone 13"],
+        browserName: "webkit",
+        viewport: { width: 390, height: 844 },
+      },
+    },
   ],
   webServer: {
     command: process.env.CI ? "pnpm start:integration" : "pnpm dev:integration",

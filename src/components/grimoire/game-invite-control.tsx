@@ -186,6 +186,7 @@ export function GameInviteControl({
               <div className="invite-card-body">
                 <div
                   className="invite-qr-frame"
+                  role="img"
                   aria-label="QR code for the player invitation link"
                   aria-busy={!invitationUrl}
                 >
