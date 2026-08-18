@@ -58,10 +58,10 @@ export default function CharactersPage() {
             BOTC Town
           </Link>
           <Link
-            href="/how-it-works"
+            href="/instructions"
             className="text-xs font-semibold text-black/55 underline decoration-black/20 underline-offset-4 hover:text-black/80"
           >
-            How it works
+            Instructions
           </Link>
         </nav>
 

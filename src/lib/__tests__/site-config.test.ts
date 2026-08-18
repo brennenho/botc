@@ -84,7 +84,7 @@ describe("crawl discovery", () => {
     const urls = sitemap().map((entry) => entry.url);
 
     expect(urls).toContain("https://botc.town/");
-    expect(urls).toContain("https://botc.town/how-it-works");
+    expect(urls).toContain("https://botc.town/instructions");
     expect(urls).toContain("https://botc.town/characters");
     expect(urls.some((url) => url.includes("/game/"))).toBe(false);
     expect(urls.some((url) => url.includes("/join/"))).toBe(false);

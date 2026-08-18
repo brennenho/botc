@@ -59,6 +59,33 @@ test("private invitations stay out of search and use generic previews", async ({
   expect(head).not.toContain("ABC234");
 });
 
+test("instructions replace the legacy guide without losing its URL", async ({
+  page,
+  request,
+}) => {
+  const legacyResponse = await request.get("/how-it-works", {
+    maxRedirects: 0,
+  });
+
+  expect(legacyResponse.status()).toBe(308);
+  expect(legacyResponse.headers().location).toBe("/instructions");
+
+  await page.goto("/instructions");
+  await expect(page).toHaveTitle("Instructions | BOTC Town");
+  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
+    "href",
+    "https://botc.town/instructions",
+  );
+  await expect(page.locator("main.entry-document-cover h1")).toHaveText(
+    "Instructions",
+  );
+
+  await page.goto("/privacy");
+  await expect(page.locator("main.entry-document-cover h1")).toHaveText(
+    "Privacy policy",
+  );
+});
+
 test("robots and sitemap expose only public routes", async ({ request }) => {
   const robotsResponse = await request.get("/robots.txt");
   const robotsText = await robotsResponse.text();
@@ -70,7 +97,8 @@ test("robots and sitemap expose only public routes", async ({ request }) => {
   const sitemapText = await sitemapResponse.text();
   expect(sitemapResponse.ok()).toBe(true);
   expect(sitemapText).toContain("https://botc.town/characters");
-  expect(sitemapText).toContain("https://botc.town/how-it-works");
+  expect(sitemapText).toContain("https://botc.town/instructions");
+  expect(sitemapText).not.toContain("https://botc.town/how-it-works");
   expect(sitemapText).not.toContain("/game/");
   expect(sitemapText).not.toContain("/join/");
 });

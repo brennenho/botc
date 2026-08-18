@@ -135,12 +135,10 @@ export function EntryExperience({
             <div className="entry-intro-content">
               <header className="entry-brand">
                 <h1 className="entry-wordmark">
-                  <span>BOTC</span>
-                  <span>Town</span>
+                  <span>Blood on the</span>
+                  <span>Clocktower</span>
                 </h1>
-                <p className="entry-tagline">
-                  The shared online grimoire for Blood on the Clocktower.
-                </p>
+                <p className="entry-tagline">Run the game from any screen.</p>
               </header>
 
               <CharacterReferenceLink className="entry-character-sheets-desktop" />
@@ -455,8 +453,8 @@ export function EntryExperience({
               <ExternalLink aria-hidden="true" />
             </a>
             <span aria-hidden="true">·</span>
-            <Link href="/how-it-works" className="entry-project-how">
-              How it works
+            <Link href="/instructions" className="entry-project-instructions">
+              Instructions
             </Link>
             <span aria-hidden="true">·</span>
             <Link href="/privacy" className="entry-project-privacy">
