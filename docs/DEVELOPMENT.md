@@ -193,12 +193,14 @@ The GitHub Actions integration job starts an ephemeral local Supabase stack,
 rebuilds the database from migrations, exports only the generated local
 credentials, runs pgTAP database tests, builds the production application, and
 runs the browser matrix with one worker. It does not connect to the hosted
-Supabase or PostHog projects. Every
-run uploads the HTML report, with traces, screenshots, and videos retained on
-failure, as the 14-day `integration-test-report` artifact. Same-repository pull
-requests receive a sticky comment with pass, failure, flaky, and skipped totals;
-duration; a viewer-local last-run time; failed test details; and a link to that
-artifact.
+Supabase or PostHog projects. Every run uploads the HTML report, with traces,
+screenshots, and videos retained on failure, as the 14-day
+`integration-test-report` artifact. The independent unit test job uploads its
+HTML and JSON coverage report as the 14-day `unit-test-coverage` artifact.
+Same-repository pull requests receive one sticky comment that combines the unit
+coverage totals with the browser pass, failure, flaky, and skipped totals;
+duration; a viewer-local last-run time; failed test details; and links to both
+artifacts. Unit and browser tests remain separate CI checks and run in parallel.
 
 When adding tests, create a new game for every scenario, give every actor a
 separate browser context, prefer accessible labels over test IDs, and wait on

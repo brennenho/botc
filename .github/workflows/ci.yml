@@ -98,6 +98,9 @@ jobs:
     name: tests
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    outputs:
+      coverage-url: ${{ steps.coverage-report.outputs.artifact-url }}
+      summary: ${{ steps.coverage-summary.outputs.markdown }}
 
     steps:
       - name: Check out repository
@@ -121,7 +124,14 @@ jobs:
       - name: Run tests with coverage
         run: pnpm test:coverage
 
+      - name: Summarize unit test coverage
+        id: coverage-summary
+        if: ${{ !cancelled() }}
+        run: node scripts/summarize-coverage-report.js coverage/coverage-summary.json
+
       - name: Upload coverage report
+        id: coverage-report
+        if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v4
         with:
           name: unit-test-coverage
@@ -282,9 +292,9 @@ jobs:
         env:
           SUPABASE_TELEMETRY_DISABLED: "true"
 
-  integration-comment:
-    name: integration report comment
-    needs: integration
+  test-report-comment:
+    name: test report comment
+    needs: [tests, integration]
     if: >-
       ${{ always() &&
           github.event_name == 'pull_request' &&
@@ -296,13 +306,16 @@ jobs:
       pull-requests: write
 
     steps:
-      - name: Update integration report comment
+      - name: Update test report comment
         uses: actions/github-script@v9
         env:
+          COVERAGE_REPORT_URL: ${{ needs.tests.outputs.coverage-url }}
+          COVERAGE_RESULT: ${{ needs.tests.result }}
+          COVERAGE_SUMMARY: ${{ needs.tests.outputs.summary }}
           INTEGRATION_RESULT: ${{ needs.integration.result }}
-          REPORT_URL: ${{ needs.integration.outputs.report-url }}
+          INTEGRATION_REPORT_URL: ${{ needs.integration.outputs.report-url }}
+          INTEGRATION_SUMMARY: ${{ needs.integration.outputs.summary }}
           RUN_URL: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
-          TEST_SUMMARY: ${{ needs.integration.outputs.summary }}
         with:
           script: |
             const marker = "<!-- botc-multiplayer-integration-report -->";
@@ -312,33 +325,43 @@ jobs:
               cancelled: "⚪ Cancelled",
               skipped: "⚪ Skipped",
             };
-            const result = labels[process.env.INTEGRATION_RESULT] ?? "❓ Unknown";
+            const coverageResult = labels[process.env.COVERAGE_RESULT] ?? "❓ Unknown";
+            const integrationResult = labels[process.env.INTEGRATION_RESULT] ?? "❓ Unknown";
             const lastRunIso = new Date().toISOString();
             const lastRunFallback = lastRunIso
               .replace("T", " ")
               .replace(/\.\d{3}Z$/, " UTC");
-            const resources = [
-              process.env.REPORT_URL
-                ? `[View full report & artifacts](${process.env.REPORT_URL})`
-                : undefined,
-              `[View workflow run](${process.env.RUN_URL})`,
-            ].filter(Boolean).join(" · ");
-            const reportUnavailable = process.env.REPORT_URL
-              ? undefined
-              : "_No report artifact was produced._";
+            const coverageResource = process.env.COVERAGE_REPORT_URL
+              ? `[View coverage report](${process.env.COVERAGE_REPORT_URL})`
+              : "_No coverage artifact was produced._";
+            const integrationResource = process.env.INTEGRATION_REPORT_URL
+              ? `[View integration report & artifacts](${process.env.INTEGRATION_REPORT_URL})`
+              : "_No integration report artifact was produced._";
             const body = [
               marker,
-              "## Multiplayer Integration Tests",
+              "## Automated Test Results",
               "",
-              `### ${result}`,
               `_Last run: <relative-time datetime="${lastRunIso}">${lastRunFallback}</relative-time>_`,
               "",
-              process.env.TEST_SUMMARY || "_Detailed test results were unavailable._",
+              "### Unit & Component Tests",
+              "",
+              `#### ${coverageResult}`,
+              "",
+              process.env.COVERAGE_SUMMARY || "_Coverage totals were unavailable._",
+              "",
+              coverageResource,
+              "",
+              "### Multiplayer Integration Tests",
+              "",
+              `#### ${integrationResult}`,
+              "",
+              process.env.INTEGRATION_SUMMARY || "_Detailed integration results were unavailable._",
+              "",
+              integrationResource,
               "",
               "---",
               "",
-              resources,
-              ...(reportUnavailable ? ["", reportUnavailable] : []),
+              `[View workflow run](${process.env.RUN_URL})`,
               "",
               "_Available report artifacts are retained for 14 days._",
             ].join("\n");
