@@ -54,10 +54,6 @@
   right: calc(var(--grimoire-pinned-sheet-width) + 30px);
 }
 
-.storyteller-shell.is-sheet-pinned .shortcut-help-button {
-  right: calc(var(--grimoire-pinned-sheet-width) + 154px);
-}
-
 .board-bluff-rack {
   position: absolute;
   right: 30px;

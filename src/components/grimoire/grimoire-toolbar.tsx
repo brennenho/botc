@@ -1,13 +1,12 @@
 "use client";
 
-import { Keyboard } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 
 import { GameInviteControl } from "@/components/grimoire/game-invite-control";
 import { KeyboardShortcutsDialog } from "@/components/grimoire/keyboard-shortcuts-dialog";
-import { IconButton } from "@/components/ui/icon-button";
+import { ShortcutKey } from "@/components/ui/shortcut-key";
 import { Spinner } from "@/components/ui/spinner";
 import { Switch } from "@/components/ui/switch";
 import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts";
@@ -36,20 +35,17 @@ export function GrimoireToolbar({
   useKeyboardShortcuts([
     {
       id: "show-shortcuts",
-      key: "?",
-      shift: true,
+      key: "h",
       onTrigger: () => setShortcutsOpen(true),
     },
     {
       id: "invite-players",
-      key: "i",
-      shift: true,
+      key: "v",
       onTrigger: () => setInviteOpen(true),
     },
     {
       id: "toggle-redaction",
       key: "r",
-      shift: true,
       onTrigger: () => onRedactedChange(!redacted),
     },
   ]);
@@ -74,24 +70,23 @@ export function GrimoireToolbar({
           <Switch
             checked={redacted}
             className="grimoire-redaction-switch"
-            aria-keyshortcuts="Shift+R"
-            title="Toggle redaction · Shift+R"
+            aria-keyshortcuts="R"
+            title="Toggle redaction · R"
             onCheckedChange={onRedactedChange}
           />
         </label>
+        <button
+          type="button"
+          className="toolbar-shortcuts-button"
+          aria-label="Open shortcut guide"
+          aria-keyshortcuts="H"
+          title="Open shortcut guide · H"
+          onClick={() => setShortcutsOpen(true)}
+        >
+          <span>Keys</span>
+          <ShortcutKey shortcut="H" />
+        </button>
       </div>
-
-      <IconButton
-        label="Keyboard Shortcuts"
-        shortcut="?"
-        size="sm"
-        variant="quiet"
-        tooltipSide="bottom"
-        className="shortcut-help-button"
-        onClick={() => setShortcutsOpen(true)}
-      >
-        <Keyboard className="size-4" />
-      </IconButton>
 
       <GameInviteControl
         joinCode={joinCode}

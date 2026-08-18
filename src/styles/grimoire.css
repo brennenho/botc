@@ -119,30 +119,43 @@
   color: var(--grimoire-hardware-accent);
 }
 
-.shortcut-help-button {
-  position: absolute;
-  top: 38px;
-  right: 154px;
-  z-index: 1;
-  width: 32px;
-  height: 32px;
-  border: 1px solid var(--grimoire-hardware-border);
-  border-radius: var(--grimoire-hardware-radius);
+.toolbar-shortcuts-button {
+  display: inline-flex;
+  height: 30px;
+  align-items: center;
+  gap: 6px;
+  margin-left: 2px;
+  padding: 0 2px 0 11px;
+  border: 0;
+  border-left: 1px solid rgb(100 76 44 / 22%);
+  border-radius: 0;
   color: var(--grimoire-hardware-muted);
-  background-color: var(--grimoire-hardware-surface);
-  box-shadow: var(--grimoire-hardware-shadow);
+  background: transparent;
+  font-family: var(--font-utility);
+  font-size: var(--text-caption);
+  font-weight: 600;
   pointer-events: auto;
   transition:
     color var(--motion-fast) ease,
-    background-color var(--motion-fast) ease,
-    right 200ms var(--ease-out);
-  backdrop-filter: blur(8px) saturate(0.82);
-  -webkit-backdrop-filter: blur(8px) saturate(0.82);
+    opacity var(--motion-fast) ease;
 }
 
-.shortcut-help-button:hover {
+.toolbar-shortcuts-button:hover {
   color: var(--grimoire-hardware-text);
-  background-color: var(--grimoire-hardware-surface-hover);
+}
+
+.toolbar-shortcuts-button:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+.toolbar-shortcuts-button .shortcut-key {
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  color: currentcolor;
+  background: rgb(255 252 240 / 28%);
+  font-size: 7px;
 }
 
 .toolbar-status {

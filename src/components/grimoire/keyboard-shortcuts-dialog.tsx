@@ -16,11 +16,11 @@ type ShortcutGroup = {
 
 const sharedGroups: ShortcutGroup[] = [
   {
-    title: "General",
+    title: "Anywhere",
     shortcuts: [
-      { label: "Show these shortcuts", keys: ["?"] },
-      { label: "Invite players", keys: ["Shift+I"] },
-      { label: "Toggle redaction", keys: ["Shift+R"] },
+      { label: "Shortcut guide", keys: ["H"] },
+      { label: "Invite players", keys: ["V"] },
+      { label: "Toggle redaction", keys: ["R"] },
       { label: "Close or cancel", keys: ["Escape"] },
     ],
   },
@@ -28,7 +28,7 @@ const sharedGroups: ShortcutGroup[] = [
 
 const storytellerGroups: ShortcutGroup[] = [
   {
-    title: "Grimoire panels",
+    title: "Open a panel",
     shortcuts: [
       { label: "Players", keys: ["P"] },
       { label: "Night order", keys: ["N"] },
@@ -37,7 +37,7 @@ const storytellerGroups: ShortcutGroup[] = [
     ],
   },
   {
-    title: "Selected player",
+    title: "Player selected",
     shortcuts: [
       { label: "Previous or next player", keys: ["[", "]"] },
       { label: "Choose character", keys: ["C"] },
@@ -47,15 +47,6 @@ const storytellerGroups: ShortcutGroup[] = [
       { label: "Toggle alignment", keys: ["A"] },
       { label: "Toggle ghost vote", keys: ["G"] },
       { label: "Toggle Traveller", keys: ["T"] },
-    ],
-  },
-  {
-    title: "Open panels",
-    shortcuts: [
-      { label: "Add player", keys: ["A"] },
-      { label: "Distribute roles", keys: ["D"] },
-      { label: "First or other night", keys: ["1", "2"] },
-      { label: "Living or all characters", keys: ["L", "A"] },
     ],
   },
 ];
@@ -93,12 +84,9 @@ export function KeyboardShortcutsDialog({
             data-keyboard-shortcuts-modal
           >
             <header className="shortcut-card-header">
-              <div>
-                <p className="panel-eyebrow">Grimoire quick keys</p>
-                <Dialog.Title ref={titleRef} tabIndex={-1}>
-                  Keyboard Shortcuts
-                </Dialog.Title>
-              </div>
+              <Dialog.Title ref={titleRef} tabIndex={-1}>
+                Shortcut guide
+              </Dialog.Title>
               <Dialog.Close
                 render={
                   <IconButton
@@ -114,12 +102,16 @@ export function KeyboardShortcutsDialog({
             </header>
 
             <Dialog.Description className="shortcut-card-description">
-              Shortcuts pause while you’re typing or choosing a character.
+              Press a key anywhere in the grimoire. Shortcuts pause while you
+              type or use a dialog.
             </Dialog.Description>
 
             <div className="shortcut-groups">
               {groups.map((group) => (
-                <section key={group.title} className="shortcut-group">
+                <section
+                  key={group.title}
+                  className={`shortcut-group${group.title === "Player selected" ? "is-wide" : ""}`}
+                >
                   <h3>{group.title}</h3>
                   <dl>
                     {group.shortcuts.map((shortcut) => (
