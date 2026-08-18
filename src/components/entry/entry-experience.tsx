@@ -113,7 +113,7 @@ export function EntryExperience({
       const error = toAppError(cause, "Unable to join game.");
       if (error.code === "not_found") {
         setJoinCodeError(
-          initialJoinCode
+          normalizedInitialJoinCode && joinCode === normalizedInitialJoinCode
             ? "This invitation may have expired. Ask your storyteller for a new link."
             : "Game not found. Check the code and try again.",
         );

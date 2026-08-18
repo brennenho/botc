@@ -91,6 +91,7 @@ variables, database migrations, observability, asset syncing, and deployment che
 ```sh
 pnpm check
 pnpm test
+pnpm test:coverage
 pnpm build
 ```
 
@@ -99,6 +100,7 @@ Multiplayer browser tests additionally require the local Supabase stack:
 ```sh
 pnpm supabase:start
 pnpm supabase:reset
+pnpm test:db
 pnpm test:integration
 ```
 

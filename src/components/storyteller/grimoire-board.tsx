@@ -11,7 +11,7 @@ import {
   type DragMoveEvent,
   type DragStartEvent,
 } from "@dnd-kit/core";
-import { useRef, useState, type CSSProperties } from "react";
+import { useId, useRef, useState, type CSSProperties } from "react";
 
 import { DraggableReminderToken } from "@/components/storyteller/draggable-reminder-token";
 import { PlayerContextMenu } from "@/components/storyteller/player-context-menu";
@@ -99,6 +99,7 @@ export function GrimoireBoard({
     seatId?: string,
   ) => void;
 }) {
+  const dndContextId = useId();
   const boardRef = useRef<HTMLDivElement>(null);
   const { boardSize, compact, layout } = useTownCircleLayout(
     boardRef,
@@ -403,6 +404,7 @@ export function GrimoireBoard({
 
   return (
     <DndContext
+      id={dndContextId}
       sensors={sensors}
       onDragStart={handleDragStart}
       onDragMove={handleDragMove}

@@ -95,9 +95,13 @@ jobs:
         run: pnpm typecheck
 
   tests:
-    name: tests
+    name: tests (Node ${{ matrix.node-version }})
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        node-version: [20, 22]
 
     steps:
       - name: Check out repository
@@ -112,14 +116,23 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: ${{ matrix.node-version }}
           cache: pnpm
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Run tests
-        run: pnpm test
+      - name: Run tests with coverage
+        run: pnpm test:coverage
+
+      - name: Upload coverage report
+        if: ${{ matrix.node-version == 22 }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: unit-test-coverage
+          path: coverage/
+          if-no-files-found: error
+          retention-days: 14
 
   security:
     name: dependency security
@@ -206,8 +219,8 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Install Chromium
-        run: pnpm exec playwright install chromium --with-deps
+      - name: Install browsers
+        run: pnpm exec playwright install chromium webkit --with-deps
 
       - name: Start local Supabase
         run: pnpm supabase:start
@@ -221,6 +234,11 @@ jobs:
 
       - name: Lint local database
         run: pnpm supabase:lint
+        env:
+          SUPABASE_TELEMETRY_DISABLED: "true"
+
+      - name: Test database behavior
+        run: pnpm test:db
         env:
           SUPABASE_TELEMETRY_DISABLED: "true"
 

@@ -20,7 +20,9 @@ export type Actor = {
 };
 
 type ActorOptions = {
+  clientId?: string;
   ignoredClientErrors?: RegExp[];
+  stubClipboard?: boolean;
   viewport?: ViewportSize;
 };
 
@@ -31,15 +33,28 @@ type MultiplayerFixtures = {
 };
 
 export const test = base.extend<MultiplayerFixtures>({
-  createActor: async ({ baseURL, browser }, provide) => {
+  createActor: async ({ baseURL, browser, contextOptions }, provide) => {
     const contexts: BrowserContext[] = [];
     const unexpectedClientErrors: string[] = [];
 
     const createActor: ActorFactory = async (options = {}) => {
       const context = await browser.newContext({
+        ...contextOptions,
         baseURL,
-        viewport: options.viewport,
+        extraHTTPHeaders: {
+          ...contextOptions.extraHTTPHeaders,
+          "x-real-ip": options.clientId ?? `integration-${crypto.randomUUID()}`,
+        },
+        viewport: options.viewport ?? contextOptions.viewport,
       });
+      if (options.stubClipboard) {
+        await context.addInitScript(() => {
+          Object.defineProperty(Navigator.prototype, "clipboard", {
+            configurable: true,
+            get: () => ({ writeText: async () => undefined }),
+          });
+        });
+      }
       const page = await context.newPage();
       contexts.push(context);
 
@@ -130,6 +145,21 @@ export async function createGameViaApi(
     },
   });
   expect(response.status()).toBe(200);
+  const setCookie = response.headers()["set-cookie"];
+  const cookiePair = setCookie?.split(";", 1)[0];
+  const separator = cookiePair?.indexOf("=") ?? -1;
+  if (cookiePair && separator > 0) {
+    await actor.context.addCookies([
+      {
+        name: cookiePair.slice(0, separator),
+        value: cookiePair.slice(separator + 1),
+        url: new URL(response.url()).origin,
+        httpOnly: true,
+        sameSite: "Lax",
+        secure: false,
+      },
+    ]);
+  }
   return responseJson<{ snapshot: StorytellerSnapshot }>(response);
 }
 
