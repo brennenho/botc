@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useRef, useState } from "react";
+import { useState } from "react";
 import {
   ArrowLeft,
   ArrowRight,
@@ -26,7 +26,6 @@ import { trackEvent } from "@/lib/observability/client";
 import { cn } from "@/lib/utils";
 
 type EntryView = "cover" | "storytell" | "join";
-type JoinMode = "manual" | "invitation";
 type InvitationIssue = "full" | "unavailable";
 
 function CharacterReferenceLink({ className }: { className?: string }) {
@@ -49,17 +48,11 @@ export function EntryExperience({
   invitationUnavailable?: boolean;
 }) {
   const router = useRouter();
-  const codeInputRef = useRef<HTMLInputElement>(null);
   const normalizedInitialJoinCode = normalizeGameCode(initialJoinCode)
     .replace(/[^A-HJ-NP-Z2-9]/g, "")
     .slice(0, 6);
   const [view, setView] = useState<EntryView>(
     normalizedInitialJoinCode || invitationUnavailable ? "join" : "cover",
-  );
-  const [joinMode, setJoinMode] = useState<JoinMode>(
-    normalizedInitialJoinCode || invitationUnavailable
-      ? "invitation"
-      : "manual",
   );
   const [edition, setEdition] = useState<EditionId>("tb");
   const [playerCount, setPlayerCount] = useState(7);
@@ -80,9 +73,8 @@ export function EntryExperience({
   const isInvitationRoute = Boolean(
     normalizedInitialJoinCode || invitationUnavailable,
   );
-  const isInvitation = joinMode === "invitation";
-  const showBack =
-    view === "storytell" || (view === "join" && joinMode === "manual");
+  const isInvitation = isInvitationRoute;
+  const showBack = view === "storytell" || (view === "join" && !isInvitation);
 
   function showView(nextView: EntryView) {
     if (pendingAction) return;
@@ -98,14 +90,7 @@ export function EntryExperience({
 
   function showManualJoin() {
     if (pendingAction) return;
-    setView("join");
-    setJoinMode("manual");
-    setInvitationIssue(null);
-    setJoinCode("");
-    setJoinCodeError(null);
-    setPlayerNameError(null);
-    setJoinFormError(null);
-    window.requestAnimationFrame(() => codeInputRef.current?.focus());
+    router.push("/");
   }
 
   async function handleCreate() {
@@ -382,19 +367,9 @@ export function EntryExperience({
                       </p>
                       <div className="entry-invitation-actions">
                         <Button size="lg" onClick={showManualJoin}>
-                          {invitationIssue === "full"
-                            ? "Enter another code"
-                            : "Enter a game code"}
+                          Back to game options
                           <ArrowRight aria-hidden="true" />
                         </Button>
-                        <button
-                          type="button"
-                          className="entry-secondary-action"
-                          onClick={() => showView("cover")}
-                        >
-                          <ArrowLeft aria-hidden="true" />
-                          Back to game options
-                        </button>
                       </div>
                     </div>
                   ) : (
@@ -406,61 +381,58 @@ export function EntryExperience({
                       ) : null}
 
                       <form onSubmit={handleJoin} className="entry-join-form">
-                        {isInvitation ? (
-                          <div
-                            className="entry-invitation-code"
-                            aria-label={`Game code ${joinCode}`}
-                          >
-                            <span>Game code</span>
-                            <strong>{joinCode}</strong>
-                          </div>
-                        ) : (
-                          <label>
-                            <span>Game code</span>
-                            <Input
-                              ref={codeInputRef}
-                              value={joinCode}
-                              onChange={(event) => {
-                                setJoinCodeError(null);
-                                setJoinFormError(null);
-                                setJoinCode(
-                                  event.target.value
-                                    .toUpperCase()
-                                    .replace(/[^A-HJ-NP-Z2-9]/g, "")
-                                    .slice(0, 6),
-                                );
-                              }}
-                              onBlur={() =>
-                                setJoinCodeError(
-                                  joinCode.length > 0 && joinCode.length !== 6
-                                    ? "Enter a six-character game code."
-                                    : null,
-                                )
-                              }
-                              placeholder="ABC123"
-                              className="entry-code-input"
-                              aria-invalid={joinCodeError ? true : undefined}
-                              aria-describedby={
-                                joinCodeError ? "join-code-error" : undefined
-                              }
-                              disabled={joinPending}
-                              minLength={6}
-                              maxLength={6}
-                              autoComplete="off"
-                              autoCapitalize="characters"
-                              spellCheck={false}
-                              autoFocus={!isInvitationRoute}
-                            />
-                            {joinCodeError ? (
-                              <span
-                                id="join-code-error"
-                                className="entry-field-error"
-                              >
-                                {joinCodeError}
-                              </span>
-                            ) : null}
-                          </label>
-                        )}
+                        <label>
+                          <span>Game code</span>
+                          <Input
+                            value={joinCode}
+                            onChange={
+                              isInvitation
+                                ? undefined
+                                : (event) => {
+                                    setJoinCodeError(null);
+                                    setJoinFormError(null);
+                                    setJoinCode(
+                                      event.target.value
+                                        .toUpperCase()
+                                        .replace(/[^A-HJ-NP-Z2-9]/g, "")
+                                        .slice(0, 6),
+                                    );
+                                  }
+                            }
+                            onBlur={
+                              isInvitation
+                                ? undefined
+                                : () =>
+                                    setJoinCodeError(
+                                      joinCode.length > 0 &&
+                                        joinCode.length !== 6
+                                        ? "Enter a six-character game code."
+                                        : null,
+                                    )
+                            }
+                            placeholder="ABC123"
+                            className="entry-code-input"
+                            aria-invalid={joinCodeError ? true : undefined}
+                            aria-describedby={
+                              joinCodeError ? "join-code-error" : undefined
+                            }
+                            disabled={joinPending || isInvitation}
+                            minLength={6}
+                            maxLength={6}
+                            autoComplete="off"
+                            autoCapitalize="characters"
+                            spellCheck={false}
+                            autoFocus={!isInvitation}
+                          />
+                          {joinCodeError ? (
+                            <span
+                              id="join-code-error"
+                              className="entry-field-error"
+                            >
+                              {joinCodeError}
+                            </span>
+                          ) : null}
+                        </label>
                         <label>
                           <span>Your name</span>
                           <Input

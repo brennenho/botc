@@ -738,6 +738,15 @@
   box-shadow: 0 0 0 2px rgb(105 49 52 / 13%);
 }
 
+.entry-join-form input:disabled {
+  cursor: not-allowed;
+  color: #5c5047;
+  background: rgb(235 226 207 / 58%);
+  box-shadow: inset 0 1px 4px rgb(67 45 30 / 5%);
+  opacity: 1;
+  -webkit-text-fill-color: #5c5047;
+}
+
 .entry-join-form input::placeholder {
   color: rgb(45 33 27 / 32%);
 }
@@ -747,45 +756,6 @@
   font-size: 19px;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-}
-
-.entry-invitation-code {
-  position: relative;
-  display: flex;
-  min-height: 58px;
-  align-items: center;
-  justify-content: space-between;
-  gap: 20px;
-  padding: 9px 4px;
-  border-top: 1px solid rgb(67 45 30 / 17%);
-  border-bottom: 1px solid rgb(67 45 30 / 24%);
-}
-
-.entry-invitation-code::after {
-  position: absolute;
-  right: 0;
-  bottom: -1px;
-  width: 58px;
-  height: 1px;
-  content: "";
-  background: #71373a;
-}
-
-.entry-invitation-code span {
-  color: #71655b;
-  font-family: var(--font-utility);
-  font-size: 9px;
-  font-weight: 500;
-  text-transform: uppercase;
-}
-
-.entry-invitation-code strong {
-  color: #3c2923;
-  font-family: var(--font-utility);
-  font-size: 24px;
-  font-weight: 560;
-  letter-spacing: 0.12em;
-  line-height: 1;
 }
 
 .entry-form-error {
@@ -1326,14 +1296,6 @@
 
   .entry-open-button {
     width: 100%;
-  }
-
-  .entry-invitation-code {
-    min-height: 54px;
-  }
-
-  .entry-invitation-code strong {
-    font-size: 21px;
   }
 
   .entry-community {

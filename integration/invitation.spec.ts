@@ -17,10 +17,12 @@ test("a direct invitation keeps its game code fixed and joins on mobile", async 
   await expect(
     player.page.getByRole("heading", { name: "You’re invited" }),
   ).toBeVisible();
-  await expect(player.page.getByLabel(`Game code ${joinCode}`)).toBeVisible();
-  await expect(
-    player.page.getByRole("textbox", { name: "Game code" }),
-  ).toHaveCount(0);
+  const invitationCode = player.page.getByRole("textbox", {
+    name: "Game code",
+  });
+  await expect(invitationCode).toBeVisible();
+  await expect(invitationCode).toHaveValue(joinCode);
+  await expect(invitationCode).toBeDisabled();
   await expect(player.page.getByLabel("Your name")).toBeFocused();
   expect(
     await player.page.evaluate(
@@ -35,49 +37,29 @@ test("a direct invitation keeps its game code fixed and joins on mobile", async 
   );
 });
 
-test("an invitation can switch to manual entry without stale invitation errors", async ({
+test("use a different code returns to the standard player entry flow", async ({
   createActor,
 }) => {
-  const player = await createActor({
-    ignoredClientErrors: [/server responded with a status of 404/i],
-  });
+  const player = await createActor();
   const created = await createGameViaApi(player);
 
   await player.page.goto(`/join/${created.snapshot.game.joinCode}`);
-  await player.page.getByLabel("Your name").fill("Alice");
   await player.page
     .getByRole("button", { name: "Use a different code" })
     .click();
+  await player.page.waitForURL(/\/$/);
+
+  await expect(
+    player.page.getByRole("heading", { name: "Enter the game" }),
+  ).toBeVisible();
+  await player.page.getByRole("button", { name: /^Player/ }).click();
 
   const codeInput = player.page.getByRole("textbox", { name: "Game code" });
   await expect(
     player.page.getByRole("heading", { name: "Join a game" }),
   ).toBeVisible();
   await expect(codeInput).toBeFocused();
-  await expect(player.page.getByLabel("Your name")).toHaveValue("Alice");
-
-  await player.page.route("**/api/join", async (route) => {
-    await route.fulfill({
-      status: 404,
-      contentType: "application/json",
-      body: JSON.stringify({
-        error: {
-          code: "not_found",
-          message: "Game not found.",
-          retryable: false,
-        },
-      }),
-    });
-  });
-  await codeInput.fill("AAAAAA");
-  await player.page.getByRole("button", { name: "Join game" }).click();
-
-  await expect(
-    player.page.getByText("Game not found. Check the code and try again."),
-  ).toBeVisible();
-  await expect(
-    player.page.getByText(/invitation may have expired/i),
-  ).toHaveCount(0);
+  await expect(codeInput).toBeEnabled();
 });
 
 test("an invalid invitation recovers inside the shared entry experience", async ({
@@ -93,13 +75,13 @@ test("an invalid invitation recovers inside the shared entry experience", async 
   await expect(
     player.page.getByRole("heading", { name: "Invitation unavailable" }),
   ).toBeVisible();
-  await player.page.getByRole("button", { name: "Enter a game code" }).click();
+  await player.page
+    .getByRole("button", { name: "Back to game options" })
+    .click();
+  await player.page.waitForURL(/\/$/);
   await expect(
-    player.page.getByRole("heading", { name: "Join a game" }),
+    player.page.getByRole("heading", { name: "Enter the game" }),
   ).toBeVisible();
-  await expect(
-    player.page.getByRole("textbox", { name: "Game code" }),
-  ).toBeFocused();
 });
 
 test("a full game gives an invitation-specific recovery state", async ({
@@ -128,6 +110,6 @@ test("a full game gives an invitation-specific recovery state", async ({
     ),
   ).toBeVisible();
   await expect(
-    player.page.getByRole("button", { name: "Enter another code" }),
+    player.page.getByRole("button", { name: "Back to game options" }),
   ).toBeVisible();
 });
