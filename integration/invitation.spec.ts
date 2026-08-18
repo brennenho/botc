@@ -17,6 +17,9 @@ test("a direct invitation keeps its game code fixed and joins on mobile", async 
   await expect(
     player.page.getByRole("heading", { name: "You’re invited" }),
   ).toBeVisible();
+  await expect(
+    player.page.getByText("Enter your name to join the game."),
+  ).toBeVisible();
   const invitationCode = player.page.getByRole("textbox", {
     name: "Game code",
   });

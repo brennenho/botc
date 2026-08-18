@@ -110,10 +110,6 @@
   padding-left: clamp(54px, 6vw, 92px);
 }
 
-.entry-mobile-brand {
-  display: none;
-}
-
 .entry-action-heading > p,
 .entry-step-heading > p {
   margin: 0 0 12px;
@@ -1166,27 +1162,6 @@
     padding: 6px 24px 12px;
   }
 
-  .entry-book.is-active .entry-mobile-brand {
-    display: flex;
-    align-items: baseline;
-    gap: 7px;
-    margin-top: 17px;
-    padding-bottom: 11px;
-    border-bottom: 1px solid rgb(67 45 30 / 13%);
-    color: #34393a;
-    font-family: var(--font-display);
-    font-size: 15px;
-    font-style: italic;
-    font-weight: 430;
-    line-height: 1;
-  }
-
-  .entry-mobile-brand strong {
-    color: #283034;
-    font-size: 17px;
-    font-weight: 520;
-  }
-
   .entry-wordmark {
     font-size: clamp(46px, 14vw, 56px);
   }
@@ -1228,7 +1203,7 @@
   }
 
   .entry-book.is-active .entry-action-stage {
-    padding-top: 38px;
+    padding-top: 48px;
   }
 
   .entry-action-heading h2 {

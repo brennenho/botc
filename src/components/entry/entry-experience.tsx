@@ -172,12 +172,6 @@ export function EntryExperience({
 
         <section className="entry-page entry-page-action">
           <div className="entry-page-inner">
-            {view !== "cover" ? (
-              <div className="entry-mobile-brand" aria-hidden="true">
-                <span>Blood on the</span>
-                <strong>Clocktower</strong>
-              </div>
-            ) : null}
             <div className="entry-action-stage">
               {showBack ? (
                 <button
@@ -376,7 +370,7 @@ export function EntryExperience({
                     <>
                       {isInvitation ? (
                         <p className="entry-step-intro">
-                          Enter your name to take your place in the game.
+                          Enter your name to join the game.
                         </p>
                       ) : null}
 
