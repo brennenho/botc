@@ -53,7 +53,7 @@ Character reference sheets are also available without creating a game.
 
 ### Requirements
 
-- Node.js 20.9 or newer
+- Node.js 22.22.2 or newer
 - pnpm 9
 - Docker
 

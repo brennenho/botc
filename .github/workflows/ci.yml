@@ -95,13 +95,9 @@ jobs:
         run: pnpm typecheck
 
   tests:
-    name: tests (Node ${{ matrix.node-version }})
+    name: tests
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    strategy:
-      fail-fast: false
-      matrix:
-        node-version: [20, 22]
 
     steps:
       - name: Check out repository
@@ -116,7 +112,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: 22
           cache: pnpm
 
       - name: Install dependencies
@@ -126,7 +122,6 @@ jobs:
         run: pnpm test:coverage
 
       - name: Upload coverage report
-        if: ${{ matrix.node-version == 22 }}
         uses: actions/upload-artifact@v4
         with:
           name: unit-test-coverage

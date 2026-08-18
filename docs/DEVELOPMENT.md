@@ -7,7 +7,7 @@ an overview of the game and application, start with the project
 
 ## Prerequisites
 
-- Node.js 20.9 or newer
+- Node.js 22.22.2 or newer
 - pnpm 9
 - Docker
 
