@@ -77,7 +77,7 @@ export function StorytellerDock({
           id: "script",
           icon: <BookOpen />,
           label: "Reference",
-          shortcut: "S",
+          shortcut: "R",
           active: scriptOpen,
           onClick: onOpenScript,
         },

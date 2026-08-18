@@ -120,7 +120,7 @@ export function PlayerContextMenu({
       },
       {
         id: "toggle-player-ghost-vote",
-        key: "g",
+        key: "o",
         enabled: !seat.alive,
         onTrigger: () => onSetGhostVote(!seat.ghostVoteAvailable),
       },
@@ -238,7 +238,7 @@ export function PlayerContextMenu({
               />
             </MenuControl>
             {!seat.alive && (
-              <MenuControl label="Ghost Vote" shortcut="G">
+              <MenuControl label="Ghost Vote" shortcut="O">
                 <SegmentedControl
                   value={seat.ghostVoteAvailable ? "available" : "used"}
                   label="Ghost Vote"

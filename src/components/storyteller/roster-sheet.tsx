@@ -61,7 +61,8 @@ export function RosterPanel({
       {
         id: "open-role-distribution",
         key: "d",
-        onTrigger: () => setDistributionOpen(true),
+        allowInModal: true,
+        onTrigger: () => setDistributionOpen((current) => !current),
       },
     ],
     shortcutsEnabled,

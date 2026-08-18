@@ -35,17 +35,21 @@ export function GrimoireToolbar({
   useKeyboardShortcuts([
     {
       id: "show-shortcuts",
-      key: "h",
-      onTrigger: () => setShortcutsOpen(true),
+      key: "g",
+      enabled: !inviteOpen,
+      allowInModal: true,
+      onTrigger: () => setShortcutsOpen((current) => !current),
     },
     {
       id: "invite-players",
       key: "v",
-      onTrigger: () => setInviteOpen(true),
+      enabled: !shortcutsOpen,
+      allowInModal: true,
+      onTrigger: () => setInviteOpen((current) => !current),
     },
     {
-      id: "toggle-redaction",
-      key: "r",
+      id: "toggle-hide",
+      key: "h",
       onTrigger: () => onRedactedChange(!redacted),
     },
   ]);
@@ -66,12 +70,12 @@ export function GrimoireToolbar({
           <p>{edition.name}</p>
         </div>
         <label className="grimoire-redaction-setting">
-          <span>Redact</span>
+          <span>Hide</span>
           <Switch
             checked={redacted}
             className="grimoire-redaction-switch"
-            aria-keyshortcuts="R"
-            title="Toggle redaction · R"
+            aria-keyshortcuts="H"
+            title="Toggle hide · H"
             onCheckedChange={onRedactedChange}
           />
         </label>
@@ -79,12 +83,12 @@ export function GrimoireToolbar({
           type="button"
           className="toolbar-shortcuts-button"
           aria-label="Open shortcut guide"
-          aria-keyshortcuts="H"
-          title="Open shortcut guide · H"
-          onClick={() => setShortcutsOpen(true)}
+          aria-keyshortcuts="G"
+          title="Open shortcut guide · G"
+          onClick={() => setShortcutsOpen((current) => !current)}
         >
           <span>Keys</span>
-          <ShortcutKey shortcut="H" />
+          <ShortcutKey shortcut="G" />
         </button>
       </div>
 

@@ -26,33 +26,33 @@ test("storyteller shortcuts cover common grimoire controls without firing while 
   await storyteller.page.keyboard.press("Escape");
   await expect(shortcutsHeading).toBeHidden();
 
-  await storyteller.page.keyboard.press("h");
+  await storyteller.page.keyboard.press("g");
   await expect(shortcutsHeading).toBeVisible();
-  await storyteller.page.keyboard.press("Escape");
+  await storyteller.page.keyboard.press("g");
   await expect(shortcutsHeading).toBeHidden();
 
   await storyteller.page.keyboard.press("v");
   await expect(
     storyteller.page.getByRole("heading", { name: "Invite Players" }),
   ).toBeVisible();
-  await storyteller.page.keyboard.press("Escape");
+  await storyteller.page.keyboard.press("v");
   await expect(
     storyteller.page.getByRole("heading", { name: "Invite Players" }),
   ).toBeHidden();
 
-  const redactionSwitch = storyteller.page.getByRole("switch", {
-    name: "Redact",
+  const hideSwitch = storyteller.page.getByRole("switch", {
+    name: "Hide",
   });
-  await storyteller.page.keyboard.press("r");
-  await expect(redactionSwitch).toHaveAttribute("aria-checked", "true");
-  await storyteller.page.keyboard.press("r");
-  await expect(redactionSwitch).toHaveAttribute("aria-checked", "false");
+  await storyteller.page.keyboard.press("h");
+  await expect(hideSwitch).toHaveAttribute("aria-checked", "true");
+  await storyteller.page.keyboard.press("h");
+  await expect(hideSwitch).toHaveAttribute("aria-checked", "false");
 
   for (const [key, heading] of [
     ["p", "Players"],
     ["n", "Night Order"],
     ["i", "Player Information"],
-    ["s", "Character Reference"],
+    ["r", "Character Reference"],
   ] as const) {
     await storyteller.page.keyboard.press(key);
     await expect(
@@ -63,6 +63,17 @@ test("storyteller shortcuts cover common grimoire controls without firing while 
       storyteller.page.getByRole("heading", { name: heading }),
     ).toHaveCount(0);
   }
+
+  await storyteller.page.keyboard.press("p");
+  await storyteller.page.keyboard.press("d");
+  await expect(
+    storyteller.page.getByRole("heading", { name: "Distribute Roles" }),
+  ).toBeVisible();
+  await storyteller.page.keyboard.press("d");
+  await expect(
+    storyteller.page.getByRole("heading", { name: "Distribute Roles" }),
+  ).toBeHidden();
+  await storyteller.page.keyboard.press("p");
 
   await storyteller.page.keyboard.press("]");
   await expect(
@@ -85,7 +96,7 @@ test("storyteller shortcuts cover common grimoire controls without firing while 
       .getByRole("button", { name: "Evil" }),
   ).toHaveAttribute("aria-pressed", "true");
 
-  await storyteller.page.keyboard.press("g");
+  await storyteller.page.keyboard.press("o");
   await expect(
     storyteller.page
       .getByRole("group", { name: "Ghost Vote" })
@@ -126,4 +137,10 @@ test("storyteller shortcuts cover common grimoire controls without firing while 
       name: /Choose a Character for/,
     }),
   ).toBeVisible();
+  await storyteller.page.keyboard.press("c");
+  await expect(
+    storyteller.page.getByRole("heading", {
+      name: /Choose a Character for/,
+    }),
+  ).toBeHidden();
 });

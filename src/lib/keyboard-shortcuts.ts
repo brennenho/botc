@@ -7,6 +7,7 @@ export type KeyboardShortcut = {
   meta?: boolean;
   enabled?: boolean;
   allowRepeat?: boolean;
+  allowInModal?: boolean;
   onTrigger: () => void;
 };
 
@@ -44,13 +45,18 @@ export function findKeyboardShortcut(
   );
 }
 
-export function shouldIgnoreKeyboardShortcut(target: EventTarget | null) {
+export function isEditableKeyboardShortcutTarget(target: EventTarget | null) {
   if (!(target instanceof Element)) return false;
 
   return Boolean(
-    target.closest(
-      'input, textarea, select, [contenteditable="true"], [data-keyboard-shortcuts-modal]',
-    ),
+    target.closest('input, textarea, select, [contenteditable="true"]'),
+  );
+}
+
+export function isKeyboardShortcutModalTarget(target: EventTarget | null) {
+  return (
+    target instanceof Element &&
+    Boolean(target.closest("[data-keyboard-shortcuts-modal]"))
   );
 }
 

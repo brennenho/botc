@@ -45,7 +45,7 @@ export function PlayerApp({
   useKeyboardShortcuts([
     {
       id: "toggle-script-reference",
-      key: "s",
+      key: "r",
       enabled: !redacted,
       onTrigger: () => setScriptOpen((current) => !current),
     },
@@ -105,7 +105,7 @@ export function PlayerApp({
                 id: "script",
                 icon: <BookOpen />,
                 label: "Reference",
-                shortcut: "S",
+                shortcut: "R",
                 active: scriptOpen,
                 onClick: () => setScriptOpen((current) => !current),
               },

@@ -18,9 +18,9 @@ const sharedGroups: ShortcutGroup[] = [
   {
     title: "Anywhere",
     shortcuts: [
-      { label: "Shortcut guide", keys: ["H"] },
+      { label: "Shortcut guide", keys: ["G"] },
       { label: "Invite players", keys: ["V"] },
-      { label: "Toggle redaction", keys: ["R"] },
+      { label: "Toggle hide", keys: ["H"] },
       { label: "Close or cancel", keys: ["Escape"] },
     ],
   },
@@ -33,7 +33,7 @@ const storytellerGroups: ShortcutGroup[] = [
       { label: "Players", keys: ["P"] },
       { label: "Night order", keys: ["N"] },
       { label: "Player information", keys: ["I"] },
-      { label: "Script reference", keys: ["S"] },
+      { label: "Reference", keys: ["R"] },
     ],
   },
   {
@@ -45,7 +45,7 @@ const storytellerGroups: ShortcutGroup[] = [
       { label: "Add reminder", keys: ["M"] },
       { label: "Toggle alive or dead", keys: ["D"] },
       { label: "Toggle alignment", keys: ["A"] },
-      { label: "Toggle ghost vote", keys: ["G"] },
+      { label: "Toggle ghost vote", keys: ["O"] },
       { label: "Toggle Traveller", keys: ["T"] },
     ],
   },
@@ -54,7 +54,7 @@ const storytellerGroups: ShortcutGroup[] = [
 const playerGroups: ShortcutGroup[] = [
   {
     title: "Grimoire",
-    shortcuts: [{ label: "Script reference", keys: ["S"] }],
+    shortcuts: [{ label: "Reference", keys: ["R"] }],
   },
 ];
 
@@ -110,7 +110,11 @@ export function KeyboardShortcutsDialog({
               {groups.map((group) => (
                 <section
                   key={group.title}
-                  className={`shortcut-group${group.title === "Player selected" ? "is-wide" : ""}`}
+                  className={
+                    group.title === "Player selected"
+                      ? "shortcut-group is-wide"
+                      : "shortcut-group"
+                  }
                 >
                   <h3>{group.title}</h3>
                   <dl>

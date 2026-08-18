@@ -4,7 +4,8 @@ import { useEffect, useRef } from "react";
 
 import {
   findKeyboardShortcut,
-  shouldIgnoreKeyboardShortcut,
+  isEditableKeyboardShortcutTarget,
+  isKeyboardShortcutModalTarget,
   type KeyboardShortcut,
 } from "@/lib/keyboard-shortcuts";
 
@@ -25,13 +26,19 @@ export function useKeyboardShortcuts(
       if (
         event.defaultPrevented ||
         event.isComposing ||
-        shouldIgnoreKeyboardShortcut(event.target)
+        isEditableKeyboardShortcutTarget(event.target)
       ) {
         return;
       }
 
       const shortcut = findKeyboardShortcut(event, shortcutsRef.current);
-      if (!shortcut || (event.repeat && !shortcut.allowRepeat)) return;
+      if (
+        !shortcut ||
+        (event.repeat && !shortcut.allowRepeat) ||
+        (isKeyboardShortcutModalTarget(event.target) && !shortcut.allowInModal)
+      ) {
+        return;
+      }
 
       event.preventDefault();
       shortcut.onTrigger();

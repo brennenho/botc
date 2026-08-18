@@ -133,9 +133,16 @@ export function StorytellerApp({
     },
     {
       id: "toggle-script-panel",
-      key: "s",
+      key: "r",
       enabled: !redacted,
       onTrigger: () => handleOpenPanel("script"),
+    },
+    {
+      id: "close-character-picker",
+      key: "c",
+      enabled: pickerTarget?.type === "seat",
+      allowInModal: true,
+      onTrigger: () => setPickerTarget(null),
     },
     {
       id: "select-previous-player",
