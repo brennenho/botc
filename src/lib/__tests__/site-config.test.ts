@@ -10,7 +10,7 @@ import {
 } from "@/lib/site-config";
 
 describe("site metadata", () => {
-  it("uses the BOTC Town identity and canonical production host", () => {
+  it("uses the BOTC Townsquare identity and canonical production host", () => {
     const metadata = createPageMetadata({
       title: "Online Grimoire",
       path: "/",
@@ -18,18 +18,18 @@ describe("site metadata", () => {
 
     expect(siteConfig.url).toBe("https://botc.town");
     expect(metadata).toMatchObject({
-      title: { absolute: "Online Grimoire | BOTC Town" },
+      title: { absolute: "Online Grimoire | BOTC Townsquare" },
       description: siteConfig.description,
       alternates: { canonical: "/" },
       robots: { index: true, follow: true },
       openGraph: {
-        title: "Online Grimoire | BOTC Town",
-        siteName: "BOTC Town",
+        title: "Online Grimoire | BOTC Townsquare",
+        siteName: "BOTC Townsquare",
         url: "/",
       },
       twitter: {
         card: "summary_large_image",
-        title: "Online Grimoire | BOTC Town",
+        title: "Online Grimoire | BOTC Townsquare",
       },
     });
   });
@@ -48,10 +48,13 @@ describe("site metadata", () => {
   it("declares website and web application structured data", () => {
     expect(siteStructuredData["@graph"]).toEqual(
       expect.arrayContaining([
-        expect.objectContaining({ "@type": "WebSite", name: "BOTC Town" }),
+        expect.objectContaining({
+          "@type": "WebSite",
+          name: "BOTC Townsquare",
+        }),
         expect.objectContaining({
           "@type": "WebApplication",
-          name: "BOTC Town",
+          name: "BOTC Townsquare",
           isAccessibleForFree: true,
         }),
       ]),

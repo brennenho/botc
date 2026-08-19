@@ -1,11 +1,11 @@
 import { expect, test } from "@playwright/test";
 
-test("public pages expose BOTC Town search and social metadata", async ({
+test("public pages expose BOTC Townsquare search and social metadata", async ({
   page,
 }) => {
   await page.goto("/");
 
-  await expect(page).toHaveTitle("Online Grimoire | BOTC Town");
+  await expect(page).toHaveTitle("Online Grimoire | BOTC Townsquare");
   await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
     "href",
     /^https:\/\/botc\.town\/?$/,
@@ -16,7 +16,7 @@ test("public pages expose BOTC Town search and social metadata", async ({
   );
   await expect(page.locator('meta[property="og:site_name"]')).toHaveAttribute(
     "content",
-    "BOTC Town",
+    "BOTC Townsquare",
   );
   await expect(page.locator('meta[property="og:image"]')).toHaveAttribute(
     "content",
@@ -31,7 +31,7 @@ test("public pages expose BOTC Town search and social metadata", async ({
     .locator('script[type="application/ld+json"]')
     .first()
     .textContent();
-  expect(structuredData).toContain('"name":"BOTC Town"');
+  expect(structuredData).toContain('"name":"BOTC Townsquare"');
   expect(structuredData).toContain('"@type":"WebApplication"');
 });
 
@@ -40,7 +40,7 @@ test("private invitations stay out of search and use generic previews", async ({
 }) => {
   await page.goto("/join/ABC234");
 
-  await expect(page).toHaveTitle("Join Game | BOTC Town");
+  await expect(page).toHaveTitle("Join Game | BOTC Townsquare");
   await expect(page.locator('meta[name="robots"]')).toHaveAttribute(
     "content",
     /noindex, nofollow/,
@@ -48,7 +48,7 @@ test("private invitations stay out of search and use generic previews", async ({
   await expect(page.locator('link[rel="canonical"]')).toHaveCount(0);
   await expect(page.locator('meta[property="og:title"]')).toHaveAttribute(
     "content",
-    "Join Game | BOTC Town",
+    "Join Game | BOTC Townsquare",
   );
   await expect(page.locator('meta[property="og:image"]')).toHaveAttribute(
     "content",
@@ -70,7 +70,7 @@ test("instructions use the canonical document route", async ({
   expect(legacyResponse.status()).toBe(404);
 
   await page.goto("/instructions");
-  await expect(page).toHaveTitle("Instructions | BOTC Town");
+  await expect(page).toHaveTitle("Instructions | BOTC Townsquare");
   await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
     "href",
     "https://botc.town/instructions",
@@ -85,12 +85,14 @@ test("instructions use the canonical document route", async ({
   );
 });
 
-test("public page copy treats BOTC Town as metadata, not prose", async ({
+test("public page copy treats BOTC Townsquare as metadata, not prose", async ({
   page,
 }) => {
   for (const path of ["/", "/instructions", "/tb", "/privacy"]) {
     await page.goto(path);
-    expect(await page.locator("body").innerText()).not.toContain("BOTC Town");
+    expect(await page.locator("body").innerText()).not.toContain(
+      "BOTC Townsquare",
+    );
   }
 });
 
