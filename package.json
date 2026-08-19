@@ -29,6 +29,7 @@
     "test:coverage": "vitest run --coverage",
     "test:db": "supabase test db",
     "test:integration": "playwright test",
+    "test:integration:chromium": "playwright test --project=chromium --project=tablet-landscape",
     "test:integration:smoke": "playwright test --grep @smoke",
     "test:integration:report": "playwright show-report integration-report",
     "test:integration:ui": "playwright test --ui",
