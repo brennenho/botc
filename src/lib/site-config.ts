@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const siteConfig = {
-  name: "BOTC Town",
+  name: "BOTC Townsquare",
   alternateName: "BOTC.Town",
   url: "https://botc.town",
   description:
