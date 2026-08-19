@@ -4,7 +4,7 @@ import "@testing-library/jest-dom/vitest";
 
 import { cleanup, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { createElement } from "react";
+import { useState } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { GameInviteControl } from "@/components/grimoire/game-invite-control";
@@ -23,6 +23,25 @@ vi.mock("@/lib/notifications", () => ({
 vi.mock("@/lib/observability/client", () => ({
   trackEvent: vi.fn(),
 }));
+
+function TestGameInviteControl({
+  joinCode,
+  actorRole,
+}: {
+  joinCode: string;
+  actorRole: "storyteller" | "player";
+}) {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <GameInviteControl
+      joinCode={joinCode}
+      actorRole={actorRole}
+      open={open}
+      onOpenChange={setOpen}
+    />
+  );
+}
 
 describe("GameInviteControl", () => {
   const writeText = vi.fn();
@@ -44,12 +63,7 @@ describe("GameInviteControl", () => {
       configurable: true,
       value: { writeText },
     });
-    render(
-      createElement(GameInviteControl, {
-        joinCode: "abc234",
-        actorRole: "storyteller",
-      }),
-    );
+    render(<TestGameInviteControl joinCode="abc234" actorRole="storyteller" />);
 
     await user.click(
       screen.getByRole("button", { name: "Invite players to game abc234" }),
@@ -89,12 +103,7 @@ describe("GameInviteControl", () => {
       configurable: true,
       value: { writeText },
     });
-    render(
-      createElement(GameInviteControl, {
-        joinCode: "ABC234",
-        actorRole: "player",
-      }),
-    );
+    render(<TestGameInviteControl joinCode="ABC234" actorRole="player" />);
 
     await user.click(
       screen.getByRole("button", { name: "Invite players to game ABC234" }),
@@ -121,12 +130,7 @@ describe("GameInviteControl", () => {
       value: share,
     });
     const user = userEvent.setup();
-    render(
-      createElement(GameInviteControl, {
-        joinCode: "ABC234",
-        actorRole: "storyteller",
-      }),
-    );
+    render(<TestGameInviteControl joinCode="ABC234" actorRole="storyteller" />);
 
     await user.click(
       screen.getByRole("button", { name: "Invite players to game ABC234" }),
