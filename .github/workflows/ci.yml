@@ -197,6 +197,7 @@ jobs:
 
   integration:
     name: multiplayer integration
+    if: ${{ github.event_name == 'pull_request' }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     permissions:
@@ -225,12 +226,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Install Chromium
-        if: ${{ github.event_name == 'pull_request' }}
         run: pnpm exec playwright install chromium --with-deps
-
-      - name: Install browser matrix
-        if: ${{ github.event_name == 'push' }}
-        run: pnpm exec playwright install chromium webkit --with-deps
 
       - name: Start local Supabase
         run: pnpm supabase:start
@@ -270,13 +266,8 @@ jobs:
       - name: Build application for integration tests
         run: pnpm build
 
-      - name: Run pull request integration tests
-        if: ${{ github.event_name == 'pull_request' }}
+      - name: Run multiplayer integration tests
         run: pnpm test:integration:chromium
-
-      - name: Run post-merge browser matrix
-        if: ${{ github.event_name == 'push' }}
-        run: pnpm test:integration
 
       - name: Summarize integration test results
         id: integration-summary

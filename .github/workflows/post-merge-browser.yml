@@ -1,0 +1,104 @@
+name: Post-merge browser matrix
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: post-merge-browser-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  integration:
+    name: post-merge browser matrix
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9.12.2
+          run_install: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install browser matrix
+        run: pnpm exec playwright install chromium webkit --with-deps
+
+      - name: Start local Supabase
+        run: pnpm supabase:start
+        env:
+          SUPABASE_TELEMETRY_DISABLED: "true"
+
+      - name: Reset local database
+        run: pnpm supabase:reset
+        env:
+          SUPABASE_TELEMETRY_DISABLED: "true"
+
+      - name: Lint local database
+        run: pnpm supabase:lint
+        env:
+          SUPABASE_TELEMETRY_DISABLED: "true"
+
+      - name: Test database behavior
+        run: pnpm test:db
+        env:
+          SUPABASE_TELEMETRY_DISABLED: "true"
+
+      - name: Export local application environment
+        shell: bash
+        run: |
+          eval "$(pnpm exec supabase status -o env)"
+          {
+            echo "NEXT_PUBLIC_SUPABASE_URL=$API_URL"
+            echo "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=$PUBLISHABLE_KEY"
+            echo "SUPABASE_SECRET_KEY=$SECRET_KEY"
+            echo "NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN=integration-disabled"
+            echo "NEXT_PUBLIC_POSTHOG_HOST=https://us.i.posthog.com"
+            echo "NEXT_PUBLIC_DISABLE_OBSERVABILITY=true"
+          } >> "$GITHUB_ENV"
+        env:
+          SUPABASE_TELEMETRY_DISABLED: "true"
+
+      - name: Build application for integration tests
+        run: pnpm build
+
+      - name: Run full browser integration matrix
+        run: pnpm test:integration
+
+      - name: Summarize integration test results
+        if: ${{ !cancelled() }}
+        run: node scripts/summarize-integration-report.js integration-results.json
+
+      - name: Upload integration test report
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: post-merge-browser-report
+          path: |
+            integration-report/
+            integration-results.json
+            integration-test-results/
+          if-no-files-found: ignore
+          retention-days: 14
+
+      - name: Stop local Supabase
+        if: ${{ always() }}
+        run: pnpm supabase:stop
+        env:
+          SUPABASE_TELEMETRY_DISABLED: "true"

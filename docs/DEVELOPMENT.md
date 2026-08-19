@@ -189,23 +189,26 @@ compete with a normal development server on port 3000. The HTML report is
 written to `integration-report/index.html`, and traces, screenshots, videos,
 and other run artifacts are written to `integration-test-results/`.
 
-The GitHub Actions integration job starts an ephemeral local Supabase stack,
+The pull request integration job starts an ephemeral local Supabase stack,
 rebuilds the database from migrations, exports only the generated local
 credentials, runs pgTAP database tests, builds the production application, and
-runs the browser tests with one worker. Pull requests run the full Chromium
-suite plus the tablet Chromium smoke tests. After a pull request is merged, the
-`main` branch run adds the mobile WebKit smoke tests so installing WebKit's
-system dependencies does not delay review feedback. CI does not connect to the
-hosted Supabase or PostHog projects.
+runs the full Chromium suite plus the tablet Chromium smoke tests with one
+worker. A separate post-merge workflow runs the complete browser matrix,
+including mobile WebKit, after pushes to `main` and on manual dispatch. This
+keeps WebKit's system dependency installation out of the required pull request
+checks. Neither workflow connects to the hosted Supabase or PostHog projects.
 
-Every run uploads the HTML report, with traces, screenshots, and videos retained
-on failure, as the 14-day `integration-test-report` artifact. The independent
-unit test job uploads its HTML and JSON coverage report as the 14-day
-`unit-test-coverage` artifact. Same-repository pull requests receive one sticky
-comment that combines the unit coverage totals with the browser pass, failure,
-flaky, and skipped totals; duration; a viewer-local last-run time; failed test
-details; and links to both artifacts. Unit and browser tests remain separate CI
-checks and run in parallel.
+Pull request runs upload the HTML report, with traces, screenshots, and videos
+retained on failure, as the 14-day `integration-test-report` artifact. The
+post-merge workflow uploads the same diagnostics as
+`post-merge-browser-report`. The independent unit test job uploads its HTML and
+JSON coverage report as the 14-day `unit-test-coverage` artifact.
+
+Same-repository pull requests receive one sticky comment that combines the unit
+coverage totals with the browser pass, failure, flaky, and skipped totals;
+duration; a viewer-local last-run time; failed test details; and links to both
+pull request artifacts. Unit and browser tests remain separate CI checks and run
+in parallel.
 
 When adding tests, create a new game for every scenario, give every actor a
 separate browser context, prefer accessible labels over test IDs, and wait on
