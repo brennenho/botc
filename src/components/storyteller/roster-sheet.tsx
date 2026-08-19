@@ -9,11 +9,14 @@ import { TokenIcon } from "@/components/storyteller/token-icon";
 import { Button } from "@/components/ui/button";
 import { IconButton } from "@/components/ui/icon-button";
 import { Input } from "@/components/ui/input";
+import { ShortcutKey } from "@/components/ui/shortcut-key";
+import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts";
 import { getSetupAssessment, roleById } from "@/lib/game-data";
 import type { EditionId, GameToken, Seat } from "@/lib/game-data/types";
 import { cn } from "@/lib/utils";
 
 export function RosterPanel({
+  shortcutsEnabled,
   editionId,
   seats,
   gameTokens,
@@ -28,6 +31,7 @@ export function RosterPanel({
   onClearAssignments,
   onArrangeCircle,
 }: {
+  shortcutsEnabled: boolean;
   editionId: EditionId;
   seats: Seat[];
   gameTokens: GameToken[];
@@ -46,6 +50,23 @@ export function RosterPanel({
   const assessment = getSetupAssessment(seats, gameTokens);
   const residentCount = seats.filter((seat) => !seat.isTraveller).length;
   const travellerCount = seats.length - residentCount;
+
+  useKeyboardShortcuts(
+    [
+      {
+        id: "add-player",
+        key: "a",
+        onTrigger: onAddPlayer,
+      },
+      {
+        id: "open-role-distribution",
+        key: "d",
+        allowInModal: true,
+        onTrigger: () => setDistributionOpen((current) => !current),
+      },
+    ],
+    shortcutsEnabled,
+  );
 
   const defaultSetup = assessment.expected
     ? (["townsfolk", "outsider", "minion", "demon"] as const)
@@ -172,14 +193,22 @@ export function RosterPanel({
         <Button
           size="sm"
           variant="secondary"
+          aria-keyshortcuts="D"
           onClick={() => setDistributionOpen(true)}
         >
           <Shuffle className="size-4" />
           Distribute Roles
+          <ShortcutKey shortcut="D" size="sm" />
         </Button>
-        <Button size="sm" variant="secondary" onClick={onAddPlayer}>
+        <Button
+          size="sm"
+          variant="secondary"
+          aria-keyshortcuts="A"
+          onClick={onAddPlayer}
+        >
           <Plus className="size-4" />
           Add Player
+          <ShortcutKey shortcut="A" size="sm" />
         </Button>
         <Button size="sm" variant="secondary" onClick={onArrangeCircle}>
           <Orbit className="size-4" />

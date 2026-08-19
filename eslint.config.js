@@ -9,6 +9,7 @@ export default tseslint.config(
   {
     ignores: [
       ".next",
+      "coverage/**",
       "integration-report/**",
       "integration-test-results/**",
       "next-env.d.ts",

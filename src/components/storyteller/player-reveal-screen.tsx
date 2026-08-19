@@ -33,6 +33,7 @@ export function PlayerRevealScreen({
             <Dialog.Popup
               className="player-reveal-screen"
               initialFocus={titleRef}
+              data-keyboard-shortcuts-modal
             >
               <RevealContent
                 reveal={reveal}

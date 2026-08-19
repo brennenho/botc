@@ -11,7 +11,7 @@ import {
   type DragMoveEvent,
   type DragStartEvent,
 } from "@dnd-kit/core";
-import { useRef, useState, type CSSProperties } from "react";
+import { useId, useRef, useState, type CSSProperties } from "react";
 
 import { DraggableReminderToken } from "@/components/storyteller/draggable-reminder-token";
 import { PlayerContextMenu } from "@/components/storyteller/player-context-menu";
@@ -52,6 +52,7 @@ export function GrimoireBoard({
   selectedSeatId,
   selectedReminderId,
   placingReminder,
+  shortcutsEnabled,
   onlineSeatIds = new Set<string>(),
   presenceAvailable = false,
   onSelectSeat,
@@ -77,6 +78,7 @@ export function GrimoireBoard({
   selectedSeatId: string | null;
   selectedReminderId: string | null;
   placingReminder: boolean;
+  shortcutsEnabled: boolean;
   onlineSeatIds?: ReadonlySet<string>;
   presenceAvailable?: boolean;
   onSelectSeat: (seatId: string) => void;
@@ -99,6 +101,7 @@ export function GrimoireBoard({
     seatId?: string,
   ) => void;
 }) {
+  const dndContextId = useId();
   const boardRef = useRef<HTMLDivElement>(null);
   const { boardSize, compact, layout } = useTownCircleLayout(
     boardRef,
@@ -403,6 +406,7 @@ export function GrimoireBoard({
 
   return (
     <DndContext
+      id={dndContextId}
       sensors={sensors}
       onDragStart={handleDragStart}
       onDragMove={handleDragMove}
@@ -509,6 +513,7 @@ export function GrimoireBoard({
               seat={selectedSeat}
               seats={seats}
               gameTokens={gameTokens}
+              shortcutsEnabled={shortcutsEnabled}
               side={playerMenu.side}
               style={
                 {

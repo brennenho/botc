@@ -478,6 +478,7 @@
 .entry-action:focus-visible,
 .entry-back:focus-visible,
 .entry-edition:focus-visible,
+.entry-secondary-action:focus-visible,
 .entry-character-sheets:focus-visible,
 .entry-project-credit a:focus-visible,
 .entry-project-links a:focus-visible {
@@ -692,6 +693,18 @@
   text-align: left;
 }
 
+.entry-step-intro {
+  max-width: 370px;
+  margin: 14px 0 0;
+  color: #74685e;
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.entry-step-intro + .entry-join-form {
+  margin-top: 24px;
+}
+
 .entry-join-form label > span {
   display: block;
   margin-bottom: 7px;
@@ -732,6 +745,15 @@
   box-shadow: 0 0 0 2px rgb(105 49 52 / 13%);
 }
 
+.entry-join-form input:disabled {
+  cursor: not-allowed;
+  color: #5c5047;
+  background: rgb(235 226 207 / 58%);
+  box-shadow: inset 0 1px 4px rgb(67 45 30 / 5%);
+  opacity: 1;
+  -webkit-text-fill-color: #5c5047;
+}
+
 .entry-join-form input::placeholder {
   color: rgb(45 33 27 / 32%);
 }
@@ -739,12 +761,79 @@
 .entry-code-input {
   font-family: var(--font-utility);
   font-size: 19px;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
+}
+
+.entry-form-error {
+  margin: -3px 2px 0;
+  color: var(--status-danger);
+  font-size: 11px;
+  font-weight: 560;
+  line-height: 1.4;
 }
 
 .entry-join-form button {
   width: 100%;
   margin-top: 4px;
+}
+
+.entry-secondary-action {
+  display: flex;
+  min-height: 32px;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  margin: 15px auto 0;
+  padding: 4px 7px;
+  border: 0;
+  border-radius: 2px;
+  color: #6f6157;
+  outline: none;
+  background: transparent;
+  font-family: var(--font-utility);
+  font-size: 9px;
+  font-weight: 500;
+  text-transform: uppercase;
+  transition: color var(--motion-standard) ease;
+}
+
+.entry-secondary-action:hover {
+  color: #3d2e25;
+}
+
+.entry-secondary-action svg {
+  width: 13px;
+  height: 13px;
+}
+
+.entry-invitation-status {
+  margin-top: 26px;
+}
+
+.entry-invitation-status > p {
+  max-width: 390px;
+  margin: 0;
+  color: #6f6258;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.entry-invitation-actions {
+  display: grid;
+  margin-top: 25px;
+  gap: 4px;
+}
+
+.entry-invitation-actions .ui-button {
+  width: 100%;
+  color: #fffaf0;
+  background: #643034;
+  box-shadow: 0 3px 9px rgb(67 34 28 / 16%);
+}
+
+.entry-invitation-actions .ui-button:hover {
+  background: #512529;
 }
 
 .entry-community {

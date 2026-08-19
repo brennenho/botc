@@ -36,11 +36,14 @@ async function writeToClipboard(value: string) {
 export function GameInviteControl({
   joinCode,
   actorRole,
+  open,
+  onOpenChange,
 }: {
   joinCode: string;
   actorRole: ActorRole;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
 }) {
-  const [open, setOpen] = useState(false);
   const [invitationUrl, setInvitationUrl] = useState("");
   const [canShare, setCanShare] = useState(false);
   const [copiedValue, setCopiedValue] = useState<CopiedValue>(null);
@@ -62,7 +65,7 @@ export function GameInviteControl({
   );
 
   function handleOpenChange(nextOpen: boolean) {
-    setOpen(nextOpen);
+    onOpenChange(nextOpen);
     if (nextOpen) {
       trackEvent("game_invitation_opened", { actor_role: actorRole });
     } else {
@@ -141,7 +144,8 @@ export function GameInviteControl({
         className="join-code-control"
         onClick={() => handleOpenChange(true)}
         aria-label={`Invite players to game ${joinCode}`}
-        title="Invite players"
+        aria-keyshortcuts="J"
+        title="Invite players · J"
       >
         <span className="utility-label">Invite players</span>
         <strong>{joinCode}</strong>
@@ -152,7 +156,11 @@ export function GameInviteControl({
         <Dialog.Portal>
           <Dialog.Backdrop className="dialog-backdrop invite-dialog-backdrop" />
           <Dialog.Viewport className="dialog-viewport invite-dialog-viewport">
-            <Dialog.Popup className="invite-card" initialFocus={titleRef}>
+            <Dialog.Popup
+              className="invite-card"
+              initialFocus={titleRef}
+              data-keyboard-shortcuts-modal
+            >
               <header className="invite-card-header">
                 <Dialog.Title ref={titleRef} tabIndex={-1}>
                   Invite Players
@@ -178,6 +186,7 @@ export function GameInviteControl({
               <div className="invite-card-body">
                 <div
                   className="invite-qr-frame"
+                  role="img"
                   aria-label="QR code for the player invitation link"
                   aria-busy={!invitationUrl}
                 >

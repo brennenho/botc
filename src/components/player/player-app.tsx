@@ -15,6 +15,7 @@ import { PageError } from "@/components/ui/page-error";
 import { Sheet } from "@/components/ui/sheet";
 import { StatusNotice } from "@/components/ui/status-notice";
 import { useGamePresence } from "@/hooks/use-game-presence";
+import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts";
 import { usePlayerGame } from "@/hooks/use-player-game";
 import { isTerminalGameError } from "@/lib/app-error";
 import { roleById } from "@/lib/game-data";
@@ -40,6 +41,21 @@ export function PlayerApp({
   const [scriptOpen, setScriptOpen] = useState(false);
   const [referenceView, setReferenceView] =
     useState<CharacterReferenceView>("script");
+
+  useKeyboardShortcuts([
+    {
+      id: "toggle-script-reference",
+      key: "r",
+      enabled: !redacted,
+      onTrigger: () => setScriptOpen((current) => !current),
+    },
+    {
+      id: "close-player-panel",
+      key: "Escape",
+      enabled: scriptOpen,
+      onTrigger: () => setScriptOpen(false),
+    },
+  ]);
 
   if (isTerminalGameError(refreshError)) {
     return (
@@ -89,6 +105,7 @@ export function PlayerApp({
                 id: "script",
                 icon: <BookOpen />,
                 label: "Reference",
+                shortcut: "R",
                 active: scriptOpen,
                 onClick: () => setScriptOpen((current) => !current),
               },

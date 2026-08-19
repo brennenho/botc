@@ -19,12 +19,14 @@ import { PageError } from "@/components/ui/page-error";
 import { StatusNotice } from "@/components/ui/status-notice";
 import { useGamePresence } from "@/hooks/use-game-presence";
 import { useGrimoireActions } from "@/hooks/use-grimoire-actions";
+import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts";
 import { usePersistedGrimoireSheetPin } from "@/hooks/use-persisted-grimoire-sheet-pin";
 import { usePersistedNightOrderState } from "@/hooks/use-persisted-night-order-state";
 import { useStorytellerGame } from "@/hooks/use-storyteller-game";
 import { isTerminalGameError } from "@/lib/app-error";
 import { getSetupReminderWarnings } from "@/lib/game-data";
 import type { StorytellerSnapshot } from "@/lib/game-data/types";
+import { getAdjacentSeatId } from "@/lib/keyboard-shortcuts";
 import {
   getReminderDefinition,
   type ReminderDefinition,
@@ -110,6 +112,65 @@ export function StorytellerApp({
     [selectedReminderId, snapshot.gameTokens],
   );
 
+  useKeyboardShortcuts([
+    {
+      id: "toggle-players-panel",
+      key: "p",
+      enabled: !redacted,
+      onTrigger: () => handleOpenPanel("players"),
+    },
+    {
+      id: "toggle-night-panel",
+      key: "n",
+      enabled: !redacted,
+      onTrigger: () => handleOpenPanel("night"),
+    },
+    {
+      id: "toggle-info-panel",
+      key: "i",
+      enabled: !redacted,
+      onTrigger: () => handleOpenPanel("info"),
+    },
+    {
+      id: "toggle-script-panel",
+      key: "r",
+      enabled: !redacted,
+      onTrigger: () => handleOpenPanel("script"),
+    },
+    {
+      id: "close-character-picker",
+      key: "c",
+      enabled: pickerTarget?.type === "seat",
+      allowInModal: true,
+      onTrigger: () => setPickerTarget(null),
+    },
+    {
+      id: "select-previous-player",
+      key: "[",
+      enabled: !redacted && snapshot.seats.length > 0,
+      allowRepeat: true,
+      onTrigger: () => handleSelectAdjacentSeat(-1),
+    },
+    {
+      id: "select-next-player",
+      key: "]",
+      enabled: !redacted && snapshot.seats.length > 0,
+      allowRepeat: true,
+      onTrigger: () => handleSelectAdjacentSeat(1),
+    },
+    {
+      id: "close-current-controls",
+      key: "Escape",
+      enabled: Boolean(
+        pendingReminder !== null ||
+        selectedReminderId !== null ||
+        selectedSeatId !== null ||
+        openPanel !== null,
+      ),
+      onTrigger: handleCloseShortcutLayer,
+    },
+  ]);
+
   if (isTerminalGameError(refreshError)) {
     return (
       <PageError
@@ -123,6 +184,41 @@ export function StorytellerApp({
     snapshot.seats,
     snapshot.gameTokens,
   );
+
+  function handleOpenPanel(panel: Exclude<GrimoirePanel, null>) {
+    setSelectedSeatId(null);
+    setSelectedReminderId(null);
+    setPendingReminder(null);
+    setOpenPanel((current) => (current === panel ? null : panel));
+  }
+
+  function handleSelectSeat(seatId: string) {
+    if (!sheetPinned) setOpenPanel(null);
+    setSelectedReminderId(null);
+    setPendingReminder(null);
+    setSelectedSeatId(seatId);
+  }
+
+  function handleSelectAdjacentSeat(direction: -1 | 1) {
+    const seatId = getAdjacentSeatId(snapshot.seats, selectedSeatId, direction);
+    if (seatId) handleSelectSeat(seatId);
+  }
+
+  function handleCloseShortcutLayer() {
+    if (pendingReminder) {
+      setPendingReminder(null);
+      return;
+    }
+    if (selectedReminderId) {
+      setSelectedReminderId(null);
+      return;
+    }
+    if (selectedSeatId) {
+      setSelectedSeatId(null);
+      return;
+    }
+    if (openPanel) setOpenPanel(null);
+  }
 
   function handleRemovePlayer(seatId: string) {
     removePlayer(seatId);
@@ -197,13 +293,10 @@ export function StorytellerApp({
           selectedSeatId={selectedSeatId}
           selectedReminderId={selectedReminderId}
           placingReminder={pendingReminder !== null}
+          shortcutsEnabled={!redacted}
           onlineSeatIds={presence.onlineSeatIds}
           presenceAvailable={presence.status === "connected"}
-          onSelectSeat={(seatId) => {
-            if (!sheetPinned) setOpenPanel(null);
-            setSelectedReminderId(null);
-            setSelectedSeatId(seatId);
-          }}
+          onSelectSeat={handleSelectSeat}
           onSelectReminder={(tokenId) => {
             if (!sheetPinned) setOpenPanel(null);
             setSelectedSeatId(null);
@@ -275,32 +368,10 @@ export function StorytellerApp({
           nightOpen={openPanel === "night"}
           infoOpen={openPanel === "info"}
           scriptOpen={openPanel === "script"}
-          onOpenPlayers={() => {
-            setSelectedSeatId(null);
-            setSelectedReminderId(null);
-            setPendingReminder(null);
-            setOpenPanel((current) =>
-              current === "players" ? null : "players",
-            );
-          }}
-          onOpenNight={() => {
-            setSelectedSeatId(null);
-            setSelectedReminderId(null);
-            setPendingReminder(null);
-            setOpenPanel((current) => (current === "night" ? null : "night"));
-          }}
-          onOpenInfo={() => {
-            setSelectedSeatId(null);
-            setSelectedReminderId(null);
-            setPendingReminder(null);
-            setOpenPanel((current) => (current === "info" ? null : "info"));
-          }}
-          onOpenScript={() => {
-            setSelectedSeatId(null);
-            setSelectedReminderId(null);
-            setPendingReminder(null);
-            setOpenPanel((current) => (current === "script" ? null : "script"));
-          }}
+          onOpenPlayers={() => handleOpenPanel("players")}
+          onOpenNight={() => handleOpenPanel("night")}
+          onOpenInfo={() => handleOpenPanel("info")}
+          onOpenScript={() => handleOpenPanel("script")}
           onRemoveSelectedReminder={() => {
             if (!selectedReminder) return;
             handleRemoveReminder(selectedReminder.id);
@@ -313,6 +384,11 @@ export function StorytellerApp({
       {!redacted && (
         <GrimoireSideSheet
           panel={openPanel}
+          shortcutsEnabled={
+            selectedSeatId === null &&
+            selectedReminderId === null &&
+            pendingReminder === null
+          }
           editionId={snapshot.game.edition}
           seats={snapshot.seats}
           gameTokens={snapshot.gameTokens}
@@ -324,11 +400,7 @@ export function StorytellerApp({
           onPinnedChange={setSheetPinned}
           onReferenceViewChange={setReferenceView}
           onClose={() => setOpenPanel(null)}
-          onSelectSeat={(seatId) => {
-            if (!sheetPinned) setOpenPanel(null);
-            setSelectedReminderId(null);
-            setSelectedSeatId(seatId);
-          }}
+          onSelectSeat={handleSelectSeat}
           onChooseRole={(seatId) => setPickerTarget({ type: "seat", seatId })}
           onClearRole={(seatId) => chooseRole(seatId, null)}
           onRemovePlayer={handleRemovePlayer}

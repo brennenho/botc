@@ -43,7 +43,7 @@ export function PlayerRoleCard({
           {redacted ? "Privacy Mode" : "Your Character"}
         </span>
         <strong>
-          {redacted ? "Screen Redacted" : (role?.name ?? "Not Assigned")}
+          {redacted ? "Screen Hidden" : (role?.name ?? "Not Assigned")}
         </strong>
         {!redacted && role ? (
           <span className="player-private-role-meta">

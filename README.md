@@ -53,7 +53,7 @@ Character reference sheets are also available without creating a game.
 
 ### Requirements
 
-- Node.js 20.9 or newer
+- Node.js 22.22.2 or newer
 - pnpm 9
 - Docker
 
@@ -91,6 +91,7 @@ variables, database migrations, observability, asset syncing, and deployment che
 ```sh
 pnpm check
 pnpm test
+pnpm test:coverage
 pnpm build
 ```
 
@@ -99,6 +100,7 @@ Multiplayer browser tests additionally require the local Supabase stack:
 ```sh
 pnpm supabase:start
 pnpm supabase:reset
+pnpm test:db
 pnpm test:integration
 ```
 
