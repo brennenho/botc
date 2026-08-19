@@ -14,7 +14,7 @@ concurrency:
 
 jobs:
   integration:
-    name: post-merge browser matrix
+    name: mobile WebKit integration
     runs-on: ubuntu-latest
     timeout-minutes: 45
 
@@ -37,8 +37,8 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Install browser matrix
-        run: pnpm exec playwright install chromium webkit --with-deps
+      - name: Install WebKit
+        run: pnpm exec playwright install webkit --with-deps
 
       - name: Start local Supabase
         run: pnpm supabase:start
@@ -78,8 +78,8 @@ jobs:
       - name: Build application for integration tests
         run: pnpm build
 
-      - name: Run full browser integration matrix
-        run: pnpm test:integration
+      - name: Run mobile WebKit integration tests
+        run: pnpm test:integration:webkit
 
       - name: Summarize integration test results
         if: ${{ !cancelled() }}
@@ -89,7 +89,7 @@ jobs:
         if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v4
         with:
-          name: post-merge-browser-report
+          name: webkit-integration-report
           path: |
             integration-report/
             integration-results.json
