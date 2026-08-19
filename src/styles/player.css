@@ -10,7 +10,7 @@
 .player-grimoire-frame {
   position: relative;
   background-color: var(--parchment);
-  background-image: url("/assets/grimoire-parchment.png");
+  background-image: url("/assets/grimoire-parchment.webp");
   background-position: center;
   background-size: cover;
 }

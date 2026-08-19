@@ -307,7 +307,7 @@
   height: 100svh;
   overflow: hidden;
   background-color: var(--parchment);
-  background-image: url("/assets/grimoire-parchment.png");
+  background-image: url("/assets/grimoire-parchment.webp");
   background-position: center;
   background-size: cover;
   box-shadow: inset 0 0 52px rgb(78 48 19 / 23%);

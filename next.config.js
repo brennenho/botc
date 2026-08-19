@@ -17,11 +17,36 @@ const securityHeaders = [
   { key: "X-Frame-Options", value: "DENY" },
 ];
 
+const deploymentNoIndexHeaders =
+  process.env.VERCEL_ENV && process.env.VERCEL_ENV !== "production"
+    ? [{ key: "X-Robots-Tag", value: "noindex, nofollow" }]
+    : [];
+
 /** @type {import("next").NextConfig} */
 const config = {
   poweredByHeader: false,
+  async redirects() {
+    return [
+      {
+        source: "/:path*",
+        has: [{ type: "host", value: "www.botc.town" }],
+        destination: "https://botc.town/:path*",
+        permanent: true,
+      },
+    ];
+  },
   async headers() {
-    return [{ source: "/:path*", headers: securityHeaders }];
+    const noIndexHeader = [{ key: "X-Robots-Tag", value: "noindex, nofollow" }];
+
+    return [
+      { source: "/:path*", headers: securityHeaders },
+      { source: "/api/:path*", headers: noIndexHeader },
+      { source: "/game/:path*", headers: noIndexHeader },
+      { source: "/join/:path*", headers: noIndexHeader },
+      ...(deploymentNoIndexHeaders.length
+        ? [{ source: "/:path*", headers: deploymentNoIndexHeaders }]
+        : []),
+    ];
   },
 };
 

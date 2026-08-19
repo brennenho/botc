@@ -76,7 +76,7 @@
   min-height: 0;
   overflow-y: auto;
   background-color: var(--parchment);
-  background-image: url("/assets/grimoire-parchment.png");
+  background-image: url("/assets/grimoire-parchment.webp");
   background-position: center;
   background-size: cover;
 }
@@ -144,6 +144,15 @@
 
 .entry-wordmark span {
   display: block;
+}
+
+.entry-tagline {
+  max-width: 340px;
+  margin: 24px 0 0;
+  color: #6f6155;
+  font-size: 14px;
+  line-height: 1.55;
+  text-wrap: balance;
 }
 
 .entry-action-heading h2,
@@ -309,6 +318,7 @@
 
 .entry-author-link,
 .entry-project-github,
+.entry-project-instructions,
 .entry-project-privacy {
   color: #653336;
   font-weight: 590;
@@ -331,6 +341,7 @@
 
 .entry-author-link:hover,
 .entry-project-github:hover,
+.entry-project-instructions:hover,
 .entry-project-privacy:hover {
   color: #3f1d20;
   text-decoration-color: currentColor;
@@ -931,12 +942,12 @@
   height: 16px;
 }
 
-/* Privacy */
-.privacy-cover {
+/* Parchment documents */
+.entry-document-cover {
   overflow-y: auto;
 }
 
-.privacy-panel {
+.entry-document-panel {
   width: 100%;
   min-height: calc(100svh - clamp(20px, 2.7vw, 44px));
   overflow: hidden;
@@ -944,7 +955,7 @@
   border-radius: 12px 10px 10px 12px;
   color: #2b211b;
   background-color: var(--parchment);
-  background-image: url("/assets/grimoire-parchment.png");
+  background-image: url("/assets/grimoire-parchment.webp");
   background-position: center;
   background-size: cover;
   box-shadow:
@@ -953,14 +964,14 @@
     0 0 0 3px rgb(73 42 26 / 48%);
 }
 
-.privacy-inner {
+.entry-document-inner {
   max-width: 700px;
   margin: 0 auto;
   padding: clamp(34px, 5.5vh, 58px) clamp(28px, 5vw, 52px)
     clamp(44px, 7vh, 72px);
 }
 
-.privacy-back {
+.entry-document-back {
   display: inline-flex;
   min-height: 36px;
   align-items: center;
@@ -975,21 +986,21 @@
   transition: color var(--motion-standard) ease;
 }
 
-.privacy-back:hover {
+.entry-document-back:hover {
   color: #352820;
 }
 
-.privacy-back svg {
+.entry-document-back svg {
   width: 14px;
   height: 14px;
 }
 
-.privacy-header {
+.entry-document-header {
   padding-bottom: clamp(26px, 4vw, 36px);
   border-bottom: 1px solid rgb(68 46 31 / 13%);
 }
 
-.privacy-header h1 {
+.entry-document-header h1 {
   margin: 0;
   color: #291e18;
   font-family: var(--font-display);
@@ -1002,8 +1013,7 @@
     "WONK" 0;
 }
 
-.privacy-header time {
-  display: block;
+.entry-document-header-detail {
   margin-top: 14px;
   color: #75685d;
   font-family: var(--font-utility);
@@ -1011,21 +1021,25 @@
   text-transform: uppercase;
 }
 
-.privacy-content {
+.entry-document-header-detail :is(p, time) {
+  margin: 0;
+}
+
+.entry-document-content {
   margin-top: clamp(30px, 4vw, 40px);
 }
 
-.privacy-content section {
+.entry-document-content section {
   padding-bottom: clamp(26px, 3.5vw, 34px);
 }
 
-.privacy-content section + section {
+.entry-document-content section + section {
   padding-top: clamp(26px, 3.5vw, 34px);
   border-top: 1px solid rgb(68 46 31 / 11%);
 }
 
-.privacy-content h2,
-.privacy-footer h2 {
+.entry-document-content h2,
+.entry-document-footer h2 {
   margin: 0 0 10px;
   color: #30231d;
   font-family: var(--font-display);
@@ -1037,29 +1051,29 @@
     "WONK" 0;
 }
 
-.privacy-content p,
-.privacy-footer p {
+.entry-document-content p,
+.entry-document-footer p {
   margin: 0;
   color: #51453d;
   font-size: 14px;
   line-height: 1.72;
 }
 
-.privacy-content p + p {
+.entry-document-content p + p {
   margin-top: 14px;
 }
 
-.privacy-content strong {
+.entry-document-content strong {
   color: #352820;
   font-weight: 620;
 }
 
-.privacy-footer {
+.entry-document-footer {
   padding-top: clamp(26px, 3.5vw, 34px);
   border-top: 1px solid rgb(68 46 31 / 13%);
 }
 
-.privacy-footer a {
+.entry-document-footer a {
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -1071,18 +1085,18 @@
   text-underline-offset: 3px;
 }
 
-.privacy-footer a:hover {
+.entry-document-footer a:hover {
   color: #3f1d20;
   text-decoration-color: currentColor;
 }
 
-.privacy-footer svg {
+.entry-document-footer svg {
   width: 13px;
   height: 13px;
 }
 
-.privacy-back:focus-visible,
-.privacy-footer a:focus-visible {
+.entry-document-back:focus-visible,
+.entry-document-footer a:focus-visible {
   outline: 2px solid rgb(111 56 58 / 58%);
   outline-offset: 3px;
 }
@@ -1111,17 +1125,17 @@
     overflow: hidden;
     border-radius: 7px;
     background-color: var(--parchment);
-    background-image: url("/assets/grimoire-parchment.png");
+    background-image: url("/assets/grimoire-parchment.webp");
     background-position: center;
     background-size: cover;
   }
 
-  .privacy-panel {
+  .entry-document-panel {
     min-height: calc(100svh - 14px);
     border-radius: 7px;
   }
 
-  .privacy-inner {
+  .entry-document-inner {
     padding: 28px 24px 40px;
   }
 
@@ -1164,6 +1178,12 @@
 
   .entry-wordmark {
     font-size: clamp(46px, 14vw, 56px);
+  }
+
+  .entry-tagline {
+    max-width: 300px;
+    margin-top: 14px;
+    font-size: 12px;
   }
 
   .entry-intro-content {
@@ -1322,6 +1342,13 @@
     font-size: 48px;
   }
 
+  .entry-tagline {
+    max-width: 280px;
+    margin-top: 10px;
+    font-size: 11px;
+    line-height: 1.4;
+  }
+
   .entry-intro-content {
     padding: 12px 0;
   }
@@ -1427,8 +1454,8 @@
     transition: none;
   }
 
-  .privacy-back,
-  .privacy-footer a {
+  .entry-document-back,
+  .entry-document-footer a {
     transition: none;
   }
 }

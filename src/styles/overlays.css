@@ -40,7 +40,7 @@
   background-color: var(--parchment-light);
   background-image:
     linear-gradient(rgb(250 244 227 / 82%), rgb(232 215 177 / 74%)),
-    url("/assets/grimoire-parchment.png");
+    url("/assets/grimoire-parchment.webp");
   background-position: center;
   background-size: cover;
   box-shadow:

@@ -6,6 +6,7 @@ import {
 } from "@/components/character-sheet/character-sheet";
 import { CharacterSheetHomeLink } from "@/components/character-sheet/character-sheet-home-link";
 import { editions } from "@/lib/game-data";
+import { createBreadcrumbStructuredData } from "@/lib/site-config";
 import { cn } from "@/lib/utils";
 
 const referenceSheets: {
@@ -22,8 +23,20 @@ const referenceSheets: {
 ];
 
 export function CharacterSheetPage({ sheetId }: { sheetId: CharacterSheetId }) {
+  const activeSheet = referenceSheets.find((sheet) => sheet.id === sheetId);
+  const breadcrumbs = createBreadcrumbStructuredData([
+    { name: "Home", path: "/" },
+    { name: activeSheet?.name ?? "Character Sheet", path: `/${sheetId}` },
+  ]);
+
   return (
-    <main className="min-h-svh bg-[var(--parchment)] bg-[url('/assets/grimoire-parchment.png')] bg-cover bg-fixed text-[var(--ink)]">
+    <main className="min-h-svh bg-[var(--parchment)] bg-[url('/assets/grimoire-parchment.webp')] bg-cover bg-fixed text-[var(--ink)]">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(breadcrumbs).replace(/</g, "\\u003c"),
+        }}
+      />
       <div className="mx-auto max-w-6xl px-3 py-4 sm:px-6 sm:py-7">
         <CharacterSheet
           sheetId={sheetId}

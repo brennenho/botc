@@ -44,6 +44,14 @@ const travellerPresentation = {
 
 export type CharacterSheetId = EditionId | "travellers";
 
+const sheetIntroductions: Record<CharacterSheetId, string> = {
+  tb: "The complete Trouble Brewing character list, with every Townsfolk, Outsider, Minion, Demon, and ability.",
+  bmr: "The complete Bad Moon Rising character list, with every Townsfolk, Outsider, Minion, Demon, and ability.",
+  snv: "The complete Sects & Violets character list, with every Townsfolk, Outsider, Minion, Demon, and ability.",
+  travellers:
+    "Traveller characters and abilities for Trouble Brewing, Bad Moon Rising, and Sects & Violets.",
+};
+
 export function CharacterSheet({
   sheetId,
   variant = "embedded",
@@ -115,6 +123,11 @@ export function CharacterSheet({
                 ? "Travellers"
                 : editionDefinition?.edition.name}
             </h1>
+            {variant === "standalone" ? (
+              <p className="mt-2 max-w-2xl text-[12px] leading-[1.5] text-black/52 sm:text-[13px]">
+                {sheetIntroductions[sheetId]}
+              </p>
+            ) : null}
           </div>
         </div>
       </header>

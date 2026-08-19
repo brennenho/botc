@@ -1,6 +1,7 @@
 import { defineConfig, devices } from "@playwright/test";
 
-const baseURL = "http://localhost:3100";
+const integrationPort = Number(process.env.PLAYWRIGHT_PORT ?? 3100);
+const baseURL = `http://localhost:${integrationPort}`;
 
 export default defineConfig({
   testDir: "./integration",
@@ -53,7 +54,9 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: process.env.CI ? "pnpm start:integration" : "pnpm dev:integration",
+    command: process.env.CI
+      ? `pnpm exec next start --hostname localhost --port ${integrationPort}`
+      : `pnpm exec next dev --turbo --hostname localhost --port ${integrationPort}`,
     url: baseURL,
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,

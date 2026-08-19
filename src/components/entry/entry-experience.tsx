@@ -163,6 +163,9 @@ export function EntryExperience({
                   <span>Blood on the</span>
                   <span>Clocktower</span>
                 </h1>
+                <p className="entry-tagline">
+                  An unofficial shared digital grimoire.
+                </p>
               </header>
 
               <CharacterReferenceLink className="entry-character-sheets-desktop" />
@@ -533,6 +536,10 @@ export function EntryExperience({
               GitHub
               <ExternalLink aria-hidden="true" />
             </a>
+            <span aria-hidden="true">·</span>
+            <Link href="/instructions" className="entry-project-instructions">
+              Instructions
+            </Link>
             <span aria-hidden="true">·</span>
             <Link href="/privacy" className="entry-project-privacy">
               Privacy

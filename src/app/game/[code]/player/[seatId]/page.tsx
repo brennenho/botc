@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
 
@@ -6,6 +7,10 @@ import { normalizeGameCode } from "@/lib/game-code";
 import { playerCookieName } from "@/lib/server/auth-cookies";
 import { GameStoreError } from "@/lib/server/errors";
 import { getPlayerSnapshotByCode } from "@/lib/server/store";
+
+export const metadata: Metadata = {
+  title: "Game",
+};
 
 export default async function PlayerPage({
   params,
