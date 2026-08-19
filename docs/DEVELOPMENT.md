@@ -189,18 +189,26 @@ compete with a normal development server on port 3000. The HTML report is
 written to `integration-report/index.html`, and traces, screenshots, videos,
 and other run artifacts are written to `integration-test-results/`.
 
-The GitHub Actions integration job starts an ephemeral local Supabase stack,
-rebuilds the database from migrations, exports only the generated local
-credentials, runs pgTAP database tests, builds the production application, and
-runs the browser matrix with one worker. It does not connect to the hosted
-Supabase or PostHog projects. Every run uploads the HTML report, with traces,
-screenshots, and videos retained on failure, as the 14-day
-`integration-test-report` artifact. The independent unit test job uploads its
-HTML and JSON coverage report as the 14-day `unit-test-coverage` artifact.
+The CI integration job runs for pull requests and pushes to `main`. It starts an
+ephemeral local Supabase stack, rebuilds the database from migrations, exports
+only the generated local credentials, runs pgTAP database tests, builds the
+production application, and runs the full Chromium suite plus the tablet
+Chromium smoke tests with one worker. A separate integration workflow adds the
+mobile WebKit smoke tests after pushes to `main` and on manual dispatch. This
+keeps WebKit's system dependency installation out of the required pull request
+checks. Neither workflow connects to the hosted Supabase or PostHog projects.
+
+CI browser runs upload the HTML report, with traces, screenshots, and videos
+retained on failure, as the 14-day `integration-test-report` artifact. The
+additional WebKit workflow uploads the same diagnostics as
+`webkit-integration-report`. The independent unit test job uploads its HTML and
+JSON coverage report as the 14-day `unit-test-coverage` artifact.
+
 Same-repository pull requests receive one sticky comment that combines the unit
 coverage totals with the browser pass, failure, flaky, and skipped totals;
 duration; a viewer-local last-run time; failed test details; and links to both
-artifacts. Unit and browser tests remain separate CI checks and run in parallel.
+pull request artifacts. Unit and browser tests remain separate CI checks and run
+in parallel.
 
 When adding tests, create a new game for every scenario, give every actor a
 separate browser context, prefer accessible labels over test IDs, and wait on
@@ -210,14 +218,16 @@ hide a broken broadcast path.
 
 Useful focused commands include:
 
-| Command                       | Purpose                                      |
-| ----------------------------- | -------------------------------------------- |
-| `pnpm lint`                   | Run ESLint                                   |
-| `pnpm typecheck`              | Run TypeScript without emitting files        |
-| `pnpm format:check`           | Check supported source files with Prettier   |
-| `pnpm test:coverage`          | Run unit/component tests with coverage gates |
-| `pnpm test:db`                | Run pgTAP database behavior tests            |
-| `pnpm test:integration`       | Run the full browser integration matrix      |
-| `pnpm test:integration:smoke` | Run responsive cross-browser smoke tests     |
-| `pnpm test:integration:ui`    | Debug integration tests interactively        |
-| `pnpm supabase:stop`          | Stop the local Supabase stack                |
+| Command                          | Purpose                                      |
+| -------------------------------- | -------------------------------------------- |
+| `pnpm lint`                      | Run ESLint                                   |
+| `pnpm typecheck`                 | Run TypeScript without emitting files        |
+| `pnpm format:check`              | Check supported source files with Prettier   |
+| `pnpm test:coverage`             | Run unit/component tests with coverage gates |
+| `pnpm test:db`                   | Run pgTAP database behavior tests            |
+| `pnpm test:integration`          | Run the full browser integration matrix      |
+| `pnpm test:integration:chromium` | Run the Chromium browser matrix              |
+| `pnpm test:integration:webkit`   | Run the additional mobile WebKit tests       |
+| `pnpm test:integration:smoke`    | Run responsive cross-browser smoke tests     |
+| `pnpm test:integration:ui`       | Debug integration tests interactively        |
+| `pnpm supabase:stop`             | Stop the local Supabase stack                |

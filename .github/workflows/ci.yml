@@ -224,8 +224,8 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Install browsers
-        run: pnpm exec playwright install chromium webkit --with-deps
+      - name: Install Chromium
+        run: pnpm exec playwright install chromium --with-deps
 
       - name: Start local Supabase
         run: pnpm supabase:start
@@ -266,7 +266,7 @@ jobs:
         run: pnpm build
 
       - name: Run multiplayer integration tests
-        run: pnpm test:integration
+        run: pnpm test:integration:chromium
 
       - name: Summarize integration test results
         id: integration-summary
@@ -297,7 +297,6 @@ jobs:
     needs: [tests, integration]
     if: >-
       ${{ always() &&
-          github.event_name == 'pull_request' &&
           github.event.pull_request.head.repo.full_name == github.repository &&
           github.actor != 'dependabot[bot]' }}
     runs-on: ubuntu-latest
