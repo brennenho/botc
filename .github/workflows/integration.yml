@@ -1,4 +1,4 @@
-name: Post-merge browser matrix
+name: Integration
 
 on:
   push:
@@ -9,7 +9,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: post-merge-browser-${{ github.ref }}
+  group: integration-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
