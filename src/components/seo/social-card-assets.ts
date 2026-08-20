@@ -1,6 +1,11 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
+import {
+  characterSheetSocialCards,
+  type CharacterSheetSocialCardId,
+} from "@/components/seo/character-sheet-social-card-config";
+
 function readProjectFile(...segments: string[]) {
   return readFileSync(join(process.cwd(), ...segments));
 }
@@ -46,8 +51,26 @@ function createSocialCardAssets() {
 }
 
 let socialCardAssets: ReturnType<typeof createSocialCardAssets> | undefined;
+const editionImages = new Map<CharacterSheetSocialCardId, string>();
 
 export function loadSocialCardAssets() {
   socialCardAssets ??= createSocialCardAssets();
   return socialCardAssets;
+}
+
+export function loadCharacterSheetSocialCardAssets(
+  sheetId: CharacterSheetSocialCardId,
+) {
+  const assets = loadSocialCardAssets();
+  let editionImage = editionImages.get(sheetId);
+
+  if (!editionImage) {
+    editionImage = readPublicImage(
+      characterSheetSocialCards[sheetId].artworkPath,
+      "png",
+    );
+    editionImages.set(sheetId, editionImage);
+  }
+
+  return { ...assets, editionImage };
 }

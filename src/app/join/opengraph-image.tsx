@@ -15,7 +15,7 @@ export default async function InvitationOpenGraphImage() {
     <SocialCard
       variant="invitation"
       parchmentImage={parchmentImage}
-      impImage={impImage}
+      artworkImage={impImage}
     />,
     {
       ...size,

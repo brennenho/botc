@@ -15,7 +15,7 @@ export default async function OpenGraphImage() {
     <SocialCard
       variant="home"
       parchmentImage={parchmentImage}
-      impImage={impImage}
+      artworkImage={impImage}
     />,
     {
       ...size,

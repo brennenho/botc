@@ -80,12 +80,31 @@ test("private game views retain the BOTC Townsquare title", async ({
 });
 
 test("social preview image routes render PNGs", async ({ request }) => {
-  for (const path of ["/opengraph-image", "/join/opengraph-image"]) {
+  for (const path of [
+    "/opengraph-image",
+    "/join/opengraph-image",
+    "/tb/opengraph-image",
+    "/bmr/opengraph-image",
+    "/snv/opengraph-image",
+    "/travellers/opengraph-image",
+  ]) {
     const response = await request.get(path);
 
     expect(response.status()).toBe(200);
     expect(response.headers()["content-type"]).toContain("image/png");
     expect((await response.body()).byteLength).toBeGreaterThan(10_000);
+  }
+});
+
+test("character sheets use edition-specific social previews", async ({
+  page,
+}) => {
+  for (const path of ["/tb", "/bmr", "/snv", "/travellers"]) {
+    await page.goto(path);
+    await expect(page.locator('meta[property="og:image"]')).toHaveAttribute(
+      "content",
+      new RegExp(`^https://botc\\.town${path}/opengraph-image`),
+    );
   }
 });
 
@@ -104,6 +123,10 @@ test("instructions use the canonical document route", async ({
   await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
     "href",
     "https://botc.town/instructions",
+  );
+  await expect(page.locator('meta[property="og:image"]')).toHaveAttribute(
+    "content",
+    /^https:\/\/botc\.town\/opengraph-image/,
   );
   await expect(page.locator("main.entry-document-cover h1")).toHaveText(
     "Instructions",
