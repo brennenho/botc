@@ -24,8 +24,8 @@ vi.mock("posthog-node", () => ({
 }));
 vi.mock("@/env", () => ({
   env: {
-    NEXT_PUBLIC_POSTHOG_HOST: "https://us.i.posthog.com",
-    NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN: "phc_test",
+    NEXT_PUBLIC_POSTHOG_HOST: "https://posthog.invalid",
+    NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN: "test-token",
   },
 }));
 vi.mock("@/lib/observability/config", () => ({

@@ -7,8 +7,8 @@ const posthog = vi.hoisted(() => ({
 }));
 const mockEnv = vi.hoisted(() => ({
   NEXT_PUBLIC_DISABLE_OBSERVABILITY: "false",
-  NEXT_PUBLIC_POSTHOG_HOST: "https://us.i.posthog.com",
-  NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN: "phc_test",
+  NEXT_PUBLIC_POSTHOG_HOST: "https://posthog.invalid",
+  NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN: "test-token",
 }));
 
 vi.mock("posthog-js", () => ({ default: posthog }));

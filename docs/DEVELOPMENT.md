@@ -96,6 +96,10 @@ server error tracking, and limited structured server logs. Configure:
 - `NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN`
 - `NEXT_PUBLIC_POSTHOG_HOST`
 
+When using the managed reverse proxy, set `NEXT_PUBLIC_POSTHOG_HOST` to its URL
+in the deployment environment. The PostHog UI and source-map CLI remain on the
+direct US Cloud app host.
+
 `NEXT_PUBLIC_DISABLE_OBSERVABILITY="true"` disables client analytics, client and
 server error reporting, structured log export, and source-map uploads in every
 environment. Automated tests set it to `true`; normal production deployments
@@ -110,7 +114,8 @@ variables:
 
 `POSTHOG_API_KEY` must have error-tracking write access. Production builds
 upload source maps when the API key and project ID are both configured and fail
-when only one is present.
+when only one is present. `POSTHOG_CLI_HOST` must remain the direct PostHog app
+host rather than the managed proxy.
 
 The integration disables person profiles, DOM autocapture, and session
 recording. Diagnostic URLs, identifiers, messages, stacks, causes, and error

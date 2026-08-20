@@ -20,6 +20,7 @@ export function initializeClientObservability() {
   try {
     posthog.init(env.NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN, {
       api_host: env.NEXT_PUBLIC_POSTHOG_HOST,
+      ui_host: "https://us.posthog.com",
       defaults: "2026-06-25",
       advanced_disable_feature_flags: true,
       autocapture: false,
