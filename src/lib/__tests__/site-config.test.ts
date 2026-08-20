@@ -29,10 +29,22 @@ describe("site metadata", () => {
         title: "Online Grimoire | BOTC Townsquare",
         siteName: "BOTC Townsquare",
         url: "/",
+        images: [
+          expect.objectContaining({
+            url: siteConfig.socialImage,
+            alt: siteConfig.socialImageAlt,
+          }),
+        ],
       },
       twitter: {
         card: "summary_large_image",
         title: "Online Grimoire | BOTC Townsquare",
+        images: [
+          {
+            url: siteConfig.socialImage,
+            alt: siteConfig.socialImageAlt,
+          },
+        ],
       },
     });
   });

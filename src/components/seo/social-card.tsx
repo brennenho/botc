@@ -7,17 +7,18 @@ const colors = {
 } as const;
 
 type SocialCardProps = {
-  variant: "home" | "invitation";
+  variant: "home" | "invitation" | "character-sheet";
   parchmentImage: string;
-  impImage: string;
+  artworkImage: string;
 };
 
 export function SocialCard({
   variant,
   parchmentImage,
-  impImage,
+  artworkImage,
 }: SocialCardProps) {
   const isInvitation = variant === "invitation";
+  const isCharacterSheet = variant === "character-sheet";
 
   return (
     <div
@@ -70,17 +71,21 @@ export function SocialCard({
             flexShrink: 0,
             whiteSpace: "pre-line",
             fontFamily: "Fraunces",
-            fontSize: isInvitation ? 88 : 92,
+            fontSize: isInvitation ? 88 : isCharacterSheet ? 86 : 92,
             fontStyle: "italic",
             fontWeight: 400,
             letterSpacing: "-0.032em",
             lineHeight: 0.98,
           }}
         >
-          {isInvitation ? "You've been\ninvited" : "Blood on the\nClocktower"}
+          {isInvitation
+            ? "You've been\ninvited"
+            : isCharacterSheet
+              ? "Character\nReference"
+              : "Blood on the\nClocktower"}
         </div>
 
-        {isInvitation ? (
+        {isInvitation || isCharacterSheet ? (
           <div
             style={{
               width: 500,
@@ -95,7 +100,9 @@ export function SocialCard({
               whiteSpace: "pre-line",
             }}
           >
-            {"Join a game of Blood on the\nClocktower."}
+            {isInvitation
+              ? "Join a game of Blood on the\nClocktower."
+              : "Characters and abilities\nat a glance."}
           </div>
         ) : null}
 
@@ -133,16 +140,18 @@ export function SocialCard({
       </div>
 
       <img
-        src={impImage}
+        src={artworkImage}
         alt=""
         style={{
-          width: 564,
-          height: 564,
+          width: isCharacterSheet ? 360 : 564,
+          height: isCharacterSheet ? 360 : 564,
           position: "absolute",
           top: "50%",
-          right: isInvitation ? -6 : -30,
+          right: isCharacterSheet ? 122 : isInvitation ? -6 : -30,
           objectFit: "contain",
-          transform: `translateY(-50%) rotate(${isInvitation ? 2 : -2}deg)`,
+          transform: isCharacterSheet
+            ? "translateY(-50%)"
+            : `translateY(-50%) rotate(${isInvitation ? 2 : -2}deg)`,
         }}
       />
     </div>
