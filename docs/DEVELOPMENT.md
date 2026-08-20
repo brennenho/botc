@@ -113,15 +113,32 @@ upload source maps when the API key and project ID are both configured and fail
 when only one is present.
 
 The integration disables person profiles, DOM autocapture, and session
-recording. Analytics URLs are sanitized before transmission so game codes, seat
-IDs, query strings, and fragments are not sent. Do not add player names, game
-credentials, character assignments, or reminder content to analytics
-properties or operational logs.
+recording. Diagnostic URLs, identifiers, messages, stacks, causes, and error
+details are sent without application-level redaction. Credentials are excluded
+at collection time: never add cookies, authorization headers, secret tokens, or
+environment variables to analytics properties or operational logs.
 
 Application code should use the vendor-neutral helpers in
-`src/lib/observability` (`trackEvent` and `reportError`) rather than importing a
-PostHog SDK directly. Observability is fail-open: reporting failures are logged
-locally and must never interrupt application behavior.
+`src/lib/observability` rather than importing a PostHog SDK directly. The three
+signal types are deliberately separate:
+
+- `trackEvent` records anonymous product behavior.
+- `logger.info`, `logger.warn`, and `logger.error` write operational logs. Log
+  severity never creates an Error Tracking issue.
+- `captureException` records unexpected defects that require developer
+  attention. Server exceptions also write one correlated operational log.
+
+The module names reflect those boundaries: `logger.ts` owns operational logs,
+`server-errors.ts` owns actionable server exception reporting, `context.ts`
+builds and normalizes request/runtime metadata, and `error-details.ts` extracts
+complete exception details. Client analytics and browser exception capture stay
+in `client.ts`, with product event types in `events.ts`.
+
+Expected application outcomes such as invalid input, missing games, stale
+credentials, conflicts, rate limits, and temporary Realtime degradation are
+logs, not exceptions. Unknown failures, broken internal contracts, and
+unhandled exceptions belong in Error Tracking. Observability is fail-open:
+reporting failures must never interrupt application behavior.
 
 ## Game Assets
 

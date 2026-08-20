@@ -1,11 +1,29 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
+const captureException = vi.hoisted(() => vi.fn());
+vi.mock("@/lib/observability/client", () => ({ captureException }));
+vi.mock("@/lib/observability/logger", () => ({
+  logger: {
+    error: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+  },
+}));
+
 import { fetchPlayerGame } from "@/lib/api";
 import { AppError, isApiErrorPayload, toAppError } from "@/lib/app-error";
 import { gameRouteError, rateLimitResponse } from "@/lib/server/route-errors";
 import { GameStoreError } from "@/lib/server/errors";
 
+const routeContext = {
+  operation: "load_player_game",
+  request: new Request("https://botc.town/api/player?code=ABC234", {
+    headers: { "x-vercel-id": "iad1::request-123" },
+  }),
+};
+
 afterEach(() => {
+  captureException.mockReset();
   vi.unstubAllGlobals();
 });
 
@@ -15,6 +33,7 @@ describe("application errors", () => {
       isApiErrorPayload({
         error: {
           code: "unavailable",
+          id: "error-123",
           message: "Service unavailable.",
           retryable: true,
         },
@@ -37,6 +56,7 @@ describe("application errors", () => {
     const response = gameRouteError(
       new GameStoreError("not_found", "Game not found."),
       "Unable to load game.",
+      routeContext,
     );
 
     expect(response.status).toBe(404);
@@ -50,7 +70,7 @@ describe("application errors", () => {
   });
 
   it("includes rate-limit recovery metadata", async () => {
-    const response = rateLimitResponse(12);
+    const response = rateLimitResponse(12, routeContext);
 
     expect(response.status).toBe(429);
     expect(response.headers.get("Retry-After")).toBe("12");
@@ -73,6 +93,7 @@ describe("API request errors", () => {
           JSON.stringify({
             error: {
               code: "rate_limited",
+              id: "error-456",
               message: "Wait before trying again.",
               retryable: true,
             },
@@ -91,6 +112,7 @@ describe("API request errors", () => {
     await expect(fetchPlayerGame("ABC234", "seat-id")).rejects.toMatchObject({
       name: "AppError",
       code: "rate_limited",
+      id: "error-456",
       status: 429,
       retryable: true,
       retryAfterSeconds: 9,
@@ -118,11 +140,21 @@ describe("API request errors", () => {
       ),
     );
 
-    await expect(fetchPlayerGame("ABC234", "seat-id")).rejects.toMatchObject({
+    const request = fetchPlayerGame("ABC234", "seat-id");
+
+    await expect(request).rejects.toMatchObject({
       name: "AppError",
       code: "invalid_response",
       status: 502,
       retryable: true,
     });
+    expect(captureException).toHaveBeenCalledWith(
+      expect.objectContaining({ code: "invalid_response" }),
+      expect.objectContaining({
+        failure: "invalid_json_response",
+        source: "api_client",
+        status: 502,
+      }),
+    );
   });
 });

@@ -14,13 +14,15 @@ import { createGame } from "@/lib/server/store";
 import { createGameSchema } from "@/lib/server/validation";
 
 export async function POST(request: Request) {
+  const routeContext = { operation: "create_game", request };
+
   try {
     const rateLimit = takeRequestRateLimit(request, "games:create", {
       limit: 12,
       windowMs: 10 * 60 * 1_000,
     });
     if (!rateLimit.allowed) {
-      return rateLimitResponse(rateLimit.retryAfterSeconds);
+      return rateLimitResponse(rateLimit.retryAfterSeconds, routeContext);
     }
 
     const input = createGameSchema.parse(await request.json());
@@ -38,6 +40,6 @@ export async function POST(request: Request) {
 
     return response;
   } catch (error) {
-    return gameRouteError(error, "Unable to create game.");
+    return gameRouteError(error, "Unable to create game.", routeContext);
   }
 }

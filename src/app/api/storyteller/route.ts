@@ -20,6 +20,8 @@ async function getCredential(gameCode: string) {
 }
 
 export async function GET(request: Request) {
+  const routeContext = { operation: "load_storyteller_game", request };
+
   try {
     const url = new URL(request.url);
     const gameCode = gameCodeSchema.parse(url.searchParams.get("code") ?? "");
@@ -30,11 +32,17 @@ export async function GET(request: Request) {
 
     return NextResponse.json({ snapshot }, { headers: privateResponseHeaders });
   } catch (error) {
-    return gameRouteError(error, "Unable to load storyteller game.");
+    return gameRouteError(
+      error,
+      "Unable to load storyteller game.",
+      routeContext,
+    );
   }
 }
 
 export async function PATCH(request: Request) {
+  const routeContext = { operation: "update_storyteller_game", request };
+
   try {
     const input = storytellerPatchSchema.parse(await request.json());
     const { code, expectedVersion, ...patch } = input;
@@ -47,6 +55,6 @@ export async function PATCH(request: Request) {
 
     return NextResponse.json({ snapshot }, { headers: privateResponseHeaders });
   } catch (error) {
-    return gameRouteError(error, "Unable to update game.");
+    return gameRouteError(error, "Unable to update game.", routeContext);
   }
 }

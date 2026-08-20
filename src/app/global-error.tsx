@@ -1,7 +1,7 @@
 "use client";
 
 import { PageError } from "@/components/ui/page-error";
-import { reportError } from "@/lib/observability/client";
+import { captureBoundaryException } from "@/lib/observability/client";
 import { useEffect, useTransition } from "react";
 
 export default function GlobalError({
@@ -14,7 +14,7 @@ export default function GlobalError({
   const [retryPending, startRetry] = useTransition();
 
   useEffect(() => {
-    reportError(error, { error_boundary: "global" });
+    captureBoundaryException(error, "global");
   }, [error]);
 
   return (

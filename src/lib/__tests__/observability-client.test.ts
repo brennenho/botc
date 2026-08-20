@@ -85,10 +85,38 @@ describe("client observability", () => {
     posthog.captureException.mockImplementationOnce(() => {
       throw new Error("capture failed");
     });
-    const { initializeClientObservability, reportError } =
+    const { captureException, initializeClientObservability } =
       await import("@/lib/observability/client");
     initializeClientObservability();
 
-    expect(() => reportError(new Error("application failed"))).not.toThrow();
+    expect(() =>
+      captureException(new Error("application failed")),
+    ).not.toThrow();
+  });
+
+  it("does not duplicate server exceptions from client error boundaries", async () => {
+    const { captureBoundaryException, initializeClientObservability } =
+      await import("@/lib/observability/client");
+    initializeClientObservability();
+    const serverError = Object.assign(new Error("server render failed"), {
+      digest: "123456",
+    });
+
+    captureBoundaryException(serverError, "game");
+
+    expect(posthog.captureException).not.toHaveBeenCalled();
+  });
+
+  it("captures client exceptions handled by an error boundary", async () => {
+    const { captureBoundaryException, initializeClientObservability } =
+      await import("@/lib/observability/client");
+    initializeClientObservability();
+    const clientError = new Error("client render failed");
+
+    captureBoundaryException(clientError, "application");
+
+    expect(posthog.captureException).toHaveBeenCalledWith(clientError, {
+      error_boundary: "application",
+    });
   });
 });

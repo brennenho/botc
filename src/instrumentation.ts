@@ -1,12 +1,11 @@
 import type { Instrumentation } from "next";
 
-import { sanitizePath } from "@/lib/observability/sanitize";
-
 export async function register() {
   if (process.env.NEXT_RUNTIME !== "nodejs") return;
 
   try {
-    const { registerServerLogging } = await import("@/lib/observability/logs");
+    const { registerServerLogging } =
+      await import("@/lib/observability/logger");
     registerServerLogging();
   } catch (error) {
     console.error("Unable to register server observability.", error);
@@ -21,12 +20,15 @@ export const onRequestError: Instrumentation.onRequestError = async (
   if (process.env.NEXT_RUNTIME !== "nodejs") return;
 
   try {
-    const { reportError } = await import("@/lib/observability/server");
-    const route = sanitizePath(context.routePath);
+    const { captureException } =
+      await import("@/lib/observability/server-errors");
+    const requestId = request.headers["x-vercel-id"];
 
-    await reportError(error, {
+    await captureException(error, {
       method: request.method,
-      route,
+      path: request.path,
+      request_id: Array.isArray(requestId) ? requestId.join(",") : requestId,
+      route: context.routePath,
       route_type: context.routeType,
       source: "next_instrumentation",
     });

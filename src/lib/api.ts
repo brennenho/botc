@@ -9,6 +9,7 @@ import {
   isApiErrorPayload,
   type AppErrorCode,
 } from "@/lib/app-error";
+import { captureException } from "@/lib/observability/client";
 
 function fallbackCodeForStatus(status: number): AppErrorCode {
   if (status === 400) return "invalid_input";
@@ -51,25 +52,34 @@ async function requestJson<T>(url: string, init?: RequestInit): Promise<T> {
   try {
     body = await response.json();
   } catch (cause) {
-    throw new AppError(
+    const error = new AppError(
       "invalid_response",
       response.ok
         ? "The game server returned an invalid response."
         : "The game server could not complete the request.",
       { cause, status: response.status, retryable: true },
     );
+    captureException(error, {
+      failure: "invalid_json_response",
+      method: init?.method ?? "GET",
+      source: "api_client",
+      status: response.status,
+      url,
+    });
+    throw error;
   }
 
   if (!response.ok) {
     if (isApiErrorPayload(body)) {
       throw new AppError(body.error.code, body.error.message, {
+        id: body.error.id,
         status: response.status,
         retryable: body.error.retryable,
         retryAfterSeconds: retryAfterSeconds(response),
       });
     }
 
-    throw new AppError(
+    const error = new AppError(
       fallbackCodeForStatus(response.status),
       "The request could not be completed.",
       {
@@ -78,6 +88,14 @@ async function requestJson<T>(url: string, init?: RequestInit): Promise<T> {
         retryAfterSeconds: retryAfterSeconds(response),
       },
     );
+    captureException(error, {
+      failure: "unrecognized_error_response",
+      method: init?.method ?? "GET",
+      source: "api_client",
+      status: response.status,
+      url,
+    });
+    throw error;
   }
 
   return body as T;
