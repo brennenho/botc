@@ -59,6 +59,16 @@ test("private invitations stay out of search and use generic previews", async ({
   expect(head).not.toContain("ABC234");
 });
 
+test("social preview image routes render PNGs", async ({ request }) => {
+  for (const path of ["/opengraph-image", "/join/opengraph-image"]) {
+    const response = await request.get(path);
+
+    expect(response.status()).toBe(200);
+    expect(response.headers()["content-type"]).toContain("image/png");
+    expect((await response.body()).byteLength).toBeGreaterThan(10_000);
+  }
+});
+
 test("instructions use the canonical document route", async ({
   page,
   request,
