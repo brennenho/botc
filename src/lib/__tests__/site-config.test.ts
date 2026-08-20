@@ -18,7 +18,10 @@ describe("site metadata", () => {
 
     expect(siteConfig.url).toBe("https://botc.town");
     expect(metadata).toMatchObject({
-      title: { absolute: "Online Grimoire | BOTC Townsquare" },
+      title: {
+        absolute: "Online Grimoire | BOTC Townsquare",
+        template: "%s | BOTC Townsquare",
+      },
       description: siteConfig.description,
       alternates: { canonical: "/" },
       robots: { index: true, follow: true },

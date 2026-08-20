@@ -1,4 +1,9 @@
-import { expect, test } from "@playwright/test";
+import {
+  createGameViaApi,
+  expect,
+  joinGameViaApi,
+  test,
+} from "./fixtures/multiplayer";
 
 test("public pages expose BOTC Townsquare search and social metadata", async ({
   page,
@@ -57,6 +62,21 @@ test("private invitations stay out of search and use generic previews", async ({
 
   const head = await page.locator("head").innerHTML();
   expect(head).not.toContain("ABC234");
+});
+
+test("private game views retain the BOTC Townsquare title", async ({
+  createActor,
+}) => {
+  const actor = await createActor();
+  const created = await createGameViaApi(actor);
+  const joinCode = created.snapshot.game.joinCode;
+
+  await actor.page.goto(`/game/${joinCode}/storyteller`);
+  await expect(actor.page).toHaveTitle("Grimoire | BOTC Townsquare");
+
+  const joined = await joinGameViaApi(actor, joinCode, "Title Tester");
+  await actor.page.goto(`/game/${joinCode}/player/${joined.seatId}`);
+  await expect(actor.page).toHaveTitle("Game | BOTC Townsquare");
 });
 
 test("social preview image routes render PNGs", async ({ request }) => {

@@ -30,7 +30,10 @@ export function createPageMetadata({
   const fullTitle = `${title} | ${siteConfig.name}`;
 
   return {
-    title: { absolute: fullTitle },
+    title: {
+      absolute: fullTitle,
+      template: `%s | ${siteConfig.name}`,
+    },
     description,
     alternates: index ? { canonical: path } : undefined,
     robots: index
