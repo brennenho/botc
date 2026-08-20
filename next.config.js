@@ -55,12 +55,7 @@ const projectId = env.POSTHOG_PROJECT_ID;
 const observabilityDisabled = env.NEXT_PUBLIC_DISABLE_OBSERVABILITY === "true";
 const sourceMapCredentials = [personalApiKey, projectId];
 const hasCompleteSourceMapConfig = sourceMapCredentials.every(Boolean);
-const postHogCliHost =
-  env.POSTHOG_CLI_HOST ??
-  env.NEXT_PUBLIC_POSTHOG_HOST?.replace("://us.i.", "://us.").replace(
-    "://eu.i.",
-    "://eu.",
-  );
+const postHogCliHost = env.POSTHOG_CLI_HOST ?? "https://us.posthog.com";
 
 if (
   !observabilityDisabled &&
