@@ -10,6 +10,8 @@ import { getPlayerSnapshotByCode } from "@/lib/server/store";
 import { gameCodeSchema, seatIdSchema } from "@/lib/server/validation";
 
 export async function GET(request: Request) {
+  const routeContext = { operation: "load_player_game", request };
+
   try {
     const url = new URL(request.url);
     const gameCode = gameCodeSchema.parse(url.searchParams.get("code") ?? "");
@@ -24,6 +26,6 @@ export async function GET(request: Request) {
 
     return NextResponse.json({ snapshot }, { headers: privateResponseHeaders });
   } catch (error) {
-    return gameRouteError(error, "Unable to load player.");
+    return gameRouteError(error, "Unable to load player.", routeContext);
   }
 }

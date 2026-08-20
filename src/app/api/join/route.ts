@@ -15,13 +15,15 @@ import { getPlayerSnapshotByCode, joinGame } from "@/lib/server/store";
 import { joinGameSchema } from "@/lib/server/validation";
 
 export async function POST(request: Request) {
+  const routeContext = { operation: "join_game", request };
+
   try {
     const rateLimit = takeRequestRateLimit(request, "games:join", {
       limit: 60,
       windowMs: 10 * 60 * 1_000,
     });
     if (!rateLimit.allowed) {
-      return rateLimitResponse(rateLimit.retryAfterSeconds);
+      return rateLimitResponse(rateLimit.retryAfterSeconds, routeContext);
     }
 
     const input = joinGameSchema.parse(await request.json());
@@ -34,7 +36,7 @@ export async function POST(request: Request) {
     const joined = await joinGame(input.joinCode, input.playerName);
     return createJoinResponse(joined);
   } catch (error) {
-    return gameRouteError(error, "Unable to join game.");
+    return gameRouteError(error, "Unable to join game.", routeContext);
   }
 }
 

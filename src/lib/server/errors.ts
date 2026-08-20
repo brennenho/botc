@@ -10,14 +10,21 @@ export type GameStoreErrorCode = Extract<
   | "unavailable"
 >;
 
+type GameStoreErrorOptions = ErrorOptions & {
+  needsDeveloperAttention?: boolean;
+};
+
 export class GameStoreError extends Error {
+  readonly needsDeveloperAttention: boolean;
+
   constructor(
     readonly code: GameStoreErrorCode,
     message: string,
-    options?: ErrorOptions,
+    options: GameStoreErrorOptions = {},
   ) {
     super(message, options);
     this.name = "GameStoreError";
+    this.needsDeveloperAttention = options.needsDeveloperAttention ?? false;
   }
 }
 
@@ -75,5 +82,8 @@ export function databaseError(
     return new GameStoreError(mapped[1], mapped[2], { cause: error });
   }
 
-  return new GameStoreError("unavailable", fallbackMessage, { cause: error });
+  return new GameStoreError("unavailable", fallbackMessage, {
+    cause: error,
+    needsDeveloperAttention: true,
+  });
 }

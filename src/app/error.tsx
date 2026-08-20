@@ -1,7 +1,7 @@
 "use client";
 
 import { PageError } from "@/components/ui/page-error";
-import { reportError } from "@/lib/observability/client";
+import { captureBoundaryException } from "@/lib/observability/client";
 import { useEffect, useTransition } from "react";
 
 export default function ApplicationError({
@@ -14,7 +14,7 @@ export default function ApplicationError({
   const [retryPending, startRetry] = useTransition();
 
   useEffect(() => {
-    reportError(error, { error_boundary: "application" });
+    captureBoundaryException(error, "application");
   }, [error]);
 
   return (

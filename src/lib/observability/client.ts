@@ -5,9 +5,9 @@ import posthog from "posthog-js";
 import { env } from "@/env";
 import { observabilityEnabled } from "@/lib/observability/config";
 import type { ProductEvents } from "@/lib/observability/events";
-import { sanitizeEvent } from "@/lib/observability/sanitize";
 
 type ErrorContext = Record<string, string | number | boolean>;
+type BoundaryError = Error & { digest?: string };
 type InitializationState = "disabled" | "failed" | "ready" | "waiting";
 
 let initializationState: InitializationState = observabilityEnabled
@@ -23,7 +23,6 @@ export function initializeClientObservability() {
       defaults: "2026-06-25",
       advanced_disable_feature_flags: true,
       autocapture: false,
-      before_send: sanitizeEvent,
       capture_dead_clicks: false,
       capture_exceptions: true,
       capture_heatmaps: false,
@@ -35,7 +34,6 @@ export function initializeClientObservability() {
         web_vitals_attribution: false,
       },
       debug: false,
-      disable_capture_url_hashes: true,
       disable_session_recording: true,
       disable_surveys: true,
       person_profiles: "never",
@@ -70,6 +68,16 @@ export function trackEvent<Name extends keyof ProductEvents>(
   runWhenReady(() => posthog.capture(event, properties));
 }
 
-export function reportError(error: unknown, context?: ErrorContext) {
+export function captureException(error: unknown, context?: ErrorContext) {
   runWhenReady(() => posthog.captureException(error, context));
+}
+
+export function captureBoundaryException(
+  error: BoundaryError,
+  boundary: "application" | "game" | "global",
+) {
+  // A digest identifies a server-rendering exception. The server instrumentation
+  // is the canonical capture point and has the original, unredacted stack.
+  if (error.digest) return;
+  captureException(error, { error_boundary: boundary });
 }

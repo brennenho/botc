@@ -18,18 +18,21 @@ const appErrorCodeSet: ReadonlySet<string> = new Set(appErrorCodes);
 export type ApiErrorPayload = {
   error: {
     code: AppErrorCode;
+    id?: string;
     message: string;
     retryable: boolean;
   };
 };
 
 type AppErrorOptions = ErrorOptions & {
+  id?: string;
   status?: number;
   retryable?: boolean;
   retryAfterSeconds?: number;
 };
 
 export class AppError extends Error {
+  readonly id?: string;
   readonly status?: number;
   readonly retryable: boolean;
   readonly retryAfterSeconds?: number;
@@ -41,6 +44,7 @@ export class AppError extends Error {
   ) {
     super(message, options);
     this.name = "AppError";
+    this.id = options.id;
     this.status = options.status;
     this.retryable = options.retryable ?? false;
     this.retryAfterSeconds = options.retryAfterSeconds;
@@ -56,6 +60,7 @@ export function isApiErrorPayload(value: unknown): value is ApiErrorPayload {
   return (
     typeof candidate.code === "string" &&
     appErrorCodeSet.has(candidate.code) &&
+    (candidate.id === undefined || typeof candidate.id === "string") &&
     typeof candidate.message === "string" &&
     typeof candidate.retryable === "boolean"
   );

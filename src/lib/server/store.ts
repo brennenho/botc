@@ -281,7 +281,9 @@ export async function createGame(
         data as Array<{ game_id: string; game_version: number }> | null
       )?.[0];
       if (!result) {
-        throw new GameStoreError("unavailable", "Unable to create game.");
+        throw new GameStoreError("unavailable", "Unable to create game.", {
+          needsDeveloperAttention: true,
+        });
       }
 
       await broadcastGameInvalidation(joinCode, result.game_version);
@@ -330,7 +332,11 @@ export async function joinGame(
       seat_id: string;
     }> | null
   )?.[0];
-  if (!result) throw new GameStoreError("unavailable", "Unable to join game.");
+  if (!result) {
+    throw new GameStoreError("unavailable", "Unable to join game.", {
+      needsDeveloperAttention: true,
+    });
+  }
 
   await broadcastGameInvalidation(normalizedCode, result.game_version);
   return {
@@ -427,8 +433,11 @@ export async function updateStorytellerGameByCode(
   const result = (
     data as Array<{ game_id: string; game_version: number }> | null
   )?.[0];
-  if (!result)
-    throw new GameStoreError("unavailable", "Unable to update game.");
+  if (!result) {
+    throw new GameStoreError("unavailable", "Unable to update game.", {
+      needsDeveloperAttention: true,
+    });
+  }
 
   await broadcastGameInvalidation(normalizedCode, result.game_version);
   return getStorytellerSnapshotByCode(normalizedCode, credential);
