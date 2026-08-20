@@ -1,6 +1,3 @@
-import { readFileSync } from "node:fs";
-import { join } from "node:path";
-
 /* eslint-disable @next/next/no-img-element -- ImageResponse requires plain image elements. */
 
 const colors = {
@@ -9,48 +6,17 @@ const colors = {
   red: "#94413e",
 } as const;
 
-function readProjectFile(...segments: string[]) {
-  return readFileSync(join(process.cwd(), ...segments));
-}
+type SocialCardProps = {
+  variant: "home" | "invitation";
+  parchmentImage: string;
+  impImage: string;
+};
 
-function readPublicImage(relativePath: string, mimeType: "jpeg" | "png") {
-  return `data:image/${mimeType};base64,${readProjectFile("public", relativePath).toString("base64")}`;
-}
-
-const parchmentImage = readPublicImage(
-  "assets/seo/grimoire-parchment.jpg",
-  "jpeg",
-);
-const impImage = readPublicImage("assets/seo/imp.png", "png");
-
-export const socialCardFonts = [
-  {
-    name: "Fraunces",
-    data: readProjectFile(
-      "node_modules/@fontsource/fraunces/files/fraunces-latin-400-italic.woff",
-    ),
-    weight: 400 as const,
-    style: "italic" as const,
-  },
-  {
-    name: "Commissioner",
-    data: readProjectFile(
-      "node_modules/@fontsource/commissioner/files/commissioner-latin-400-normal.woff",
-    ),
-    weight: 400 as const,
-    style: "normal" as const,
-  },
-  {
-    name: "IBM Plex Mono",
-    data: readProjectFile(
-      "node_modules/@fontsource/ibm-plex-mono/files/ibm-plex-mono-latin-500-normal.woff",
-    ),
-    weight: 500 as const,
-    style: "normal" as const,
-  },
-];
-
-export function SocialCard({ variant }: { variant: "home" | "invitation" }) {
+export function SocialCard({
+  variant,
+  parchmentImage,
+  impImage,
+}: SocialCardProps) {
   const isInvitation = variant === "invitation";
 
   return (
