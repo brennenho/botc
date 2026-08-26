@@ -11,7 +11,11 @@ import {
   getInPlayReminderSources,
   getScriptReminderSources,
 } from "@/lib/reminder-catalog";
-import { getReminderKey, type ReminderDefinition } from "@/lib/reminders";
+import {
+  getReminderCopyLimit,
+  getReminderKey,
+  type ReminderDefinition,
+} from "@/lib/reminders";
 
 type PlayerReminderPickerProps = {
   editionId: EditionId;
@@ -44,6 +48,12 @@ export function PlayerReminderPicker({
     (source) => source.definitions,
   );
   const placedCounts = reminders.reduce((counts, reminder) => {
+    const key = getReminderKey(reminder);
+    counts.set(key, (counts.get(key) ?? 0) + 1);
+    return counts;
+  }, new Map<string, number>());
+  const targetPlacedCounts = reminders.reduce((counts, reminder) => {
+    if (reminder.seatId !== seat.id) return counts;
     const key = getReminderKey(reminder);
     counts.set(key, (counts.get(key) ?? 0) + 1);
     return counts;
@@ -83,6 +93,8 @@ export function PlayerReminderPicker({
             label="In-Play Reminders"
             definitions={inPlayReminders}
             placedCounts={placedCounts}
+            targetPlacedCounts={targetPlacedCounts}
+            targetPlayerName={seat.playerName}
             onAddReminder={onAddReminder}
           />
         ) : (
@@ -100,6 +112,8 @@ export function PlayerReminderPicker({
             <PlayerReminderSection
               definitions={scriptReminders}
               placedCounts={placedCounts}
+              targetPlacedCounts={targetPlacedCounts}
+              targetPlayerName={seat.playerName}
               onAddReminder={onAddReminder}
             />
           </details>
@@ -113,11 +127,15 @@ function PlayerReminderSection({
   label,
   definitions,
   placedCounts,
+  targetPlacedCounts,
+  targetPlayerName,
   onAddReminder,
 }: {
   label?: string;
   definitions: ReminderDefinition[];
   placedCounts: Map<string, number>;
+  targetPlacedCounts: Map<string, number>;
+  targetPlayerName: string;
   onAddReminder: (definition: ReminderDefinition) => void;
 }) {
   return (
@@ -131,6 +149,11 @@ function PlayerReminderSection({
           if (!sourceRole) return null;
 
           const placed = placedCounts.get(definition.key) ?? 0;
+          const copyLimit = getReminderCopyLimit(definition);
+          const placedOnTarget = targetPlacedCounts.get(definition.key) ?? 0;
+          const atCapacity = placed >= copyLimit;
+          const alreadyOnTarget = atCapacity && placedOnTarget >= copyLimit;
+          const action = atCapacity ? "Move" : "Add";
           return (
             <Button
               key={definition.key}
@@ -139,7 +162,12 @@ function PlayerReminderSection({
               variant="quiet"
               focusStyle="surface"
               className="tactile-action"
-              aria-label={`Add ${definition.label}`}
+              aria-label={
+                alreadyOnTarget
+                  ? `${definition.label} already on ${targetPlayerName}`
+                  : `${action} ${definition.label}`
+              }
+              disabled={alreadyOnTarget}
               onClick={() => onAddReminder(definition)}
             >
               <span className="player-reminder-token-wrap">

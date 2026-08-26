@@ -17,7 +17,11 @@ import {
   type ReminderPlacement,
 } from "@/lib/grimoire-canvas";
 import {
+  findReminderToRecycle,
   getAnchoredReminders,
+  getReminderCopyLimit,
+  getRemindersForDefinition,
+  reconcileReminderInventory,
   updateReminderPlacement,
   withReminderKey,
   type ReminderDefinition,
@@ -289,29 +293,62 @@ export function clearRoleAssignments(current: GameState): StorytellerPatch {
   };
 }
 
-export function appendReminder(
+export function placeReminder(
   current: GameState,
   seatId: string,
   definition: ReminderDefinition,
   factories?: GameStateFactoryOverrides,
 ): StorytellerPatch {
   if (!current.seats.some((seat) => seat.id === seatId)) return {};
+  const gameTokens = reconcileReminderInventory(current.gameTokens);
+  const reminderToRecycle = findReminderToRecycle(
+    gameTokens,
+    definition,
+    seatId,
+  );
+  const supplyIsExhausted =
+    getRemindersForDefinition(gameTokens, definition).length >=
+    getReminderCopyLimit(definition);
+  const inventoryChanged =
+    gameTokens.length !== current.gameTokens.length ||
+    gameTokens.some((token, index) => token !== current.gameTokens[index]);
+
+  if (supplyIsExhausted) {
+    if (!reminderToRecycle) {
+      return inventoryChanged
+        ? { gameTokens: normalizeReminderOrders(gameTokens) }
+        : {};
+    }
+
+    const order = getAnchoredReminders(gameTokens, seatId).length;
+    return {
+      gameTokens: normalizeReminderOrders(
+        updateReminderPlacement(
+          gameTokens,
+          reminderToRecycle.id,
+          { mode: "anchored", order },
+          seatId,
+        ),
+      ),
+    };
+  }
+
   const { createId } = resolveGameStateFactories(factories);
-  const order = getAnchoredReminders(current.gameTokens, seatId).length;
+  const order = getAnchoredReminders(gameTokens, seatId).length;
   const reminder: GameToken = {
     id: createId(),
     seatId,
     tokenType: "reminder",
     roleId: definition.roleId,
     label: definition.label,
-    position: current.gameTokens.length,
+    position: gameTokens.length,
     metadata: withReminderPlacement(withReminderKey({}, definition.key), {
       mode: "anchored",
       order,
     }),
   };
   return {
-    gameTokens: normalizeReminderOrders([...current.gameTokens, reminder]),
+    gameTokens: normalizeReminderOrders([...gameTokens, reminder]),
   };
 }
 

@@ -6,8 +6,9 @@ import type {
   Seat,
   StorytellerSnapshot,
 } from "@/lib/game-data/types";
+import { roleById } from "@/lib/game-data";
 import { readReminderPlacement } from "@/lib/grimoire-canvas";
-import { getReminderDefinition } from "@/lib/reminders";
+import { getReminderDefinition, getReminderKey } from "@/lib/reminders";
 import {
   createSetupRoleMetadata,
   DRUNK_ROLE_ID,
@@ -16,7 +17,6 @@ import {
 
 import {
   appendPlayer,
-  appendReminder,
   assignSeatRole,
   clearRoleAssignments,
   dealRoles,
@@ -25,6 +25,7 @@ import {
   normalizeReminderOrders,
   normalizeSeatIndexes,
   patchSeat,
+  placeReminder,
   setDemonBluff,
   setReminderPlacement,
 } from "../index";
@@ -382,10 +383,10 @@ describe("bluff and reminder mutations", () => {
     ]);
   });
 
-  it("appends reminders only to existing seats with deterministic IDs", () => {
+  it("places reminders only on existing seats with deterministic IDs", () => {
     const definition = getReminderDefinition(null, "Custom");
     const current = state();
-    const patch = appendReminder(current, "seat-a", definition, {
+    const patch = placeReminder(current, "seat-a", definition, {
       createId: () => "reminder-new",
     });
 
@@ -396,7 +397,68 @@ describe("bluff and reminder mutations", () => {
         label: "Custom",
       }),
     ]);
-    expect(appendReminder(current, "missing", definition)).toEqual({});
+    expect(placeReminder(current, "missing", definition)).toEqual({});
+  });
+
+  it("moves a single-copy reminder instead of creating a duplicate", () => {
+    const definition = getReminderDefinition(
+      roleById.get("poisoner") ?? null,
+      "Poisoned",
+    );
+    const createId = vi.fn(() => "unused-id");
+    const current = state(undefined, [reminder("poisoned", "seat-a", 0)]);
+    const patch = placeReminder(current, "seat-b", definition, { createId });
+    const poisoned = patch.gameTokens?.filter(
+      (token) => getReminderKey(token) === definition.key,
+    );
+
+    expect(poisoned).toEqual([
+      expect.objectContaining({ id: "poisoned", seatId: "seat-b" }),
+    ]);
+    expect(readReminderPlacement(poisoned![0]!)).toEqual({
+      mode: "anchored",
+      order: 0,
+    });
+    expect(createId).not.toHaveBeenCalled();
+  });
+
+  it("uses every physical copy before recycling the oldest one", () => {
+    const definition = getReminderDefinition(
+      roleById.get("innkeeper") ?? null,
+      "Safe",
+    );
+    const seats = [seat("seat-a", 0), seat("seat-b", 1), seat("seat-c", 2)];
+    const createId = vi
+      .fn<() => string>()
+      .mockReturnValueOnce("safe-a")
+      .mockReturnValueOnce("safe-b")
+      .mockReturnValue("unused-id");
+
+    const first = placeReminder(state(seats), "seat-a", definition, {
+      createId,
+    });
+    const second = placeReminder(
+      state(seats, first.gameTokens),
+      "seat-b",
+      definition,
+      { createId },
+    );
+    const third = placeReminder(
+      state(seats, second.gameTokens),
+      "seat-c",
+      definition,
+      { createId },
+    );
+    const safeReminders = third.gameTokens
+      ?.filter((token) => getReminderKey(token) === definition.key)
+      .sort((left, right) => left.id.localeCompare(right.id));
+
+    expect(definition.copies).toBe(2);
+    expect(safeReminders).toEqual([
+      expect.objectContaining({ id: "safe-a", seatId: "seat-c" }),
+      expect.objectContaining({ id: "safe-b", seatId: "seat-b" }),
+    ]);
+    expect(createId).toHaveBeenCalledTimes(2);
   });
 });
 

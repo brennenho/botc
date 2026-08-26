@@ -1,4 +1,5 @@
 import type { GameToken, Role } from "@/lib/game-data/types";
+import { roleById } from "@/lib/game-data/catalog";
 import {
   readReminderPlacement,
   withReminderPlacement,
@@ -34,6 +35,18 @@ function reminderKey(roleId: string | null, label: string) {
   return `${roleId ? `role:${roleId}` : "general"}:${slug}`;
 }
 
+function physicalReminderLabel(roleId: string | null, label: string) {
+  return roleId
+    ? (physicalReminderLabelOverrides[roleId]?.[label] ?? label)
+    : label;
+}
+
+export function getReminderCopyLimit(definition: ReminderDefinition) {
+  return Number.isFinite(definition.copies)
+    ? Math.max(1, Math.floor(definition.copies))
+    : 1;
+}
+
 export function getRoleReminderDefinitions(role: Role | null) {
   if (!role) return [];
 
@@ -61,24 +74,36 @@ export function getReminderDefinition(
   role: Role | null,
   label: string,
 ): ReminderDefinition {
+  const physicalLabel = physicalReminderLabel(role?.id ?? null, label);
   return (
     getRoleReminderDefinitions(role).find(
-      (definition) => definition.label === label,
+      (definition) => definition.label === physicalLabel,
     ) ?? {
-      key: reminderKey(role?.id ?? null, label),
-      label,
+      key: reminderKey(role?.id ?? null, physicalLabel),
+      label: physicalLabel,
       roleId: role?.id ?? null,
       sourceName: role?.name ?? "General",
-      copies: Number.POSITIVE_INFINITY,
+      copies: 1,
     }
   );
 }
 
+export function getReminderDefinitionForToken(token: GameToken) {
+  const role = token.roleId ? (roleById.get(token.roleId) ?? null) : null;
+  if (role) return getReminderDefinition(role, token.label);
+
+  const label = physicalReminderLabel(token.roleId, token.label);
+  return {
+    key: reminderKey(token.roleId, label),
+    label,
+    roleId: token.roleId,
+    sourceName: token.roleId ?? "General",
+    copies: 1,
+  } satisfies ReminderDefinition;
+}
+
 export function getReminderKey(token: GameToken) {
-  const storedKey = token.metadata.reminderKey;
-  return typeof storedKey === "string"
-    ? storedKey
-    : reminderKey(token.roleId, token.label);
+  return getReminderDefinitionForToken(token).key;
 }
 
 export function withReminderKey(
@@ -86,6 +111,71 @@ export function withReminderKey(
   key: string,
 ) {
   return { ...metadata, reminderKey: key };
+}
+
+export function getRemindersForDefinition(
+  tokens: readonly GameToken[],
+  definition: ReminderDefinition,
+) {
+  return tokens
+    .filter(
+      (token) =>
+        token.tokenType === "reminder" &&
+        getReminderKey(token) === definition.key,
+    )
+    .sort((left, right) => left.position - right.position);
+}
+
+export function findReminderToRecycle(
+  tokens: readonly GameToken[],
+  definition: ReminderDefinition,
+  targetSeatId: string,
+) {
+  const reminders = getRemindersForDefinition(tokens, definition);
+  if (reminders.length < getReminderCopyLimit(definition)) return null;
+
+  return (
+    reminders.find((reminder) => reminder.seatId !== targetSeatId) ??
+    reminders.find(
+      (reminder) => readReminderPlacement(reminder).mode !== "anchored",
+    ) ??
+    null
+  );
+}
+
+/**
+ * Applies the physical reminder inventory to a full token collection.
+ * Earlier tokens win so legacy over-supply is resolved deterministically.
+ */
+export function reconcileReminderInventory(tokens: readonly GameToken[]) {
+  const placedByKey = new Map<string, number>();
+
+  return tokens.flatMap((token): GameToken[] => {
+    if (token.tokenType !== "reminder") return [token];
+
+    const definition = getReminderDefinitionForToken(token);
+    const placed = placedByKey.get(definition.key) ?? 0;
+    if (placed >= getReminderCopyLimit(definition)) return [];
+    placedByKey.set(definition.key, placed + 1);
+
+    const storedKey = token.metadata.reminderKey;
+    if (
+      token.label === definition.label &&
+      token.roleId === definition.roleId &&
+      storedKey === definition.key
+    ) {
+      return [token];
+    }
+
+    return [
+      {
+        ...token,
+        roleId: definition.roleId,
+        label: definition.label,
+        metadata: withReminderKey(token.metadata, definition.key),
+      },
+    ];
+  });
 }
 
 function anchoredOrder(token: GameToken) {

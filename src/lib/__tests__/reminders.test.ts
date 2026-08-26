@@ -19,7 +19,14 @@ import {
   getPlayerLabelSide,
   getReminderSlotPositions,
 } from "@/lib/reminder-layout";
-import { getAnchoredReminders, updateReminderPlacement } from "@/lib/reminders";
+import {
+  getAnchoredReminders,
+  getReminderDefinition,
+  getReminderKey,
+  reconcileReminderInventory,
+  updateReminderPlacement,
+  withReminderKey,
+} from "@/lib/reminders";
 
 const boardSize = { width: 1200, height: 800 };
 const layoutOptions = {
@@ -191,6 +198,88 @@ describe("reminder placement metadata", () => {
     expect(readReminderPlacement(token)).toEqual({
       mode: "free",
       canvasPosition: { x: 22, y: 31 },
+    });
+  });
+});
+
+describe("physical reminder inventory", () => {
+  it("defaults an unknown reminder to one physical copy", () => {
+    expect(getReminderDefinition(null, "Custom").copies).toBe(1);
+  });
+
+  it("keeps only the available copies while preserving different sources", () => {
+    const innkeeper = roleById.get("innkeeper")!;
+    const safe = getReminderDefinition(innkeeper, "Safe");
+    const poisonerPoisoned = getReminderDefinition(
+      roleById.get("poisoner")!,
+      "Poisoned",
+    );
+    const pukkaPoisoned = getReminderDefinition(
+      roleById.get("pukka")!,
+      "Poisoned",
+    );
+    const tokens: GameToken[] = [
+      ...["safe-a", "safe-b", "safe-extra"].map(
+        (id, position): GameToken => ({
+          id,
+          seatId: "seat-a",
+          tokenType: "reminder",
+          roleId: innkeeper.id,
+          label: safe.label,
+          position,
+          metadata: withReminderKey({}, safe.key),
+        }),
+      ),
+      {
+        id: "poisoner",
+        seatId: "seat-a",
+        tokenType: "reminder",
+        roleId: poisonerPoisoned.roleId,
+        label: poisonerPoisoned.label,
+        position: 3,
+        metadata: withReminderKey({}, poisonerPoisoned.key),
+      },
+      {
+        id: "pukka",
+        seatId: "seat-b",
+        tokenType: "reminder",
+        roleId: pukkaPoisoned.roleId,
+        label: pukkaPoisoned.label,
+        position: 4,
+        metadata: withReminderKey({}, pukkaPoisoned.key),
+      },
+    ];
+
+    const reconciled = reconcileReminderInventory(tokens);
+
+    expect(safe.copies).toBe(2);
+    expect(
+      reconciled
+        .filter((token) => getReminderKey(token) === safe.key)
+        .map((token) => token.id),
+    ).toEqual(["safe-a", "safe-b"]);
+    expect(reconciled.map((token) => token.id)).toContain("poisoner");
+    expect(reconciled.map((token) => token.id)).toContain("pukka");
+  });
+
+  it("canonicalizes legacy physical labels and stored keys", () => {
+    const token: GameToken = {
+      id: "town-crier",
+      seatId: "seat-a",
+      tokenType: "reminder",
+      roleId: "towncrier",
+      label: "Minions Not Nominated",
+      position: 0,
+      metadata: { reminderKey: "legacy-key" },
+    };
+
+    const [reconciled] = reconcileReminderInventory([token]);
+
+    expect(reconciled).toMatchObject({
+      label: "Minion Not Nominated",
+      metadata: {
+        reminderKey: "role:towncrier:minion-not-nominated",
+      },
     });
   });
 });
