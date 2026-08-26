@@ -33,6 +33,7 @@ test("@ipad reminder placement yields the full board and restores Night Order", 
   await storyteller.page.goto(`/game/${joinCode}/storyteller`);
   const nightTab = storyteller.page.getByRole("button", {
     name: "Night Order",
+    exact: true,
   });
   await nightTab.click();
 

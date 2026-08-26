@@ -40,7 +40,11 @@ export function Sheet({
     <Dialog.Root
       open={open}
       onOpenChange={(nextOpen, eventDetails) => {
-        if (!nextOpen && suspended && eventDetails.reason === "escape-key") {
+        const escapeWasHandled =
+          eventDetails.reason === "escape-key" &&
+          (suspended || eventDetails.event.defaultPrevented);
+
+        if (!nextOpen && escapeWasHandled) {
           eventDetails.cancel();
           return;
         }

@@ -62,6 +62,31 @@ describe("Night Order reminder placement", () => {
     expect(onOpenChange).toHaveBeenCalledWith(false);
   });
 
+  it("ignores an Escape already handled by an app shortcut", async () => {
+    const user = userEvent.setup();
+    const onOpenChange = vi.fn();
+    const handleKeyDown = (event: KeyboardEvent) => event.preventDefault();
+    window.addEventListener("keydown", handleKeyDown, { capture: true });
+
+    try {
+      render(
+        <Sheet
+          open
+          title="Night Order"
+          modal={false}
+          onOpenChange={onOpenChange}
+        >
+          <button type="button">Place action</button>
+        </Sheet>,
+      );
+
+      await user.keyboard("{Escape}");
+      expect(onOpenChange).not.toHaveBeenCalled();
+    } finally {
+      window.removeEventListener("keydown", handleKeyDown, { capture: true });
+    }
+  });
+
   it("focuses the placement prompt without reserving hidden sheet space", () => {
     const { rerender } = render(
       <StorytellerDock
