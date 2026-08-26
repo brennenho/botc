@@ -474,8 +474,8 @@
 .player-menu-reminders {
   display: flex;
   flex-direction: column;
-  gap: 7px;
-  padding: 10px;
+  gap: 5px;
+  padding: 9px 8px 8px;
   border-bottom: 1px solid rgb(99 76 46 / 18%);
 }
 
@@ -611,20 +611,20 @@
 
 .player-reminder-grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 7px 4px;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 4px 2px;
 }
 
 .player-reminder-grid > button {
   display: flex;
   width: 100%;
   min-width: 0;
-  min-height: 72px;
+  min-height: 70px;
   align-items: center;
   justify-content: flex-start;
   flex-direction: column;
-  gap: 5px;
-  padding: 3px 2px;
+  gap: 4px;
+  padding: 2px 0;
   border: 0;
   border-radius: var(--radius-control);
   color: rgb(48 39 28 / 74%);
@@ -636,19 +636,35 @@
 }
 
 .player-reminder-grid > button:hover,
-.player-reminder-grid > button:focus-visible {
+.player-reminder-grid > button:focus-visible,
+.player-reminder-grid > button:active {
   color: #30271c;
-  background: rgb(255 252 240 / 34%);
+  background: transparent;
 }
 
 .player-reminder-grid > button:focus-visible {
-  outline: 2px solid var(--focus-ring);
-  outline-offset: -1px;
+  outline: none;
 }
 
 .player-reminder-grid > button .character-token {
-  --tactile-shadow-rest: none;
-  --tactile-shadow-hover: 0 3px 6px rgb(55 36 17 / 14%);
+  box-shadow: none;
+  transition: box-shadow var(--motion-fast) ease;
+}
+
+.player-reminder-grid > button:hover .character-token {
+  box-shadow:
+    0 5px 10px rgb(55 36 17 / 20%),
+    0 0 0 2px rgb(141 113 61 / 14%);
+}
+
+.player-reminder-grid > button:focus-visible .character-token {
+  box-shadow:
+    0 5px 10px rgb(55 36 17 / 20%),
+    0 0 0 3px var(--focus-ring);
+}
+
+.player-reminder-grid > button:active .character-token {
+  box-shadow: 0 2px 5px rgb(55 36 17 / 17%);
 }
 
 .player-reminder-grid > button > span:last-child {
@@ -1070,7 +1086,7 @@
   }
 
   .player-reminder-grid > button {
-    min-height: 78px;
+    min-height: 72px;
   }
 }
 

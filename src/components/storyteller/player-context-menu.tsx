@@ -178,6 +178,7 @@ export function PlayerContextMenu({
                   <Button
                     type="button"
                     size="sm"
+                    variant="secondary"
                     onClick={onShowCharacter}
                     aria-keyshortcuts="S"
                     aria-label="Show Character"

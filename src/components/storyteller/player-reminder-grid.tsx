@@ -40,16 +40,11 @@ export function PlayerReminderGrid({
             size="sm"
             variant="quiet"
             focusStyle="surface"
-            className="tactile-action"
             aria-label={`Add ${definition.label} reminder to ${playerName}`}
             onClick={() => onAddReminder(definition)}
           >
             <span className="player-reminder-token-wrap">
-              <CharacterToken
-                role={sourceRole}
-                size="lg"
-                className="tactile-surface"
-              />
+              <CharacterToken role={sourceRole} size="lg" />
               {placed > 0 && (
                 <span className="player-reminder-count">{placed}</span>
               )}
