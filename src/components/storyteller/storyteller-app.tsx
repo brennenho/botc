@@ -111,6 +111,9 @@ export function StorytellerApp({
       ) ?? null,
     [selectedReminderId, snapshot.gameTokens],
   );
+  const sheetSuspended =
+    openPanel === "night" && pendingReminder !== null && !sheetPinned;
+  const sheetVisible = openPanel !== null && !sheetSuspended;
 
   useKeyboardShortcuts([
     {
@@ -188,7 +191,11 @@ export function StorytellerApp({
   function handleOpenPanel(panel: Exclude<GrimoirePanel, null>) {
     setSelectedSeatId(null);
     setSelectedReminderId(null);
-    setPendingReminder(null);
+    if (pendingReminder) {
+      setPendingReminder(null);
+      setOpenPanel(panel);
+      return;
+    }
     setOpenPanel((current) => (current === panel ? null : panel));
   }
 
@@ -298,7 +305,7 @@ export function StorytellerApp({
           presenceAvailable={presence.status === "connected"}
           onSelectSeat={handleSelectSeat}
           onSelectReminder={(tokenId) => {
-            if (!sheetPinned) setOpenPanel(null);
+            if (pendingReminder || !sheetPinned) setOpenPanel(null);
             setSelectedSeatId(null);
             setPendingReminder(null);
             setSelectedReminderId(tokenId);
@@ -310,6 +317,12 @@ export function StorytellerApp({
             setPendingReminder(null);
           }}
           onClearSelection={() => {
+            if (pendingReminder) {
+              setSelectedSeatId(null);
+              setSelectedReminderId(null);
+              setPendingReminder(null);
+              return;
+            }
             if (!sheetPinned) setOpenPanel(null);
             setSelectedSeatId(null);
             setSelectedReminderId(null);
@@ -368,6 +381,7 @@ export function StorytellerApp({
           nightOpen={openPanel === "night"}
           infoOpen={openPanel === "info"}
           scriptOpen={openPanel === "script"}
+          sheetVisible={sheetVisible}
           onOpenPlayers={() => handleOpenPanel("players")}
           onOpenNight={() => handleOpenPanel("night")}
           onOpenInfo={() => handleOpenPanel("info")}
@@ -393,6 +407,7 @@ export function StorytellerApp({
           seats={snapshot.seats}
           gameTokens={snapshot.gameTokens}
           pinned={sheetPinned}
+          suspended={sheetSuspended}
           pendingReminder={pendingReminder}
           referenceView={referenceView}
           nightOrderState={nightOrderState}

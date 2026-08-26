@@ -77,6 +77,12 @@
   transform: translateX(102%);
 }
 
+.side-sheet.is-suspended {
+  box-shadow: none;
+  pointer-events: none;
+  transform: translateX(102%);
+}
+
 .side-sheet.is-pinned {
   width: var(--grimoire-pinned-sheet-width);
   max-width: var(--grimoire-pinned-sheet-width);
