@@ -1,7 +1,7 @@
 import type { CanvasPosition } from "@/lib/grimoire-canvas";
 
-const DEFAULT_MENU_WIDTH = 320;
-const DEFAULT_MENU_HEIGHT = 380;
+const DEFAULT_MENU_WIDTH = 360;
+const DEFAULT_MENU_HEIGHT = 560;
 const DEFAULT_MENU_GAP = 14;
 const DEFAULT_MENU_MARGIN = 12;
 

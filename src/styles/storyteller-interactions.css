@@ -318,6 +318,7 @@
 .player-menu-header {
   display: flex;
   min-height: 64px;
+  flex: 0 0 auto;
   align-items: center;
   gap: 9px;
   padding: 8px;
@@ -346,22 +347,13 @@
 }
 
 .player-menu-role.has-character {
-  --tactile-shadow-rest: none;
-  --tactile-shadow-hover: 0 3px 6px rgb(53 37 20 / 13%);
-
   border-color: transparent;
   background: transparent;
   box-shadow: none;
 }
 
-.player-menu-role.has-character:hover,
-.player-menu-role.has-character:focus-visible {
-  border-color: transparent;
-  background: rgb(255 252 240 / 34%);
-}
-
 .player-menu-role:focus-visible {
-  outline: 0;
+  outline: 2px solid var(--focus-ring);
   outline-offset: 2px;
 }
 
@@ -373,35 +365,14 @@
   gap: 2px;
 }
 
-.player-menu-identity > button {
-  display: flex;
-  height: auto;
-  min-width: 0;
-  align-items: center;
-  justify-content: flex-start;
-  gap: 5px;
-  padding: 0;
-  border: 0;
-  color: #30271c;
-  background: transparent;
-  text-align: left;
-}
-
-.player-menu-identity > button strong,
 .player-menu-identity > strong {
   overflow: hidden;
+  color: #30271c;
   font-size: 13px;
   font-weight: 720;
   line-height: 1.25;
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-
-.player-menu-identity > button svg {
-  width: 11px;
-  height: 11px;
-  flex: 0 0 auto;
-  color: var(--grimoire-hardware-muted);
 }
 
 .player-menu-identity > span {
@@ -413,28 +384,151 @@
   white-space: nowrap;
 }
 
-.player-menu-identity > input {
-  width: 100%;
-  min-width: 0;
-  height: 24px;
-  padding: 1px 3px 2px;
-  text-align: left;
-}
-
-.player-menu-identity > input:focus {
-  box-shadow: none;
-}
-
 .player-menu-header > button:last-child {
+  width: 40px;
+  height: 40px;
   flex: 0 0 auto;
   color: var(--grimoire-hardware-muted);
+}
+
+.player-menu-scroll {
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+}
+
+.player-role-dossier {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 11px 12px 12px;
+  border-bottom: 1px solid rgb(99 76 46 / 18%);
+  background: rgb(255 252 240 / 16%);
+}
+
+.player-role-dossier-title {
+  display: flex;
+  min-width: 0;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.player-role-dossier-title strong {
+  overflow: hidden;
+  color: #30271c;
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 660;
+  line-height: 1.15;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.player-role-dossier-title span {
+  flex: 0 0 auto;
+  font-family: var(--font-utility);
+  font-size: 8px;
+  font-weight: 650;
+  letter-spacing: 0.055em;
+  text-transform: uppercase;
+}
+
+.player-role-dossier > p {
+  margin: 0;
+  color: rgb(48 39 28 / 74%);
+  font-size: 11px;
+  line-height: 1.45;
+}
+
+.player-role-dossier.is-empty {
+  align-items: stretch;
+  gap: 10px;
+}
+
+.player-role-dossier.is-empty > p {
+  color: var(--grimoire-hardware-muted);
+  text-align: center;
+}
+
+.player-role-actions {
+  display: grid;
+  grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr);
+  gap: 6px;
+}
+
+.player-role-actions > button,
+.player-role-dossier.is-empty > button {
+  min-height: 44px;
+  min-width: 0;
+  padding-inline: 9px;
+  font-size: 10px;
+}
+
+.player-role-actions > button .shortcut-key,
+.player-role-dossier.is-empty > button .shortcut-key {
+  margin-left: auto;
+}
+
+.player-menu-reminders {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  padding: 10px;
+  border-bottom: 1px solid rgb(99 76 46 / 18%);
+}
+
+.player-menu-section-heading {
+  display: flex;
+  min-height: 18px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.player-menu-section-heading > .utility-label,
+.player-menu-control-label > .utility-label {
+  color: rgb(64 52 35 / 54%);
+  font-size: 8px;
+}
+
+.player-menu-section-heading > small {
+  color: rgb(64 52 35 / 44%);
+  font-family: var(--font-utility);
+  font-size: 8px;
+}
+
+.player-menu-all-reminders {
+  width: 100%;
+  min-height: 40px;
+  justify-content: flex-start;
+  padding-inline: 9px;
+  color: rgb(64 52 35 / 68%);
+  font-size: 9px;
+}
+
+.player-menu-all-reminders > span:not(.shortcut-key) {
+  display: grid;
+  min-width: 18px;
+  height: 18px;
+  place-items: center;
+  border: 1px solid rgb(119 90 48 / 26%);
+  border-radius: 50%;
+  color: var(--grimoire-hardware-accent);
+  font-family: var(--font-utility);
+  font-size: 7px;
+}
+
+.player-menu-all-reminders .shortcut-key {
+  margin-left: auto;
 }
 
 .player-menu-state {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  padding: 12px;
+  padding: 10px 12px 12px;
 }
 
 .player-menu-state-grid {
@@ -458,23 +552,17 @@
   gap: 6px;
 }
 
-.player-menu-control-label > .utility-label,
-.player-reminder-section > .utility-label {
-  color: rgb(64 52 35 / 54%);
-  font-size: 8px;
-}
-
 .player-menu-segmented {
   display: flex;
   width: 100%;
-  height: 36px;
+  height: 40px;
   min-width: 0;
   background: rgb(81 62 40 / 9%);
 }
 
 .player-menu-segmented button {
   min-width: 0;
-  height: 32px;
+  height: 36px;
   flex: 1;
   padding: 0 6px;
   color: rgb(64 52 35 / 64%);
@@ -486,60 +574,10 @@
   background: rgb(255 252 240 / 72%);
 }
 
-.player-menu-actions {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 1px;
-  padding: 8px;
-  border-top: 1px solid rgb(99 76 46 / 16%);
-}
-
-.player-menu-actions > button {
-  position: relative;
-  height: 42px;
-  min-width: 0;
-  padding: 0 8px;
-  color: rgb(64 52 35 / 74%);
-  font-size: 10px;
-}
-
-.player-menu-actions > button .shortcut-key {
-  margin-left: auto;
-}
-
-.player-menu-identity .shortcut-key,
 .player-menu-control .shortcut-key,
-.player-menu-actions .shortcut-key {
+.player-role-actions .shortcut-key,
+.player-menu-all-reminders .shortcut-key {
   background: rgb(255 252 240 / 34%);
-}
-
-.player-menu-actions > button:hover {
-  color: #30271c;
-  background: rgb(255 252 240 / 38%);
-}
-
-.player-menu-count {
-  display: grid;
-  min-width: 17px;
-  height: 17px;
-  place-items: center;
-  border: 1px solid rgb(119 90 48 / 30%);
-  border-radius: 50%;
-  color: var(--grimoire-hardware-accent);
-  font-family: var(--font-utility);
-  font-size: 8px;
-}
-
-.player-menu-footer {
-  display: flex;
-  justify-content: flex-end;
-  padding: 7px 9px;
-  border-top: 1px solid rgb(99 76 46 / 18%);
-}
-
-.player-menu-footer .remove-player-button {
-  min-width: 116px;
-  justify-content: center;
 }
 
 .reminder-menu-header {
@@ -552,9 +590,11 @@
 }
 
 .player-reminder-menu {
-  max-height: min(380px, calc(100vh - 120px));
+  min-height: 0;
+  max-height: min(560px, calc(100vh - 96px));
   overflow-y: auto;
   overscroll-behavior: contain;
+  scrollbar-gutter: stable;
 }
 
 .player-reminder-section {
@@ -567,61 +607,6 @@
 
 .player-reminder-section:last-child {
   border-bottom: 0;
-}
-
-.player-reminder-collapsible {
-  border-bottom: 1px solid rgb(99 76 46 / 16%);
-}
-
-.player-reminder-collapsible > summary {
-  display: grid;
-  min-height: 38px;
-  grid-template-columns: minmax(0, 1fr) auto 16px;
-  align-items: center;
-  gap: 7px;
-  padding: 8px 11px;
-  color: var(--grimoire-hardware-muted);
-  cursor: pointer;
-  list-style: none;
-  user-select: none;
-}
-
-.player-reminder-collapsible > summary .utility-label {
-  color: inherit;
-  font-size: 8px;
-}
-
-.player-reminder-collapsible > summary::-webkit-details-marker {
-  display: none;
-}
-
-.player-reminder-collapsible > summary:hover {
-  color: var(--grimoire-hardware-text);
-  background: var(--control-hover);
-}
-
-.player-reminder-collapsible > summary:focus-visible {
-  outline: 2px solid var(--focus-ring);
-  outline-offset: -2px;
-}
-
-.player-reminder-collapsible > summary small {
-  color: rgb(64 52 35 / 44%);
-  font-size: 8px;
-}
-
-.player-reminder-collapsible > summary svg {
-  width: 14px;
-  height: 14px;
-  transition: transform 140ms ease;
-}
-
-.player-reminder-collapsible[open] > summary {
-  border-bottom: 1px solid rgb(99 76 46 / 12%);
-}
-
-.player-reminder-collapsible[open] > summary svg {
-  transform: rotate(180deg);
 }
 
 .player-reminder-grid {
@@ -653,12 +638,12 @@
 .player-reminder-grid > button:hover,
 .player-reminder-grid > button:focus-visible {
   color: #30271c;
-  background: transparent;
+  background: rgb(255 252 240 / 34%);
 }
 
 .player-reminder-grid > button:focus-visible {
-  outline: 0;
-  box-shadow: none;
+  outline: 2px solid var(--focus-ring);
+  outline-offset: -1px;
 }
 
 .player-reminder-grid > button .character-token {
@@ -1021,6 +1006,19 @@
 }
 
 @media (orientation: landscape) and (max-height: 500px) {
+  .player-menu-header {
+    min-height: 58px;
+    padding-block: 6px;
+  }
+
+  .player-role-dossier {
+    padding-block: 9px 10px;
+  }
+
+  .player-role-dossier-title strong {
+    font-size: 16px;
+  }
+
   .storyteller-shell:not(.player-grimoire-shell)
     .grimoire-panel-tabs.global-dock {
     --panel-tab-content-gap: 4px;
@@ -1050,6 +1048,29 @@
   .storyteller-shell:not(.player-grimoire-shell) .board-bluff-rack {
     right: 44px;
     bottom: 16px;
+  }
+}
+
+@media (pointer: coarse) {
+  .player-menu-header > button:last-child,
+  .player-menu-all-reminders {
+    min-height: 44px;
+  }
+
+  .player-menu-header > button:last-child {
+    width: 44px;
+  }
+
+  .player-menu-segmented {
+    height: 44px;
+  }
+
+  .player-menu-segmented button {
+    height: 40px;
+  }
+
+  .player-reminder-grid > button {
+    min-height: 78px;
   }
 }
 

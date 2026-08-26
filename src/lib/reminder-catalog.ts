@@ -2,6 +2,7 @@ import { getEditionRoles, roleById } from "@/lib/game-data";
 import type { EditionId, GameToken, Role, Seat } from "@/lib/game-data/types";
 import { getSetupRoleIds } from "@/lib/setup-effects";
 import {
+  getReminderKey,
   getRoleReminderDefinitions,
   type ReminderDefinition,
 } from "@/lib/reminders";
@@ -50,4 +51,39 @@ export function getScriptReminderSources(editionId: EditionId) {
     const source = createReminderSource(role);
     return source ? [source] : [];
   });
+}
+
+export function getPrioritizedInPlayReminderDefinitions(
+  seats: Seat[],
+  prioritizedSeatId: string,
+  gameTokens: readonly GameToken[] = [],
+) {
+  const prioritizedRoleId =
+    seats.find((seat) => seat.id === prioritizedSeatId)?.roleId ?? null;
+  const placedCounts = gameTokens.reduce((counts, token) => {
+    if (token.tokenType !== "reminder") return counts;
+    const key = getReminderKey(token);
+    counts.set(key, (counts.get(key) ?? 0) + 1);
+    return counts;
+  }, new Map<string, number>());
+
+  return getInPlayReminderSources(seats, prioritizedSeatId, gameTokens)
+    .flatMap((source) => source.definitions)
+    .map((definition, catalogIndex) => ({ definition, catalogIndex }))
+    .sort((first, second) => {
+      const firstPlaced = placedCounts.get(first.definition.key) ?? 0;
+      const secondPlaced = placedCounts.get(second.definition.key) ?? 0;
+      const placedDifference = secondPlaced - firstPlaced;
+      if (placedDifference !== 0) return placedDifference;
+
+      const firstBelongsToPlayer =
+        first.definition.roleId === prioritizedRoleId ? 1 : 0;
+      const secondBelongsToPlayer =
+        second.definition.roleId === prioritizedRoleId ? 1 : 0;
+      const playerDifference = secondBelongsToPlayer - firstBelongsToPlayer;
+      if (playerDifference !== 0) return playerDifference;
+
+      return first.catalogIndex - second.catalogIndex;
+    })
+    .map(({ definition }) => definition);
 }

@@ -42,6 +42,6 @@ describe("player menu placement", () => {
     });
 
     expect(top.top).toBe(12);
-    expect(bottom.top + 380).toBe(boardSize.height - 12);
+    expect(bottom.top + 560).toBe(boardSize.height - 12);
   });
 });

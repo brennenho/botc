@@ -62,12 +62,11 @@ export function GrimoireBoard({
   onClearSelection,
   onRenameSeat,
   onChooseRole,
+  onShowCharacter,
   onSetAlive,
   onSetAlignment,
   onSetGhostVote,
-  onSetTraveller,
   onAddReminder,
-  onRemovePlayer,
   onMovePlayer,
   onMoveReminder,
 }: {
@@ -88,12 +87,11 @@ export function GrimoireBoard({
   onClearSelection: () => void;
   onRenameSeat: (seatId: string, playerName: string) => void;
   onChooseRole: (seatId: string) => void;
+  onShowCharacter: (seatId: string) => void;
   onSetAlive: (seatId: string, alive: boolean) => void;
   onSetAlignment: (seatId: string, alignment: Alignment) => void;
   onSetGhostVote: (seatId: string, available: boolean) => void;
-  onSetTraveller: (seatId: string, isTraveller: boolean) => void;
   onAddReminder: (seatId: string, definition: ReminderDefinition) => void;
-  onRemovePlayer: (seatId: string) => void;
   onMovePlayer: (seatId: string, position: CanvasPosition) => void;
   onMoveReminder: (
     tokenId: string,
@@ -525,9 +523,7 @@ export function GrimoireBoard({
               }
               onClose={onClearSelection}
               onChooseRole={() => onChooseRole(selectedSeat.id)}
-              onRename={(playerName) =>
-                onRenameSeat(selectedSeat.id, playerName)
-              }
+              onShowCharacter={() => onShowCharacter(selectedSeat.id)}
               onSetAlive={(alive) => onSetAlive(selectedSeat.id, alive)}
               onSetAlignment={(alignment) =>
                 onSetAlignment(selectedSeat.id, alignment)
@@ -535,13 +531,9 @@ export function GrimoireBoard({
               onSetGhostVote={(available) =>
                 onSetGhostVote(selectedSeat.id, available)
               }
-              onSetTraveller={(isTraveller) =>
-                onSetTraveller(selectedSeat.id, isTraveller)
-              }
               onAddReminder={(definition) =>
                 onAddReminder(selectedSeat.id, definition)
               }
-              onRemovePlayer={() => onRemovePlayer(selectedSeat.id)}
             />
           )}
         </div>

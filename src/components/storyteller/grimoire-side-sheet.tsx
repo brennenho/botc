@@ -39,6 +39,7 @@ export function GrimoireSideSheet({
   onClearRole,
   onRemovePlayer,
   onRename,
+  onSetTraveller,
   onAddPlayer,
   onDistributeRoles,
   onClearAssignments,
@@ -67,6 +68,7 @@ export function GrimoireSideSheet({
   onClearRole: (seatId: string) => void;
   onRemovePlayer: (seatId: string) => void;
   onRename: (seatId: string, name: string) => void;
+  onSetTraveller: (seatId: string, isTraveller: boolean) => void;
   onAddPlayer: () => void;
   onDistributeRoles: (roleIds: string[]) => void;
   onClearAssignments: () => void;
@@ -121,6 +123,7 @@ export function GrimoireSideSheet({
           onClearRole={onClearRole}
           onRemovePlayer={onRemovePlayer}
           onRename={onRename}
+          onSetTraveller={onSetTraveller}
           onAddPlayer={onAddPlayer}
           onDistributeRoles={onDistributeRoles}
           onClearAssignments={onClearAssignments}

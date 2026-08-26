@@ -26,6 +26,7 @@ export function RosterPanel({
   onClearRole,
   onRemovePlayer,
   onRename,
+  onSetTraveller,
   onAddPlayer,
   onDistributeRoles,
   onClearAssignments,
@@ -41,6 +42,7 @@ export function RosterPanel({
   onClearRole: (seatId: string) => void;
   onRemovePlayer: (seatId: string) => void;
   onRename: (seatId: string, name: string) => void;
+  onSetTraveller: (seatId: string, isTraveller: boolean) => void;
   onAddPlayer: () => void;
   onDistributeRoles: (roleIds: string[]) => void;
   onClearAssignments: () => void;
@@ -178,6 +180,19 @@ export function RosterPanel({
                   </IconButton>
                 )}
               </div>
+              <button
+                type="button"
+                className={cn(
+                  "roster-player-type",
+                  seat.isTraveller && "is-traveller",
+                )}
+                aria-label={`${seat.playerName} is ${seat.isTraveller ? "a Traveller. Change to Resident" : "a Resident. Change to Traveller"}`}
+                aria-pressed={seat.isTraveller}
+                title={seat.isTraveller ? "Traveller" : "Resident"}
+                onClick={() => onSetTraveller(seat.id, !seat.isTraveller)}
+              >
+                {seat.isTraveller ? "T" : "R"}
+              </button>
               <RemovePlayerButton
                 playerName={seat.playerName}
                 display="icon"
