@@ -1,7 +1,6 @@
 import {
-  createGameFromHome,
+  createGameViaApi,
   expect,
-  getStorytellerSnapshot,
   patchStorytellerViaApi,
   test,
 } from "./fixtures/multiplayer";
@@ -10,8 +9,9 @@ test("@smoke player controls expose character info and in-play reminders", async
   createActor,
 }) => {
   const storyteller = await createActor();
-  const joinCode = await createGameFromHome(storyteller);
-  const snapshot = await getStorytellerSnapshot(storyteller, joinCode);
+  const created = await createGameViaApi(storyteller);
+  const snapshot = created.snapshot;
+  const joinCode = snapshot.game.joinCode;
   const seats = [...snapshot.seats].sort(
     (first, second) => first.seatIndex - second.seatIndex,
   );
@@ -32,7 +32,7 @@ test("@smoke player controls expose character info and in-play reminders", async
     },
   );
   expect(response.status()).toBe(200);
-  await storyteller.page.reload();
+  await storyteller.page.goto(`/game/${joinCode}/storyteller`);
 
   await storyteller.page
     .getByRole("button", {
