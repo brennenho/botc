@@ -262,6 +262,12 @@ export function StorytellerApp({
     setPlayerReveal(reveal);
   }
 
+  function handleShowSeatCharacter(seatId: string) {
+    const roleId = snapshot.seats.find((seat) => seat.id === seatId)?.roleId;
+    if (!roleId) return;
+    handlePlayerReveal({ type: "role", heading: "You Are", roleId });
+  }
+
   function handleRedactedChange(nextRedacted: boolean) {
     setRedacted(nextRedacted);
     if (!nextRedacted) return;
@@ -332,6 +338,7 @@ export function StorytellerApp({
             updateSeat(seatId, { playerName })
           }
           onChooseRole={(seatId) => setPickerTarget({ type: "seat", seatId })}
+          onShowCharacter={handleShowSeatCharacter}
           onSetAlive={(seatId, alive) => {
             const seat = snapshot.seats.find(
               (candidate) => candidate.id === seatId,
@@ -349,11 +356,7 @@ export function StorytellerApp({
           onSetGhostVote={(seatId, ghostVoteAvailable) =>
             updateSeat(seatId, { ghostVoteAvailable })
           }
-          onSetTraveller={(seatId, isTraveller) =>
-            updateSeat(seatId, { isTraveller })
-          }
           onAddReminder={addReminder}
-          onRemovePlayer={handleRemovePlayer}
           onMovePlayer={movePlayer}
           onMoveReminder={moveReminder}
         />
@@ -420,6 +423,9 @@ export function StorytellerApp({
           onClearRole={(seatId) => chooseRole(seatId, null)}
           onRemovePlayer={handleRemovePlayer}
           onRename={(seatId, playerName) => updateSeat(seatId, { playerName })}
+          onSetTraveller={(seatId, isTraveller) =>
+            updateSeat(seatId, { isTraveller })
+          }
           onAddPlayer={addPlayer}
           onDistributeRoles={handleDistributeRoles}
           onClearAssignments={handleClearAssignments}
@@ -447,9 +453,6 @@ export function StorytellerApp({
                 : pickerTarget?.type === "seat"
                   ? `Choose a Character for ${snapshot.seats.find((seat) => seat.id === pickerTarget.seatId)?.playerName ?? "Player"}`
                   : "Choose a Character"
-          }
-          clearLabel={
-            pickerTarget?.type === "bluff" ? "Clear Bluff" : "Clear Assignment"
           }
           selectedRoleId={
             pickerTarget?.type === "seat"

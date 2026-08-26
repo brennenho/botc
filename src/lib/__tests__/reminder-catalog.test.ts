@@ -3,9 +3,14 @@ import { describe, expect, it } from "vitest";
 import type { GameToken, Seat } from "@/lib/game-data/types";
 import {
   getInPlayReminderSources,
+  getPrioritizedInPlayReminderDefinitions,
   getScriptReminderSources,
 } from "@/lib/reminder-catalog";
-import { getRoleReminderDefinitions } from "@/lib/reminders";
+import {
+  getReminderDefinition,
+  getRoleReminderDefinitions,
+  withReminderKey,
+} from "@/lib/reminders";
 import { roleById } from "@/lib/game-data";
 import { createSetupRoleMetadata, DRUNK_ROLE_ID } from "@/lib/setup-effects";
 
@@ -64,6 +69,43 @@ describe("reminder catalog", () => {
 
     expect(sources[0]?.role.id).toBe("washerwoman");
     expect(sources.map((source) => source.role.id)).toContain("poisoner");
+  });
+
+  it("puts an already-used in-play reminder before the selected role", () => {
+    const selectedSeat = seat("seat-1", 0, "washerwoman");
+    const poisoner = roleById.get("poisoner") ?? null;
+    const poisoned = getReminderDefinition(poisoner, "Poisoned");
+    const placedReminder: GameToken = {
+      id: "placed-poisoned",
+      seatId: selectedSeat.id,
+      tokenType: "reminder",
+      roleId: poisoned.roleId,
+      label: poisoned.label,
+      position: 0,
+      metadata: withReminderKey({}, poisoned.key),
+    };
+
+    const definitions = getPrioritizedInPlayReminderDefinitions(
+      [selectedSeat, seat("seat-2", 1, "poisoner")],
+      selectedSeat.id,
+      [placedReminder],
+    );
+
+    expect(definitions[0]?.key).toBe(poisoned.key);
+    expect(definitions.map(({ label }) => label)).toContain("Townsfolk");
+  });
+
+  it("keeps the selected role first when no reminder has been used", () => {
+    const selectedSeat = seat("seat-1", 0, "washerwoman");
+    const definitions = getPrioritizedInPlayReminderDefinitions(
+      [selectedSeat, seat("seat-2", 1, "poisoner")],
+      selectedSeat.id,
+    );
+
+    expect(definitions.slice(0, 2).map(({ label }) => label)).toEqual([
+      "Townsfolk",
+      "Wrong",
+    ]);
   });
 
   it("shows a duplicated character source only once", () => {

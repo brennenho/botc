@@ -1,35 +1,30 @@
 "use client";
 
-import { LibraryBig, Pencil, Plus, X } from "lucide-react";
-import {
-  useEffect,
-  useRef,
-  useState,
-  type CSSProperties,
-  type ReactNode,
-} from "react";
+import { Eye, LibraryBig, Plus, X } from "lucide-react";
+import { useEffect, useState, type CSSProperties, type ReactNode } from "react";
 
 import { CharacterToken } from "@/components/grimoire/character-token";
+import { PlayerReminderGrid } from "@/components/storyteller/player-reminder-grid";
 import { PlayerReminderPicker } from "@/components/storyteller/player-reminder-picker";
-import { ReminderIcon } from "@/components/storyteller/reminder-icon";
-import { RemovePlayerButton } from "@/components/storyteller/remove-player-button";
 import { Button } from "@/components/ui/button";
 import { IconButton } from "@/components/ui/icon-button";
-import { Input } from "@/components/ui/input";
 import { SegmentedControl } from "@/components/ui/segmented-control";
 import { ShortcutKey } from "@/components/ui/shortcut-key";
 import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts";
-import { roleById } from "@/lib/game-data";
+import { roleById, teamLabel } from "@/lib/game-data";
 import type {
   Alignment,
   EditionId,
   GameToken,
   Seat,
 } from "@/lib/game-data/types";
+import {
+  getPrioritizedInPlayReminderDefinitions,
+  getScriptReminderSources,
+} from "@/lib/reminder-catalog";
 import type { ReminderDefinition } from "@/lib/reminders";
-import { cn } from "@/lib/utils";
 
-type PlayerMenuView = "player" | "reminders";
+type PlayerMenuView = "player" | "all-reminders";
 
 export function PlayerContextMenu({
   editionId,
@@ -41,13 +36,11 @@ export function PlayerContextMenu({
   style,
   onClose,
   onChooseRole,
-  onRename,
+  onShowCharacter,
   onSetAlive,
   onSetAlignment,
   onSetGhostVote,
-  onSetTraveller,
   onAddReminder,
-  onRemovePlayer,
 }: {
   editionId: EditionId;
   seat: Seat;
@@ -58,54 +51,43 @@ export function PlayerContextMenu({
   style: CSSProperties;
   onClose: () => void;
   onChooseRole: () => void;
-  onRename: (playerName: string) => void;
+  onShowCharacter: () => void;
   onSetAlive: (alive: boolean) => void;
   onSetAlignment: (alignment: Alignment) => void;
   onSetGhostVote: (available: boolean) => void;
-  onSetTraveller: (isTraveller: boolean) => void;
   onAddReminder: (definition: ReminderDefinition) => void;
-  onRemovePlayer: () => void;
 }) {
   const [view, setView] = useState<PlayerMenuView>("player");
-  const [editingName, setEditingName] = useState(false);
-  const [draftName, setDraftName] = useState(seat.playerName);
-  const nameInputRef = useRef<HTMLInputElement>(null);
   const role = seat.roleId ? roleById.get(seat.roleId) : null;
-  const reminders = gameTokens.filter(
-    (token) => token.tokenType === "reminder",
+  const inPlayReminders = getPrioritizedInPlayReminderDefinitions(
+    seats,
+    seat.id,
+    gameTokens,
   );
-  const targetReminderCount = reminders.filter(
-    (reminder) => reminder.seatId === seat.id,
-  ).length;
+  const scriptReminderCount = getScriptReminderSources(editionId).reduce(
+    (count, source) => count + source.definitions.length,
+    0,
+  );
 
-  useEffect(() => {
-    setView("player");
-    setEditingName(false);
-    setDraftName(seat.playerName);
-  }, [seat.id, seat.playerName]);
-
-  useEffect(() => {
-    if (!editingName) return;
-    nameInputRef.current?.focus();
-    nameInputRef.current?.select();
-  }, [editingName]);
+  useEffect(() => setView("player"), [seat.id]);
 
   useKeyboardShortcuts(
     [
+      {
+        id: "show-player-character",
+        key: "s",
+        enabled: Boolean(role),
+        onTrigger: onShowCharacter,
+      },
       {
         id: "choose-player-character",
         key: "c",
         onTrigger: onChooseRole,
       },
       {
-        id: "rename-player",
-        key: "e",
-        onTrigger: () => setEditingName(true),
-      },
-      {
-        id: "add-player-reminder",
+        id: "show-all-player-reminders",
         key: "m",
-        onTrigger: () => setView("reminders"),
+        onTrigger: () => setView("all-reminders"),
       },
       {
         id: "toggle-player-life",
@@ -124,11 +106,6 @@ export function PlayerContextMenu({
         enabled: !seat.alive,
         onTrigger: () => onSetGhostVote(!seat.ghostVoteAvailable),
       },
-      {
-        id: "toggle-player-type",
-        key: "t",
-        onTrigger: () => onSetTraveller(!seat.isTraveller),
-      },
     ],
     shortcutsEnabled && view === "player",
   );
@@ -136,20 +113,13 @@ export function PlayerContextMenu({
   useKeyboardShortcuts(
     [
       {
-        id: "back-from-reminders",
+        id: "back-from-all-reminders",
         key: "b",
         onTrigger: () => setView("player"),
       },
     ],
-    shortcutsEnabled && view === "reminders",
+    shortcutsEnabled && view === "all-reminders",
   );
-
-  function finishEditingName() {
-    const nextName = draftName.trim();
-    if (nextName && nextName !== seat.playerName) onRename(nextName);
-    if (!nextName) setDraftName(seat.playerName);
-    setEditingName(false);
-  }
 
   return (
     <section
@@ -164,64 +134,20 @@ export function PlayerContextMenu({
       {view === "player" ? (
         <>
           <header className="player-menu-header">
-            <Button
-              type="button"
-              size="icon"
-              variant="quiet"
-              focusStyle="surface"
-              className={cn(
-                "player-menu-role tactile-action tactile-surface",
-                role && "has-character",
-              )}
-              onClick={onChooseRole}
-              aria-keyshortcuts="C"
-              aria-label={
-                role
-                  ? `Change ${seat.playerName}'s Character`
-                  : `Assign a Character to ${seat.playerName}`
-              }
-            >
-              {role ? (
+            {role ? (
+              <div className="player-menu-role has-character" aria-hidden>
                 <CharacterToken role={role} size="md" />
-              ) : (
+              </div>
+            ) : (
+              <div className="player-menu-role" aria-hidden>
                 <Plus className="size-5" />
-              )}
-            </Button>
+              </div>
+            )}
             <div className="player-menu-identity">
-              {editingName ? (
-                <Input
-                  ref={nameInputRef}
-                  variant="inline"
-                  className="player-name-input"
-                  value={draftName}
-                  maxLength={40}
-                  aria-label={`Rename ${seat.playerName}`}
-                  onChange={(event) => setDraftName(event.target.value)}
-                  onBlur={finishEditingName}
-                  onKeyDown={(event) => {
-                    if (event.key === "Enter") event.currentTarget.blur();
-                    if (event.key === "Escape") {
-                      event.stopPropagation();
-                      setDraftName(seat.playerName);
-                      setEditingName(false);
-                    }
-                  }}
-                />
-              ) : (
-                <Button
-                  type="button"
-                  size="sm"
-                  variant="quiet"
-                  aria-keyshortcuts="E"
-                  onClick={() => setEditingName(true)}
-                >
-                  <strong>{seat.playerName}</strong>
-                  <Pencil aria-hidden="true" />
-                  <ShortcutKey shortcut="E" size="sm" />
-                </Button>
-              )}
+              <strong>{seat.playerName}</strong>
               <span>
-                {role?.name ?? "Choose Character"} · Seat {seat.seatIndex + 1}
+                {role?.name ?? "Character not assigned"} · Seat{" "}
+                {seat.seatIndex + 1}
               </span>
             </div>
             <IconButton
@@ -235,99 +161,152 @@ export function PlayerContextMenu({
             </IconButton>
           </header>
 
-          <div className="player-menu-state">
-            <MenuControl label="Status" shortcut="D">
-              <SegmentedControl
-                value={seat.alive ? "alive" : "dead"}
-                label="Life Status"
-                className="player-menu-segmented"
-                options={[
-                  { value: "alive", label: "Alive" },
-                  { value: "dead", label: "Dead" },
-                ]}
-                onChange={(value) => onSetAlive(value === "alive")}
-              />
-            </MenuControl>
-            {!seat.alive && (
-              <MenuControl label="Ghost Vote" shortcut="V">
-                <SegmentedControl
-                  value={seat.ghostVoteAvailable ? "available" : "used"}
-                  label="Ghost Vote"
-                  className="player-menu-segmented"
-                  options={[
-                    { value: "available", label: "Available" },
-                    { value: "used", label: "Used" },
-                  ]}
-                  onChange={(value) => onSetGhostVote(value === "available")}
-                />
-              </MenuControl>
+          <div className="player-menu-scroll">
+            {role ? (
+              <section
+                className="player-role-dossier"
+                aria-labelledby="selected-player-role"
+              >
+                <div className="player-role-dossier-title">
+                  <strong id="selected-player-role">{role.name}</strong>
+                  <span className={`team-${role.team}`}>
+                    {teamLabel(role.team)}
+                  </span>
+                </div>
+                <p>{role.ability}</p>
+                <div className="player-role-actions">
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="secondary"
+                    onClick={onShowCharacter}
+                    aria-keyshortcuts="S"
+                    aria-label="Show Character"
+                  >
+                    <Eye className="size-4" />
+                    Show Character
+                    <ShortcutKey shortcut="S" size="sm" />
+                  </Button>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="quiet"
+                    onClick={onChooseRole}
+                    aria-keyshortcuts="C"
+                    aria-label={`Change ${seat.playerName}'s Character`}
+                  >
+                    <LibraryBig className="size-4" />
+                    Change
+                    <ShortcutKey shortcut="C" size="sm" />
+                  </Button>
+                </div>
+              </section>
+            ) : (
+              <section className="player-role-dossier is-empty">
+                <p>Assign a character to show their ability here.</p>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="secondary"
+                  onClick={onChooseRole}
+                  aria-keyshortcuts="C"
+                  aria-label={`Assign a Character to ${seat.playerName}`}
+                >
+                  <Plus className="size-4" />
+                  Choose Character
+                  <ShortcutKey shortcut="C" size="sm" />
+                </Button>
+              </section>
             )}
-            <div className="player-menu-state-grid">
-              <MenuControl label="Alignment" shortcut="A">
-                <SegmentedControl
-                  value={seat.alignment}
-                  label="Alignment"
-                  className="player-menu-segmented"
-                  options={[
-                    { value: "good", label: "Good" },
-                    { value: "evil", label: "Evil" },
-                  ]}
-                  onChange={onSetAlignment}
-                />
-              </MenuControl>
-              <MenuControl label="Player Type" shortcut="T">
-                <SegmentedControl
-                  value={seat.isTraveller ? "traveller" : "resident"}
-                  label="Player Type"
-                  className="player-menu-segmented"
-                  options={[
-                    { value: "resident", label: "Resident" },
-                    { value: "traveller", label: "Traveller" },
-                  ]}
-                  onChange={(value) => onSetTraveller(value === "traveller")}
-                />
-              </MenuControl>
-            </div>
-          </div>
 
-          <div className="player-menu-actions">
-            <Button
-              type="button"
-              variant="quiet"
-              aria-keyshortcuts="C"
-              onClick={onChooseRole}
+            <section
+              className="player-menu-reminders"
+              aria-labelledby="player-menu-reminders-title"
             >
-              <LibraryBig className="size-4" />
-              {role ? "Change Character" : "Choose Character"}
-              <ShortcutKey shortcut="C" size="sm" />
-            </Button>
-            <Button
-              type="button"
-              variant="quiet"
-              aria-keyshortcuts="M"
-              onClick={() => setView("reminders")}
-            >
-              <ReminderIcon className="size-4" />
-              Add Reminder
-              {targetReminderCount > 0 && (
-                <span className="player-menu-count">{targetReminderCount}</span>
+              <div className="player-menu-section-heading">
+                <span
+                  id="player-menu-reminders-title"
+                  className="utility-label"
+                >
+                  In-Play Reminders
+                </span>
+                <small>{inPlayReminders.length}</small>
+              </div>
+              {inPlayReminders.length > 0 ? (
+                <PlayerReminderGrid
+                  definitions={inPlayReminders}
+                  gameTokens={gameTokens}
+                  playerName={seat.playerName}
+                  onAddReminder={onAddReminder}
+                />
+              ) : (
+                <p className="player-reminder-empty">
+                  Assign characters to put their reminders here.
+                </p>
               )}
-              <ShortcutKey shortcut="M" size="sm" />
-            </Button>
-          </div>
+              <Button
+                type="button"
+                size="sm"
+                variant="quiet"
+                className="player-menu-all-reminders"
+                aria-keyshortcuts="M"
+                aria-label="All Script Reminders"
+                onClick={() => setView("all-reminders")}
+              >
+                All Script Reminders
+                <span>{scriptReminderCount}</span>
+                <ShortcutKey shortcut="M" size="sm" />
+              </Button>
+            </section>
 
-          <footer className="player-menu-footer">
-            <RemovePlayerButton
-              playerName={seat.playerName}
-              onRemove={onRemovePlayer}
-            />
-          </footer>
+            <section className="player-menu-state" aria-label="Player state">
+              <div className="player-menu-state-grid">
+                <MenuControl label="Status" shortcut="D">
+                  <SegmentedControl
+                    value={seat.alive ? "alive" : "dead"}
+                    label="Life Status"
+                    className="player-menu-segmented"
+                    options={[
+                      { value: "alive", label: "Alive" },
+                      { value: "dead", label: "Dead" },
+                    ]}
+                    onChange={(value) => onSetAlive(value === "alive")}
+                  />
+                </MenuControl>
+                <MenuControl label="Alignment" shortcut="A">
+                  <SegmentedControl
+                    value={seat.alignment}
+                    label="Alignment"
+                    className="player-menu-segmented"
+                    options={[
+                      { value: "good", label: "Good" },
+                      { value: "evil", label: "Evil" },
+                    ]}
+                    onChange={onSetAlignment}
+                  />
+                </MenuControl>
+              </div>
+              {!seat.alive && (
+                <MenuControl label="Ghost Vote" shortcut="V">
+                  <SegmentedControl
+                    value={seat.ghostVoteAvailable ? "available" : "used"}
+                    label="Ghost Vote"
+                    className="player-menu-segmented"
+                    options={[
+                      { value: "available", label: "Available" },
+                      { value: "used", label: "Used" },
+                    ]}
+                    onChange={(value) => onSetGhostVote(value === "available")}
+                  />
+                </MenuControl>
+              )}
+            </section>
+          </div>
         </>
       ) : (
         <PlayerReminderPicker
           editionId={editionId}
-          seat={seat}
-          seats={seats}
+          playerName={seat.playerName}
           gameTokens={gameTokens}
           onBack={() => setView("player")}
           onClose={onClose}
