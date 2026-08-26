@@ -260,7 +260,7 @@
 .roster-row {
   display: grid;
   min-height: 52px;
-  grid-template-columns: 34px minmax(0, 1fr) 124px 30px;
+  grid-template-columns: 34px minmax(0, 1fr) 112px 30px 30px;
   align-items: center;
   padding: 0 14px;
   border-bottom: 1px solid rgb(35 38 34 / 9%);
@@ -362,6 +362,33 @@
 .roster-role-clear:focus-visible {
   color: var(--oxblood);
   background: rgb(114 47 52 / 10%);
+}
+
+.roster-player-type {
+  display: grid;
+  width: 28px;
+  height: 28px;
+  place-items: center;
+  justify-self: end;
+  border: 1px solid rgb(35 38 34 / 14%);
+  border-radius: 50%;
+  color: rgb(35 38 34 / 42%);
+  background: transparent;
+  font-family: var(--font-utility);
+  font-size: 8px;
+  font-weight: 680;
+}
+
+.roster-player-type:hover,
+.roster-player-type:focus-visible,
+.roster-player-type.is-traveller {
+  color: var(--oxblood);
+  background: rgb(114 47 52 / 8%);
+}
+
+.roster-player-type:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 1px;
 }
 
 .roster-remove-player {

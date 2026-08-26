@@ -7,50 +7,44 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { PlayerReminderPicker } from "@/components/storyteller/player-reminder-picker";
 import { roleById } from "@/lib/game-data";
-import type { GameToken, Seat } from "@/lib/game-data/types";
-import { getReminderDefinition, withReminderKey } from "@/lib/reminders";
+import type { EditionId, GameToken } from "@/lib/game-data/types";
+import {
+  getReminderDefinition,
+  withReminderKey,
+  type ReminderDefinition,
+} from "@/lib/reminders";
 
 const poisoner = roleById.get("poisoner")!;
 const poisoned = getReminderDefinition(poisoner, "Poisoned");
+const innkeeper = roleById.get("innkeeper")!;
+const safe = getReminderDefinition(innkeeper, "Safe");
 
-function seat(id: string, seatIndex: number, roleId: string | null): Seat {
+function reminder(
+  definition: ReminderDefinition,
+  id: string,
+  seatId: string,
+  position = 0,
+): GameToken {
   return {
     id,
-    seatIndex,
-    playerName: seatIndex === 0 ? "Alice" : "Bob",
-    claimedByPlayer: false,
-    roleId,
-    alignment: "good",
-    alive: true,
-    ghostVoteAvailable: true,
-    isTraveller: false,
-    joinedAt: "2026-01-01T00:00:00.000Z",
-  };
-}
-
-function reminder(seatId: string): GameToken {
-  return {
-    id: "poisoned-token",
     seatId,
     tokenType: "reminder",
-    roleId: poisoner.id,
-    label: poisoned.label,
-    position: 0,
-    metadata: withReminderKey({}, poisoned.key),
+    roleId: definition.roleId,
+    label: definition.label,
+    position,
+    metadata: withReminderKey({}, definition.key),
   };
 }
 
 afterEach(() => cleanup());
 
 describe("PlayerReminderPicker", () => {
-  const seats = [seat("seat-a", 0, poisoner.id), seat("seat-b", 1, null)];
-
-  function renderPicker(gameTokens: GameToken[]) {
+  function renderPicker(gameTokens: GameToken[], editionId: EditionId = "tb") {
     render(
       <PlayerReminderPicker
-        editionId="tb"
-        seat={seats[0]!}
-        seats={seats}
+        editionId={editionId}
+        targetSeatId="seat-a"
+        playerName="Alice"
         gameTokens={gameTokens}
         onBack={vi.fn()}
         onClose={vi.fn()}
@@ -60,25 +54,66 @@ describe("PlayerReminderPicker", () => {
   }
 
   it("changes the accessible action without adding visible UI", () => {
-    renderPicker([reminder("seat-b")]);
+    renderPicker([reminder(poisoned, "poisoned-token", "seat-b")]);
 
-    const actions = screen.getAllByRole("button", { name: "Move Poisoned" });
-    expect(actions).toHaveLength(2);
-    expect(actions.every((action) => !action.hasAttribute("disabled"))).toBe(
-      true,
-    );
-    expect(screen.queryByText("Move Poisoned")).not.toBeInTheDocument();
+    const action = screen.getByRole("button", {
+      name: "Move Poisoned reminder to Alice",
+    });
+    expect(action).toBeEnabled();
+    expect(
+      screen.queryByText("Move Poisoned reminder to Alice"),
+    ).not.toBeInTheDocument();
   });
 
   it("disables a spent reminder already placed on the selected player", () => {
-    renderPicker([reminder("seat-a")]);
+    renderPicker([reminder(poisoned, "poisoned-token", "seat-a")]);
 
-    const actions = screen.getAllByRole("button", {
-      name: "Poisoned already on Alice",
-    });
-    expect(actions).toHaveLength(2);
-    expect(actions.every((action) => action.hasAttribute("disabled"))).toBe(
-      true,
+    expect(
+      screen.getByRole("button", {
+        name: "Poisoned reminder already on Alice",
+      }),
+    ).toBeDisabled();
+  });
+
+  it("keeps adding while a physical copy remains", () => {
+    renderPicker([reminder(safe, "safe-one", "seat-b")], "bmr");
+
+    expect(
+      screen.getByRole("button", {
+        name: "Add Safe reminder to Alice",
+      }),
+    ).toBeEnabled();
+  });
+
+  it("moves a multi-copy reminder after its supply is exhausted", () => {
+    renderPicker(
+      [
+        reminder(safe, "safe-one", "seat-b"),
+        reminder(safe, "safe-two", "seat-c", 1),
+      ],
+      "bmr",
     );
+
+    expect(
+      screen.getByRole("button", {
+        name: "Move Safe reminder to Alice",
+      }),
+    ).toBeEnabled();
+  });
+
+  it("disables a multi-copy reminder when every copy is on the target", () => {
+    renderPicker(
+      [
+        reminder(safe, "safe-one", "seat-a"),
+        reminder(safe, "safe-two", "seat-a", 1),
+      ],
+      "bmr",
+    );
+
+    expect(
+      screen.getByRole("button", {
+        name: "Safe reminder already on Alice",
+      }),
+    ).toBeDisabled();
   });
 });

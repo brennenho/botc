@@ -40,14 +40,13 @@ const storytellerGroups: ShortcutGroup[] = [
     title: "Player selected",
     shortcuts: [
       { label: "Previous or next player", keys: ["[", "]"] },
+      { label: "Show character", keys: ["S"] },
       { label: "Choose character", keys: ["C"] },
-      { label: "Rename", keys: ["E"] },
-      { label: "Add reminder", keys: ["M"] },
+      { label: "All reminder tokens", keys: ["M"] },
       { label: "Back from reminders", keys: ["B"] },
       { label: "Toggle alive or dead", keys: ["D"] },
       { label: "Toggle alignment", keys: ["A"] },
       { label: "Toggle ghost vote", keys: ["V"] },
-      { label: "Toggle Traveller", keys: ["T"] },
     ],
   },
 ];

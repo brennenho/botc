@@ -103,34 +103,17 @@ test("storyteller shortcuts cover common grimoire controls without firing while 
       .getByRole("button", { name: "Used" }),
   ).toHaveAttribute("aria-pressed", "true");
 
-  await storyteller.page.keyboard.press("t");
-  await expect(
-    storyteller.page
-      .getByRole("group", { name: "Player Type" })
-      .getByRole("button", { name: "Traveller" }),
-  ).toHaveAttribute("aria-pressed", "true");
-
-  await storyteller.page.keyboard.press("e");
-  const nameInput = storyteller.page.getByRole("textbox", {
-    name: `Rename ${firstSeat.playerName}`,
-  });
-  await expect(nameInput).toBeFocused();
-  await nameInput.fill("Ada");
-  await storyteller.page.keyboard.press("p");
-  await expect(nameInput).toHaveValue("Adap");
-  await expect(
-    storyteller.page.getByRole("heading", { name: "Players" }),
-  ).toHaveCount(0);
-
-  await storyteller.page.keyboard.press("Escape");
-  await expect(nameInput).toBeHidden();
   await storyteller.page.keyboard.press("m");
   await expect(
-    storyteller.page.getByText("Add Reminder", { exact: true }),
+    storyteller.page.getByText(`Add to ${firstSeat.playerName}`, {
+      exact: true,
+    }),
   ).toBeVisible();
   await storyteller.page.keyboard.press("b");
   await expect(
-    storyteller.page.getByText("Add Reminder", { exact: true }),
+    storyteller.page.getByText(`Add to ${firstSeat.playerName}`, {
+      exact: true,
+    }),
   ).toBeHidden();
   await expect(
     storyteller.page.getByRole("dialog", {
