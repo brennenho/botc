@@ -11,7 +11,9 @@ import type {
   StorytellerPatch,
   StorytellerSnapshot,
 } from "@/lib/game-data/types";
+import { normalizeReminderOrders } from "@/lib/game-state/normalization";
 import { createPlayerSeatViews } from "@/lib/player-seat-view";
+import { reconcileReminderInventory } from "@/lib/reminders";
 import { databaseError, GameStoreError } from "@/lib/server/errors";
 import { broadcastGameInvalidation } from "@/lib/server/game-invalidation";
 import { normalizeUpdatedSeats } from "@/lib/server/seat-normalization";
@@ -364,7 +366,7 @@ export async function getStorytellerSnapshotByCode(
   return {
     game: publicGame(game),
     seats: seats.map(publicSeat),
-    gameTokens,
+    gameTokens: normalizeReminderOrders(reconcileReminderInventory(gameTokens)),
   };
 }
 
@@ -399,6 +401,9 @@ export async function updateStorytellerGameByCode(
 
   assertSupportedRoleIds(patch.seats, patch.gameTokens);
   const seats = patch.seats ? normalizeUpdatedSeats(patch.seats) : undefined;
+  const gameTokens = patch.gameTokens
+    ? normalizeReminderOrders(reconcileReminderInventory(patch.gameTokens))
+    : undefined;
   const seatPayload = seats?.map((seat) => ({
     id: seat.id,
     seatIndex: seat.seatIndex,
@@ -409,7 +414,7 @@ export async function updateStorytellerGameByCode(
     ghostVoteAvailable: seat.ghostVoteAvailable,
     isTraveller: seat.isTraveller,
   }));
-  const tokenPayload = patch.gameTokens?.map((token) => ({
+  const tokenPayload = gameTokens?.map((token) => ({
     id: token.id,
     seatId: token.seatId,
     tokenType: token.tokenType,

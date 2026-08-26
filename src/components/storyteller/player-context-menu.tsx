@@ -236,6 +236,7 @@ export function PlayerContextMenu({
                 <PlayerReminderGrid
                   definitions={inPlayReminders}
                   gameTokens={gameTokens}
+                  targetSeatId={seat.id}
                   playerName={seat.playerName}
                   onAddReminder={onAddReminder}
                 />
@@ -306,6 +307,7 @@ export function PlayerContextMenu({
       ) : (
         <PlayerReminderPicker
           editionId={editionId}
+          targetSeatId={seat.id}
           playerName={seat.playerName}
           gameTokens={gameTokens}
           onBack={() => setView("player")}

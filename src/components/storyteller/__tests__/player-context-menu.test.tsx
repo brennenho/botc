@@ -8,7 +8,8 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { PlayerContextMenu } from "@/components/storyteller/player-context-menu";
 import { roleById } from "@/lib/game-data";
-import type { Seat } from "@/lib/game-data/types";
+import type { GameToken, Seat } from "@/lib/game-data/types";
+import { getReminderDefinition, withReminderKey } from "@/lib/reminders";
 
 vi.mock("@/components/grimoire/character-token", () => ({
   CharacterToken: ({ role }: { role: { name: string } }) => (
@@ -31,7 +32,10 @@ function seat(id: string, seatIndex: number, roleId: string | null): Seat {
   };
 }
 
-function renderMenu(roleId: string | null = "washerwoman") {
+function renderMenu(
+  roleId: string | null = "washerwoman",
+  gameTokens: GameToken[] = [],
+) {
   const selectedSeat = seat("seat-1", 0, roleId);
   const callbacks = {
     onClose: vi.fn(),
@@ -48,7 +52,7 @@ function renderMenu(roleId: string | null = "washerwoman") {
       editionId="tb"
       seat={selectedSeat}
       seats={[selectedSeat, seat("seat-2", 1, "poisoner")]}
-      gameTokens={[]}
+      gameTokens={gameTokens}
       shortcutsEnabled={false}
       side="right"
       style={{}}
@@ -119,6 +123,29 @@ describe("PlayerContextMenu", () => {
         name: `${selectedSeat.playerName} controls`,
       }),
     ).toBeVisible();
+  });
+
+  it("offers to move an exhausted reminder from another player", () => {
+    const poisoned = getReminderDefinition(
+      roleById.get("poisoner")!,
+      "Poisoned",
+    );
+    const reminder: GameToken = {
+      id: "poisoned-token",
+      seatId: "seat-2",
+      tokenType: "reminder",
+      roleId: poisoned.roleId,
+      label: poisoned.label,
+      position: 0,
+      metadata: withReminderKey({}, poisoned.key),
+    };
+    const { selectedSeat } = renderMenu("washerwoman", [reminder]);
+
+    expect(
+      screen.getByRole("button", {
+        name: `Move Poisoned reminder to ${selectedSeat.playerName}`,
+      }),
+    ).toBeEnabled();
   });
 
   it("keeps the complete script catalog one level away", async () => {

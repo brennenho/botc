@@ -10,6 +10,7 @@ import type { ReminderDefinition } from "@/lib/reminders";
 
 type PlayerReminderPickerProps = {
   editionId: EditionId;
+  targetSeatId: string;
   playerName: string;
   gameTokens: GameToken[];
   onBack: () => void;
@@ -19,6 +20,7 @@ type PlayerReminderPickerProps = {
 
 export function PlayerReminderPicker({
   editionId,
+  targetSeatId,
   playerName,
   gameTokens,
   onBack,
@@ -62,6 +64,7 @@ export function PlayerReminderPicker({
           <PlayerReminderGrid
             definitions={scriptReminders}
             gameTokens={gameTokens}
+            targetSeatId={targetSeatId}
             playerName={playerName}
             onAddReminder={onAddReminder}
           />

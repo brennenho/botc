@@ -4,21 +4,35 @@ import { CharacterToken } from "@/components/grimoire/character-token";
 import { Button } from "@/components/ui/button";
 import { roleById } from "@/lib/game-data";
 import type { GameToken } from "@/lib/game-data/types";
-import { getReminderKey, type ReminderDefinition } from "@/lib/reminders";
+import {
+  getReminderCopyLimit,
+  getReminderKey,
+  type ReminderDefinition,
+} from "@/lib/reminders";
 
 export function PlayerReminderGrid({
   definitions,
   gameTokens,
+  targetSeatId,
   playerName,
   onAddReminder,
 }: {
   definitions: ReminderDefinition[];
   gameTokens: GameToken[];
+  targetSeatId: string;
   playerName: string;
   onAddReminder: (definition: ReminderDefinition) => void;
 }) {
   const placedCounts = gameTokens.reduce((counts, token) => {
     if (token.tokenType !== "reminder") return counts;
+    const key = getReminderKey(token);
+    counts.set(key, (counts.get(key) ?? 0) + 1);
+    return counts;
+  }, new Map<string, number>());
+  const targetPlacedCounts = gameTokens.reduce((counts, token) => {
+    if (token.tokenType !== "reminder" || token.seatId !== targetSeatId) {
+      return counts;
+    }
     const key = getReminderKey(token);
     counts.set(key, (counts.get(key) ?? 0) + 1);
     return counts;
@@ -33,6 +47,13 @@ export function PlayerReminderGrid({
         if (!sourceRole) return null;
 
         const placed = placedCounts.get(definition.key) ?? 0;
+        const copyLimit = getReminderCopyLimit(definition);
+        const placedOnTarget = targetPlacedCounts.get(definition.key) ?? 0;
+        const atCapacity = placed >= copyLimit;
+        const alreadyOnTarget = atCapacity && placedOnTarget >= copyLimit;
+        const actionLabel = alreadyOnTarget
+          ? `${definition.label} reminder already on ${playerName}`
+          : `${atCapacity ? "Move" : "Add"} ${definition.label} reminder to ${playerName}`;
         return (
           <Button
             key={definition.key}
@@ -40,7 +61,8 @@ export function PlayerReminderGrid({
             size="sm"
             variant="quiet"
             focusStyle="surface"
-            aria-label={`Add ${definition.label} reminder to ${playerName}`}
+            aria-label={actionLabel}
+            disabled={alreadyOnTarget}
             onClick={() => onAddReminder(definition)}
           >
             <span className="player-reminder-token-wrap">
