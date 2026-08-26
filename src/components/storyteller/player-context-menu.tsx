@@ -139,18 +139,9 @@ export function PlayerContextMenu({
                 <CharacterToken role={role} size="md" />
               </div>
             ) : (
-              <Button
-                type="button"
-                size="icon"
-                variant="quiet"
-                focusStyle="surface"
-                className="player-menu-role tactile-action tactile-surface"
-                onClick={onChooseRole}
-                aria-keyshortcuts="C"
-                aria-label={`Assign a Character to ${seat.playerName}`}
-              >
+              <div className="player-menu-role" aria-hidden>
                 <Plus className="size-5" />
-              </Button>
+              </div>
             )}
             <div className="player-menu-identity">
               <strong>{seat.playerName}</strong>

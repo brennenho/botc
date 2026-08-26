@@ -31,8 +31,8 @@ function seat(id: string, seatIndex: number, roleId: string | null): Seat {
   };
 }
 
-function renderMenu() {
-  const selectedSeat = seat("seat-1", 0, "washerwoman");
+function renderMenu(roleId: string | null = "washerwoman") {
+  const selectedSeat = seat("seat-1", 0, roleId);
   const callbacks = {
     onClose: vi.fn(),
     onChooseRole: vi.fn(),
@@ -62,6 +62,16 @@ function renderMenu() {
 afterEach(() => cleanup());
 
 describe("PlayerContextMenu", () => {
+  it("offers one clear character action when no character is assigned", () => {
+    const { selectedSeat } = renderMenu(null);
+
+    expect(
+      screen.getAllByRole("button", {
+        name: `Assign a Character to ${selectedSeat.playerName}`,
+      }),
+    ).toHaveLength(1);
+  });
+
   it("shows the character dossier and in-play reminders immediately", () => {
     const { selectedSeat } = renderMenu();
 
