@@ -11,6 +11,7 @@ type SheetProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   title: string;
+  suspended?: boolean;
   eyebrow?: string;
   headerActions?: React.ReactNode;
   modal?: boolean;
@@ -24,6 +25,7 @@ export function Sheet({
   open,
   onOpenChange,
   title,
+  suspended = false,
   eyebrow,
   headerActions,
   modal = true,
@@ -45,8 +47,11 @@ export function Sheet({
         {backdrop && <Dialog.Backdrop className="sheet-scrim" />}
         <Dialog.Viewport className="sheet-viewport">
           <Dialog.Popup
-            className={cn("side-sheet", className)}
+            className={cn("side-sheet", suspended && "is-suspended", className)}
             initialFocus={titleRef}
+            inert={suspended ? true : undefined}
+            aria-hidden={suspended ? true : undefined}
+            data-suspended={suspended ? "" : undefined}
           >
             <header className="sheet-header">
               <div>

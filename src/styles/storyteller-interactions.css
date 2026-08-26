@@ -801,6 +801,12 @@
   bottom: max(30px, env(safe-area-inset-bottom));
   width: min(310px, calc(100vw - 36px));
   border-radius: var(--grimoire-hardware-radius);
+  outline: none;
+}
+
+.reminder-placement-dock:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 3px;
 }
 
 .toolbar-brand,

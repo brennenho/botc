@@ -44,6 +44,17 @@ export default defineConfig({
       },
     },
     {
+      name: "ipad-landscape",
+      grep: /@ipad/,
+      use: {
+        browserName: "webkit",
+        viewport: { width: 1024, height: 768 },
+        deviceScaleFactor: 2,
+        hasTouch: true,
+        isMobile: true,
+      },
+    },
+    {
       name: "mobile-webkit",
       grep: /@smoke/,
       use: {

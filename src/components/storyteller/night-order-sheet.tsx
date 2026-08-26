@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useLayoutEffect, useMemo, useRef } from "react";
 import { Check, Moon, Plus, Sun, X } from "lucide-react";
 
 import { InformationTokenIcon } from "@/components/storyteller/information-token-icon";
@@ -55,12 +55,26 @@ export function NightOrderPanel({
   onCancelReminderPlacement: () => void;
   onReveal: (action: NightRevealAction) => void;
 }) {
+  const placementOriginRef = useRef<HTMLButtonElement | null>(null);
+  const previousPendingReminderKeyRef = useRef<string | null>(null);
+  const pendingReminderKey = pendingReminder?.key ?? null;
   const { night, scope } = state;
   const viewKey = getNightOrderViewKey(night, scope);
   const completed = useMemo(
     () => new Set(state.completed[viewKey] ?? []),
     [state.completed, viewKey],
   );
+
+  useLayoutEffect(() => {
+    const previousPendingReminderKey = previousPendingReminderKeyRef.current;
+    previousPendingReminderKeyRef.current = pendingReminderKey;
+
+    if (!previousPendingReminderKey || pendingReminderKey) return;
+
+    const placementOrigin = placementOriginRef.current;
+    placementOriginRef.current = null;
+    if (shortcutsEnabled) placementOrigin?.focus({ preventScroll: true });
+  }, [pendingReminderKey, shortcutsEnabled]);
 
   useKeyboardShortcuts(
     [
@@ -210,7 +224,8 @@ export function NightOrderPanel({
                               }`
                         }
                         aria-pressed={active}
-                        onClick={() => {
+                        onClick={(event) => {
+                          placementOriginRef.current = event.currentTarget;
                           if (active) {
                             onCancelReminderPlacement();
                             return;

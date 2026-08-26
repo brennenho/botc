@@ -1,6 +1,7 @@
 "use client";
 
 import { BookOpen, Moon, Users, X } from "lucide-react";
+import { useLayoutEffect, useRef } from "react";
 
 import { GrimoirePanelTabs } from "@/components/grimoire/grimoire-panel-tabs";
 import { RevealIcon } from "@/components/storyteller/reveal-icon";
@@ -21,6 +22,7 @@ export function StorytellerDock({
   nightOpen,
   infoOpen,
   scriptOpen,
+  sheetVisible,
   onOpenPlayers,
   onOpenNight,
   onOpenInfo,
@@ -36,6 +38,7 @@ export function StorytellerDock({
   nightOpen: boolean;
   infoOpen: boolean;
   scriptOpen: boolean;
+  sheetVisible: boolean;
   onOpenPlayers: () => void;
   onOpenNight: () => void;
   onOpenInfo: () => void;
@@ -44,9 +47,17 @@ export function StorytellerDock({
   onCloseSelectedReminder: () => void;
   onCancelReminderPlacement: () => void;
 }) {
+  const placementDockRef = useRef<HTMLElement>(null);
+  const pendingReminderKey = pendingReminder?.key;
+
+  useLayoutEffect(() => {
+    if (!pendingReminderKey) return;
+    placementDockRef.current?.focus({ preventScroll: true });
+  }, [pendingReminderKey]);
+
   const panelTabs = (
     <GrimoirePanelTabs
-      sheetOpen={playersOpen || nightOpen || infoOpen || scriptOpen}
+      sheetOpen={sheetVisible}
       tabs={[
         {
           id: "players",
@@ -90,12 +101,14 @@ export function StorytellerDock({
       <>
         {panelTabs}
         <section
+          ref={placementDockRef}
           className={cn(
             "storyteller-context-drawer reminder-placement-dock",
-            nightOpen && "is-sheet-adjacent",
+            sheetVisible && "is-sheet-adjacent",
           )}
           aria-label={`Place ${pendingReminder.label}`}
           aria-live="polite"
+          tabIndex={-1}
         >
           <div className="storyteller-dock player-dock" role="toolbar">
             <span className="reminder-placement-icon">

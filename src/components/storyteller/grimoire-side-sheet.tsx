@@ -27,6 +27,7 @@ export function GrimoireSideSheet({
   seats,
   gameTokens,
   pinned,
+  suspended,
   pendingReminder,
   referenceView,
   nightOrderState,
@@ -55,6 +56,7 @@ export function GrimoireSideSheet({
   seats: Seat[];
   gameTokens: GameToken[];
   pinned: boolean;
+  suspended: boolean;
   pendingReminder: ReminderDefinition | null;
   referenceView: CharacterReferenceView;
   nightOrderState: NightOrderState;
@@ -93,6 +95,7 @@ export function GrimoireSideSheet({
         if (!open) onClose();
       }}
       title={title}
+      suspended={suspended}
       modal={false}
       backdrop={false}
       disablePointerDismissal
