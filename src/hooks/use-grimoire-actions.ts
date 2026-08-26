@@ -20,11 +20,7 @@ import {
 } from "@/lib/game-state";
 import type { CanvasPosition, ReminderPlacement } from "@/lib/grimoire-canvas";
 import { trackEvent } from "@/lib/observability/client";
-import { notify } from "@/lib/notifications";
-import {
-  findReminderToRecycle,
-  type ReminderDefinition,
-} from "@/lib/reminders";
+import type { ReminderDefinition } from "@/lib/reminders";
 
 type UseGrimoireActionsOptions = {
   commit: StorytellerCommit;
@@ -94,28 +90,7 @@ export function useGrimoireActions({ commit }: UseGrimoireActionsOptions) {
 
   const addReminder = useCallback(
     (seatId: string, definition: ReminderDefinition) => {
-      commit((current) => {
-        const reminderToRecycle = findReminderToRecycle(
-          current.gameTokens,
-          definition,
-          seatId,
-        );
-        const patch = placeReminder(current, seatId, definition);
-        if (
-          reminderToRecycle &&
-          reminderToRecycle.seatId !== seatId &&
-          patch.gameTokens
-        ) {
-          const playerName = current.seats.find(
-            (seat) => seat.id === seatId,
-          )?.playerName;
-          notify.info(
-            `${definition.label} moved to ${playerName ?? "the selected player"}.`,
-            { id: `reminder-moved:${definition.key}` },
-          );
-        }
-        return patch;
-      });
+      commit((current) => placeReminder(current, seatId, definition));
       trackEvent("reminder_added", { actor_role: "storyteller" });
     },
     [commit],
