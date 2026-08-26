@@ -5,7 +5,7 @@ import "@testing-library/jest-dom/vitest";
 import { cleanup, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { useState } from "react";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { NightOrderPanel } from "@/components/storyteller/night-order-sheet";
 import { StorytellerDock } from "@/components/storyteller/storyteller-dock";
@@ -23,9 +23,17 @@ const poisonedReminder = getReminderDefinition(poisoner, "Poisoned");
 afterEach(() => cleanup());
 
 describe("Night Order reminder placement", () => {
-  it("keeps a suspended sheet mounted but removes it from interaction", () => {
+  it("keeps a suspended sheet mounted and ignores its Escape dismissal", async () => {
+    const user = userEvent.setup();
+    const onOpenChange = vi.fn();
     render(
-      <Sheet open suspended title="Night Order" onOpenChange={() => undefined}>
+      <Sheet
+        open
+        suspended
+        title="Night Order"
+        modal={false}
+        onOpenChange={onOpenChange}
+      >
         <button type="button">Retained Place action</button>
       </Sheet>,
     );
@@ -36,6 +44,22 @@ describe("Night Order reminder placement", () => {
     expect(sheet).toHaveAttribute("inert", "");
     expect(sheet).toHaveAttribute("aria-hidden", "true");
     expect(screen.getByText("Retained Place action")).toBeInTheDocument();
+
+    await user.keyboard("{Escape}");
+    expect(onOpenChange).not.toHaveBeenCalled();
+  });
+
+  it("still lets a visible sheet close with Escape", async () => {
+    const user = userEvent.setup();
+    const onOpenChange = vi.fn();
+    render(
+      <Sheet open title="Night Order" modal={false} onOpenChange={onOpenChange}>
+        <button type="button">Place action</button>
+      </Sheet>,
+    );
+
+    await user.keyboard("{Escape}");
+    expect(onOpenChange).toHaveBeenCalledWith(false);
   });
 
   it("focuses the placement prompt without reserving hidden sheet space", () => {

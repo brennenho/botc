@@ -39,7 +39,13 @@ export function Sheet({
   return (
     <Dialog.Root
       open={open}
-      onOpenChange={onOpenChange}
+      onOpenChange={(nextOpen, eventDetails) => {
+        if (!nextOpen && suspended && eventDetails.reason === "escape-key") {
+          eventDetails.cancel();
+          return;
+        }
+        onOpenChange(nextOpen);
+      }}
       modal={modal}
       disablePointerDismissal={disablePointerDismissal}
     >
