@@ -7,6 +7,7 @@ import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { PlayerContextMenu } from "@/components/storyteller/player-context-menu";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import { roleById } from "@/lib/game-data";
 import type { GameToken, Seat } from "@/lib/game-data/types";
 import { getReminderDefinition, withReminderKey } from "@/lib/reminders";
@@ -48,16 +49,18 @@ function renderMenu(
   };
 
   render(
-    <PlayerContextMenu
-      editionId="tb"
-      seat={selectedSeat}
-      seats={[selectedSeat, seat("seat-2", 1, "poisoner")]}
-      gameTokens={gameTokens}
-      shortcutsEnabled={false}
-      side="right"
-      style={{}}
-      {...callbacks}
-    />,
+    <TooltipProvider delay={0} closeDelay={0}>
+      <PlayerContextMenu
+        editionId="tb"
+        seat={selectedSeat}
+        seats={[selectedSeat, seat("seat-2", 1, "poisoner")]}
+        gameTokens={gameTokens}
+        shortcutsEnabled={false}
+        side="right"
+        style={{}}
+        {...callbacks}
+      />
+    </TooltipProvider>,
   );
 
   return { callbacks, selectedSeat };
@@ -167,5 +170,31 @@ describe("PlayerContextMenu", () => {
       screen.getByText("All Script Reminders", { exact: true }),
     ).toBeVisible();
     expect(screen.getByRole("button", { name: "Back" })).toBeVisible();
+  });
+
+  it("places state hints beside their columns", async () => {
+    const user = userEvent.setup();
+    renderMenu();
+
+    await user.hover(screen.getByRole("group", { name: "Life Status" }));
+
+    const statusHint = (await screen.findByText("Toggle Status")).closest(
+      ".site-tooltip-popup",
+    );
+    expect(statusHint?.parentElement).toHaveAttribute(
+      "data-preferred-side",
+      "left",
+    );
+
+    await user.unhover(screen.getByRole("group", { name: "Life Status" }));
+    await user.hover(screen.getByRole("group", { name: "Alignment" }));
+
+    const alignmentHint = (await screen.findByText("Toggle Alignment")).closest(
+      ".site-tooltip-popup",
+    );
+    expect(alignmentHint?.parentElement).toHaveAttribute(
+      "data-preferred-side",
+      "right",
+    );
   });
 });

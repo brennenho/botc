@@ -36,7 +36,14 @@ describe("Tooltip", () => {
     expect(tooltip).not.toBeNull();
     expect(tooltip).toHaveTextContent("Open Players");
     expect(tooltip?.querySelector("kbd")).toHaveTextContent("P");
-    expect(tooltip).toHaveClass("site-tooltip-popup");
+    expect(tooltip).toHaveClass(
+      "site-floating-help-popup",
+      "site-tooltip-popup",
+    );
+    expect(tooltip?.parentElement).toHaveAttribute(
+      "data-preferred-side",
+      "top",
+    );
   });
 
   it("opens for keyboard focus", async () => {

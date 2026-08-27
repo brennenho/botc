@@ -282,7 +282,7 @@ export function PlayerContextMenu({
 
             <section className="player-menu-state" aria-label="Player state">
               <div className="player-menu-state-grid">
-                <MenuControl label="Status" shortcut="D">
+                <MenuControl label="Status" shortcut="D" tooltipSide="left">
                   <SegmentedControl
                     value={seat.alive ? "alive" : "dead"}
                     label="Life Status"
@@ -294,7 +294,7 @@ export function PlayerContextMenu({
                     onChange={(value) => onSetAlive(value === "alive")}
                   />
                 </MenuControl>
-                <MenuControl label="Alignment" shortcut="A">
+                <MenuControl label="Alignment" shortcut="A" tooltipSide="right">
                   <SegmentedControl
                     value={seat.alignment}
                     label="Alignment"
@@ -308,7 +308,7 @@ export function PlayerContextMenu({
                 </MenuControl>
               </div>
               {!seat.alive && (
-                <MenuControl label="Ghost Vote" shortcut="V">
+                <MenuControl label="Ghost Vote" shortcut="V" tooltipSide={side}>
                   <SegmentedControl
                     value={seat.ghostVoteAvailable ? "available" : "used"}
                     label="Ghost Vote"
@@ -342,10 +342,12 @@ export function PlayerContextMenu({
 function MenuControl({
   label,
   shortcut,
+  tooltipSide = "top",
   children,
 }: {
   label: string;
   shortcut?: string;
+  tooltipSide?: "top" | "right" | "bottom" | "left";
   children: ReactNode;
 }) {
   const control = (
@@ -364,6 +366,7 @@ function MenuControl({
       content={`Toggle ${label}`}
       shortcuts={[shortcut]}
       shortcutSize="sm"
+      side={tooltipSide}
     >
       {control}
     </Tooltip>

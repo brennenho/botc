@@ -3,6 +3,7 @@
 import { Tooltip as TooltipPrimitive } from "@base-ui/react/tooltip";
 import * as React from "react";
 
+import { floatingHelp } from "@/components/ui/floating-help";
 import { ShortcutHint } from "@/components/ui/shortcut-key";
 
 export function TooltipProvider({
@@ -40,7 +41,7 @@ export function Tooltip({
   shortcutSize = "md",
   side = "top",
   align = "center",
-  sideOffset = 9,
+  sideOffset = floatingHelp.sideOffset,
   alignOffset = 0,
   open,
   onOpenChange,
@@ -54,11 +55,14 @@ export function Tooltip({
           align={align}
           sideOffset={sideOffset}
           alignOffset={alignOffset}
-          collisionPadding={10}
-          className="site-tooltip-positioner"
+          collisionPadding={floatingHelp.collisionPadding}
+          className={floatingHelp.positionerClassName}
+          data-preferred-side={side}
         >
-          <TooltipPrimitive.Popup className="site-tooltip-popup">
-            <TooltipPrimitive.Arrow className="site-tooltip-arrow" />
+          <TooltipPrimitive.Popup
+            className={`${floatingHelp.popupClassName} site-tooltip-popup`}
+          >
+            <TooltipPrimitive.Arrow className={floatingHelp.arrowClassName} />
             {shortcuts?.length ? (
               <ShortcutHint
                 label={content}

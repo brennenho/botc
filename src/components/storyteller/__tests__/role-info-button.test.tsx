@@ -22,7 +22,12 @@ describe("RoleInfoButton", () => {
       screen.getByRole("button", { name: `About ${role.name}` }),
     );
 
-    expect(await screen.findByText(role.ability)).toBeVisible();
+    const ability = await screen.findByText(role.ability);
+
+    expect(ability).toBeVisible();
     expect(screen.getByRole("heading", { name: role.name })).toBeVisible();
+    expect(ability.closest(".role-ability-popover")).toHaveClass(
+      "site-floating-help-popup",
+    );
   });
 });

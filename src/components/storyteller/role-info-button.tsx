@@ -4,6 +4,7 @@ import { Popover } from "@base-ui/react/popover";
 import { Info } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { floatingHelp } from "@/components/ui/floating-help";
 import type { Role } from "@/lib/game-data";
 
 export function RoleInfoButton({ role }: { role: Role }) {
@@ -28,12 +29,15 @@ export function RoleInfoButton({ role }: { role: Role }) {
       <Popover.Portal>
         <Popover.Positioner
           side="top"
-          sideOffset={9}
-          collisionPadding={10}
-          className="site-info-popover-positioner"
+          sideOffset={floatingHelp.sideOffset}
+          collisionPadding={floatingHelp.collisionPadding}
+          className={floatingHelp.positionerClassName}
+          data-preferred-side="top"
         >
-          <Popover.Popup className="site-info-popover role-ability-popover">
-            <Popover.Arrow className="site-info-popover-arrow" />
+          <Popover.Popup
+            className={`${floatingHelp.popupClassName} role-ability-popover`}
+          >
+            <Popover.Arrow className={floatingHelp.arrowClassName} />
             <Popover.Title className="role-ability-popover-title">
               {role.name}
             </Popover.Title>

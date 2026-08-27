@@ -18,10 +18,12 @@ export type GrimoirePanelTab = {
 export function GrimoirePanelTabs({
   tabs,
   sheetOpen,
+  orientation = "vertical",
   className,
 }: {
   tabs: GrimoirePanelTab[];
   sheetOpen: boolean;
+  orientation?: "horizontal" | "vertical";
   className?: string;
 }) {
   return (
@@ -32,6 +34,7 @@ export function GrimoirePanelTabs({
         className,
       )}
       aria-label="Grimoire Panels"
+      data-orientation={orientation}
     >
       {tabs.map((tab) => {
         const button = (
@@ -61,7 +64,7 @@ export function GrimoirePanelTabs({
             key={tab.id}
             content={tab.label}
             shortcuts={[tab.shortcut]}
-            side="top"
+            side={orientation === "vertical" ? "left" : "top"}
           >
             {button}
           </Tooltip>
