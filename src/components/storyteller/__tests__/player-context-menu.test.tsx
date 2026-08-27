@@ -176,7 +176,15 @@ describe("PlayerContextMenu", () => {
     const user = userEvent.setup();
     renderMenu();
 
-    await user.hover(screen.getByRole("group", { name: "Life Status" }));
+    const lifeStatus = screen.getByRole("group", { name: "Life Status" });
+    const statusAnchor = lifeStatus.closest(".player-menu-control-action");
+
+    expect(statusAnchor).toHaveAttribute("data-base-ui-tooltip-trigger");
+    expect(statusAnchor?.parentElement).not.toHaveAttribute(
+      "data-base-ui-tooltip-trigger",
+    );
+
+    await user.hover(lifeStatus);
 
     const statusHint = (await screen.findByText("Toggle Status")).closest(
       ".site-tooltip-popup",
@@ -186,7 +194,7 @@ describe("PlayerContextMenu", () => {
       "left",
     );
 
-    await user.unhover(screen.getByRole("group", { name: "Life Status" }));
+    await user.unhover(lifeStatus);
     await user.hover(screen.getByRole("group", { name: "Alignment" }));
 
     const alignmentHint = (await screen.findByText("Toggle Alignment")).closest(

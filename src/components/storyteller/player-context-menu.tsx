@@ -350,25 +350,29 @@ function MenuControl({
   tooltipSide?: "top" | "right" | "bottom" | "left";
   children: ReactNode;
 }) {
-  const control = (
-    <div className="player-menu-control" aria-keyshortcuts={shortcut}>
-      <span className="player-menu-control-label">
-        <span className="utility-label">{label}</span>
-      </span>
+  const action = (
+    <div className="player-menu-control-action" aria-keyshortcuts={shortcut}>
       {children}
     </div>
   );
 
-  if (!shortcut) return control;
-
   return (
-    <Tooltip
-      content={`Toggle ${label}`}
-      shortcuts={[shortcut]}
-      shortcutSize="sm"
-      side={tooltipSide}
-    >
-      {control}
-    </Tooltip>
+    <div className="player-menu-control">
+      <span className="player-menu-control-label">
+        <span className="utility-label">{label}</span>
+      </span>
+      {shortcut ? (
+        <Tooltip
+          content={`Toggle ${label}`}
+          shortcuts={[shortcut]}
+          shortcutSize="sm"
+          side={tooltipSide}
+        >
+          {action}
+        </Tooltip>
+      ) : (
+        action
+      )}
+    </div>
   );
 }

@@ -543,6 +543,12 @@
   gap: 6px;
 }
 
+.player-menu-control-action {
+  display: flex;
+  width: 100%;
+  min-width: 0;
+}
+
 .player-menu-segmented {
   display: flex;
   width: 100%;
