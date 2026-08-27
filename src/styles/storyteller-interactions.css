@@ -59,6 +59,56 @@
   --reminder-token-size: 36px;
 }
 
+/* The only interactive wrapper for a physical reminder token. The hit area
+   stays transparent; interaction feedback belongs to the token face. */
+.reminder-token-action {
+  display: flex;
+  min-width: 44px;
+  min-height: 44px;
+  align-items: center;
+  justify-content: flex-start;
+  flex-direction: column;
+  gap: 4px;
+  appearance: none;
+  padding: 4px 2px 3px;
+  border: 0;
+  border-radius: 0;
+  outline: none;
+  color: var(--grimoire-hardware-text);
+  background: transparent;
+  font-size: 8px;
+  font-weight: 600;
+  line-height: 1.1;
+  text-align: center;
+}
+
+.reminder-token-action:hover,
+.reminder-token-action:focus-visible,
+.reminder-token-action:active {
+  background: transparent;
+}
+
+.reminder-token-action:disabled {
+  cursor: default;
+  opacity: 0.45;
+}
+
+.reminder-token-action:disabled .reminder-token-face {
+  box-shadow: var(--tactile-shadow-rest);
+  filter: none;
+  transform: none;
+}
+
+.reminder-token-action-caption {
+  display: -webkit-box;
+  width: 100%;
+  min-height: 18px;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
 .reminder-token.is-selected {
   box-shadow: none;
 }
@@ -191,12 +241,6 @@
   cursor: grab;
   touch-action: none;
   user-select: none;
-}
-
-.reminder-token-trigger:focus-visible .reminder-token-face {
-  box-shadow:
-    var(--tactile-shadow-hover),
-    0 0 0 3px var(--focus-ring);
 }
 
 .reminder-token-trigger:active,
@@ -615,101 +659,21 @@
   gap: 4px 2px;
 }
 
-.player-reminder-grid > button {
-  display: flex;
+.player-reminder-grid .player-reminder-action {
   width: 100%;
   min-width: 0;
   min-height: 70px;
-  align-items: center;
-  justify-content: flex-start;
-  flex-direction: column;
-  gap: 4px;
   padding: 2px 0;
-  border: 0;
-  border-radius: var(--radius-control);
   color: rgb(48 39 28 / 74%);
-  background: transparent;
-  font-size: 8px;
   font-weight: 580;
-  line-height: 1.15;
-  text-align: center;
 }
 
-.player-reminder-grid > button:hover,
-.player-reminder-grid > button:focus-visible,
-.player-reminder-grid > button:active {
-  color: #30271c;
-  background: transparent;
-}
-
-.player-reminder-grid > button:focus-visible {
-  outline: none;
-}
-
-.player-reminder-grid > button .character-token {
-  box-shadow: none;
-  transition: box-shadow var(--motion-fast) ease;
-}
-
-.player-reminder-grid > button:hover .character-token {
-  box-shadow:
-    0 5px 10px rgb(55 36 17 / 20%),
-    0 0 0 2px rgb(141 113 61 / 14%);
-}
-
-.player-reminder-grid > button:focus-visible .character-token {
-  box-shadow:
-    0 5px 10px rgb(55 36 17 / 20%),
-    0 0 0 3px var(--focus-ring);
-}
-
-.player-reminder-grid > button:active .character-token {
-  box-shadow: 0 2px 5px rgb(55 36 17 / 17%);
-}
-
-.player-reminder-grid > button > span:last-child {
-  width: 100%;
-  overflow: hidden;
-  display: -webkit-box;
-  min-height: 18px;
-  white-space: normal;
-  overflow-wrap: anywhere;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-}
-
-.player-reminder-label small {
+.player-reminder-action small {
   margin-left: 3px;
   color: rgb(48 39 28 / 50%);
   font-family: var(--font-utility);
   font-size: 7px;
   font-weight: 600;
-}
-
-.player-reminder-token-wrap {
-  position: relative;
-  display: grid;
-  width: 48px;
-  height: 48px;
-  place-items: center;
-}
-
-.player-reminder-count {
-  position: absolute;
-  top: -3px;
-  right: -4px;
-  display: grid;
-  min-width: 16px;
-  height: 16px;
-  place-items: center;
-  border: 1px solid rgb(103 77 39 / 34%);
-  border-radius: 50%;
-  color: #3b2e1f;
-  background: rgb(243 226 188 / 96%);
-  box-shadow: 0 1px 3px rgb(50 34 17 / 18%);
-  font-family: var(--font-utility);
-  font-size: 8px;
-  line-height: 1;
 }
 
 .player-reminder-empty {
@@ -1091,7 +1055,7 @@
     height: 40px;
   }
 
-  .player-reminder-grid > button {
+  .player-reminder-grid .player-reminder-action {
     min-height: 72px;
   }
 }

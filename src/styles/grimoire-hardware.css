@@ -10,7 +10,7 @@
 }
 
 .storyteller-shell
-  :is(.player-token, .reminder-token-trigger, .bluff-slot)
+  :is(.player-token, .reminder-token-action, .bluff-slot)
   :is(img, svg) {
   pointer-events: none;
 }
@@ -166,49 +166,10 @@
 }
 
 .board-setup-warning-token {
-  display: flex;
+  width: 100%;
   min-height: 58px;
   min-width: 0;
-  align-items: center;
-  flex-direction: column;
-  gap: 4px;
-  appearance: none;
-  padding: 4px 2px 3px;
-  border: 1px solid transparent;
-  border-radius: 5px;
   color: var(--grimoire-hardware-text);
-  background: transparent;
-  font-size: 8px;
-  font-weight: 600;
-  line-height: 1.1;
-  text-align: center;
-  transition:
-    border-color var(--motion-fast) ease,
-    background-color var(--motion-fast) ease;
-}
-
-.board-setup-warning-token:hover {
-  background: rgb(255 250 236 / 34%);
-}
-
-.board-setup-warning-token[aria-pressed="true"] {
-  border-color: rgb(139 108 53 / 48%);
-  background: rgb(246 232 199 / 54%);
-}
-
-.board-setup-warning-token:focus-visible {
-  outline: 2px solid var(--focus-ring);
-  outline-offset: 1px;
-}
-
-.board-setup-warning-token > span:last-child {
-  display: -webkit-box;
-  width: 100%;
-  min-height: 18px;
-  overflow: hidden;
-  overflow-wrap: anywhere;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
 }
 
 @media (max-width: 1100px) {
