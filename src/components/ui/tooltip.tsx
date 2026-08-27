@@ -3,7 +3,7 @@
 import { Tooltip as TooltipPrimitive } from "@base-ui/react/tooltip";
 import * as React from "react";
 
-import { cn } from "@/lib/utils";
+import { ShortcutHint } from "@/components/ui/shortcut-key";
 
 export function TooltipProvider({
   delay = 350,
@@ -19,45 +19,58 @@ export function TooltipProvider({
   );
 }
 
-export const Tooltip = TooltipPrimitive.Root;
-export const TooltipTrigger = TooltipPrimitive.Trigger;
-
-type TooltipContentProps = React.ComponentProps<
-  typeof TooltipPrimitive.Popup
+type TooltipProps = Pick<
+  React.ComponentProps<typeof TooltipPrimitive.Root>,
+  "open" | "onOpenChange"
 > & {
+  children: React.ReactElement;
+  content: React.ReactNode;
+  shortcuts?: readonly string[];
+  shortcutSize?: "sm" | "md";
   side?: React.ComponentProps<typeof TooltipPrimitive.Positioner>["side"];
   align?: React.ComponentProps<typeof TooltipPrimitive.Positioner>["align"];
   sideOffset?: number;
   alignOffset?: number;
 };
 
-export function TooltipContent({
-  className,
+export function Tooltip({
+  children,
+  content,
+  shortcuts,
+  shortcutSize = "md",
   side = "top",
   align = "center",
   sideOffset = 9,
   alignOffset = 0,
-  children,
-  ...props
-}: TooltipContentProps) {
+  open,
+  onOpenChange,
+}: TooltipProps) {
   return (
-    <TooltipPrimitive.Portal>
-      <TooltipPrimitive.Positioner
-        side={side}
-        align={align}
-        sideOffset={sideOffset}
-        alignOffset={alignOffset}
-        collisionPadding={10}
-        className="site-tooltip-positioner"
-      >
-        <TooltipPrimitive.Popup
-          className={cn("site-tooltip-popup", className)}
-          {...props}
+    <TooltipPrimitive.Root open={open} onOpenChange={onOpenChange}>
+      <TooltipPrimitive.Trigger render={children} />
+      <TooltipPrimitive.Portal>
+        <TooltipPrimitive.Positioner
+          side={side}
+          align={align}
+          sideOffset={sideOffset}
+          alignOffset={alignOffset}
+          collisionPadding={10}
+          className="site-tooltip-positioner"
         >
-          <TooltipPrimitive.Arrow className="site-tooltip-arrow" />
-          {children}
-        </TooltipPrimitive.Popup>
-      </TooltipPrimitive.Positioner>
-    </TooltipPrimitive.Portal>
+          <TooltipPrimitive.Popup className="site-tooltip-popup">
+            <TooltipPrimitive.Arrow className="site-tooltip-arrow" />
+            {shortcuts?.length ? (
+              <ShortcutHint
+                label={content}
+                shortcuts={shortcuts}
+                size={shortcutSize}
+              />
+            ) : (
+              content
+            )}
+          </TooltipPrimitive.Popup>
+        </TooltipPrimitive.Positioner>
+      </TooltipPrimitive.Portal>
+    </TooltipPrimitive.Root>
   );
 }

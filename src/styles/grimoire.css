@@ -125,7 +125,7 @@
   align-items: center;
   gap: 6px;
   margin-left: 2px;
-  padding: 0 2px 0 11px;
+  padding: 0 10px 0 11px;
   border: 0;
   border-left: 1px solid rgb(100 76 44 / 22%);
   border-radius: 0;
@@ -147,15 +147,6 @@
 .toolbar-shortcuts-button:focus-visible {
   outline: 2px solid var(--focus-ring);
   outline-offset: 2px;
-}
-
-.toolbar-shortcuts-button .shortcut-key {
-  color: currentcolor;
-  background: rgb(255 252 240 / 28%);
-}
-
-.toolbar-shortcuts-button .shortcut-hint {
-  gap: 6px;
 }
 
 .toolbar-status {

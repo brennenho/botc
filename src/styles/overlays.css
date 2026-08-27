@@ -1167,16 +1167,17 @@
   background: rgb(114 47 52 / 16%);
 }
 
-/* Shared tooltips */
-.site-tooltip-positioner {
+/* Shared floating help */
+.site-tooltip-positioner,
+.site-info-popover-positioner {
   z-index: 140;
   max-width: min(340px, calc(100vw - 24px));
 }
 
-.site-tooltip-popup {
+.site-tooltip-popup,
+.site-info-popover {
   position: relative;
   max-width: 340px;
-  padding: 8px 10px;
   border: 1px solid var(--border-brass-strong);
   border-radius: var(--radius-control);
   color: var(--text-on-dark);
@@ -1188,11 +1189,17 @@
   transition:
     opacity 100ms ease-out,
     transform 100ms ease-out;
+}
+
+.site-tooltip-popup {
+  padding: 8px 10px;
   pointer-events: none;
 }
 
 .site-tooltip-popup[data-starting-style],
-.site-tooltip-popup[data-ending-style] {
+.site-tooltip-popup[data-ending-style],
+.site-info-popover[data-starting-style],
+.site-info-popover[data-ending-style] {
   opacity: 0;
   transform: scale(0.97);
 }
@@ -1201,7 +1208,8 @@
   transition: none;
 }
 
-.site-tooltip-arrow {
+.site-tooltip-arrow,
+.site-info-popover-arrow {
   position: relative;
   display: block;
   width: 10px;
@@ -1209,7 +1217,8 @@
   overflow: hidden;
 }
 
-.site-tooltip-arrow::before {
+.site-tooltip-arrow::before,
+.site-info-popover-arrow::before {
   position: absolute;
   bottom: 0;
   left: 50%;
@@ -1221,42 +1230,47 @@
   transform: translate(-50%, 50%) rotate(45deg);
 }
 
-.site-tooltip-arrow[data-side="top"] {
+.site-tooltip-arrow[data-side="top"],
+.site-info-popover-arrow[data-side="top"] {
   bottom: -5px;
   transform: rotate(180deg);
 }
 
-.site-tooltip-arrow[data-side="bottom"] {
+.site-tooltip-arrow[data-side="bottom"],
+.site-info-popover-arrow[data-side="bottom"] {
   top: -5px;
 }
 
-.site-tooltip-arrow[data-side="left"] {
+.site-tooltip-arrow[data-side="left"],
+.site-info-popover-arrow[data-side="left"] {
   right: -7px;
   transform: rotate(90deg);
 }
 
-.site-tooltip-arrow[data-side="right"] {
+.site-tooltip-arrow[data-side="right"],
+.site-info-popover-arrow[data-side="right"] {
   left: -7px;
   transform: rotate(-90deg);
 }
 
-.role-ability-tooltip {
+.role-ability-popover {
   width: min(320px, calc(100vw - 24px));
   padding: 9px 11px 10px;
 }
 
-.role-ability-tooltip strong,
-.role-ability-tooltip span {
+.role-ability-popover-title,
+.role-ability-popover-description {
   display: block;
 }
 
-.role-ability-tooltip strong {
+.role-ability-popover-title {
+  margin: 0;
   color: var(--text-on-dark);
   font-size: 12px;
   font-weight: 680;
 }
 
-.role-ability-tooltip span {
+.role-ability-popover-description {
   margin-top: 3px;
   color: var(--text-on-dark-muted);
 }

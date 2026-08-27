@@ -1,12 +1,7 @@
 import * as React from "react";
 
 import { Button, type ButtonProps } from "@/components/ui/button";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { ShortcutHint } from "@/components/ui/shortcut-key";
+import { Tooltip } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 
 type IconButtonProps = Omit<ButtonProps, "size"> & {
@@ -39,15 +34,12 @@ export function IconButton({
   if (tooltip === false) return button;
 
   return (
-    <Tooltip>
-      <TooltipTrigger render={button} />
-      <TooltipContent side={tooltipSide}>
-        {shortcut ? (
-          <ShortcutHint label={tooltip ?? label} shortcuts={[shortcut]} />
-        ) : (
-          (tooltip ?? label)
-        )}
-      </TooltipContent>
+    <Tooltip
+      content={tooltip ?? label}
+      shortcuts={shortcut ? [shortcut] : undefined}
+      side={tooltipSide}
+    >
+      {button}
     </Tooltip>
   );
 }

@@ -7,11 +7,7 @@ import { useEffect, useState } from "react";
 
 import { ReminderToken } from "@/components/storyteller/reminder-token";
 import { IconButton } from "@/components/ui/icon-button";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { Tooltip } from "@/components/ui/tooltip";
 import { roleById } from "@/lib/game-data";
 import type { GameToken } from "@/lib/game-data/types";
 import { cn } from "@/lib/utils";
@@ -57,8 +53,20 @@ export function DraggableReminderToken({
       )}
       style={{ transform: CSS.Translate.toString(transform) }}
     >
-      <Tooltip open={tooltipOpen && !isDragging} onOpenChange={setTooltipOpen}>
-        <TooltipTrigger
+      <Tooltip
+        content={
+          <span className="reminder-token-tooltip">
+            <strong>{reminder.label}</strong>
+            <span>
+              {sourceName} · {playerName}
+            </span>
+          </span>
+        }
+        open={tooltipOpen && !isDragging}
+        onOpenChange={setTooltipOpen}
+      >
+        <button
+          type="button"
           className="reminder-token-trigger tactile-action"
           aria-label={`${reminder.label} reminder on ${playerName}`}
           onClick={(event) => {
@@ -75,15 +83,7 @@ export function DraggableReminderToken({
             selected={selected}
             presentation="labeled"
           />
-        </TooltipTrigger>
-        <TooltipContent>
-          <span className="reminder-token-tooltip">
-            <strong>{reminder.label}</strong>
-            <span>
-              {sourceName} · {playerName}
-            </span>
-          </span>
-        </TooltipContent>
+        </button>
       </Tooltip>
       <IconButton
         label={`Remove ${reminder.label} Reminder`}

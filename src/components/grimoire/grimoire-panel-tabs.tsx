@@ -2,12 +2,7 @@
 
 import type { ReactNode } from "react";
 
-import { ShortcutHint } from "@/components/ui/shortcut-key";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { Tooltip } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 
 export type GrimoirePanelTab = {
@@ -62,11 +57,13 @@ export function GrimoirePanelTabs({
         if (!tab.shortcut) return button;
 
         return (
-          <Tooltip key={tab.id}>
-            <TooltipTrigger render={button} />
-            <TooltipContent side="top">
-              <ShortcutHint label={tab.label} shortcuts={[tab.shortcut]} />
-            </TooltipContent>
+          <Tooltip
+            key={tab.id}
+            content={tab.label}
+            shortcuts={[tab.shortcut]}
+            side="top"
+          >
+            {button}
           </Tooltip>
         );
       })}

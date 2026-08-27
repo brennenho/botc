@@ -129,11 +129,6 @@ export function PlayerTokenView({
                 ? "Ghost Vote Available"
                 : "Ghost Vote Used"
             }
-            title={
-              model.ghostVoteAvailable
-                ? "Ghost Vote Available"
-                : "Ghost Vote Used"
-            }
           >
             <Vote aria-hidden="true" />
             <span className="ghost-vote-slash" aria-hidden="true" />

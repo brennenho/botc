@@ -78,6 +78,9 @@ describe("PlayerContextMenu", () => {
 
   it("shows the character dossier and in-play reminders immediately", () => {
     const { selectedSeat } = renderMenu();
+    const menu = screen.getByRole("dialog", {
+      name: `${selectedSeat.playerName} controls`,
+    });
 
     expect(
       screen.getByText(roleById.get("washerwoman")!.ability, { exact: true }),
@@ -101,6 +104,10 @@ describe("PlayerContextMenu", () => {
     expect(
       screen.queryByRole("group", { name: "Player Type" }),
     ).not.toBeInTheDocument();
+    expect(menu.querySelector(".shortcut-key")).not.toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Show Character" }),
+    ).toHaveAttribute("aria-keyshortcuts", "S");
   });
 
   it("runs live actions without leaving the player menu", async () => {

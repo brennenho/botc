@@ -60,6 +60,21 @@ test("@smoke player controls expose character info and in-play reminders", async
       name: `Add Poisoned reminder to ${selectedSeat.playerName}`,
     }),
   ).toBeVisible();
+  await expect(menu.locator(".shortcut-key")).toHaveCount(0);
+  await expect(storyteller.page.locator("[title]")).toHaveCount(0);
+
+  const showCharacter = menu.getByRole("button", { name: "Show Character" });
+  const supportsHover = await storyteller.page.evaluate(
+    () => window.matchMedia("(hover: hover)").matches,
+  );
+  if (supportsHover) {
+    await showCharacter.hover();
+    const shortcutTooltip = storyteller.page
+      .locator(".site-tooltip-popup")
+      .filter({ hasText: "Show Character" });
+    await expect(shortcutTooltip).toBeVisible();
+    await expect(shortcutTooltip.locator("kbd")).toHaveText("S");
+  }
 
   await menu
     .getByRole("button", {
@@ -73,7 +88,7 @@ test("@smoke player controls expose character info and in-play reminders", async
     }),
   ).toBeVisible();
 
-  await menu.getByRole("button", { name: "Show Character" }).click();
+  await showCharacter.click();
   await expect(
     storyteller.page.getByRole("heading", { name: "You Are" }),
   ).toBeVisible();

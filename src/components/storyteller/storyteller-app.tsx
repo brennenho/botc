@@ -17,6 +17,7 @@ import { RolePicker } from "@/components/storyteller/role-picker";
 import { StorytellerDock } from "@/components/storyteller/storyteller-dock";
 import { PageError } from "@/components/ui/page-error";
 import { StatusNotice } from "@/components/ui/status-notice";
+import { Tooltip } from "@/components/ui/tooltip";
 import { useGamePresence } from "@/hooks/use-game-presence";
 import { useGrimoireActions } from "@/hooks/use-grimoire-actions";
 import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts";
@@ -509,19 +510,20 @@ export function StorytellerApp({
           <div className="board-setup-warning-tokens">
             {setupReminderWarnings.flatMap((warning) =>
               warning.missing.map(({ label, count }) => (
-                <span
+                <Tooltip
                   key={`${warning.roleId}:${label}`}
-                  className="board-setup-warning-token"
-                  title={`${warning.roleName}: ${label}`}
+                  content={`${warning.roleName}: ${label}`}
                 >
-                  <ReminderToken
-                    label={label}
-                    roleId={warning.roleId}
-                    size="tray"
-                    count={count}
-                  />
-                  <span>{label}</span>
-                </span>
+                  <span className="board-setup-warning-token">
+                    <ReminderToken
+                      label={label}
+                      roleId={warning.roleId}
+                      size="tray"
+                      count={count}
+                    />
+                    <span>{label}</span>
+                  </span>
+                </Tooltip>
               )),
             )}
           </div>
