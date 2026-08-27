@@ -82,7 +82,60 @@
   gap: 8px;
   padding: 9px 10px 10px;
   border-radius: var(--grimoire-hardware-radius);
-  pointer-events: none;
+}
+
+.board-setup-warning-summary {
+  display: none;
+  width: 100%;
+  min-height: 44px;
+  align-items: center;
+  gap: 7px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: calc(var(--grimoire-hardware-radius) - 1px);
+  color: var(--grimoire-hardware-text);
+  background: transparent;
+  font-size: 10px;
+  font-weight: 650;
+  text-align: left;
+}
+
+.board-setup-warning-summary > svg {
+  width: 15px;
+  height: 15px;
+  flex: 0 0 15px;
+  color: var(--grimoire-hardware-accent);
+  stroke-width: 1.7;
+}
+
+.board-setup-warning-summary > strong,
+.board-setup-warning-total {
+  display: grid;
+  min-width: 19px;
+  height: 19px;
+  place-items: center;
+  margin-left: auto;
+  padding: 0 5px;
+  border: 1px solid rgb(112 84 45 / 32%);
+  border-radius: 999px;
+  color: var(--grimoire-hardware-text);
+  background: rgb(246 232 199 / 72%);
+  font-family: var(--font-utility);
+  font-size: 8px;
+  line-height: 1;
+}
+
+.board-setup-warning-summary:hover {
+  background: var(--grimoire-hardware-surface-hover);
+}
+
+.board-setup-warning-summary:active {
+  background: var(--grimoire-hardware-surface-active);
+}
+
+.board-setup-warning-summary:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
 }
 
 .board-setup-warning-header {
@@ -114,15 +167,38 @@
 
 .board-setup-warning-token {
   display: flex;
+  min-height: 58px;
   min-width: 0;
   align-items: center;
   flex-direction: column;
   gap: 4px;
+  appearance: none;
+  padding: 4px 2px 3px;
+  border: 1px solid transparent;
+  border-radius: 5px;
   color: var(--grimoire-hardware-text);
+  background: transparent;
   font-size: 8px;
   font-weight: 600;
   line-height: 1.1;
   text-align: center;
+  transition:
+    border-color var(--motion-fast) ease,
+    background-color var(--motion-fast) ease;
+}
+
+.board-setup-warning-token:hover {
+  background: rgb(255 250 236 / 34%);
+}
+
+.board-setup-warning-token[aria-pressed="true"] {
+  border-color: rgb(139 108 53 / 48%);
+  background: rgb(246 232 199 / 54%);
+}
+
+.board-setup-warning-token:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 1px;
 }
 
 .board-setup-warning-token > span:last-child {
@@ -133,6 +209,87 @@
   overflow-wrap: anywhere;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
+}
+
+@media (max-width: 1100px) {
+  .board-setup-warning {
+    width: 172px;
+    min-height: 44px;
+    gap: 0;
+    padding: 0;
+  }
+
+  .board-setup-warning-summary {
+    display: flex;
+  }
+
+  .board-setup-warning-header {
+    display: none;
+  }
+
+  .board-setup-warning-tokens {
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: -1px;
+    display: none;
+    width: 230px;
+    padding: 9px 10px 10px;
+    border: 1px solid var(--grimoire-hardware-border);
+    border-radius: var(--grimoire-hardware-radius);
+    background-color: var(--grimoire-hardware-surface);
+    background-image: linear-gradient(
+      rgb(255 251 237 / 10%),
+      rgb(198 175 126 / 8%)
+    );
+    box-shadow: var(--grimoire-hardware-shadow);
+    backdrop-filter: blur(8px) saturate(0.82);
+    -webkit-backdrop-filter: blur(8px) saturate(0.82);
+  }
+
+  .board-setup-warning[data-compact-open]:not(.is-placing)
+    .board-setup-warning-tokens {
+    display: grid;
+  }
+}
+
+.storyteller-shell.is-sheet-pinned .board-setup-warning {
+  width: 172px;
+  min-height: 44px;
+  gap: 0;
+  padding: 0;
+}
+
+.storyteller-shell.is-sheet-pinned .board-setup-warning-summary {
+  display: flex;
+}
+
+.storyteller-shell.is-sheet-pinned .board-setup-warning-header {
+  display: none;
+}
+
+.storyteller-shell.is-sheet-pinned .board-setup-warning-tokens {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: -1px;
+  display: none;
+  width: 230px;
+  padding: 9px 10px 10px;
+  border: 1px solid var(--grimoire-hardware-border);
+  border-radius: var(--grimoire-hardware-radius);
+  background-color: var(--grimoire-hardware-surface);
+  background-image: linear-gradient(
+    rgb(255 251 237 / 10%),
+    rgb(198 175 126 / 8%)
+  );
+  box-shadow: var(--grimoire-hardware-shadow);
+  backdrop-filter: blur(8px) saturate(0.82);
+  -webkit-backdrop-filter: blur(8px) saturate(0.82);
+}
+
+.storyteller-shell.is-sheet-pinned
+  .board-setup-warning[data-compact-open]:not(.is-placing)
+  .board-setup-warning-tokens {
+  display: grid;
 }
 
 .board-bluff-rack .bluff-rack-label {
