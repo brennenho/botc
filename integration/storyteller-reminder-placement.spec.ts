@@ -1,3 +1,5 @@
+import AxeBuilder from "@axe-core/playwright";
+
 import type { StorytellerSnapshot } from "../src/lib/game-data/types";
 import {
   createGameViaApi,
@@ -157,4 +159,108 @@ test("@ipad reminder placement yields the full board and restores Night Order", 
     .getByRole("button", { name: "Cancel Reminder Placement" })
     .click();
   await expect(reminderAction).toBeFocused();
+});
+
+test("@ipad missing setup reminders place directly from the compact tray", async ({
+  createActor,
+}) => {
+  const storyteller = await createActor();
+  await storyteller.page.setViewportSize({ width: 1024, height: 768 });
+  const created = await createGameViaApi(storyteller, { playerCount: 7 });
+  const snapshot = created.snapshot;
+  const joinCode = snapshot.game.joinCode;
+  const washerwomanSeat = snapshot.seats[0]!;
+  const update = await patchStorytellerViaApi(
+    storyteller,
+    joinCode,
+    snapshot.game.version,
+    {
+      seats: snapshot.seats.map((seat) =>
+        seat.id === washerwomanSeat.id
+          ? { ...seat, roleId: "washerwoman", alignment: "good" }
+          : seat,
+      ),
+    },
+  );
+  expect(update.status()).toBe(200);
+  await responseJson<{ snapshot: StorytellerSnapshot }>(update);
+
+  await storyteller.page.goto(`/game/${joinCode}/storyteller`);
+
+  const summary = storyteller.page.getByRole("button", {
+    name: "Show 2 missing setup reminders",
+  });
+  await expect(summary).toBeVisible();
+  await expect(summary).toHaveAttribute("aria-expanded", "false");
+
+  const summaryBounds = await summary.boundingBox();
+  if (!summaryBounds)
+    throw new Error("Missing reminder summary has no bounds.");
+  const overlappingPlayers = await storyteller.page
+    .locator(".canvas-player-position .player-token")
+    .evaluateAll(
+      (players, warningBounds) =>
+        players.flatMap((player) => {
+          const playerBounds = player.getBoundingClientRect();
+          const overlaps =
+            warningBounds.x < playerBounds.right &&
+            warningBounds.x + warningBounds.width > playerBounds.left &&
+            warningBounds.y < playerBounds.bottom &&
+            warningBounds.y + warningBounds.height > playerBounds.top;
+          return overlaps ? [player.getAttribute("aria-label")] : [];
+        }),
+      summaryBounds,
+    );
+  expect(overlappingPlayers).toEqual([]);
+
+  await summary.click();
+
+  const townsfolkAction = storyteller.page.getByRole("button", {
+    name: "Place Townsfolk reminder from Washerwoman; 1 copy missing",
+  });
+  await expect(townsfolkAction).toBeVisible();
+  const accessibilityResults = await new AxeBuilder({ page: storyteller.page })
+    .include(".board-setup-warning")
+    .withTags(["wcag2a", "wcag2aa"])
+    .analyze();
+  expect(accessibilityResults.violations).toEqual([]);
+  await townsfolkAction.click();
+
+  const placementDock = storyteller.page.getByRole("region", {
+    name: "Place Townsfolk",
+  });
+  await expect(placementDock).toBeFocused();
+  await expect(summary).toHaveAttribute("aria-expanded", "false");
+  await expect(townsfolkAction).not.toBeVisible();
+
+  const targetPlayer = storyteller.page
+    .locator(".canvas-player-position .player-token")
+    .nth(1);
+  const targetPlayerLabel = await targetPlayer.getAttribute("aria-label");
+  const targetPlayerName = targetPlayerLabel?.split(",", 1)[0];
+  if (!targetPlayerName)
+    throw new Error("Target player has no accessible name.");
+  await targetPlayer.click();
+
+  await expect(
+    storyteller.page.getByRole("button", {
+      name: `Townsfolk reminder on ${targetPlayerName}`,
+    }),
+  ).toBeVisible();
+  await expect(
+    storyteller.page.getByRole("button", {
+      name: "Hide 1 missing setup reminder",
+    }),
+  ).toHaveAttribute("aria-expanded", "true");
+  await expect(townsfolkAction).toHaveCount(0);
+
+  const wrongAction = storyteller.page.getByRole("button", {
+    name: "Place Wrong reminder from Washerwoman; 1 copy missing",
+  });
+  await wrongAction.click();
+  await storyteller.page.keyboard.press("Escape");
+  await expect(wrongAction).toBeFocused();
+  await expect(
+    storyteller.page.locator('[aria-label^="Wrong reminder on"]'),
+  ).toHaveCount(0);
 });
