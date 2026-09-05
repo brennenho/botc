@@ -2,7 +2,13 @@
 
 import "@testing-library/jest-dom/vitest";
 
-import { cleanup, render, screen, waitFor } from "@testing-library/react";
+import {
+  cleanup,
+  render,
+  screen,
+  waitFor,
+  within,
+} from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { useState } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -71,9 +77,12 @@ describe("GameInviteControl", () => {
 
     const dialog = screen.getByRole("dialog", { name: "Invite Players" });
     expect(dialog).toBeVisible();
-    expect(
-      screen.getByLabelText("QR code for the player invitation link"),
-    ).toBeVisible();
+    const images = within(dialog).getAllByRole("img");
+    expect(images).toHaveLength(1);
+    expect(images[0]).toHaveAccessibleName(
+      "QR code for the player invitation link",
+    );
+    expect(images[0]).toBeVisible();
     expect(trackEvent).toHaveBeenCalledWith("game_invitation_opened", {
       actor_role: "storyteller",
     });

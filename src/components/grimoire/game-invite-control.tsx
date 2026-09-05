@@ -191,14 +191,10 @@ export function GameInviteControl({
               </Dialog.Description>
 
               <div className="invite-card-body">
-                <div
-                  className="invite-qr-frame"
-                  role="img"
-                  aria-label="QR code for the player invitation link"
-                  aria-busy={!invitationUrl}
-                >
+                <div className="invite-qr-frame" aria-busy={!invitationUrl}>
                   {invitationUrl ? (
                     <QRCodeSVG
+                      aria-label="QR code for the player invitation link"
                       value={invitationUrl}
                       size={208}
                       level="M"
