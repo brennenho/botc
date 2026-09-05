@@ -2,10 +2,12 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { Keyboard } from "lucide-react";
 import { useState } from "react";
 
 import { GameInviteControl } from "@/components/grimoire/game-invite-control";
 import { KeyboardShortcutsDialog } from "@/components/grimoire/keyboard-shortcuts-dialog";
+import { IconButton } from "@/components/ui/icon-button";
 import { Spinner } from "@/components/ui/spinner";
 import { Switch } from "@/components/ui/switch";
 import { Tooltip } from "@/components/ui/tooltip";
@@ -85,22 +87,19 @@ export function GrimoireToolbar({
             />
           </Tooltip>
         </label>
-        <Tooltip
-          content="Open Shortcut Guide"
-          shortcuts={["G"]}
-          shortcutSize="sm"
-          side="bottom"
+        <IconButton
+          type="button"
+          size="sm"
+          variant="quiet"
+          label="Open keyboard shortcuts"
+          tooltip="Keyboard shortcuts"
+          tooltipSide="bottom"
+          shortcut="G"
+          className="toolbar-shortcuts-button"
+          onClick={() => setShortcutsOpen((current) => !current)}
         >
-          <button
-            type="button"
-            className="toolbar-shortcuts-button"
-            aria-label="Open shortcut guide"
-            aria-keyshortcuts="G"
-            onClick={() => setShortcutsOpen((current) => !current)}
-          >
-            Keys
-          </button>
-        </Tooltip>
+          <Keyboard aria-hidden="true" />
+        </IconButton>
       </div>
 
       <GameInviteControl
