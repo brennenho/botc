@@ -4,6 +4,7 @@ import { AlertTriangle } from "lucide-react";
 import { useId, useLayoutEffect, useRef, useState } from "react";
 
 import { ReminderTokenAction } from "@/components/storyteller/reminder-token-action";
+import { Tooltip } from "@/components/ui/tooltip";
 import { roleById } from "@/lib/game-data";
 import type { SetupReminderWarning } from "@/lib/game-data/types";
 import {
@@ -94,25 +95,29 @@ export function SetupReminderWarningTray({
           const missingLabel = `${count} ${count === 1 ? "copy" : "copies"} missing`;
 
           return (
-            <ReminderTokenAction
+            <Tooltip
               key={definition.key}
-              ref={(node) => {
-                if (node) triggerRefs.current.set(definition.key, node);
-                else triggerRefs.current.delete(definition.key);
-              }}
-              className="board-setup-warning-token"
-              actionLabel={`Place ${definition.label} reminder from ${definition.sourceName}; ${missingLabel}`}
-              reminderLabel={definition.label}
-              roleId={definition.roleId}
-              tokenSize="tray"
-              count={count}
-              selected={active}
-              caption={definition.label}
-              onClick={() => {
-                restoreFocusKeyRef.current = definition.key;
-                onSelectReminder(definition);
-              }}
-            />
+              content={`${definition.sourceName}: ${definition.label}`}
+            >
+              <ReminderTokenAction
+                ref={(node) => {
+                  if (node) triggerRefs.current.set(definition.key, node);
+                  else triggerRefs.current.delete(definition.key);
+                }}
+                className="board-setup-warning-token"
+                actionLabel={`Place ${definition.label} reminder from ${definition.sourceName}; ${missingLabel}`}
+                reminderLabel={definition.label}
+                roleId={definition.roleId}
+                tokenSize="tray"
+                count={count}
+                selected={active}
+                caption={definition.label}
+                onClick={() => {
+                  restoreFocusKeyRef.current = definition.key;
+                  onSelectReminder(definition);
+                }}
+              />
+            </Tooltip>
           );
         })}
       </div>

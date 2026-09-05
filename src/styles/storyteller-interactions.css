@@ -510,11 +510,6 @@
   font-size: 10px;
 }
 
-.player-role-actions > button .shortcut-key,
-.player-role-dossier.is-empty > button .shortcut-key {
-  margin-left: auto;
-}
-
 .player-menu-reminders {
   display: flex;
   flex-direction: column;
@@ -552,7 +547,7 @@
   font-size: 9px;
 }
 
-.player-menu-all-reminders > span:not(.shortcut-key) {
+.player-menu-all-reminders > span {
   display: grid;
   min-width: 18px;
   height: 18px;
@@ -562,10 +557,6 @@
   color: var(--grimoire-hardware-accent);
   font-family: var(--font-utility);
   font-size: 7px;
-}
-
-.player-menu-all-reminders .shortcut-key {
-  margin-left: auto;
 }
 
 .player-menu-state {
@@ -596,6 +587,12 @@
   gap: 6px;
 }
 
+.player-menu-control-action {
+  display: flex;
+  width: 100%;
+  min-width: 0;
+}
+
 .player-menu-segmented {
   display: flex;
   width: 100%;
@@ -616,12 +613,6 @@
 .player-menu-segmented button[aria-pressed="true"] {
   color: #30271c;
   background: rgb(255 252 240 / 72%);
-}
-
-.player-menu-control .shortcut-key,
-.player-role-actions .shortcut-key,
-.player-menu-all-reminders .shortcut-key {
-  background: rgb(255 252 240 / 34%);
 }
 
 .reminder-menu-header {

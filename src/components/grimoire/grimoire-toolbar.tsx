@@ -2,13 +2,15 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { Keyboard } from "lucide-react";
 import { useState } from "react";
 
 import { GameInviteControl } from "@/components/grimoire/game-invite-control";
 import { KeyboardShortcutsDialog } from "@/components/grimoire/keyboard-shortcuts-dialog";
-import { ShortcutHint } from "@/components/ui/shortcut-key";
+import { IconButton } from "@/components/ui/icon-button";
 import { Spinner } from "@/components/ui/spinner";
 import { Switch } from "@/components/ui/switch";
+import { Tooltip } from "@/components/ui/tooltip";
 import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts";
 import { getEdition } from "@/lib/game-data";
 import type { EditionId } from "@/lib/game-data/types";
@@ -71,24 +73,33 @@ export function GrimoireToolbar({
         </div>
         <label className="grimoire-redaction-setting">
           <span>Hide</span>
-          <Switch
-            checked={redacted}
-            className="grimoire-redaction-switch"
-            aria-keyshortcuts="H"
-            title="Toggle hide · H"
-            onCheckedChange={onRedactedChange}
-          />
+          <Tooltip
+            content="Toggle Hide"
+            shortcuts={["H"]}
+            shortcutSize="sm"
+            side="bottom"
+          >
+            <Switch
+              checked={redacted}
+              className="grimoire-redaction-switch"
+              aria-keyshortcuts="H"
+              onCheckedChange={onRedactedChange}
+            />
+          </Tooltip>
         </label>
-        <button
+        <IconButton
           type="button"
+          size="sm"
+          variant="quiet"
+          label="Open keyboard shortcuts"
+          tooltip="Keyboard shortcuts"
+          tooltipSide="bottom"
+          shortcut="G"
           className="toolbar-shortcuts-button"
-          aria-label="Open shortcut guide"
-          aria-keyshortcuts="G"
-          title="Open shortcut guide · G"
           onClick={() => setShortcutsOpen((current) => !current)}
         >
-          <ShortcutHint label="Keys" shortcuts={["G"]} size="sm" />
-        </button>
+          <Keyboard aria-hidden="true" />
+        </IconButton>
       </div>
 
       <GameInviteControl

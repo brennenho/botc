@@ -9,7 +9,7 @@ import { PlayerReminderPicker } from "@/components/storyteller/player-reminder-p
 import { Button } from "@/components/ui/button";
 import { IconButton } from "@/components/ui/icon-button";
 import { SegmentedControl } from "@/components/ui/segmented-control";
-import { ShortcutKey } from "@/components/ui/shortcut-key";
+import { Tooltip } from "@/components/ui/tooltip";
 import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts";
 import { roleById, teamLabel } from "@/lib/game-data";
 import type {
@@ -175,47 +175,62 @@ export function PlayerContextMenu({
                 </div>
                 <p>{role.ability}</p>
                 <div className="player-role-actions">
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant="secondary"
-                    onClick={onShowCharacter}
-                    aria-keyshortcuts="S"
-                    aria-label="Show Character"
+                  <Tooltip
+                    content="Show Character"
+                    shortcuts={["S"]}
+                    shortcutSize="sm"
                   >
-                    <Eye className="size-4" />
-                    Show Character
-                    <ShortcutKey shortcut="S" size="sm" />
-                  </Button>
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant="quiet"
-                    onClick={onChooseRole}
-                    aria-keyshortcuts="C"
-                    aria-label={`Change ${seat.playerName}'s Character`}
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="secondary"
+                      onClick={onShowCharacter}
+                      aria-keyshortcuts="S"
+                      aria-label="Show Character"
+                    >
+                      <Eye className="size-4" />
+                      Show Character
+                    </Button>
+                  </Tooltip>
+                  <Tooltip
+                    content="Change Character"
+                    shortcuts={["C"]}
+                    shortcutSize="sm"
                   >
-                    <LibraryBig className="size-4" />
-                    Change
-                    <ShortcutKey shortcut="C" size="sm" />
-                  </Button>
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="quiet"
+                      onClick={onChooseRole}
+                      aria-keyshortcuts="C"
+                      aria-label={`Change ${seat.playerName}'s Character`}
+                    >
+                      <LibraryBig className="size-4" />
+                      Change
+                    </Button>
+                  </Tooltip>
                 </div>
               </section>
             ) : (
               <section className="player-role-dossier is-empty">
                 <p>Assign a character to show their ability here.</p>
-                <Button
-                  type="button"
-                  size="sm"
-                  variant="secondary"
-                  onClick={onChooseRole}
-                  aria-keyshortcuts="C"
-                  aria-label={`Assign a Character to ${seat.playerName}`}
+                <Tooltip
+                  content="Choose Character"
+                  shortcuts={["C"]}
+                  shortcutSize="sm"
                 >
-                  <Plus className="size-4" />
-                  Choose Character
-                  <ShortcutKey shortcut="C" size="sm" />
-                </Button>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="secondary"
+                    onClick={onChooseRole}
+                    aria-keyshortcuts="C"
+                    aria-label={`Assign a Character to ${seat.playerName}`}
+                  >
+                    <Plus className="size-4" />
+                    Choose Character
+                  </Button>
+                </Tooltip>
               </section>
             )}
 
@@ -245,24 +260,29 @@ export function PlayerContextMenu({
                   Assign characters to put their reminders here.
                 </p>
               )}
-              <Button
-                type="button"
-                size="sm"
-                variant="quiet"
-                className="player-menu-all-reminders"
-                aria-keyshortcuts="M"
-                aria-label="All Script Reminders"
-                onClick={() => setView("all-reminders")}
+              <Tooltip
+                content="All Script Reminders"
+                shortcuts={["M"]}
+                shortcutSize="sm"
               >
-                All Script Reminders
-                <span>{scriptReminderCount}</span>
-                <ShortcutKey shortcut="M" size="sm" />
-              </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="quiet"
+                  className="player-menu-all-reminders"
+                  aria-keyshortcuts="M"
+                  aria-label="All Script Reminders"
+                  onClick={() => setView("all-reminders")}
+                >
+                  All Script Reminders
+                  <span>{scriptReminderCount}</span>
+                </Button>
+              </Tooltip>
             </section>
 
             <section className="player-menu-state" aria-label="Player state">
               <div className="player-menu-state-grid">
-                <MenuControl label="Status" shortcut="D">
+                <MenuControl label="Status" shortcut="D" tooltipSide="left">
                   <SegmentedControl
                     value={seat.alive ? "alive" : "dead"}
                     label="Life Status"
@@ -274,7 +294,7 @@ export function PlayerContextMenu({
                     onChange={(value) => onSetAlive(value === "alive")}
                   />
                 </MenuControl>
-                <MenuControl label="Alignment" shortcut="A">
+                <MenuControl label="Alignment" shortcut="A" tooltipSide="right">
                   <SegmentedControl
                     value={seat.alignment}
                     label="Alignment"
@@ -288,7 +308,7 @@ export function PlayerContextMenu({
                 </MenuControl>
               </div>
               {!seat.alive && (
-                <MenuControl label="Ghost Vote" shortcut="V">
+                <MenuControl label="Ghost Vote" shortcut="V" tooltipSide={side}>
                   <SegmentedControl
                     value={seat.ghostVoteAvailable ? "available" : "used"}
                     label="Ghost Vote"
@@ -322,19 +342,37 @@ export function PlayerContextMenu({
 function MenuControl({
   label,
   shortcut,
+  tooltipSide = "top",
   children,
 }: {
   label: string;
   shortcut?: string;
+  tooltipSide?: "top" | "right" | "bottom" | "left";
   children: ReactNode;
 }) {
+  const action = (
+    <div className="player-menu-control-action" aria-keyshortcuts={shortcut}>
+      {children}
+    </div>
+  );
+
   return (
-    <div className="player-menu-control" aria-keyshortcuts={shortcut}>
+    <div className="player-menu-control">
       <span className="player-menu-control-label">
         <span className="utility-label">{label}</span>
-        {shortcut ? <ShortcutKey shortcut={shortcut} size="sm" /> : null}
       </span>
-      {children}
+      {shortcut ? (
+        <Tooltip
+          content={`Toggle ${label}`}
+          shortcuts={[shortcut]}
+          shortcutSize="sm"
+          side={tooltipSide}
+        >
+          {action}
+        </Tooltip>
+      ) : (
+        action
+      )}
     </div>
   );
 }

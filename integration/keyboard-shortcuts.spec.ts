@@ -16,7 +16,7 @@ test("storyteller shortcuts cover common grimoire controls without firing while 
   )[0]!;
 
   const shortcutsButton = storyteller.page.getByRole("button", {
-    name: "Open shortcut guide",
+    name: "Open keyboard shortcuts",
   });
   const shortcutsHeading = storyteller.page.getByRole("heading", {
     name: "Shortcut guide",

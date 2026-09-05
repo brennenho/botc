@@ -7,6 +7,7 @@ import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { SetupReminderWarningTray } from "@/components/storyteller/setup-reminder-warning-tray";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import { roleById } from "@/lib/game-data";
 import type { SetupReminderWarning } from "@/lib/game-data/types";
 import { getReminderDefinition } from "@/lib/reminders";
@@ -34,18 +35,22 @@ describe("SetupReminderWarningTray", () => {
     const user = userEvent.setup();
     const onSelectReminder = vi.fn();
     render(
-      <SetupReminderWarningTray
-        warnings={warnings}
-        pendingReminderKey={null}
-        onSelectReminder={onSelectReminder}
-      />,
+      <TooltipProvider delay={0} closeDelay={0}>
+        <SetupReminderWarningTray
+          warnings={warnings}
+          pendingReminderKey={null}
+          onSelectReminder={onSelectReminder}
+        />
+      </TooltipProvider>,
     );
 
-    await user.click(
-      screen.getByRole("button", {
-        name: "Place Cannot Die reminder from Tea Lady; 2 copies missing",
-      }),
-    );
+    const action = screen.getByRole("button", {
+      name: "Place Cannot Die reminder from Tea Lady; 2 copies missing",
+    });
+    await user.hover(action);
+    expect(await screen.findByText("Tea Lady: Cannot Die")).toBeVisible();
+    expect(action).not.toHaveAttribute("title");
+    await user.click(action);
 
     expect(onSelectReminder).toHaveBeenCalledWith(
       getReminderDefinition(roleById.get("tealady")!, "Cannot Die"),

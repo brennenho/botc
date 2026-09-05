@@ -4,11 +4,7 @@ import { House } from "lucide-react";
 import Link from "next/link";
 
 import { buttonVariants } from "@/components/ui/button";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { Tooltip } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 
 export function CharacterSheetHomeLink() {
@@ -26,9 +22,8 @@ export function CharacterSheetHomeLink() {
   );
 
   return (
-    <Tooltip>
-      <TooltipTrigger render={link} />
-      <TooltipContent side="bottom">Home</TooltipContent>
+    <Tooltip content="Home" side="bottom">
+      {link}
     </Tooltip>
   );
 }

@@ -7,6 +7,7 @@ import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { PlayerContextMenu } from "@/components/storyteller/player-context-menu";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import { roleById } from "@/lib/game-data";
 import type { GameToken, Seat } from "@/lib/game-data/types";
 import { getReminderDefinition, withReminderKey } from "@/lib/reminders";
@@ -48,16 +49,18 @@ function renderMenu(
   };
 
   render(
-    <PlayerContextMenu
-      editionId="tb"
-      seat={selectedSeat}
-      seats={[selectedSeat, seat("seat-2", 1, "poisoner")]}
-      gameTokens={gameTokens}
-      shortcutsEnabled={false}
-      side="right"
-      style={{}}
-      {...callbacks}
-    />,
+    <TooltipProvider delay={0} closeDelay={0}>
+      <PlayerContextMenu
+        editionId="tb"
+        seat={selectedSeat}
+        seats={[selectedSeat, seat("seat-2", 1, "poisoner")]}
+        gameTokens={gameTokens}
+        shortcutsEnabled={false}
+        side="right"
+        style={{}}
+        {...callbacks}
+      />
+    </TooltipProvider>,
   );
 
   return { callbacks, selectedSeat };
@@ -78,6 +81,9 @@ describe("PlayerContextMenu", () => {
 
   it("shows the character dossier and in-play reminders immediately", () => {
     const { selectedSeat } = renderMenu();
+    const menu = screen.getByRole("dialog", {
+      name: `${selectedSeat.playerName} controls`,
+    });
 
     expect(
       screen.getByText(roleById.get("washerwoman")!.ability, { exact: true }),
@@ -101,6 +107,10 @@ describe("PlayerContextMenu", () => {
     expect(
       screen.queryByRole("group", { name: "Player Type" }),
     ).not.toBeInTheDocument();
+    expect(menu.querySelector(".shortcut-key")).not.toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Show Character" }),
+    ).toHaveAttribute("aria-keyshortcuts", "S");
   });
 
   it("runs live actions without leaving the player menu", async () => {
@@ -160,5 +170,39 @@ describe("PlayerContextMenu", () => {
       screen.getByText("All Script Reminders", { exact: true }),
     ).toBeVisible();
     expect(screen.getByRole("button", { name: "Back" })).toBeVisible();
+  });
+
+  it("places state hints beside their columns", async () => {
+    const user = userEvent.setup();
+    renderMenu();
+
+    const lifeStatus = screen.getByRole("group", { name: "Life Status" });
+    const statusAnchor = lifeStatus.closest(".player-menu-control-action");
+
+    expect(statusAnchor).toHaveAttribute("data-base-ui-tooltip-trigger");
+    expect(statusAnchor?.parentElement).not.toHaveAttribute(
+      "data-base-ui-tooltip-trigger",
+    );
+
+    await user.hover(lifeStatus);
+
+    const statusHint = (await screen.findByText("Toggle Status")).closest(
+      ".site-tooltip-popup",
+    );
+    expect(statusHint?.parentElement).toHaveAttribute(
+      "data-preferred-side",
+      "left",
+    );
+
+    await user.unhover(lifeStatus);
+    await user.hover(screen.getByRole("group", { name: "Alignment" }));
+
+    const alignmentHint = (await screen.findByText("Toggle Alignment")).closest(
+      ".site-tooltip-popup",
+    );
+    expect(alignmentHint?.parentElement).toHaveAttribute(
+      "data-preferred-side",
+      "right",
+    );
   });
 });

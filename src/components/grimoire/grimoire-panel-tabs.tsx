@@ -2,12 +2,7 @@
 
 import type { ReactNode } from "react";
 
-import { ShortcutHint } from "@/components/ui/shortcut-key";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { Tooltip } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 
 export type GrimoirePanelTab = {
@@ -23,10 +18,12 @@ export type GrimoirePanelTab = {
 export function GrimoirePanelTabs({
   tabs,
   sheetOpen,
+  orientation = "vertical",
   className,
 }: {
   tabs: GrimoirePanelTab[];
   sheetOpen: boolean;
+  orientation?: "horizontal" | "vertical";
   className?: string;
 }) {
   return (
@@ -37,6 +34,7 @@ export function GrimoirePanelTabs({
         className,
       )}
       aria-label="Grimoire Panels"
+      data-orientation={orientation}
     >
       {tabs.map((tab) => {
         const button = (
@@ -62,11 +60,13 @@ export function GrimoirePanelTabs({
         if (!tab.shortcut) return button;
 
         return (
-          <Tooltip key={tab.id}>
-            <TooltipTrigger render={button} />
-            <TooltipContent side="top">
-              <ShortcutHint label={tab.label} shortcuts={[tab.shortcut]} />
-            </TooltipContent>
+          <Tooltip
+            key={tab.id}
+            content={tab.label}
+            shortcuts={[tab.shortcut]}
+            side={orientation === "vertical" ? "left" : "top"}
+          >
+            {button}
           </Tooltip>
         );
       })}

@@ -34,7 +34,7 @@
   align-items: center;
   gap: 10px;
   left: 30px;
-  padding: 5px 15px 5px 9px;
+  padding: 5px 0 5px 9px;
   border-radius: var(--grimoire-hardware-radius);
   justify-self: start;
   pointer-events: auto;
@@ -121,11 +121,16 @@
 
 .toolbar-shortcuts-button {
   display: inline-flex;
+  /* Own the full section from the divider to the toolbar's right edge. */
+  width: 44px;
+  min-width: 44px;
   height: 30px;
+  flex: 0 0 44px;
   align-items: center;
-  gap: 6px;
+  justify-content: center;
+  gap: 0;
   margin-left: 2px;
-  padding: 0 2px 0 11px;
+  padding: 0;
   border: 0;
   border-left: 1px solid rgb(100 76 44 / 22%);
   border-radius: 0;
@@ -140,6 +145,12 @@
     opacity var(--motion-fast) ease;
 }
 
+.toolbar-shortcuts-button > svg {
+  width: 15px;
+  height: 15px;
+  stroke-width: 1.8;
+}
+
 .toolbar-shortcuts-button:hover {
   color: var(--grimoire-hardware-text);
 }
@@ -149,13 +160,14 @@
   outline-offset: 2px;
 }
 
-.toolbar-shortcuts-button .shortcut-key {
-  color: currentcolor;
-  background: rgb(255 252 240 / 28%);
-}
+@media (max-width: 700px), (pointer: coarse) {
+  .toolbar-brand {
+    padding-right: 15px;
+  }
 
-.toolbar-shortcuts-button .shortcut-hint {
-  gap: 6px;
+  .toolbar-shortcuts-button {
+    display: none;
+  }
 }
 
 .toolbar-status {

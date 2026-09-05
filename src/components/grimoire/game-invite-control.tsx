@@ -7,6 +7,7 @@ import { QRCodeSVG } from "qrcode.react";
 
 import { Button } from "@/components/ui/button";
 import { IconButton } from "@/components/ui/icon-button";
+import { Tooltip } from "@/components/ui/tooltip";
 import { getGameInvitationUrl } from "@/lib/game-invitation";
 import { notify } from "@/lib/notifications";
 import { trackEvent } from "@/lib/observability/client";
@@ -139,18 +140,24 @@ export function GameInviteControl({
 
   return (
     <>
-      <button
-        type="button"
-        className="join-code-control"
-        onClick={() => handleOpenChange(true)}
-        aria-label={`Invite players to game ${joinCode}`}
-        aria-keyshortcuts="J"
-        title="Invite players · J"
+      <Tooltip
+        content="Invite Players"
+        shortcuts={["J"]}
+        shortcutSize="sm"
+        side="bottom"
       >
-        <span className="utility-label">Invite players</span>
-        <strong>{joinCode}</strong>
-        <Share2 className="size-3.5" aria-hidden="true" />
-      </button>
+        <button
+          type="button"
+          className="join-code-control"
+          onClick={() => handleOpenChange(true)}
+          aria-label={`Invite players to game ${joinCode}`}
+          aria-keyshortcuts="J"
+        >
+          <span className="utility-label">Invite players</span>
+          <strong>{joinCode}</strong>
+          <Share2 className="size-3.5" aria-hidden="true" />
+        </button>
+      </Tooltip>
 
       <Dialog.Root open={open} onOpenChange={handleOpenChange}>
         <Dialog.Portal>
@@ -184,20 +191,15 @@ export function GameInviteControl({
               </Dialog.Description>
 
               <div className="invite-card-body">
-                <div
-                  className="invite-qr-frame"
-                  role="img"
-                  aria-label="QR code for the player invitation link"
-                  aria-busy={!invitationUrl}
-                >
+                <div className="invite-qr-frame" aria-busy={!invitationUrl}>
                   {invitationUrl ? (
                     <QRCodeSVG
+                      aria-label="QR code for the player invitation link"
                       value={invitationUrl}
                       size={208}
                       level="M"
                       bgColor="#f4f0e6"
                       fgColor="#232622"
-                      title={`Join game ${joinCode}`}
                     />
                   ) : null}
                 </div>

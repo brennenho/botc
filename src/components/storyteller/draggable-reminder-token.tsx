@@ -7,11 +7,7 @@ import { useEffect, useState } from "react";
 
 import { ReminderTokenAction } from "@/components/storyteller/reminder-token-action";
 import { IconButton } from "@/components/ui/icon-button";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { Tooltip } from "@/components/ui/tooltip";
 import { roleById } from "@/lib/game-data";
 import type { GameToken } from "@/lib/game-data/types";
 import { cn } from "@/lib/utils";
@@ -57,34 +53,33 @@ export function DraggableReminderToken({
       )}
       style={{ transform: CSS.Translate.toString(transform) }}
     >
-      <Tooltip open={tooltipOpen && !isDragging} onOpenChange={setTooltipOpen}>
-        <TooltipTrigger
-          render={
-            <ReminderTokenAction
-              className="reminder-token-trigger"
-              actionLabel={`${reminder.label} reminder on ${playerName}`}
-              reminderLabel={reminder.label}
-              roleId={reminder.roleId}
-              tokenSize={size}
-              selected={selected}
-              presentation="labeled"
-              onClick={(event) => {
-                event.stopPropagation();
-                onSelect();
-              }}
-              {...(positionLocked ? {} : listeners)}
-              {...(positionLocked ? {} : attributes)}
-            />
-          }
-        />
-        <TooltipContent>
+      <Tooltip
+        content={
           <span className="reminder-token-tooltip">
             <strong>{reminder.label}</strong>
             <span>
               {sourceName} · {playerName}
             </span>
           </span>
-        </TooltipContent>
+        }
+        open={tooltipOpen && !isDragging}
+        onOpenChange={setTooltipOpen}
+      >
+        <ReminderTokenAction
+          className="reminder-token-trigger"
+          actionLabel={`${reminder.label} reminder on ${playerName}`}
+          reminderLabel={reminder.label}
+          roleId={reminder.roleId}
+          tokenSize={size}
+          selected={selected}
+          presentation="labeled"
+          onClick={(event) => {
+            event.stopPropagation();
+            onSelect();
+          }}
+          {...(positionLocked ? {} : listeners)}
+          {...(positionLocked ? {} : attributes)}
+        />
       </Tooltip>
       <IconButton
         label={`Remove ${reminder.label} Reminder`}

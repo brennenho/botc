@@ -42,6 +42,15 @@ export default tseslint.config(
         "error",
         { checksVoidReturn: { attributes: false } },
       ],
+      "no-restricted-syntax": [
+        "error",
+        {
+          selector:
+            "JSXOpeningElement[name.type='JSXIdentifier'][name.name=/^[a-z]/] > JSXAttribute[name.name='title']",
+          message:
+            "Use the shared Tooltip component instead of a native browser title attribute.",
+        },
+      ],
     },
   },
   {

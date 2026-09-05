@@ -9,7 +9,7 @@ import { TokenIcon } from "@/components/storyteller/token-icon";
 import { Button } from "@/components/ui/button";
 import { IconButton } from "@/components/ui/icon-button";
 import { Input } from "@/components/ui/input";
-import { ShortcutKey } from "@/components/ui/shortcut-key";
+import { Tooltip } from "@/components/ui/tooltip";
 import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts";
 import { getSetupAssessment, roleById } from "@/lib/game-data";
 import type { EditionId, GameToken, Seat } from "@/lib/game-data/types";
@@ -118,25 +118,33 @@ export function RosterPanel({
       <div className="roster-list">
         {seats.map((seat, index) => {
           const role = seat.roleId ? roleById.get(seat.roleId) : null;
+          const seatType = seat.claimedByPlayer
+            ? "Online Player"
+            : "Local Seat";
+          const roleAction = role
+            ? `Change ${seat.playerName}'s Character`
+            : `Assign ${seat.playerName}`;
+          const travellerAction = seat.isTraveller
+            ? "Traveller · Change to Resident"
+            : "Resident · Change to Traveller";
           return (
             <div key={seat.id} className="roster-row">
-              <button
-                type="button"
-                className={cn(
-                  "roster-seat-number",
-                  seat.claimedByPlayer && "is-online-player",
-                )}
-                aria-label={`Seat ${index + 1}, ${
-                  seat.claimedByPlayer ? "Online Player" : "Local Seat"
-                }`}
-                title={seat.claimedByPlayer ? "Online Player" : "Local Seat"}
-                onClick={() => {
-                  onSelectSeat(seat.id);
-                  onClose();
-                }}
-              >
-                {index + 1}
-              </button>
+              <Tooltip content={seatType} side="right">
+                <button
+                  type="button"
+                  className={cn(
+                    "roster-seat-number",
+                    seat.claimedByPlayer && "is-online-player",
+                  )}
+                  aria-label={`Seat ${index + 1}, ${seatType}`}
+                  onClick={() => {
+                    onSelectSeat(seat.id);
+                    onClose();
+                  }}
+                >
+                  {index + 1}
+                </button>
+              </Tooltip>
               <Input
                 key={`${seat.id}-${seat.playerName}`}
                 variant="inline"
@@ -150,23 +158,21 @@ export function RosterPanel({
                 }}
               />
               <div className="roster-role-control">
-                <button
-                  type="button"
-                  className={cn("roster-role", !role && "is-empty")}
-                  onClick={() => onChooseRole(seat.id)}
-                  title={
-                    role
-                      ? `Change ${seat.playerName}'s Character`
-                      : `Assign ${seat.playerName}`
-                  }
-                >
-                  {role ? (
-                    <TokenIcon role={role} />
-                  ) : (
-                    <Plus className="size-4" />
-                  )}
-                  <span>{role?.name ?? "Assign"}</span>
-                </button>
+                <Tooltip content={roleAction}>
+                  <button
+                    type="button"
+                    className={cn("roster-role", !role && "is-empty")}
+                    aria-label={roleAction}
+                    onClick={() => onChooseRole(seat.id)}
+                  >
+                    {role ? (
+                      <TokenIcon role={role} />
+                    ) : (
+                      <Plus className="size-4" />
+                    )}
+                    <span>{role?.name ?? "Assign"}</span>
+                  </button>
+                </Tooltip>
                 {role && (
                   <IconButton
                     label={`Clear ${seat.playerName}'s assignment`}
@@ -180,19 +186,20 @@ export function RosterPanel({
                   </IconButton>
                 )}
               </div>
-              <button
-                type="button"
-                className={cn(
-                  "roster-player-type",
-                  seat.isTraveller && "is-traveller",
-                )}
-                aria-label={`${seat.playerName} is ${seat.isTraveller ? "a Traveller. Change to Resident" : "a Resident. Change to Traveller"}`}
-                aria-pressed={seat.isTraveller}
-                title={seat.isTraveller ? "Traveller" : "Resident"}
-                onClick={() => onSetTraveller(seat.id, !seat.isTraveller)}
-              >
-                {seat.isTraveller ? "T" : "R"}
-              </button>
+              <Tooltip content={travellerAction}>
+                <button
+                  type="button"
+                  className={cn(
+                    "roster-player-type",
+                    seat.isTraveller && "is-traveller",
+                  )}
+                  aria-label={`${seat.playerName} is ${seat.isTraveller ? "a Traveller. Change to Resident" : "a Resident. Change to Traveller"}`}
+                  aria-pressed={seat.isTraveller}
+                  onClick={() => onSetTraveller(seat.id, !seat.isTraveller)}
+                >
+                  {seat.isTraveller ? "T" : "R"}
+                </button>
+              </Tooltip>
               <RemovePlayerButton
                 playerName={seat.playerName}
                 display="icon"
@@ -205,26 +212,28 @@ export function RosterPanel({
       </div>
 
       <footer className="sheet-footer roster-sheet-footer">
-        <Button
-          size="sm"
-          variant="secondary"
-          aria-keyshortcuts="D"
-          onClick={() => setDistributionOpen(true)}
-        >
-          <Shuffle className="size-4" />
-          Distribute Roles
-          <ShortcutKey shortcut="D" size="sm" />
-        </Button>
-        <Button
-          size="sm"
-          variant="secondary"
-          aria-keyshortcuts="A"
-          onClick={onAddPlayer}
-        >
-          <Plus className="size-4" />
-          Add Player
-          <ShortcutKey shortcut="A" size="sm" />
-        </Button>
+        <Tooltip content="Distribute Roles" shortcuts={["D"]} shortcutSize="sm">
+          <Button
+            size="sm"
+            variant="secondary"
+            aria-keyshortcuts="D"
+            onClick={() => setDistributionOpen(true)}
+          >
+            <Shuffle className="size-4" />
+            Distribute Roles
+          </Button>
+        </Tooltip>
+        <Tooltip content="Add Player" shortcuts={["A"]} shortcutSize="sm">
+          <Button
+            size="sm"
+            variant="secondary"
+            aria-keyshortcuts="A"
+            onClick={onAddPlayer}
+          >
+            <Plus className="size-4" />
+            Add Player
+          </Button>
+        </Tooltip>
         <Button size="sm" variant="secondary" onClick={onArrangeCircle}>
           <Orbit className="size-4" />
           Reset Token Positions
