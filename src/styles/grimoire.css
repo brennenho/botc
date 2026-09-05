@@ -34,7 +34,7 @@
   align-items: center;
   gap: 10px;
   left: 30px;
-  padding: 5px 15px 5px 9px;
+  padding: 5px 0 5px 9px;
   border-radius: var(--grimoire-hardware-radius);
   justify-self: start;
   pointer-events: auto;
@@ -121,10 +121,11 @@
 
 .toolbar-shortcuts-button {
   display: inline-flex;
-  width: 30px;
-  min-width: 30px;
+  /* Own the full section from the divider to the toolbar's right edge. */
+  width: 44px;
+  min-width: 44px;
   height: 30px;
-  flex: 0 0 30px;
+  flex: 0 0 44px;
   align-items: center;
   justify-content: center;
   gap: 0;
@@ -157,6 +158,16 @@
 .toolbar-shortcuts-button:focus-visible {
   outline: 2px solid var(--focus-ring);
   outline-offset: 2px;
+}
+
+@media (max-width: 700px), (pointer: coarse) {
+  .toolbar-brand {
+    padding-right: 15px;
+  }
+
+  .toolbar-shortcuts-button {
+    display: none;
+  }
 }
 
 .toolbar-status {
