@@ -1,6 +1,6 @@
 "use client";
 
-import { AlertTriangle, RotateCcw } from "lucide-react";
+import { RotateCcw } from "lucide-react";
 import { useMemo, useState } from "react";
 
 import type { CharacterReferenceView } from "@/components/character-sheet/character-reference";
@@ -12,12 +12,11 @@ import {
 } from "@/components/storyteller/grimoire-side-sheet";
 import { GrimoireToolbar } from "@/components/grimoire/grimoire-toolbar";
 import { PlayerRevealScreen } from "@/components/storyteller/player-reveal-screen";
-import { ReminderToken } from "@/components/storyteller/reminder-token";
 import { RolePicker } from "@/components/storyteller/role-picker";
+import { SetupReminderWarningTray } from "@/components/storyteller/setup-reminder-warning-tray";
 import { StorytellerDock } from "@/components/storyteller/storyteller-dock";
 import { PageError } from "@/components/ui/page-error";
 import { StatusNotice } from "@/components/ui/status-notice";
-import { Tooltip } from "@/components/ui/tooltip";
 import { useGamePresence } from "@/hooks/use-game-presence";
 import { useGrimoireActions } from "@/hooks/use-grimoire-actions";
 import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts";
@@ -248,6 +247,15 @@ export function StorytellerApp({
   function handleClearAssignments() {
     clearAssignments();
     setSelectedSeatId(null);
+  }
+
+  function handleStartSetupReminderPlacement(definition: ReminderDefinition) {
+    setOpenPanel(null);
+    setSelectedSeatId(null);
+    setSelectedReminderId(null);
+    setPendingReminder((current) =>
+      current?.key === definition.key ? null : definition,
+    );
   }
 
   function handleNightReveal(action: NightRevealAction) {
@@ -502,32 +510,11 @@ export function StorytellerApp({
       )}
 
       {!redacted && setupReminderWarnings.length > 0 && (
-        <aside className="board-setup-warning" role="status" aria-live="polite">
-          <header className="board-setup-warning-header">
-            <AlertTriangle aria-hidden="true" />
-            <span className="utility-label">Missing Reminders</span>
-          </header>
-          <div className="board-setup-warning-tokens">
-            {setupReminderWarnings.flatMap((warning) =>
-              warning.missing.map(({ label, count }) => (
-                <Tooltip
-                  key={`${warning.roleId}:${label}`}
-                  content={`${warning.roleName}: ${label}`}
-                >
-                  <span className="board-setup-warning-token">
-                    <ReminderToken
-                      label={label}
-                      roleId={warning.roleId}
-                      size="tray"
-                      count={count}
-                    />
-                    <span>{label}</span>
-                  </span>
-                </Tooltip>
-              )),
-            )}
-          </div>
-        </aside>
+        <SetupReminderWarningTray
+          warnings={setupReminderWarnings}
+          pendingReminderKey={pendingReminder?.key ?? null}
+          onSelectReminder={handleStartSetupReminderPlacement}
+        />
       )}
 
       {(saveError ?? refreshError) && (

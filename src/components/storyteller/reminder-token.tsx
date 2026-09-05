@@ -12,6 +12,7 @@ type ReminderTokenProps = {
   presentation?: "icon" | "labeled";
   selected?: boolean;
   count?: number;
+  showSingleCount?: boolean;
   className?: string;
 };
 
@@ -26,6 +27,7 @@ export function ReminderToken({
   presentation = "icon",
   selected = false,
   count,
+  showSingleCount = false,
   className,
 }: ReminderTokenProps) {
   const role = roleId ? roleById.get(roleId) : null;
@@ -72,7 +74,7 @@ export function ReminderToken({
           <span className="reminder-token-label-text">{label}</span>
         </span>
       )}
-      {count !== undefined && count > 1 && (
+      {count !== undefined && count >= (showSingleCount ? 1 : 2) && (
         <span className="reminder-token-count">{count}</span>
       )}
     </span>

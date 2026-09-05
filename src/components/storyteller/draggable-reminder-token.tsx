@@ -5,7 +5,7 @@ import { CSS } from "@dnd-kit/utilities";
 import { X } from "lucide-react";
 import { useEffect, useState } from "react";
 
-import { ReminderToken } from "@/components/storyteller/reminder-token";
+import { ReminderTokenAction } from "@/components/storyteller/reminder-token-action";
 import { IconButton } from "@/components/ui/icon-button";
 import { Tooltip } from "@/components/ui/tooltip";
 import { roleById } from "@/lib/game-data";
@@ -65,25 +65,21 @@ export function DraggableReminderToken({
         open={tooltipOpen && !isDragging}
         onOpenChange={setTooltipOpen}
       >
-        <button
-          type="button"
-          className="reminder-token-trigger tactile-action"
-          aria-label={`${reminder.label} reminder on ${playerName}`}
+        <ReminderTokenAction
+          className="reminder-token-trigger"
+          actionLabel={`${reminder.label} reminder on ${playerName}`}
+          reminderLabel={reminder.label}
+          roleId={reminder.roleId}
+          tokenSize={size}
+          selected={selected}
+          presentation="labeled"
           onClick={(event) => {
             event.stopPropagation();
             onSelect();
           }}
           {...(positionLocked ? {} : listeners)}
           {...(positionLocked ? {} : attributes)}
-        >
-          <ReminderToken
-            label={reminder.label}
-            roleId={reminder.roleId}
-            size={size}
-            selected={selected}
-            presentation="labeled"
-          />
-        </button>
+        />
       </Tooltip>
       <IconButton
         label={`Remove ${reminder.label} Reminder`}

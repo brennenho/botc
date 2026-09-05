@@ -1,8 +1,6 @@
 "use client";
 
-import { CharacterToken } from "@/components/grimoire/character-token";
-import { Button } from "@/components/ui/button";
-import { roleById } from "@/lib/game-data";
+import { ReminderTokenAction } from "@/components/storyteller/reminder-token-action";
 import type { GameToken } from "@/lib/game-data/types";
 import {
   getReminderCopyLimit,
@@ -41,11 +39,6 @@ export function PlayerReminderGrid({
   return (
     <div className="player-reminder-grid">
       {definitions.map((definition) => {
-        const sourceRole = definition.roleId
-          ? roleById.get(definition.roleId)
-          : null;
-        if (!sourceRole) return null;
-
         const placed = placedCounts.get(definition.key) ?? 0;
         const copyLimit = getReminderCopyLimit(definition);
         const placedOnTarget = targetPlacedCounts.get(definition.key) ?? 0;
@@ -55,31 +48,25 @@ export function PlayerReminderGrid({
           ? `${definition.label} reminder already on ${playerName}`
           : `${atCapacity ? "Move" : "Add"} ${definition.label} reminder to ${playerName}`;
         return (
-          <Button
+          <ReminderTokenAction
             key={definition.key}
-            type="button"
-            size="sm"
-            variant="quiet"
-            focusStyle="surface"
-            aria-label={actionLabel}
+            className="player-reminder-action"
+            actionLabel={actionLabel}
+            reminderLabel={definition.label}
+            roleId={definition.roleId}
+            tokenSize={48}
+            count={placed > 0 ? placed : undefined}
+            showSingleCount
+            caption={
+              <>
+                {definition.label}
+                {Number.isFinite(definition.copies) &&
+                  definition.copies > 1 && <small>×{definition.copies}</small>}
+              </>
+            }
             disabled={alreadyOnTarget}
             onClick={() => onAddReminder(definition)}
-          >
-            <span className="player-reminder-token-wrap">
-              <CharacterToken role={sourceRole} size="lg" />
-              {placed > 0 && (
-                <span className="player-reminder-count">{placed}</span>
-              )}
-            </span>
-            <span className="player-reminder-label">
-              {definition.label}
-              {Number.isFinite(definition.copies) && definition.copies > 1 && (
-                <small aria-label={`${definition.copies} copies`}>
-                  ×{definition.copies}
-                </small>
-              )}
-            </span>
-          </Button>
+          />
         );
       })}
     </div>
