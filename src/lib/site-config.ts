@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 
 export const siteConfig = {
   name: "BOTC Townsquare",
+  appName: "BOTC",
   alternateName: "BOTC.Town",
   url: "https://botc.town",
   description:

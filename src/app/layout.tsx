@@ -16,7 +16,8 @@ export const metadata: Metadata = {
     default: `Online Grimoire | ${siteConfig.name}`,
     template: `%s | ${siteConfig.name}`,
   },
-  applicationName: siteConfig.name,
+  applicationName: siteConfig.appName,
+  appleWebApp: { capable: true, title: siteConfig.appName },
   description: siteConfig.description,
   category: "games",
   openGraph: {
@@ -41,6 +42,11 @@ export const metadata: Metadata = {
     images: [{ url: siteConfig.socialImage, alt: siteConfig.socialImageAlt }],
   },
   icons: {
+    apple: {
+      url: "/apple-touch-icon.png",
+      type: "image/png",
+      sizes: "180x180",
+    },
     icon: [
       { url: "/favicon.png", type: "image/png", sizes: "400x400" },
       { url: "/favicon.ico", sizes: "32x32" },

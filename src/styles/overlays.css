@@ -131,6 +131,30 @@
   }
 }
 
+.install-steps {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding-inline-start: 20px;
+  font-size: 14px;
+  line-height: 1.5;
+  list-style: decimal;
+}
+
+.install-steps li {
+  padding-left: 4px;
+}
+
+.install-steps li::marker {
+  color: var(--ink-muted);
+  font-family: var(--font-utility);
+  font-size: 12px;
+}
+
+.install-steps strong {
+  font-weight: 600;
+}
+
 /* Player invitation */
 .invite-card-body {
   position: relative;

@@ -21,6 +21,7 @@ import {
   CustomScriptPicker,
   customScriptsLabel,
 } from "@/components/entry/custom-script-picker";
+import { InstallAppButton } from "@/components/entry/install-app-button";
 import { Button } from "@/components/ui/button";
 import { isTeensyvillePreset } from "@/components/entry/script-presets";
 import { IconButton } from "@/components/ui/icon-button";
@@ -234,6 +235,7 @@ export function EntryExperience({
                 >
                   <header className="entry-action-heading">
                     <h2 id="entry-action-title">Enter the game</h2>
+                    <InstallAppButton />
                   </header>
 
                   <div className="entry-actions" aria-label="Choose game mode">
