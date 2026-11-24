@@ -2,16 +2,17 @@
 
 import { useRef, type ReactNode, type RefObject } from "react";
 
-import { Modal, ModalDescription, ModalHeader } from "@/components/ui/modal";
+import { Modal, ModalHeader } from "@/components/ui/modal";
 
 type ParchmentDialogProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   title: string;
-  description: string;
+  description?: string;
+  footer?: ReactNode;
   closeLabel: string;
   finalFocus?: RefObject<HTMLElement | null>;
-  size?: "sm" | "md";
+  size?: "sm" | "md" | "wide";
   children: ReactNode;
 };
 
@@ -20,6 +21,7 @@ export function ParchmentDialog({
   onOpenChange,
   title,
   description,
+  footer,
   closeLabel,
   finalFocus,
   size = "md",
@@ -32,21 +34,17 @@ export function ParchmentDialog({
       onOpenChange={onOpenChange}
       className="parchment-dialog"
       data-size={size}
-      backdropClassName="dialog-backdrop parchment-dialog-backdrop"
-      viewportClassName="dialog-viewport parchment-dialog-viewport"
       initialFocus={titleRef}
       finalFocus={finalFocus}
     >
       <ModalHeader
-        className="parchment-dialog-header"
+        description={description}
         title={title}
         titleRef={titleRef}
         closeLabel={closeLabel}
       />
-      <ModalDescription className="parchment-dialog-description">
-        {description}
-      </ModalDescription>
-      {children}
+      <div className="parchment-dialog-body">{children}</div>
+      {footer && <footer className="parchment-dialog-footer">{footer}</footer>}
     </Modal>
   );
 }

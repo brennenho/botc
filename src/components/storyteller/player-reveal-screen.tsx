@@ -309,7 +309,7 @@ function SafeReturnButton({ onReturn }: { onReturn: () => void }) {
   return (
     <Button
       type="button"
-      variant="quiet"
+      variant="secondary"
       className={cn("player-reveal-return", confirming && "is-confirming")}
       onClick={handleClick}
     >

@@ -1,8 +1,6 @@
 "use client";
 
-import { useRef } from "react";
-
-import { Modal, ModalDescription, ModalHeader } from "@/components/ui/modal";
+import { ParchmentDialog } from "@/components/ui/parchment-dialog";
 import { ShortcutKeys } from "@/components/ui/shortcut-key";
 
 type ActorRole = "storyteller" | "player";
@@ -65,32 +63,19 @@ export function KeyboardShortcutsDialog({
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }) {
-  const titleRef = useRef<HTMLHeadingElement>(null);
   const groups = [
     ...sharedGroups,
     ...(actorRole === "storyteller" ? storytellerGroups : playerGroups),
   ];
 
   return (
-    <Modal
+    <ParchmentDialog
       open={open}
       onOpenChange={onOpenChange}
-      className="shortcut-card"
-      backdropClassName="dialog-backdrop shortcut-dialog-backdrop"
-      viewportClassName="dialog-viewport shortcut-dialog-viewport"
-      initialFocus={titleRef}
+      title="Shortcut guide"
+      description="Press a key anywhere in the grimoire. Shortcuts pause while you type or use a dialog."
+      closeLabel="Close keyboard shortcuts"
     >
-      <ModalHeader
-        className="shortcut-card-header"
-        title="Shortcut guide"
-        titleRef={titleRef}
-        closeLabel="Close keyboard shortcuts"
-      />
-      <ModalDescription className="shortcut-card-description">
-        Press a key anywhere in the grimoire. Shortcuts pause while you type or
-        use a dialog.
-      </ModalDescription>
-
       <div className="shortcut-groups">
         {groups.map((group) => (
           <section
@@ -115,6 +100,6 @@ export function KeyboardShortcutsDialog({
           </section>
         ))}
       </div>
-    </Modal>
+    </ParchmentDialog>
   );
 }

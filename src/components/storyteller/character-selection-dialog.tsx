@@ -6,7 +6,7 @@ import {
   CharacterCatalog,
   type CharacterCatalogProps,
 } from "@/components/storyteller/character-catalog";
-import { Modal, ModalHeader } from "@/components/ui/modal";
+import { ParchmentDialog } from "@/components/ui/parchment-dialog";
 
 export function CharacterSelectionDialog({
   open,
@@ -23,17 +23,15 @@ export function CharacterSelectionDialog({
   onOpenChange: (open: boolean) => void;
 }) {
   return (
-    <Modal open={open} onOpenChange={onOpenChange} className="token-case">
-      <ModalHeader
-        className="token-case-header"
-        title={title}
-        closeLabel={closeLabel}
-        closeSize="sm"
-      />
-      <div className="token-case-scroll">
-        <CharacterCatalog {...catalogProps} />
-      </div>
-      {footer}
-    </Modal>
+    <ParchmentDialog
+      open={open}
+      onOpenChange={onOpenChange}
+      title={title}
+      closeLabel={closeLabel}
+      size="wide"
+      footer={footer}
+    >
+      <CharacterCatalog {...catalogProps} />
+    </ParchmentDialog>
   );
 }

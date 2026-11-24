@@ -2,7 +2,7 @@
 
 import * as React from "react";
 
-import { Modal, ModalCloseButton, ModalTitle } from "@/components/ui/modal";
+import { Modal, ModalHeader } from "@/components/ui/modal";
 import { cn } from "@/lib/utils";
 
 type SheetProps = {
@@ -58,18 +58,13 @@ export function Sheet({
       aria-hidden={suspended || undefined}
       data-suspended={suspended ? "" : undefined}
     >
-      <header className="sheet-header">
-        <div>
-          {eyebrow && <p className="panel-eyebrow">{eyebrow}</p>}
-          <ModalTitle ref={titleRef} tabIndex={-1} className="sheet-title">
-            {title}
-          </ModalTitle>
-        </div>
-        <div className="sheet-header-actions">
-          {headerActions}
-          <ModalCloseButton label={`Close ${title}`} />
-        </div>
-      </header>
+      <ModalHeader
+        title={title}
+        titleRef={titleRef}
+        closeLabel={`Close ${title}`}
+        eyebrow={eyebrow}
+        actions={headerActions}
+      />
       {children}
     </Modal>
   );

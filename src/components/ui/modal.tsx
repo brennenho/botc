@@ -36,10 +36,14 @@ export function Modal({
     >
       <Dialog.Portal>
         {backdropClassName !== false && (
-          <Dialog.Backdrop className={backdropClassName} />
+          <Dialog.Backdrop
+            className={backdropClassName}
+            data-modal-backdrop=""
+          />
         )}
         <Dialog.Viewport className={viewportClassName}>
           <Dialog.Popup
+            data-modal-surface=""
             data-keyboard-shortcuts-modal={modal !== false || undefined}
             {...popupProps}
           >
@@ -52,45 +56,45 @@ export function Modal({
 }
 
 export const ModalTitle = Dialog.Title;
-export const ModalDescription = Dialog.Description;
-
-export function ModalCloseButton({
-  label,
-  size,
-}: {
-  label: string;
-  size?: "sm" | "md";
-}) {
-  return (
-    <Dialog.Close
-      render={
-        <IconButton label={label} size={size} variant="quiet" tooltip={false}>
-          <X className="size-4" aria-hidden="true" />
-        </IconButton>
-      }
-    />
-  );
-}
 
 export function ModalHeader({
   title,
   titleRef,
   closeLabel,
-  closeSize,
-  className,
+  eyebrow,
+  description,
+  actions,
 }: {
   title: string;
-  titleRef?: RefObject<HTMLHeadingElement | null>;
+  titleRef: RefObject<HTMLHeadingElement | null>;
   closeLabel: string;
-  closeSize?: "sm" | "md";
-  className: string;
+  eyebrow?: string;
+  description?: string;
+  actions?: ReactNode;
 }) {
   return (
-    <header className={className}>
-      <ModalTitle ref={titleRef} tabIndex={titleRef ? -1 : undefined}>
-        {title}
-      </ModalTitle>
-      <ModalCloseButton label={closeLabel} size={closeSize} />
+    <header className="modal-header">
+      <div className="modal-heading">
+        {eyebrow && <p className="panel-eyebrow">{eyebrow}</p>}
+        <ModalTitle ref={titleRef} tabIndex={-1}>
+          {title}
+        </ModalTitle>
+        {description && (
+          <Dialog.Description className="modal-description">
+            {description}
+          </Dialog.Description>
+        )}
+      </div>
+      <div className="modal-header-actions">
+        {actions}
+        <Dialog.Close
+          render={
+            <IconButton label={closeLabel} variant="quiet" tooltip={false}>
+              <X className="size-4" aria-hidden="true" />
+            </IconButton>
+          }
+        />
+      </div>
     </header>
   );
 }
