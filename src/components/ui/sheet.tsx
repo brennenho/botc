@@ -1,10 +1,8 @@
 "use client";
 
-import { Dialog } from "@base-ui/react/dialog";
-import { X } from "lucide-react";
 import * as React from "react";
 
-import { IconButton } from "@/components/ui/icon-button";
+import { Modal, ModalCloseButton, ModalTitle } from "@/components/ui/modal";
 import { cn } from "@/lib/utils";
 
 type SheetProps = {
@@ -37,7 +35,7 @@ export function Sheet({
   const titleRef = React.useRef<HTMLHeadingElement>(null);
 
   return (
-    <Dialog.Root
+    <Modal
       open={open}
       onOpenChange={(nextOpen, eventDetails) => {
         const escapeWasHandled =
@@ -52,47 +50,27 @@ export function Sheet({
       }}
       modal={modal}
       disablePointerDismissal={disablePointerDismissal}
+      backdropClassName={backdrop && "sheet-scrim"}
+      viewportClassName="sheet-viewport"
+      className={cn("side-sheet", suspended && "is-suspended", className)}
+      initialFocus={titleRef}
+      inert={suspended || undefined}
+      aria-hidden={suspended || undefined}
+      data-suspended={suspended ? "" : undefined}
     >
-      <Dialog.Portal>
-        {backdrop && <Dialog.Backdrop className="sheet-scrim" />}
-        <Dialog.Viewport className="sheet-viewport">
-          <Dialog.Popup
-            className={cn("side-sheet", suspended && "is-suspended", className)}
-            initialFocus={titleRef}
-            inert={suspended ? true : undefined}
-            aria-hidden={suspended ? true : undefined}
-            data-suspended={suspended ? "" : undefined}
-          >
-            <header className="sheet-header">
-              <div>
-                {eyebrow && <p className="panel-eyebrow">{eyebrow}</p>}
-                <Dialog.Title
-                  ref={titleRef}
-                  tabIndex={-1}
-                  className="sheet-title"
-                >
-                  {title}
-                </Dialog.Title>
-              </div>
-              <div className="sheet-header-actions">
-                {headerActions}
-                <Dialog.Close
-                  render={
-                    <IconButton
-                      label={`Close ${title}`}
-                      variant="quiet"
-                      tooltip={false}
-                    >
-                      <X className="size-4" />
-                    </IconButton>
-                  }
-                />
-              </div>
-            </header>
-            {children}
-          </Dialog.Popup>
-        </Dialog.Viewport>
-      </Dialog.Portal>
-    </Dialog.Root>
+      <header className="sheet-header">
+        <div>
+          {eyebrow && <p className="panel-eyebrow">{eyebrow}</p>}
+          <ModalTitle ref={titleRef} tabIndex={-1} className="sheet-title">
+            {title}
+          </ModalTitle>
+        </div>
+        <div className="sheet-header-actions">
+          {headerActions}
+          <ModalCloseButton label={`Close ${title}`} />
+        </div>
+      </header>
+      {children}
+    </Modal>
   );
 }

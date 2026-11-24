@@ -1,14 +1,12 @@
 "use client";
 
-import { Dialog } from "@base-ui/react/dialog";
-import { X } from "lucide-react";
 import type { ReactNode } from "react";
 
 import {
   CharacterCatalog,
   type CharacterCatalogProps,
 } from "@/components/storyteller/character-catalog";
-import { IconButton } from "@/components/ui/icon-button";
+import { Modal, ModalHeader } from "@/components/ui/modal";
 
 export function CharacterSelectionDialog({
   open,
@@ -25,32 +23,17 @@ export function CharacterSelectionDialog({
   onOpenChange: (open: boolean) => void;
 }) {
   return (
-    <Dialog.Root open={open} onOpenChange={onOpenChange}>
-      <Dialog.Portal>
-        <Dialog.Backdrop className="dialog-backdrop" />
-        <Dialog.Viewport className="dialog-viewport">
-          <Dialog.Popup className="token-case" data-keyboard-shortcuts-modal>
-            <header className="token-case-header">
-              <Dialog.Title>{title}</Dialog.Title>
-              <IconButton
-                label={closeLabel}
-                variant="quiet"
-                size="sm"
-                tooltip={false}
-                onClick={() => onOpenChange(false)}
-              >
-                <X className="size-4" />
-              </IconButton>
-            </header>
-
-            <div className="token-case-scroll">
-              <CharacterCatalog {...catalogProps} />
-            </div>
-
-            {footer}
-          </Dialog.Popup>
-        </Dialog.Viewport>
-      </Dialog.Portal>
-    </Dialog.Root>
+    <Modal open={open} onOpenChange={onOpenChange} className="token-case">
+      <ModalHeader
+        className="token-case-header"
+        title={title}
+        closeLabel={closeLabel}
+        closeSize="sm"
+      />
+      <div className="token-case-scroll">
+        <CharacterCatalog {...catalogProps} />
+      </div>
+      {footer}
+    </Modal>
   );
 }

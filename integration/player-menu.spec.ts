@@ -91,17 +91,18 @@ test("@smoke player controls expose character info and in-play reminders", async
   await showCharacter.click();
   await expect(
     storyteller.page.getByRole("heading", { name: "You Are" }),
-  ).toBeVisible();
+  ).toBeFocused();
+  await storyteller.page.keyboard.press("Escape");
+  const reveal = storyteller.page.getByRole("dialog", { name: "You Are" });
   await expect(
-    storyteller.page.getByRole("heading", { name: "Washerwoman" }),
+    reveal.getByRole("heading", { name: "Washerwoman" }),
   ).toBeVisible();
 
-  await storyteller.page
-    .getByRole("button", { name: "Return to Grimoire" })
-    .click();
-  await storyteller.page
+  await reveal.getByRole("button", { name: "Return to Grimoire" }).click();
+  await reveal
     .getByRole("button", { name: "Tap Again to Show the Grimoire" })
     .click();
+  await expect(reveal).toBeHidden();
   await expect(menu).toBeVisible();
 
   const menuBounds = await menu.boundingBox();

@@ -1,12 +1,12 @@
 "use client";
 
-import { Dialog } from "@base-ui/react/dialog";
-import { Check, Copy, Link2, Share2, X } from "lucide-react";
+import { Check, Copy, Link2, Share2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { QRCodeSVG } from "qrcode.react";
 
 import { Button } from "@/components/ui/button";
 import { IconButton } from "@/components/ui/icon-button";
+import { ParchmentDialog } from "@/components/ui/parchment-dialog";
 import { Tooltip } from "@/components/ui/tooltip";
 import { getGameInvitationUrl } from "@/lib/game-invitation";
 import { notify } from "@/lib/notifications";
@@ -49,7 +49,6 @@ export function GameInviteControl({
   const [canShare, setCanShare] = useState(false);
   const [copiedValue, setCopiedValue] = useState<CopiedValue>(null);
   const copyResetTimeout = useRef<number | null>(null);
-  const titleRef = useRef<HTMLHeadingElement>(null);
 
   useEffect(() => {
     setInvitationUrl(getGameInvitationUrl(joinCode, window.location.origin));
@@ -159,119 +158,92 @@ export function GameInviteControl({
         </button>
       </Tooltip>
 
-      <Dialog.Root open={open} onOpenChange={handleOpenChange}>
-        <Dialog.Portal>
-          <Dialog.Backdrop className="dialog-backdrop invite-dialog-backdrop" />
-          <Dialog.Viewport className="dialog-viewport invite-dialog-viewport">
-            <Dialog.Popup
-              className="invite-card"
-              initialFocus={titleRef}
-              data-keyboard-shortcuts-modal
-            >
-              <header className="invite-card-header">
-                <Dialog.Title ref={titleRef} tabIndex={-1}>
-                  Invite Players
-                </Dialog.Title>
-                <Dialog.Close
-                  render={
-                    <IconButton
-                      label="Close player invitation"
-                      variant="quiet"
-                      tooltip={false}
-                      className="invite-card-close"
-                    >
-                      <X className="size-4" />
-                    </IconButton>
+      <ParchmentDialog
+        open={open}
+        onOpenChange={handleOpenChange}
+        title="Invite Players"
+        description="Scan the QR code or share the link to join."
+        closeLabel="Close player invitation"
+      >
+        <div className="invite-card-body">
+          <div className="invite-qr-frame" aria-busy={!invitationUrl}>
+            {invitationUrl ? (
+              <QRCodeSVG
+                aria-label="QR code for the player invitation link"
+                value={invitationUrl}
+                size={208}
+                level="M"
+                bgColor="#f4f0e6"
+                fgColor="#232622"
+              />
+            ) : null}
+          </div>
+
+          <div className="invite-card-actions">
+            <div className="invite-code-block">
+              <span className="utility-label">Game code</span>
+              <div className="invite-code-value">
+                <strong>{joinCode}</strong>
+                <IconButton
+                  label={
+                    copiedValue === "code"
+                      ? "Game code copied"
+                      : "Copy game code"
                   }
-                />
-              </header>
-
-              <Dialog.Description className="invite-card-description">
-                Scan the QR code or share the link to join.
-              </Dialog.Description>
-
-              <div className="invite-card-body">
-                <div className="invite-qr-frame" aria-busy={!invitationUrl}>
-                  {invitationUrl ? (
-                    <QRCodeSVG
-                      aria-label="QR code for the player invitation link"
-                      value={invitationUrl}
-                      size={208}
-                      level="M"
-                      bgColor="#f4f0e6"
-                      fgColor="#232622"
-                    />
-                  ) : null}
-                </div>
-
-                <div className="invite-card-actions">
-                  <div className="invite-code-block">
-                    <span className="utility-label">Game code</span>
-                    <div className="invite-code-value">
-                      <strong>{joinCode}</strong>
-                      <IconButton
-                        label={
-                          copiedValue === "code"
-                            ? "Game code copied"
-                            : "Copy game code"
-                        }
-                        variant="quiet"
-                        size="sm"
-                        className="invite-code-copy"
-                        onClick={() => void copyJoinCode()}
-                      >
-                        <span
-                          className="invite-copy-glyph"
-                          data-copied={copiedValue === "code" || undefined}
-                          aria-hidden="true"
-                        >
-                          <Copy className="invite-copy-glyph-copy" />
-                          <Check className="invite-copy-glyph-check" />
-                        </span>
-                      </IconButton>
-                    </div>
-                  </div>
-
-                  <Button
-                    size="lg"
-                    className="invite-primary-action"
-                    disabled={!invitationUrl}
-                    onClick={() => void copyInvitationLink()}
+                  variant="quiet"
+                  size="sm"
+                  className="invite-code-copy"
+                  onClick={() => void copyJoinCode()}
+                >
+                  <span
+                    className="invite-copy-glyph"
+                    data-copied={copiedValue === "code" || undefined}
+                    aria-hidden="true"
                   >
-                    {copiedValue === "link" ? (
-                      <Check aria-hidden="true" />
-                    ) : (
-                      <Link2 aria-hidden="true" />
-                    )}
-                    {copiedValue === "link" ? "Link copied" : "Copy link"}
-                  </Button>
-
-                  {canShare ? (
-                    <Button
-                      size="lg"
-                      variant="secondary"
-                      className="invite-primary-action"
-                      disabled={!invitationUrl}
-                      onClick={() => void shareInvitation()}
-                    >
-                      <Share2 aria-hidden="true" />
-                      Share link
-                    </Button>
-                  ) : null}
-                </div>
+                    <Copy className="invite-copy-glyph-copy" />
+                    <Check className="invite-copy-glyph-check" />
+                  </span>
+                </IconButton>
               </div>
+            </div>
 
-              <span className="sr-only" role="status" aria-live="polite">
-                {copiedValue === "link"
-                  ? "Invitation link copied"
-                  : copiedValue === "code"
-                    ? "Game code copied"
-                    : ""}
-              </span>
-            </Dialog.Popup>
-          </Dialog.Viewport>
-        </Dialog.Portal>
-      </Dialog.Root>
+            <Button
+              size="lg"
+              className="invite-primary-action"
+              disabled={!invitationUrl}
+              onClick={() => void copyInvitationLink()}
+            >
+              {copiedValue === "link" ? (
+                <Check aria-hidden="true" />
+              ) : (
+                <Link2 aria-hidden="true" />
+              )}
+              {copiedValue === "link" ? "Link copied" : "Copy link"}
+            </Button>
+
+            {canShare ? (
+              <Button
+                size="lg"
+                variant="secondary"
+                className="invite-primary-action"
+                disabled={!invitationUrl}
+                onClick={() => void shareInvitation()}
+              >
+                <Share2 aria-hidden="true" />
+                Share link
+              </Button>
+            ) : null}
+          </div>
+        </div>
+
+        <span className="sr-only" role="status" aria-live="polite">
+          {copiedValue === "link"
+            ? "Invitation link copied"
+            : copiedValue === "code"
+              ? "Game code copied"
+              : ""}
+        </span>
+      </ParchmentDialog>
     </>
   );
 }

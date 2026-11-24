@@ -1,10 +1,8 @@
 "use client";
 
-import { Dialog } from "@base-ui/react/dialog";
-import { X } from "lucide-react";
 import { useRef } from "react";
 
-import { IconButton } from "@/components/ui/icon-button";
+import { Modal, ModalDescription, ModalHeader } from "@/components/ui/modal";
 import { ShortcutKeys } from "@/components/ui/shortcut-key";
 
 type ActorRole = "storyteller" | "player";
@@ -74,65 +72,49 @@ export function KeyboardShortcutsDialog({
   ];
 
   return (
-    <Dialog.Root open={open} onOpenChange={onOpenChange}>
-      <Dialog.Portal>
-        <Dialog.Backdrop className="dialog-backdrop shortcut-dialog-backdrop" />
-        <Dialog.Viewport className="dialog-viewport shortcut-dialog-viewport">
-          <Dialog.Popup
-            className="shortcut-card"
-            initialFocus={titleRef}
-            data-keyboard-shortcuts-modal
+    <Modal
+      open={open}
+      onOpenChange={onOpenChange}
+      className="shortcut-card"
+      backdropClassName="dialog-backdrop shortcut-dialog-backdrop"
+      viewportClassName="dialog-viewport shortcut-dialog-viewport"
+      initialFocus={titleRef}
+    >
+      <ModalHeader
+        className="shortcut-card-header"
+        title="Shortcut guide"
+        titleRef={titleRef}
+        closeLabel="Close keyboard shortcuts"
+      />
+      <ModalDescription className="shortcut-card-description">
+        Press a key anywhere in the grimoire. Shortcuts pause while you type or
+        use a dialog.
+      </ModalDescription>
+
+      <div className="shortcut-groups">
+        {groups.map((group) => (
+          <section
+            key={group.title}
+            className={
+              group.title === "Player selected"
+                ? "shortcut-group is-wide"
+                : "shortcut-group"
+            }
           >
-            <header className="shortcut-card-header">
-              <Dialog.Title ref={titleRef} tabIndex={-1}>
-                Shortcut guide
-              </Dialog.Title>
-              <Dialog.Close
-                render={
-                  <IconButton
-                    label="Close keyboard shortcuts"
-                    variant="quiet"
-                    tooltip={false}
-                    className="shortcut-card-close"
-                  >
-                    <X className="size-4" />
-                  </IconButton>
-                }
-              />
-            </header>
-
-            <Dialog.Description className="shortcut-card-description">
-              Press a key anywhere in the grimoire. Shortcuts pause while you
-              type or use a dialog.
-            </Dialog.Description>
-
-            <div className="shortcut-groups">
-              {groups.map((group) => (
-                <section
-                  key={group.title}
-                  className={
-                    group.title === "Player selected"
-                      ? "shortcut-group is-wide"
-                      : "shortcut-group"
-                  }
-                >
-                  <h3>{group.title}</h3>
-                  <dl>
-                    {group.shortcuts.map((shortcut) => (
-                      <div key={shortcut.label} className="shortcut-row">
-                        <dt>{shortcut.label}</dt>
-                        <dd>
-                          <ShortcutKeys shortcuts={shortcut.keys} />
-                        </dd>
-                      </div>
-                    ))}
-                  </dl>
-                </section>
+            <h3>{group.title}</h3>
+            <dl>
+              {group.shortcuts.map((shortcut) => (
+                <div key={shortcut.label} className="shortcut-row">
+                  <dt>{shortcut.label}</dt>
+                  <dd>
+                    <ShortcutKeys shortcuts={shortcut.keys} />
+                  </dd>
+                </div>
               ))}
-            </div>
-          </Dialog.Popup>
-        </Dialog.Viewport>
-      </Dialog.Portal>
-    </Dialog.Root>
+            </dl>
+          </section>
+        ))}
+      </div>
+    </Modal>
   );
 }
