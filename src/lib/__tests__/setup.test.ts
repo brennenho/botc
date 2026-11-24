@@ -37,6 +37,25 @@ function seat(seatIndex: number, roleId: string): Seat {
 }
 
 describe("setup modifiers", () => {
+  it("allows the Huntsman to add the Damsel or use an existing Outsider slot", () => {
+    const roles = [
+      "huntsman",
+      "chef",
+      "empath",
+      "monk",
+      "damsel",
+      "poisoner",
+      "imp",
+    ];
+    const assess = (ids: string[]) =>
+      getSetupAssessment(ids.map((id, i) => seat(i, id)));
+    expect(assess(roles).legal).toBe(true);
+    expect(assess([...roles, "steward"]).legal).toBe(true);
+    expect(
+      assess(roles.map((id) => (id === "damsel" ? "saint" : id))).warnings,
+    ).toContain("The Huntsman needs a Damsel in the starting setup.");
+  });
+
   it("excludes a Storyteller-marked Traveller regardless of native team", () => {
     const residents = [
       seat(0, "washerwoman"),

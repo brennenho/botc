@@ -12,7 +12,7 @@ import {
 } from "@/components/storyteller/grimoire-side-sheet";
 import { GrimoireToolbar } from "@/components/grimoire/grimoire-toolbar";
 import { PlayerRevealScreen } from "@/components/storyteller/player-reveal-screen";
-import { RolePicker } from "@/components/storyteller/role-picker";
+import { CharacterSelectionDialog } from "@/components/storyteller/character-selection-dialog";
 import { SetupReminderWarningTray } from "@/components/storyteller/setup-reminder-warning-tray";
 import { StorytellerDock } from "@/components/storyteller/storyteller-dock";
 import { PageError } from "@/components/ui/page-error";
@@ -451,7 +451,9 @@ export function StorytellerApp({
         />
       )}
       {!redacted && (
-        <RolePicker
+        <CharacterSelectionDialog
+          selectionMode="single"
+          closeLabel="Close Character Picker"
           open={pickerTarget !== null}
           editionId={snapshot.game.edition}
           title={

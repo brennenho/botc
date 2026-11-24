@@ -12,7 +12,7 @@ import { RosterPanel } from "@/components/storyteller/roster-sheet";
 import { IconButton } from "@/components/ui/icon-button";
 import { Sheet } from "@/components/ui/sheet";
 import type { NightReminderAction } from "@/lib/game-data/night-reminder-actions";
-import type { EditionId, GameToken, Role, Seat } from "@/lib/game-data/types";
+import type { GameScript, GameToken, Role, Seat } from "@/lib/game-data/types";
 import type { NightOrderState } from "@/lib/night-order-state";
 import type { ReminderDefinition } from "@/lib/reminders";
 import type { NightRevealAction, PlayerReveal } from "@/lib/player-reveal";
@@ -53,7 +53,7 @@ export function GrimoireSideSheet({
 }: {
   panel: GrimoirePanel;
   shortcutsEnabled: boolean;
-  editionId: EditionId;
+  editionId: GameScript;
   seats: Seat[];
   gameTokens: GameToken[];
   pinned: boolean;

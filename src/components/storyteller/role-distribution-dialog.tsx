@@ -7,10 +7,12 @@ import { CharacterSelectionDialog } from "@/components/storyteller/character-sel
 import { Button } from "@/components/ui/button";
 import {
   getRolesByTeam,
+  getLegionSetupIssue,
   getSetupSelectionTargetCounts,
+  getSetupRoleCopyLimit,
   getTravellerRoles,
   roleById,
-  type EditionId,
+  type GameScript,
   type TeamCounts,
 } from "@/lib/game-data";
 import { DRUNK_ROLE_ID } from "@/lib/setup-effects";
@@ -34,7 +36,7 @@ export function RoleDistributionDialog({
   onDistribute,
 }: {
   open: boolean;
-  editionId: EditionId;
+  editionId: GameScript;
   residentCount: number;
   travellerCount: number;
   onOpenChange: (open: boolean) => void;
@@ -46,9 +48,9 @@ export function RoleDistributionDialog({
     if (!open) return;
     setSelectedRoleIds([]);
   }, [open]);
-  const selectedTravellerRoleIds = selectedRoleIds.filter(
+  const selectedTravellerCount = selectedRoleIds.filter(
     (roleId) => roleById.get(roleId)?.team === "traveller",
-  );
+  ).length;
   const selectedResidentRoleIds = selectedRoleIds.filter(
     (roleId) => roleById.get(roleId)?.team !== "traveller",
   );
@@ -61,16 +63,17 @@ export function RoleDistributionDialog({
   const residentSelectionComplete =
     selectedResidentRoleIds.length === residentSelectionTarget;
   const travellerSelectionComplete =
-    selectedTravellerRoleIds.length === 0 ||
-    selectedTravellerRoleIds.length === travellerCount;
+    selectedTravellerCount === 0 || selectedTravellerCount === travellerCount;
   const selectionComplete =
     residentSelectionComplete && travellerSelectionComplete;
+  const legionIssue = residentSelectionComplete
+    ? getLegionSetupIssue(selectedResidentRoleIds, residentCount)
+    : null;
   const grouped = getRolesByTeam(editionId);
-  const travellerRoles = getTravellerRoles();
+  const travellerRoles = getTravellerRoles(editionId);
   const residentLimitReached =
     selectedResidentRoleIds.length >= residentSelectionTarget;
-  const travellerLimitReached =
-    selectedTravellerRoleIds.length >= travellerCount;
+  const travellerLimitReached = selectedTravellerCount >= travellerCount;
   const unavailableRoleIds = [
     ...(residentLimitReached
       ? residentTeams.flatMap((team) =>
@@ -83,16 +86,33 @@ export function RoleDistributionDialog({
   ];
   const travellerDetail =
     travellerCount === 0
-      ? "No Traveller seats · mark a player first"
-      : `${selectedTravellerRoleIds.length} of ${travellerCount} selected · optional`;
+      ? "Mark a player as a Traveller first."
+      : selectedTravellerCount === 0
+        ? "Leave empty to keep current roles."
+        : `${selectedTravellerCount} of ${travellerCount} selected`;
+  const selectionHint =
+    legionIssue ??
+    (travellerSelectionComplete
+      ? null
+      : "Choose one role per Traveller, or choose none.");
 
-  function toggleRole(roleId: string) {
+  function changeSelection(
+    roleId: string,
+    action: "toggle" | "add" | "remove",
+  ) {
     setSelectedRoleIds((current) => {
-      if (current.includes(roleId)) {
+      const index = current.indexOf(roleId);
+      if (action === "remove") return current.filter((_, i) => i !== index);
+      if (action === "toggle" && index >= 0) {
         return current.filter((id) => id !== roleId);
       }
       const role = roleById.get(roleId);
       if (!role) return current;
+      if (
+        current.filter((id) => id === roleId).length >=
+        getSetupRoleCopyLimit(roleId)
+      )
+        return current;
 
       if (role.team === "traveller") {
         const currentTravellerCount = current.filter(
@@ -133,17 +153,16 @@ export function RoleDistributionDialog({
       teamDetails={{ traveller: travellerDetail }}
       unavailableRoleIds={unavailableRoleIds}
       onOpenChange={onOpenChange}
-      onSelect={toggleRole}
+      onSelect={(id) => changeSelection(id, "toggle")}
+      onChangeCopies={changeSelection}
       footer={
         <footer className="pool-case-footer">
           <div className="pool-summary">
             <div className="pool-summary-line">
               <strong>
                 {selectedResidentRoleIds.length} of {residentSelectionTarget}{" "}
-                resident roles
-                {travellerCount > 0
-                  ? ` · ${selectedTravellerRoleIds.length} of ${travellerCount} Traveller roles`
-                  : ""}
+                resident {residentSelectionTarget === 1 ? "role" : "roles"}{" "}
+                selected
               </strong>
               {selectedRoleIds.length > 0 && (
                 <Button
@@ -153,22 +172,14 @@ export function RoleDistributionDialog({
                   className="pool-clear-button"
                   onClick={() => setSelectedRoleIds([])}
                 >
-                  Clear
+                  Clear all
                 </Button>
               )}
             </div>
-            <p>
-              {travellerCount === 0
-                ? "Mark a player as a Traveller to include Traveller roles."
-                : selectedTravellerRoleIds.length === 0
-                  ? "Traveller roles are optional; current Traveller assignments will be kept."
-                  : selectedTravellerRoleIds.length === travellerCount
-                    ? "Traveller roles will be shuffled only among marked Traveller seats."
-                    : `Select ${travellerCount - selectedTravellerRoleIds.length} more Traveller ${travellerCount - selectedTravellerRoleIds.length === 1 ? "role" : "roles"}, or clear the Traveller selections.`}
-            </p>
+            {selectionHint && <p>{selectionHint}</p>}
           </div>
           <Button
-            disabled={!selectionComplete}
+            disabled={!selectionComplete || !!legionIssue}
             onClick={() => {
               onDistribute(selectedRoleIds);
               onOpenChange(false);

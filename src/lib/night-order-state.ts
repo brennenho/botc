@@ -8,6 +8,7 @@ export type NightOrderViewKey = `${NightOrderNight}:${NightOrderScope}`;
 export type NightOrderState = {
   night: NightOrderNight;
   scope: NightOrderScope;
+  smallGameEvilInfo?: boolean;
   completed: Partial<Record<NightOrderViewKey, string[]>>;
 };
 
@@ -40,6 +41,7 @@ export function normalizeNightOrderState(value: unknown): NightOrderState {
   const candidate = value as {
     night?: unknown;
     scope?: unknown;
+    smallGameEvilInfo?: unknown;
     completed?: unknown;
   };
   const completedSource =
@@ -64,5 +66,6 @@ export function normalizeNightOrderState(value: unknown): NightOrderState {
       ? (candidate.scope as NightOrderScope)
       : fallback.scope,
     completed,
+    ...(candidate.smallGameEvilInfo === true && { smallGameEvilInfo: true }),
   };
 }

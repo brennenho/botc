@@ -13,7 +13,7 @@ import { Switch } from "@/components/ui/switch";
 import { Tooltip } from "@/components/ui/tooltip";
 import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts";
 import { getEdition } from "@/lib/game-data";
-import type { EditionId } from "@/lib/game-data/types";
+import type { GameScript } from "@/lib/game-data/types";
 
 export function GrimoireToolbar({
   editionId,
@@ -23,7 +23,7 @@ export function GrimoireToolbar({
   redacted,
   onRedactedChange,
 }: {
-  editionId: EditionId;
+  editionId: GameScript;
   joinCode: string;
   actorRole: "storyteller" | "player";
   saveState?: "idle" | "saving" | "error";

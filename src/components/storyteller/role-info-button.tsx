@@ -7,7 +7,13 @@ import { Button } from "@/components/ui/button";
 import { floatingHelp } from "@/components/ui/floating-help";
 import type { Role } from "@/lib/game-data";
 
-export function RoleInfoButton({ role }: { role: Role }) {
+export function RoleInfoButton({
+  role,
+  sideOffset = floatingHelp.sideOffset,
+}: {
+  role: Role;
+  sideOffset?: number;
+}) {
   return (
     <Popover.Root>
       <Popover.Trigger
@@ -29,7 +35,7 @@ export function RoleInfoButton({ role }: { role: Role }) {
       <Popover.Portal>
         <Popover.Positioner
           side="top"
-          sideOffset={floatingHelp.sideOffset}
+          sideOffset={sideOffset}
           collisionPadding={floatingHelp.collisionPadding}
           className={floatingHelp.positionerClassName}
           data-preferred-side="top"

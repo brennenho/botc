@@ -11,6 +11,65 @@ import {
   test,
 } from "./fixtures/multiplayer";
 
+test("@smoke an uploaded script survives a reload and reaches the joining player's reference sheet", async ({
+  createActor,
+}) => {
+  const storyteller = await createActor();
+  const player = await createActor();
+  const page = storyteller.page;
+  await page.goto("/");
+  await page.getByRole("button", { name: /^Storyteller/ }).click();
+  await page.getByRole("button", { name: "Custom scripts" }).click();
+  await page
+    .getByLabel("Upload script JSON")
+    .setInputFiles("public/assets/scripts/one-in-one-out.json");
+  const preview = page.getByRole("dialog", { name: "Script preview" });
+  await expect(
+    preview.getByRole("heading", { name: "Village Idiot" }),
+  ).toBeVisible();
+  await preview.getByRole("button", { name: "Close Script preview" }).click();
+  await page.getByRole("button", { name: "Open grimoire" }).click();
+  await page.waitForURL(/\/game\/[^/]+\/storyteller$/);
+  const joinCode = new URL(page.url()).pathname.split("/")[2]!;
+  await joinGameFromHome(player, joinCode, "Alice");
+  await page
+    .getByRole("button", {
+      name: "Alice, Character not assigned. Open player controls",
+    })
+    .click();
+  await page
+    .getByRole("button", { name: "Assign a Character to Alice" })
+    .click();
+  await page
+    .getByRole("button", { name: "Village Idiot", exact: true })
+    .click();
+  await expect(
+    player.page
+      .getByLabel("Your Character")
+      .getByText("Village Idiot", { exact: true }),
+  ).toBeVisible({ timeout: 10_000 });
+  await page.reload();
+  await expect(page.getByText("One In One Out", { exact: true })).toBeVisible();
+  await expect(
+    page.getByRole("button", {
+      name: "Alice, Village Idiot. Open player controls",
+    }),
+  ).toBeVisible();
+  await player.page
+    .getByRole("button", { name: "Reference", exact: true })
+    .click();
+  const reference = player.page.getByRole("tabpanel", { name: "Script" });
+  await expect(
+    reference.getByRole("heading", { name: "One In One Out" }),
+  ).toBeVisible();
+  await expect(
+    reference.getByRole("heading", { name: "Village Idiot" }),
+  ).toBeVisible();
+  await expect(
+    reference.getByRole("heading", { name: "Jinxes" }),
+  ).toBeVisible();
+});
+
 test("storyteller changes reach a connected player in realtime", async ({
   createActor,
 }) => {

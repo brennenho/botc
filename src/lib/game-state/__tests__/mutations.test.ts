@@ -6,7 +6,13 @@ import type {
   Seat,
   StorytellerSnapshot,
 } from "@/lib/game-data/types";
-import { roleById } from "@/lib/game-data";
+import {
+  getSetupAssessment,
+  getSetupReminderWarnings,
+  roleById,
+} from "@/lib/game-data";
+import { parseScriptExport } from "@/lib/game-data/custom-script";
+import oneInOneOut from "../../../../public/assets/scripts/one-in-one-out.json";
 import { readReminderPlacement } from "@/lib/grimoire-canvas";
 import { getReminderDefinition, getReminderKey } from "@/lib/reminders";
 import {
@@ -463,6 +469,76 @@ describe("bluff and reminder mutations", () => {
 });
 
 describe("role distribution", () => {
+  it("deals all three Village Idiots from One In One Out and checks their reminder", () => {
+    const current = state(
+      Array.from({ length: 7 }, (_, i) => seat(`seat-${i}`, i)),
+    );
+    current.game = { ...current.game, edition: parseScriptExport(oneInOneOut) };
+    const pool = [
+      "villageidiot",
+      "villageidiot",
+      "villageidiot",
+      "knight",
+      "steward",
+      "spy",
+      "imp",
+    ];
+    const dealt = dealRoles(current, pool).seats!;
+    expect(dealt.map((s) => s.roleId).sort()).toEqual([...pool].sort());
+    expect(getSetupAssessment(dealt).legal).toBe(true);
+    const idiot = dealt.find((s) => s.roleId === "villageidiot")!;
+    const warning = {
+      roleId: "villageidiot",
+      roleName: "Village Idiot",
+      missing: [{ label: "Drunk", count: 1 }],
+    };
+    expect(getSetupReminderWarnings(dealt, [])).toContainEqual(warning);
+    const placed = {
+      ...reminder("drunk-idiot", idiot.id, 0),
+      roleId: "villageidiot",
+      label: "Drunk",
+    };
+    expect(getSetupReminderWarnings(dealt, [placed])).not.toContainEqual(
+      warning,
+    );
+    for (const replacement of ["villageidiot", "steward"]) {
+      const invalid = pool.map((id) => (id === "knight" ? replacement : id));
+      expect(dealRoles(current, invalid)).toEqual({});
+      expect(
+        getSetupAssessment(
+          invalid.map((roleId, i) => seat(`seat-${i}`, i, { roleId })),
+        ).legal,
+      ).toBe(false);
+    }
+  });
+
+  it("deals a Legion majority and accepts different mixes of good characters", () => {
+    const current = state(
+      Array.from({ length: 5 }, (_, i) => seat(`seat-${i}`, i)),
+    );
+    current.game = {
+      ...current.game,
+      edition: parseScriptExport(["legion", "imp", "knight", "ogre", "spy"]),
+    };
+    const pool = ["legion", "legion", "legion", "knight", "ogre"];
+    const dealt = dealRoles(current, pool).seats!;
+    expect(getSetupAssessment(dealt)).toMatchObject({
+      legal: true,
+      actual: { townsfolk: 1, outsider: 1, minion: 0, demon: 3 },
+    });
+    for (const invalid of [
+      ["legion", "legion", "knight", "ogre", "imp"],
+      ["legion", "legion", "legion", "knight", "spy"],
+    ]) {
+      expect(dealRoles(current, invalid)).toEqual({});
+      expect(
+        getSetupAssessment(
+          invalid.map((roleId, i) => seat(`seat-${i}`, i, { roleId })),
+        ).legal,
+      ).toBe(false);
+    }
+  });
+
   it("preserves traveller seats and position tokens while rebuilding setup markers", () => {
     const residents = Array.from({ length: 7 }, (_, index) =>
       seat(`seat-${index}`, index),

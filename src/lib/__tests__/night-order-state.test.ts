@@ -6,6 +6,15 @@ import {
 } from "@/lib/night-order-state";
 
 describe("night order state", () => {
+  it("restores the small-game evil info override only for an explicit true value", () => {
+    expect(
+      normalizeNightOrderState({ smallGameEvilInfo: true }).smallGameEvilInfo,
+    ).toBe(true);
+    expect(
+      normalizeNightOrderState({ smallGameEvilInfo: "true" }).smallGameEvilInfo,
+    ).toBeFalsy();
+    expect(normalizeNightOrderState({}).smallGameEvilInfo).toBeFalsy();
+  });
   it("creates the default night-order controls", () => {
     expect(createDefaultNightOrderState()).toEqual({
       night: "first",

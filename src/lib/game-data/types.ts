@@ -1,15 +1,24 @@
 import type { NightReminderAction } from "@/lib/game-data/night-reminder-actions";
 
 export type EditionId = "tb" | "bmr" | "snv";
-export type Team = "townsfolk" | "outsider" | "minion" | "demon" | "traveller";
-export type ResidentTeam = Exclude<Team, "traveller">;
+export type CustomScript = {
+  name: string;
+  author?: string;
+  roleIds: string[];
+  firstNight?: string[];
+  otherNight?: string[];
+  bootlegger?: string[];
+};
+export type GameScript = EditionId | CustomScript;
+export type ResidentTeam = "townsfolk" | "outsider" | "minion" | "demon";
+export type Team = ResidentTeam | "traveller" | "fabled" | "loric";
 export type Alignment = "good" | "evil";
 export type Phase = "setup" | "day" | "night";
 
 export type Role = {
   id: string;
   name: string;
-  edition: EditionId;
+  edition: string;
   team: Team;
   ability: string;
   flavor?: string;
@@ -47,7 +56,7 @@ export type NightOrderEntry = {
 
 export type Game = {
   joinCode: string;
-  edition: EditionId;
+  edition: GameScript;
   phase: Phase;
   dayNumber: number;
   version: number;

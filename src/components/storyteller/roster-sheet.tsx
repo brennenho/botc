@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Tooltip } from "@/components/ui/tooltip";
 import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts";
 import { getSetupAssessment, roleById } from "@/lib/game-data";
-import type { EditionId, GameToken, Seat } from "@/lib/game-data/types";
+import type { GameScript, GameToken, Seat } from "@/lib/game-data/types";
 import { cn } from "@/lib/utils";
 
 export function RosterPanel({
@@ -33,7 +33,7 @@ export function RosterPanel({
   onArrangeCircle,
 }: {
   shortcutsEnabled: boolean;
-  editionId: EditionId;
+  editionId: GameScript;
   seats: Seat[];
   gameTokens: GameToken[];
   onClose: () => void;

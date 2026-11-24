@@ -4,7 +4,7 @@ import {
   getNightReminderPlan,
 } from "./night-reminder-actions";
 import { getEditionRoles, roleById } from "./catalog";
-import type { EditionId, NightOrderEntry, Role } from "./types";
+import type { GameScript, NightOrderEntry } from "./types";
 
 type NightSheet = {
   firstNight: string[];
@@ -27,61 +27,87 @@ const systemNightEntries: Record<
   dawn: { name: "Dawn", reminder: "The night ends." },
 };
 
-function getNightIds(night: "first" | "other") {
+function getNightIds(
+  script: GameScript,
+  night: "first" | "other",
+  assignedTravellerIds: readonly string[],
+) {
   const sheet: NightSheet = nightsheetRaw;
-  return night === "first" ? sheet.firstNight : sheet.otherNight;
+  const key = night === "first" ? "firstNight" : "otherNight";
+  const officialOrder = sheet[key];
+  const roster = new Set(getEditionRoles(script).map((role) => role.id));
+  const extraTravellers = new Set(
+    assignedTravellerIds.filter(
+      (id) => !roster.has(id) && roleById.get(id)?.team === "traveller",
+    ),
+  );
+  const override = typeof script === "object" ? script[key] : undefined;
+  if (!override) {
+    return officialOrder.filter(
+      (id) =>
+        Object.hasOwn(systemNightEntries, id) ||
+        roster.has(id) ||
+        extraTravellers.has(id),
+    );
+  }
+
+  if (!extraTravellers.size) return override;
+  // Insert guests before their next official wake without reordering the author's entries.
+  const order = [...override];
+  let insertAt = order.length;
+  for (const id of [...officialOrder].reverse()) {
+    const index = order.indexOf(id);
+    if (index >= 0) insertAt = index;
+    else if (extraTravellers.has(id)) order.splice(insertAt, 0, id);
+  }
+  return order;
 }
 
-export function getNightOrder(edition: EditionId, night: "first" | "other") {
-  const editionRoleIds = new Set(
-    getEditionRoles(edition).map((role) => role.id),
+export function getNightOrder(edition: GameScript, night: "first" | "other") {
+  return getNightOrderEntries(edition, night).flatMap((entry) =>
+    entry.role ? [entry.role] : [],
   );
-
-  return getNightIds(night)
-    .filter((id) => editionRoleIds.has(id))
-    .map((id) => roleById.get(id))
-    .filter((role): role is Role => Boolean(role));
 }
 
 export function getNightOrderEntries(
-  edition: EditionId,
+  edition: GameScript,
   night: "first" | "other",
+  assignedTravellerIds: readonly string[] = [],
 ) {
-  const editionRoleIds = new Set(
-    getEditionRoles(edition).map((role) => role.id),
-  );
+  return getNightIds(edition, night, assignedTravellerIds).flatMap(
+    (id): NightOrderEntry[] => {
+      const systemEntry = systemNightEntries[id];
+      if (systemEntry) {
+        return [
+          {
+            id,
+            ...systemEntry,
+            reminderActions: [],
+            role: null,
+            system: true,
+          },
+        ];
+      }
 
-  return getNightIds(night).flatMap((id): NightOrderEntry[] => {
-    const systemEntry = systemNightEntries[id];
-    if (systemEntry) {
+      const role = roleById.get(id);
+      if (!role) return [];
+
+      const plan = getNightReminderPlan(role.id, night);
+      const rawReminder =
+        (night === "first"
+          ? role.firstNightReminder
+          : role.otherNightReminder) ?? role.ability;
+
       return [
         {
           id,
-          ...systemEntry,
-          reminderActions: [],
-          role: null,
-          system: true,
+          name: role.name,
+          reminder: plan?.summary ?? cleanNightReminderText(rawReminder),
+          reminderActions: plan?.actions ?? [],
+          role,
+          system: false,
         },
       ];
-    }
-
-    const role = roleById.get(id);
-    if (!role || !editionRoleIds.has(id)) return [];
-
-    const plan = getNightReminderPlan(role.id, night);
-    const rawReminder =
-      (night === "first" ? role.firstNightReminder : role.otherNightReminder) ??
-      role.ability;
-
-    return [
-      {
-        id,
-        name: role.name,
-        reminder: plan?.summary ?? cleanNightReminderText(rawReminder),
-        reminderActions: plan?.actions ?? [],
-        role,
-        system: false,
-      },
-    ];
-  });
+    },
+  );
 }

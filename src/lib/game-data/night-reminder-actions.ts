@@ -1,3 +1,5 @@
+import { roleById } from "./catalog";
+
 export type NightReminderAction = {
   label: string;
   instruction: string;
@@ -407,8 +409,26 @@ const plans: Record<string, NightPlans> = {
   },
 };
 
-export function getNightReminderPlan(roleId: string, night: Night) {
-  return plans[roleId]?.[night] ?? null;
+export function getNightReminderPlan(
+  roleId: string,
+  night: Night,
+): NightReminderPlan | null {
+  const plan = plans[roleId]?.[night];
+  if (plan) return plan;
+
+  const role = roleById.get(roleId);
+  const reminder =
+    night === "first" ? role?.firstNightReminder : role?.otherNightReminder;
+  if (!role || !reminder?.includes(":reminder:")) return null;
+
+  // The official text marks token placement but does not identify each token.
+  // Offer the role's inventory and let the Storyteller choose the relevant one.
+  return {
+    actions: Array.from(new Set(role.reminders), (label) => ({
+      label,
+      instruction: `Place the ${label} reminder if needed.`,
+    })),
+  };
 }
 
 export function cleanNightReminderText(text: string) {

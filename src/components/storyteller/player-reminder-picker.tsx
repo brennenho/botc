@@ -4,12 +4,12 @@ import { ArrowLeft, X } from "lucide-react";
 
 import { PlayerReminderGrid } from "@/components/storyteller/player-reminder-grid";
 import { IconButton } from "@/components/ui/icon-button";
-import type { EditionId, GameToken } from "@/lib/game-data/types";
+import type { GameScript, GameToken } from "@/lib/game-data/types";
 import { getScriptReminderSources } from "@/lib/reminder-catalog";
 import type { ReminderDefinition } from "@/lib/reminders";
 
 type PlayerReminderPickerProps = {
-  editionId: EditionId;
+  editionId: GameScript;
   targetSeatId: string;
   playerName: string;
   gameTokens: GameToken[];

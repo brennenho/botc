@@ -1,4 +1,4 @@
-import { roleById, teamLabel } from "./catalog";
+import { roleById, teamLabel, isResidentTeam } from "./catalog";
 import type {
   GameToken,
   ResidentTeam,
@@ -43,6 +43,7 @@ const setupReminderRequirements: Record<
   tealady: [{ label: "Cannot Die", count: 2 }],
   eviltwin: [{ label: "Twin", count: 1 }],
   nodashii: [{ label: "Poisoned", count: 2 }],
+  villageidiot: [{ label: "Drunk", count: 1 }],
 };
 
 export const setupCounts: Record<number, TeamCounts> = {
@@ -63,6 +64,37 @@ function emptyTeamCounts(): TeamCounts {
   return { townsfolk: 0, outsider: 0, minion: 0, demon: 0 };
 }
 
+export function getSetupRoleCopyLimit(roleId: string) {
+  if (roleId === "villageidiot") return 3;
+  if (roleId === "legion") return Infinity;
+  return 1;
+}
+
+export function countRoleCopies(roleIds: readonly string[]) {
+  const counts = new Map<string, number>();
+  for (const id of roleIds) counts.set(id, (counts.get(id) ?? 0) + 1);
+  return counts;
+}
+
+export function getLegionSetupIssue(
+  roleIds: readonly string[],
+  residents: number,
+) {
+  const count = roleIds.filter((id) => id === "legion").length;
+  if (!count) return null;
+  if (count <= residents / 2 || count === residents)
+    return "A Legion setup needs a majority of Legion and at least one good character.";
+  if (
+    roleIds.some(
+      (id) =>
+        id !== "legion" &&
+        ["demon", "minion"].includes(roleById.get(id)?.team ?? ""),
+    )
+  )
+    return "The other characters in a Legion setup must be Townsfolk or Outsiders.";
+  return null;
+}
+
 export function getOutsiderDeltas(roleIds: readonly string[]) {
   const selectedIds = new Set(roleIds);
   let delta = 0;
@@ -81,29 +113,37 @@ export function getSetupCountOptions(
   const base = setupCounts[playerCount];
   if (!base) return [];
 
-  return getOutsiderDeltas(roleIds)
-    .map((delta) => ({
-      townsfolk: base.townsfolk - delta,
-      outsider: base.outsider + delta,
+  const legionCount = roleIds.filter((id) => id === "legion").length;
+  if (legionCount) {
+    const demon = Math.min(
+      playerCount - 1,
+      Math.max(legionCount, Math.floor(playerCount / 2) + 1),
+    );
+    const good = playerCount - demon;
+    return Array.from({ length: good + 1 }, (_, outsider) => ({
+      townsfolk: good - outsider,
+      outsider,
+      minion: 0,
+      demon,
+    }));
+  }
+
+  const outsiderCounts = new Set<number>();
+  const huntsman = roleIds.includes("huntsman");
+  for (const delta of getOutsiderDeltas(roleIds)) {
+    const count = base.outsider + delta;
+    if (count < 0) continue;
+    if (!huntsman || count > 0) outsiderCounts.add(count);
+    if (huntsman) outsiderCounts.add(count + 1);
+  }
+  return [...outsiderCounts]
+    .map((outsider) => ({
+      townsfolk: base.townsfolk + base.outsider - outsider,
+      outsider,
       minion: base.minion,
       demon: base.demon,
     }))
     .filter((counts) => Object.values(counts).every((count) => count >= 0));
-}
-
-function getSetupOptions(
-  seats: readonly SetupSeat[],
-  gameTokens: readonly GameToken[],
-): TeamCounts[] {
-  const residents = seats.filter((seat) => !seat.isTraveller);
-  const selectedIds = residents.flatMap((seat) =>
-    seat.roleId ? [seat.roleId] : [],
-  );
-
-  return getSetupCountOptions(residents.length, [
-    ...selectedIds,
-    ...getSetupRoleIds(gameTokens),
-  ]);
 }
 
 function countAssignedTeams(
@@ -115,7 +155,7 @@ function countAssignedTeams(
   return seats.reduce<TeamCounts>((counts, seat) => {
     if (seat.isTraveller || !seat.roleId) return counts;
     const role = roleById.get(seat.roleId);
-    if (!role || role.team === "traveller") return counts;
+    if (!role || !isResidentTeam(role.team)) return counts;
 
     if (seat.id === drunkSeatId && role.team === "townsfolk") {
       counts.outsider += 1;
@@ -139,7 +179,7 @@ export function getSetupTargetCounts(
 ) {
   const actual = roleIds.reduce<TeamCounts>((counts, roleId) => {
     const role = roleById.get(roleId);
-    if (role && role.team !== "traveller") counts[role.team] += 1;
+    if (role && isResidentTeam(role.team)) counts[role.team] += 1;
     return counts;
   }, emptyTeamCounts());
 
@@ -165,7 +205,14 @@ export function getSetupAssessment(
   gameTokens: readonly GameToken[] = [],
 ): SetupAssessment {
   const residents = seats.filter((seat) => !seat.isTraveller);
-  const options = getSetupOptions(seats, gameTokens);
+  const drunkReminder = getDrunkReminder(gameTokens);
+  const setupRoleIds = [
+    ...residents.flatMap((seat) =>
+      seat.roleId && seat.id !== drunkReminder?.seatId ? [seat.roleId] : [],
+    ),
+    ...getSetupRoleIds(gameTokens),
+  ];
+  const options = getSetupCountOptions(residents.length, setupRoleIds);
   const actual = countAssignedTeams(seats, gameTokens);
   const assignedCount = Object.values(actual).reduce(
     (sum, count) => sum + count,
@@ -173,7 +220,6 @@ export function getSetupAssessment(
   );
   const warnings: string[] = [];
   const drunkSelected = hasDrunkInSetup(seats, gameTokens);
-  const drunkReminder = getDrunkReminder(gameTokens);
   const drunkSeat = drunkReminder?.seatId
     ? residents.find((seat) => seat.id === drunkReminder.seatId)
     : null;
@@ -187,6 +233,10 @@ export function getSetupAssessment(
     );
   } else if (drunkSelected && drunkCoverRole?.team !== "townsfolk") {
     warnings.push("The Is The Drunk reminder should be on a Townsfolk.");
+  }
+
+  if (setupRoleIds.includes("huntsman") && !setupRoleIds.includes("damsel")) {
+    warnings.push("The Huntsman needs a Damsel in the starting setup.");
   }
 
   if (options.length === 0) {
@@ -214,23 +264,20 @@ export function getSetupAssessment(
     }
   }
 
-  const duplicates = assignedRoles
-    .map((role) => role.id)
-    .filter((id, index, ids) => ids.indexOf(id) !== index);
-  if (duplicates.length > 0) {
-    warnings.push("Duplicate character assignments are present.");
+  const assignedIds = assignedRoles.map((role) => role.id);
+  const copies = countRoleCopies(assignedIds);
+  for (const [id, count] of copies) {
+    const limit = getSetupRoleCopyLimit(id);
+    if (count > limit)
+      warnings.push(
+        `${roleById.get(id)!.name} exceeds its setup limit of ${limit}.`,
+      );
   }
-
-  const legalCounts = options.some(
-    (option) => countDistance(option, actual) === 0,
-  );
+  const legionIssue = getLegionSetupIssue(assignedIds, residents.length);
+  if (legionIssue) warnings.push(legionIssue);
 
   return {
-    legal:
-      missing === 0 &&
-      legalCounts &&
-      duplicates.length === 0 &&
-      (!drunkSelected || drunkCoverRole?.team === "townsfolk"),
+    legal: warnings.length === 0,
     assignedCount,
     expected,
     actual,
@@ -264,6 +311,12 @@ export function getSetupReminderWarnings(
     ([roleId, requirements]): SetupReminderWarning[] => {
       if (!inPlayRoleIds.has(roleId)) return [];
       if (roleId === "librarian" && !hasOutsider) return [];
+      if (
+        roleId === "villageidiot" &&
+        seats.filter((seat) => !seat.isTraveller && seat.roleId === roleId)
+          .length < 2
+      )
+        return [];
 
       const role = roleById.get(roleId);
       if (!role) return [];
@@ -279,6 +332,13 @@ export function getSetupReminderWarnings(
             return false;
           }
 
+          if (roleId === "villageidiot")
+            return seats.some(
+              (seat) =>
+                seat.id === token.seatId &&
+                !seat.isTraveller &&
+                seat.roleId === roleId,
+            );
           if (roleId !== DRUNK_ROLE_ID) return true;
           const seat = seats.find((candidate) => candidate.id === token.seatId);
           const coverRole = seat?.roleId ? roleById.get(seat.roleId) : null;

@@ -14,11 +14,6 @@ export type ReminderDefinition = {
   copies: number;
 };
 
-const supplementalReminderLabels: Partial<Record<string, string[]>> = {
-  drunk: ["Is The Drunk"],
-  philosopher: ["Is The Philosopher"],
-};
-
 const physicalReminderLabelOverrides: Partial<
   Record<string, Record<string, string>>
 > = {
@@ -50,10 +45,9 @@ export function getReminderCopyLimit(definition: ReminderDefinition) {
 export function getRoleReminderDefinitions(role: Role | null) {
   if (!role) return [];
 
-  const labels = [
-    ...role.reminders,
-    ...(supplementalReminderLabels[role.id] ?? []),
-  ].map((label) => physicalReminderLabelOverrides[role.id]?.[label] ?? label);
+  const labels = role.reminders.map(
+    (label) => physicalReminderLabelOverrides[role.id]?.[label] ?? label,
+  );
   const grouped = new Map<string, ReminderDefinition>();
   for (const label of labels) {
     const key = reminderKey(role.id, label);

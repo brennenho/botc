@@ -214,6 +214,12 @@ export function dealRoles(
 ): StorytellerPatch {
   const { createId, random } = resolveGameStateFactories(factories);
   const drunkSelected = rolePoolIds.includes(DRUNK_ROLE_ID);
+  if (
+    drunkSelected &&
+    rolePoolIds.indexOf(DRUNK_ROLE_ID) !==
+      rolePoolIds.lastIndexOf(DRUNK_ROLE_ID)
+  )
+    return {};
   const travellerRoleIds = rolePoolIds.filter(
     (roleId) => roleById.get(roleId)?.team === "traveller",
   );

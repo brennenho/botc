@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 import { roleById } from "@/lib/game-data";
+import { customScriptSchema } from "@/lib/game-data/custom-script";
 import { GAME_CODE_PATTERN } from "@/lib/game-code";
 
 const gameCode = z
@@ -43,7 +44,7 @@ const mutableToken = z
 
 export const createGameSchema = z
   .object({
-    edition: z.enum(["tb", "bmr", "snv"]),
+    edition: z.union([z.enum(["tb", "bmr", "snv"]), customScriptSchema]),
     playerCount: z.number().int().min(5).max(20).default(7),
   })
   .strict();
