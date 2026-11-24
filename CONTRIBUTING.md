@@ -1,9 +1,10 @@
 # Contributing to BOTC Townsquare
 
-Hey, I'm Brennen! I'm a solo dev, and I build and support BOTC Townsquare in my
+Hey, I'm Brennen! I'm a solo developer and support this project in my
 spare time. If there's a feature you'd like to see or a bug you know how to
-fix, you're welcome to put up a pull request (PR) for it. Small changes like
-clearing up a confusing instruction are welcome too.
+fix, you're welcome to put up a pull request for it. Small changes like
+clearing up a confusing instruction are welcome too. Otherwise, feel free to
+create issues and I'll tackle them when I can!
 
 ## Opening a PR
 
