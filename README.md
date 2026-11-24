@@ -107,6 +107,10 @@ pnpm test:integration
 Additional database and dependency checks are documented in the
 [development guide](docs/DEVELOPMENT.md#verification).
 
+## Contributing
+
+To help with code or documentation, see the [contributor guide](CONTRIBUTING.md).
+
 ## License
 
 Original software and documentation are licensed under the [MIT License](LICENSE).
