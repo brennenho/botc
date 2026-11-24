@@ -2,7 +2,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(15);
+select plan(20);
 
 select ok(to_regclass('public.games') is not null, 'games table exists');
 select ok(to_regclass('public.seats') is not null, 'seats table exists');
@@ -49,6 +49,37 @@ select is(
   (select count(*) from public.seats where game_id = 'pgtap-game'),
   5::bigint,
   'game creation makes the requested seats'
+);
+
+select ok(
+  not has_function_privilege('anon', 'public.botc_create_game(text,text,text,integer,text,jsonb)', 'execute')
+  and not has_function_privilege('authenticated', 'public.botc_create_game(text,text,text,integer,text,jsonb)', 'execute')
+  and has_function_privilege('service_role', 'public.botc_create_game(text,text,text,integer,text,jsonb)', 'execute'),
+  'the custom script creation RPC is restricted to the service role'
+);
+select lives_ok(
+  $$select * from public.botc_create_game(
+    'pgtap-custom', 'TST235', 'custom', 6, repeat('a', 64),
+    '{"name":"Custom test","roleIds":["steward","monk","ogre","spy","kazali"]}'::jsonb
+  )$$,
+  'game creation accepts a custom script'
+);
+select is(
+  (select custom_script from public.games where id = 'pgtap-custom'),
+  '{"name":"Custom test","roleIds":["steward","monk","ogre","spy","kazali"]}'::jsonb,
+  'the custom roster and its order are persisted'
+);
+select is(
+  (select count(*) from public.seats where game_id = 'pgtap-custom'),
+  6::bigint,
+  'custom games get the requested seats'
+);
+select throws_like(
+  $$select * from public.botc_create_game(
+    'pgtap-empty', 'TST236', 'custom', 5, repeat('a', 64), null::jsonb
+  )$$,
+  '%games_edition_check%',
+  'custom games require a script'
 );
 
 select lives_ok(
