@@ -7,8 +7,7 @@ import type {
 export const DEMON_BLUFF_COUNT = 3;
 
 export type InformationQuestion =
-  | "Did You Vote Today?"
-  | "Did You Nominate Today?";
+  "Did You Vote Today?" | "Did You Nominate Today?";
 
 export type PlayerReveal =
   | { type: "demon-bluffs" }
