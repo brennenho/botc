@@ -3,29 +3,38 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 import {
   ArrowLeft,
   ArrowRight,
   BookOpen,
   ExternalLink,
+  Library,
   Minus,
   Plus,
+  TriangleAlert,
   Users,
 } from "lucide-react";
 
+import { CharacterSheet } from "@/components/character-sheet/character-sheet";
+import {
+  CustomScriptPicker,
+  customScriptsLabel,
+} from "@/components/entry/custom-script-picker";
 import { Button } from "@/components/ui/button";
+import { isTeensyvillePreset } from "@/components/entry/script-presets";
 import { IconButton } from "@/components/ui/icon-button";
 import { Input } from "@/components/ui/input";
+import { Sheet } from "@/components/ui/sheet";
 import { createGame, joinGame } from "@/lib/api";
 import { toAppError } from "@/lib/app-error";
-import { editions, type EditionId } from "@/lib/game-data";
+import { editions, type GameScript } from "@/lib/game-data";
 import { normalizeGameCode } from "@/lib/game-code";
 import { notify } from "@/lib/notifications";
 import { trackEvent } from "@/lib/observability/client";
 import { cn } from "@/lib/utils";
 
-type EntryView = "cover" | "storytell" | "join";
+type EntryView = "cover" | "storytell" | "custom" | "join";
 type InvitationIssue = "full" | "unavailable";
 
 function CharacterReferenceLink({ className }: { className?: string }) {
@@ -54,8 +63,20 @@ export function EntryExperience({
   const [view, setView] = useState<EntryView>(
     normalizedInitialJoinCode || invitationUnavailable ? "join" : "cover",
   );
-  const [edition, setEdition] = useState<EditionId>("tb");
+  const [edition, setEdition] = useState<GameScript>("tb");
+  const customScript = typeof edition === "object" ? edition : undefined;
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const customScriptButton = useRef<HTMLButtonElement>(null);
+  const previousView = useRef(view);
+  useLayoutEffect(() => {
+    if (previousView.current === "custom" && view === "storytell") {
+      customScriptButton.current?.focus();
+    }
+    previousView.current = view;
+  }, [view]);
   const [playerCount, setPlayerCount] = useState(7);
+  const showPlayerHint =
+    isTeensyvillePreset(customScript) && (playerCount < 5 || playerCount > 6);
   const [joinCode, setJoinCode] = useState(normalizedInitialJoinCode);
   const [playerName, setPlayerName] = useState("");
   const [pendingAction, setPendingAction] = useState<"create" | "join" | null>(
@@ -74,7 +95,10 @@ export function EntryExperience({
     normalizedInitialJoinCode || invitationUnavailable,
   );
   const isInvitation = isInvitationRoute;
-  const showBack = view === "storytell" || (view === "join" && !isInvitation);
+  const showBack =
+    view === "storytell" ||
+    view === "custom" ||
+    (view === "join" && !isInvitation);
 
   function showView(nextView: EntryView) {
     if (pendingAction) return;
@@ -100,7 +124,7 @@ export function EntryExperience({
       const result = await createGame(edition, playerCount);
       trackEvent("game_created", {
         actor_role: "storyteller",
-        edition,
+        edition: typeof edition === "string" ? edition : "custom",
         player_count: playerCount,
       });
       router.push(`/game/${result.snapshot.game.joinCode}/storyteller`);
@@ -173,18 +197,33 @@ export function EntryExperience({
           </div>
         </section>
 
-        <section className="entry-page entry-page-action">
+        <section
+          className={cn(
+            "entry-page entry-page-action",
+            view === "custom" && "is-browsing-scripts",
+          )}
+        >
           <div className="entry-page-inner">
-            <div className="entry-action-stage">
+            <div
+              className="entry-action-stage"
+              onKeyDown={(event) => {
+                if (view === "custom" && event.key === "Escape") {
+                  event.preventDefault();
+                  showView("storytell");
+                }
+              }}
+            >
               {showBack ? (
                 <button
                   type="button"
                   className="entry-back"
                   disabled={pendingAction !== null}
-                  onClick={() => showView("cover")}
+                  onClick={() =>
+                    showView(view === "custom" ? "storytell" : "cover")
+                  }
                 >
                   <ArrowLeft aria-hidden="true" />
-                  Back to game options
+                  {view === "custom" ? "Back to setup" : "Back to game options"}
                 </button>
               ) : null}
 
@@ -241,7 +280,7 @@ export function EntryExperience({
                 >
                   <header className="entry-step-heading">
                     <p>Start a new game</p>
-                    <h2 id="edition-title">Choose an edition</h2>
+                    <h2 id="edition-title">Choose a script</h2>
                   </header>
 
                   <div className="entry-editions">
@@ -271,6 +310,55 @@ export function EntryExperience({
                     ))}
                   </div>
 
+                  <div className="entry-custom-option">
+                    {customScript && (
+                      <div className="entry-script-selection">
+                        <div className="min-w-0" role="status">
+                          <strong className="block break-words">
+                            {customScript.name}
+                          </strong>
+                          <span className="text-xs text-black/65">
+                            {customScript.author && `${customScript.author} · `}
+                            {customScript.roleIds.length} characters
+                          </span>
+                        </div>
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="quiet"
+                          aria-haspopup="dialog"
+                          disabled={createPending}
+                          onClick={() => setPreviewOpen(true)}
+                        >
+                          <BookOpen aria-hidden="true" size={14} />
+                          Preview sheet
+                        </Button>
+                        <Sheet
+                          title="Script preview"
+                          open={previewOpen}
+                          onOpenChange={setPreviewOpen}
+                        >
+                          <CharacterSheet
+                            sheetId={customScript}
+                            className="min-h-0 flex-1"
+                          />
+                        </Sheet>
+                      </div>
+                    )}
+                    <Button
+                      ref={customScriptButton}
+                      type="button"
+                      size="lg"
+                      variant="tinted"
+                      className="w-full"
+                      disabled={createPending}
+                      onClick={() => showView("custom")}
+                    >
+                      <Library aria-hidden="true" size={16} />
+                      {customScriptsLabel}
+                      <ArrowRight aria-hidden="true" size={14} />
+                    </Button>
+                  </div>
                   <div className="entry-step-action">
                     <div className="entry-player-count">
                       <span className="entry-player-count-label">
@@ -295,6 +383,9 @@ export function EntryExperience({
                           max={20}
                           inputMode="numeric"
                           aria-label="Player Count"
+                          aria-describedby={
+                            showPlayerHint ? "teensyville-count" : undefined
+                          }
                           className="entry-player-count-input"
                           value={playerCount}
                           disabled={createPending}
@@ -323,6 +414,19 @@ export function EntryExperience({
                         </IconButton>
                       </div>
                     </div>
+                    {showPlayerHint && (
+                      <p
+                        id="teensyville-count"
+                        className="entry-player-warning"
+                        role="status"
+                      >
+                        <TriangleAlert aria-hidden="true" size={16} />
+                        <span>
+                          This preset is designed for{" "}
+                          <strong>5–6 players</strong>.
+                        </span>
+                      </p>
+                    )}
                     <Button
                       size="lg"
                       className="entry-open-button"
@@ -335,6 +439,17 @@ export function EntryExperience({
                     </Button>
                   </div>
                 </section>
+              )}
+
+              {view === "custom" && (
+                <CustomScriptPicker
+                  selected={customScript}
+                  onSelect={(script, preview = false) => {
+                    setEdition(script);
+                    setPreviewOpen(preview);
+                    showView("storytell");
+                  }}
+                />
               )}
 
               {view === "join" && (

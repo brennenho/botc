@@ -8,7 +8,7 @@ export type ProductEvents = {
   };
   game_created: {
     actor_role: "storyteller";
-    edition: EditionId;
+    edition: EditionId | "custom";
     player_count: number;
   };
   game_invitation_opened: {

@@ -13,6 +13,8 @@ const buttonVariants = cva(
           "bg-[var(--control-primary-bg)] text-[var(--control-primary-text)] shadow-[var(--shadow-control-rest)] hover:-translate-y-px hover:bg-[var(--control-primary-bg-hover)] hover:shadow-[var(--shadow-control-hover)] active:translate-y-0 active:bg-[var(--control-primary-bg-hover)] active:shadow-[var(--shadow-control-pressed)]",
         secondary:
           "border-[var(--control-border)] bg-[var(--control-secondary-bg)] text-[var(--control-text)] shadow-[var(--shadow-control-rest)] hover:-translate-y-px hover:bg-[var(--control-secondary-bg-hover)] hover:shadow-[var(--shadow-control-hover)] active:translate-y-0 active:bg-[var(--control-secondary-bg-hover)] active:shadow-[var(--shadow-control-pressed)]",
+        tinted:
+          "border-[var(--oxblood)]/25 bg-[var(--oxblood)]/12 text-[var(--oxblood-dark)] hover:bg-[var(--oxblood)]/18 active:bg-[var(--oxblood)]/24",
         quiet:
           "text-[var(--control-text-muted)] hover:bg-[var(--control-hover)] hover:text-[var(--control-text)] active:bg-[var(--control-hover)]",
         danger:
