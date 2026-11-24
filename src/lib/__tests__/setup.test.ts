@@ -223,17 +223,15 @@ describe("setup reminder warnings", () => {
         ["washerwoman", "Wrong", seats[2]!.id],
         ["fortuneteller", "Red Herring", seats[3]!.id],
         [DRUNK_ROLE_ID, DRUNK_REMINDER_LABEL, seats[4]!.id],
-      ].map(
-        ([roleId, label, seatId], index): GameToken => ({
-          id: `reminder-${index}`,
-          seatId: seatId!,
-          tokenType: "reminder",
-          roleId: roleId!,
-          label: label!,
-          position: index + 1,
-          metadata: {},
-        }),
-      ),
+      ].map(([roleId, label, seatId], index): GameToken => ({
+        id: `reminder-${index}`,
+        seatId: seatId!,
+        tokenType: "reminder",
+        roleId: roleId!,
+        label: label!,
+        position: index + 1,
+        metadata: {},
+      })),
     ];
 
     expect(getSetupReminderWarnings(seats, gameTokens)).toEqual([]);

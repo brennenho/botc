@@ -219,17 +219,15 @@ describe("physical reminder inventory", () => {
       "Poisoned",
     );
     const tokens: GameToken[] = [
-      ...["safe-a", "safe-b", "safe-extra"].map(
-        (id, position): GameToken => ({
-          id,
-          seatId: "seat-a",
-          tokenType: "reminder",
-          roleId: innkeeper.id,
-          label: safe.label,
-          position,
-          metadata: withReminderKey({}, safe.key),
-        }),
-      ),
+      ...["safe-a", "safe-b", "safe-extra"].map((id, position): GameToken => ({
+        id,
+        seatId: "seat-a",
+        tokenType: "reminder",
+        roleId: innkeeper.id,
+        label: safe.label,
+        position,
+        metadata: withReminderKey({}, safe.key),
+      })),
       {
         id: "poisoner",
         seatId: "seat-a",

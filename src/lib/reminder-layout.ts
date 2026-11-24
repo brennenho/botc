@@ -153,8 +153,7 @@ export function findReminderSnapTarget({
   };
   const captureRadius = playerSize * 0.72 + reminderSize * 1.6 + clearance;
   let nearestPlayer:
-    | ((typeof players)[number] & { distance: number })
-    | undefined;
+    ((typeof players)[number] & { distance: number }) | undefined;
 
   for (const player of players) {
     const playerPixels = {

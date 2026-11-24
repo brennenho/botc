@@ -11,8 +11,7 @@ import type {
 } from "@/lib/game-data/types";
 
 export type StorytellerUpdate =
-  | StorytellerPatch
-  | ((snapshot: StorytellerSnapshot) => StorytellerPatch);
+  StorytellerPatch | ((snapshot: StorytellerSnapshot) => StorytellerPatch);
 
 export type StorytellerCommit = (update: StorytellerUpdate) => void;
 
