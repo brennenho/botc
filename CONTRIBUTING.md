@@ -16,10 +16,10 @@ create issues and I'll tackle them when I can!
    both the Storyteller and a player in separate browser profiles. You can find
    the build, database, and multiplayer checks in the
    [development guide](docs/DEVELOPMENT.md#verification).
-3. Push your branch to your fork and open a PR against `main`. Tell me what
-   happened at your table, how your change helps, and how you tested it. Link
-   a related issue if there is one. A screenshot helps me review a visual
-   change. Please leave out game codes, invite links, and player names.
+3. Push your branch to your fork and open a PR against `main`. Tell me how
+   your change helps and how you tested it. Link a related issue if there is
+   one. A screenshot helps me review a visual change. Please leave out game
+   codes, invite links, and player names.
 
 If you're working with character data or artwork, you can find the sources and
 usage terms in the [third-party notices](THIRD_PARTY_NOTICES.md).
