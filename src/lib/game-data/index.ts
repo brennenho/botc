@@ -19,6 +19,9 @@ export {
 export { getNightOrder, getNightOrderEntries } from "./night-order";
 export { canCreateRandomSetup, createRandomSetup } from "./random-setup";
 export {
+  countRoleCopies,
+  getLegionSetupIssue,
+  getSetupRoleCopyLimit,
   getSetupAssessment,
   getSetupCountOptions,
   getSetupReminderWarnings,

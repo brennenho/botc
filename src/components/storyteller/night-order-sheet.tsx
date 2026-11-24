@@ -8,6 +8,7 @@ import { ReminderIcon } from "@/components/storyteller/reminder-icon";
 import { RevealIcon } from "@/components/storyteller/reveal-icon";
 import { TokenIcon } from "@/components/storyteller/token-icon";
 import { SegmentedControl } from "@/components/ui/segmented-control";
+import { Switch } from "@/components/ui/switch";
 import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts";
 import {
   getNightOrderEntries,
@@ -102,13 +103,34 @@ export function NightOrderPanel({
     shortcutsEnabled,
   );
 
+  const order = useMemo(
+    () =>
+      getNightOrderEntries(
+        editionId,
+        night,
+        seats.flatMap((seat) =>
+          seat.isTraveller && seat.roleId ? [seat.roleId] : [],
+        ),
+      ),
+    [editionId, night, seats],
+  );
+  const smallGameInfo =
+    night === "first" &&
+    seats.filter((seat) => !seat.isTraveller).length < 7 &&
+    order.some((entry) => isEvilInfo(entry.id));
   const entries = useMemo(() => {
-    const order = getNightOrderEntries(editionId, night);
+    const visibleOrder =
+      smallGameInfo && !state.smallGameEvilInfo
+        ? order.filter((entry) => !isEvilInfo(entry.id))
+        : order;
     if (scope === "all") {
-      return order.map((entry): DisplayEntry => ({ ...entry, key: entry.id }));
+      return visibleOrder.map((entry): DisplayEntry => ({
+        ...entry,
+        key: entry.id,
+      }));
     }
 
-    return order.flatMap((entry): DisplayEntry[] => {
+    return visibleOrder.flatMap((entry): DisplayEntry[] => {
       if (entry.system) return [{ ...entry, key: entry.id }];
       const matchingSeats = seats.filter(
         (seat) => seat.alive && seat.roleId === entry.role?.id,
@@ -119,7 +141,7 @@ export function NightOrderPanel({
         playerName: seat.playerName,
       }));
     });
-  }, [editionId, night, scope, seats]);
+  }, [order, scope, seats, smallGameInfo, state.smallGameEvilInfo]);
 
   function toggleComplete(key: string) {
     const next = new Set(completed);
@@ -159,6 +181,23 @@ export function NightOrderPanel({
         />
       </div>
 
+      {smallGameInfo && (
+        <label className="flex items-center justify-between gap-3 border-b border-black/10 px-4 py-2 text-sm">
+          <span>
+            Minion and Demon info{" "}
+            <small className="block text-xs text-[var(--ink-muted)]">
+              Enable if the Toymaker or another rule grants starting info.
+            </small>
+          </span>
+          <Switch
+            aria-label="Minion and Demon info"
+            checked={state.smallGameEvilInfo === true}
+            onCheckedChange={(checked) =>
+              onStateChange({ ...state, smallGameEvilInfo: checked })
+            }
+          />
+        </label>
+      )}
       <div className="night-order-list">
         {entries.map((entry, index) => {
           const done = completed.has(entry.key);
@@ -179,8 +218,7 @@ export function NightOrderPanel({
                 <TokenIcon
                   role={entry.role}
                   className={cn(
-                    (entry.id === "minioninfo" || entry.id === "demoninfo") &&
-                      "night-order-information-token",
+                    isEvilInfo(entry.id) && "night-order-information-token",
                   )}
                 >
                   <NightOrderSystemIcon entryId={entry.id} />
@@ -291,6 +329,10 @@ export function NightOrderPanel({
       </div>
     </>
   );
+}
+
+function isEvilInfo(id: string) {
+  return id === "minioninfo" || id === "demoninfo";
 }
 
 function NightOrderSystemIcon({ entryId }: { entryId: string }) {

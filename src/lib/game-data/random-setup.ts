@@ -1,5 +1,11 @@
 import { getEditionRoles, isResidentTeam } from "./catalog";
-import { getOutsiderDeltas, setupCounts } from "./setup";
+import {
+  countRoleCopies,
+  getLegionSetupIssue,
+  getOutsiderDeltas,
+  getSetupRoleCopyLimit,
+  setupCounts,
+} from "./setup";
 import type { GameScript, ResidentTeam, Role } from "./types";
 
 function shuffled<T>(items: readonly T[], random: () => number) {
@@ -30,14 +36,21 @@ export function createRandomSetup(
   allowedRoleIds?: readonly string[],
 ) {
   const base = setupCounts[playerCount];
-  const allowed = allowedRoleIds ? new Set(allowedRoleIds) : null;
-  const editionRoles = getEditionRoles(edition).filter(
-    (role) => isResidentTeam(role.team) && (!allowed || allowed.has(role.id)),
+  const editionRoles = getEditionRoles(edition).filter((role) =>
+    isResidentTeam(role.team),
   );
 
-  if (allowed) {
-    if (editionRoles.length !== playerCount) return [];
-    return shuffled(editionRoles, random).map((role) => role.id);
+  if (allowedRoleIds) {
+    const roster = new Set(editionRoles.map((role) => role.id));
+    if (
+      allowedRoleIds.length !== playerCount ||
+      getLegionSetupIssue(allowedRoleIds, playerCount) ||
+      [...countRoleCopies(allowedRoleIds)].some(
+        ([id, count]) => !roster.has(id) || count > getSetupRoleCopyLimit(id),
+      )
+    )
+      return [];
+    return shuffled(allowedRoleIds, random);
   }
 
   if (!base) {
@@ -61,6 +74,21 @@ export function createRandomSetup(
   );
 
   for (const demon of demonOptions) {
+    if (demon.id === "legion") {
+      const good = shuffled(
+        [...groups.townsfolk, ...groups.outsider],
+        random,
+      ).slice(0, base.minion + base.demon);
+      if (good.length > 0)
+        return shuffled(
+          [
+            ...good.map((role) => role.id),
+            ...Array<string>(playerCount - good.length).fill("legion"),
+          ],
+          random,
+        );
+      continue;
+    }
     for (const minions of minionOptions) {
       const selectedIds = [demon.id, ...minions.map((role) => role.id)];
       const possibleDeltas = shuffled(getOutsiderDeltas(selectedIds), random);
