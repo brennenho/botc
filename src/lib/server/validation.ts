@@ -37,7 +37,7 @@ const mutableToken = z
     roleId: roleId.nullable(),
     label: z.string().trim().min(1).max(80),
     position: z.number().int().min(0),
-    metadata: z.record(z.unknown()),
+    metadata: z.record(z.string(), z.unknown()),
   })
   .strict();
 
