@@ -3,6 +3,8 @@ import { roleById } from "@/lib/game-data";
 import type {
   Alignment,
   EditionId,
+  CustomScript,
+  GameScript,
   Game,
   GameToken,
   Phase,
@@ -38,7 +40,8 @@ type RpcResult = {
 type GameRow = {
   id: string;
   join_code: string;
-  edition: EditionId;
+  edition: EditionId | "custom";
+  custom_script: CustomScript | null;
   phase: Phase;
   day_number: number;
   version: number;
@@ -94,7 +97,7 @@ export type JoinedGame = {
 };
 
 const gameColumns =
-  "id, join_code, edition, phase, day_number, version, storyteller_token_hash, created_at, updated_at";
+  "id, join_code, edition, custom_script, phase, day_number, version, storyteller_token_hash, created_at, updated_at";
 const seatColumns =
   "id, game_id, seat_index, player_name, player_token_hash, role_id, alignment, alive, ghost_vote_available, is_traveller, joined_at";
 const tokenColumns =
@@ -104,7 +107,7 @@ function toStoredGame(row: GameRow): StoredGame {
   return {
     id: row.id,
     joinCode: row.join_code,
-    edition: row.edition,
+    edition: row.edition === "custom" ? row.custom_script! : row.edition,
     phase: row.phase,
     dayNumber: row.day_number,
     version: row.version,
@@ -191,18 +194,31 @@ function assertCredential(
 }
 
 function assertSupportedRoleIds(
+  script: GameScript,
   seats: Seat[] | undefined,
   tokens: GameToken[] | undefined,
 ) {
-  const roleIds = [
-    ...(seats ?? []).map((seat) => seat.roleId),
-    ...(tokens ?? []).map((token) => token.roleId),
-  ].filter((roleId): roleId is string => roleId !== null);
-
-  if (roleIds.some((roleId) => !roleById.has(roleId))) {
+  function allowed(id: string, assignable: boolean) {
+    const role = roleById.get(id);
+    if (
+      !role ||
+      (assignable && (role.team === "fabled" || role.team === "loric"))
+    )
+      return false;
+    if (typeof script === "string")
+      return ["tb", "bmr", "snv"].includes(role.edition);
+    return script.roleIds.includes(id) || role.team === "traveller";
+  }
+  if (
+    seats?.some((seat) => seat.roleId && !allowed(seat.roleId, true)) ||
+    tokens?.some(
+      (token) =>
+        token.roleId && !allowed(token.roleId, token.tokenType === "bluff"),
+    )
+  ) {
     throw new GameStoreError(
       "invalid_input",
-      "The update contains an unsupported character.",
+      "The update contains a character unavailable for this game.",
     );
   }
 }
@@ -255,7 +271,7 @@ export async function gameExistsByCode(gameCode: string) {
 }
 
 export async function createGame(
-  edition: EditionId,
+  edition: GameScript,
   playerCount = 7,
 ): Promise<CreatedGame> {
   if (!Number.isInteger(playerCount) || playerCount < 5 || playerCount > 20) {
@@ -271,7 +287,8 @@ export async function createGame(
   for (let attempt = 0; attempt < 5; attempt += 1) {
     const joinCode = createJoinCode();
     const { data, error } = (await supabase.rpc("botc_create_game", {
-      p_edition: edition,
+      p_edition: typeof edition === "string" ? edition : "custom",
+      ...(typeof edition === "object" && { p_custom_script: edition }),
       p_game_id: crypto.randomUUID(),
       p_join_code: joinCode,
       p_player_count: playerCount,
@@ -399,7 +416,9 @@ export async function updateStorytellerGameByCode(
     throw new GameStoreError("invalid_input", "Game version is invalid.");
   }
 
-  assertSupportedRoleIds(patch.seats, patch.gameTokens);
+  const storedGame = await requireGameByCode(gameCode);
+  assertCredential(storedGame.storytellerTokenHash, credential, "Storyteller");
+  assertSupportedRoleIds(storedGame.edition, patch.seats, patch.gameTokens);
   const seats = patch.seats ? normalizeUpdatedSeats(patch.seats) : undefined;
   const gameTokens = patch.gameTokens
     ? normalizeReminderOrders(reconcileReminderInventory(patch.gameTokens))

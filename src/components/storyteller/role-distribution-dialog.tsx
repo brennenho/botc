@@ -10,7 +10,7 @@ import {
   getSetupSelectionTargetCounts,
   getTravellerRoles,
   roleById,
-  type EditionId,
+  type GameScript,
   type TeamCounts,
 } from "@/lib/game-data";
 import { DRUNK_ROLE_ID } from "@/lib/setup-effects";
@@ -34,7 +34,7 @@ export function RoleDistributionDialog({
   onDistribute,
 }: {
   open: boolean;
-  editionId: EditionId;
+  editionId: GameScript;
   residentCount: number;
   travellerCount: number;
   onOpenChange: (open: boolean) => void;
@@ -66,7 +66,7 @@ export function RoleDistributionDialog({
   const selectionComplete =
     residentSelectionComplete && travellerSelectionComplete;
   const grouped = getRolesByTeam(editionId);
-  const travellerRoles = getTravellerRoles();
+  const travellerRoles = getTravellerRoles(editionId);
   const residentLimitReached =
     selectedResidentRoleIds.length >= residentSelectionTarget;
   const travellerLimitReached =

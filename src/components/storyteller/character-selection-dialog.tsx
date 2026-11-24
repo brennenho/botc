@@ -6,7 +6,7 @@ import type { ReactNode } from "react";
 
 import { CharacterCatalog } from "@/components/storyteller/character-catalog";
 import { IconButton } from "@/components/ui/icon-button";
-import type { EditionId, Team, TeamCounts } from "@/lib/game-data";
+import type { GameScript, Team, TeamCounts } from "@/lib/game-data";
 
 export function CharacterSelectionDialog({
   open,
@@ -29,7 +29,7 @@ export function CharacterSelectionDialog({
   onSelect,
 }: {
   open: boolean;
-  editionId: EditionId;
+  editionId: GameScript;
   title: string;
   closeLabel: string;
   selectionMode: "single" | "multiple";

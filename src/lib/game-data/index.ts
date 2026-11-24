@@ -1,5 +1,6 @@
 export {
   editions,
+  isResidentTeam,
   getCrossEditionTravellerRoles,
   getDefaultAlignment,
   getEdition,
@@ -29,6 +30,8 @@ export {
 export type {
   Alignment,
   EditionId,
+  GameScript,
+  CustomScript,
   NightOrderEntry,
   Phase,
   ResidentTeam,

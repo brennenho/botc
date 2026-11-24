@@ -10,7 +10,8 @@ import {
   getCrossEditionTravellerRoles,
   getRolesByTeam,
   teamLabel,
-  type EditionId,
+  isResidentTeam,
+  type GameScript,
   type Role,
   type Team,
   type TeamCounts,
@@ -32,7 +33,7 @@ export function CharacterCatalog({
   unavailableRoleIds = [],
   onSelect,
 }: {
-  editionId: EditionId;
+  editionId: GameScript;
   selectedRoleIds: string[];
   usedRoleIds?: string[];
   bluffRoleIds?: string[];
@@ -170,7 +171,7 @@ export function CharacterCatalog({
                   {detail && <small>{detail}</small>}
                 </span>
               )}
-              {team !== "traveller" &&
+              {isResidentTeam(team) &&
                 selectionMode === "multiple" &&
                 targetTeamCounts && (
                   <span

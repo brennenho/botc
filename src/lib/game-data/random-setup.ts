@@ -1,6 +1,6 @@
-import { getEditionRoles } from "./catalog";
+import { getEditionRoles, isResidentTeam } from "./catalog";
 import { getOutsiderDeltas, setupCounts } from "./setup";
-import type { EditionId, ResidentTeam, Role } from "./types";
+import type { GameScript, ResidentTeam, Role } from "./types";
 
 function shuffled<T>(items: readonly T[], random: () => number) {
   const result = [...items];
@@ -24,7 +24,7 @@ function combinations<T>(items: readonly T[], count: number): T[][] {
 }
 
 export function createRandomSetup(
-  edition: EditionId,
+  edition: GameScript,
   playerCount: number,
   random: () => number = Math.random,
   allowedRoleIds?: readonly string[],
@@ -32,7 +32,7 @@ export function createRandomSetup(
   const base = setupCounts[playerCount];
   const allowed = allowedRoleIds ? new Set(allowedRoleIds) : null;
   const editionRoles = getEditionRoles(edition).filter(
-    (role) => role.team !== "traveller" && (!allowed || allowed.has(role.id)),
+    (role) => isResidentTeam(role.team) && (!allowed || allowed.has(role.id)),
   );
 
   if (allowed) {
@@ -49,7 +49,7 @@ export function createRandomSetup(
 
   const groups = editionRoles.reduce<Record<ResidentTeam, Role[]>>(
     (result, role) => {
-      if (role.team !== "traveller") result[role.team].push(role);
+      if (isResidentTeam(role.team)) result[role.team].push(role);
       return result;
     },
     { townsfolk: [], outsider: [], minion: [], demon: [] },
@@ -98,7 +98,7 @@ export function createRandomSetup(
 }
 
 export function canCreateRandomSetup(
-  edition: EditionId,
+  edition: GameScript,
   playerCount: number,
   allowedRoleIds: readonly string[],
 ) {

@@ -1,5 +1,5 @@
 import { editions, getEdition, getRolesByTeam } from "./catalog";
-import type { EditionId, ResidentTeam, Role } from "./types";
+import type { GameScript, ResidentTeam, Team, Role } from "./types";
 
 export const characterSheetTeams = [
   "townsfolk",
@@ -8,8 +8,15 @@ export const characterSheetTeams = [
   "demon",
 ] as const satisfies readonly ResidentTeam[];
 
+const customSheetTeams: readonly Team[] = [
+  ...characterSheetTeams,
+  "traveller",
+  "fabled",
+  "loric",
+];
+
 export type CharacterSheetGroup = {
-  team: ResidentTeam;
+  team: Team;
   roles: Role[];
 };
 
@@ -29,13 +36,17 @@ export type TravellerSheetDefinition = {
 };
 
 export function getCharacterSheetDefinition(
-  editionId: EditionId,
+  editionId: GameScript,
 ): CharacterSheetDefinition {
   const rolesByTeam = getRolesByTeam(editionId);
 
+  const teams: readonly Team[] =
+    typeof editionId === "object"
+      ? customSheetTeams.filter((team) => rolesByTeam[team].length > 0)
+      : characterSheetTeams;
   return {
     edition: getEdition(editionId),
-    groups: characterSheetTeams.map((team) => ({
+    groups: teams.map((team) => ({
       team,
       roles: rolesByTeam[team],
     })),

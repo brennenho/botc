@@ -28,6 +28,20 @@ test("API validation rejects malformed create, join, and update payloads", async
     ).toBe("invalid_input");
   }
 
+  for (const data of [
+    "{",
+    JSON.stringify({ edition: "tb", playerCount: 7 }).padEnd(256 * 1024 + 1),
+  ]) {
+    const response = await storyteller.context.request.post("/api/games", {
+      headers: { "content-type": "application/json" },
+      data,
+    });
+    expect(response.status()).toBe(400);
+    expect(
+      (await responseJson<{ error: { code: string } }>(response)).error.code,
+    ).toBe("invalid_input");
+  }
+
   const unknownJoin = await storyteller.context.request.post("/api/join", {
     data: { joinCode: "ZZZZZZ", playerName: "Alice" },
   });

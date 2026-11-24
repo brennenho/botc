@@ -11,7 +11,7 @@ import { SegmentedControl } from "@/components/ui/segmented-control";
 import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts";
 import {
   getNightOrderEntries,
-  type EditionId,
+  type GameScript,
   type NightOrderEntry,
 } from "@/lib/game-data";
 import type { GameToken, Seat } from "@/lib/game-data/types";
@@ -42,7 +42,7 @@ export function NightOrderPanel({
   onReveal,
 }: {
   shortcutsEnabled: boolean;
-  editionId: EditionId;
+  editionId: GameScript;
   seats: Seat[];
   gameTokens: GameToken[];
   state: NightOrderState;

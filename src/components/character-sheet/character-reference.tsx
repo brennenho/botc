@@ -1,10 +1,7 @@
 "use client";
 
-import {
-  CharacterSheet,
-  type CharacterSheetId,
-} from "@/components/character-sheet/character-sheet";
-import type { EditionId } from "@/lib/game-data";
+import { CharacterSheet } from "@/components/character-sheet/character-sheet";
+import type { GameScript } from "@/lib/game-data";
 import { cn } from "@/lib/utils";
 
 export type CharacterReferenceView = "script" | "travellers";
@@ -14,12 +11,11 @@ export function CharacterReference({
   view,
   onViewChange,
 }: {
-  editionId: EditionId;
+  editionId: GameScript;
   view: CharacterReferenceView;
   onViewChange: (view: CharacterReferenceView) => void;
 }) {
-  const sheetId: CharacterSheetId =
-    view === "travellers" ? "travellers" : editionId;
+  const sheetId = view === "travellers" ? "travellers" : editionId;
   const travellersSelected = view === "travellers";
 
   function selectTab(nextView: CharacterReferenceView) {

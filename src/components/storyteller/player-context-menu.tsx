@@ -14,7 +14,7 @@ import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts";
 import { roleById, teamLabel } from "@/lib/game-data";
 import type {
   Alignment,
-  EditionId,
+  GameScript,
   GameToken,
   Seat,
 } from "@/lib/game-data/types";
@@ -42,7 +42,7 @@ export function PlayerContextMenu({
   onSetGhostVote,
   onAddReminder,
 }: {
-  editionId: EditionId;
+  editionId: GameScript;
   seat: Seat;
   seats: Seat[];
   gameTokens: GameToken[];

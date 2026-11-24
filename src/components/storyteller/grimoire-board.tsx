@@ -18,7 +18,7 @@ import { PlayerContextMenu } from "@/components/storyteller/player-context-menu"
 import { StorytellerPlayerToken } from "@/components/grimoire/storyteller-player-token";
 import type {
   Alignment,
-  EditionId,
+  GameScript,
   GameToken,
   Seat,
 } from "@/lib/game-data/types";
@@ -70,7 +70,7 @@ export function GrimoireBoard({
   onMovePlayer,
   onMoveReminder,
 }: {
-  editionId: EditionId;
+  editionId: GameScript;
   seats: Seat[];
   gameTokens: GameToken[];
   redacted: boolean;

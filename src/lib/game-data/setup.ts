@@ -1,4 +1,4 @@
-import { roleById, teamLabel } from "./catalog";
+import { roleById, teamLabel, isResidentTeam } from "./catalog";
 import type {
   GameToken,
   ResidentTeam,
@@ -115,7 +115,7 @@ function countAssignedTeams(
   return seats.reduce<TeamCounts>((counts, seat) => {
     if (seat.isTraveller || !seat.roleId) return counts;
     const role = roleById.get(seat.roleId);
-    if (!role || role.team === "traveller") return counts;
+    if (!role || !isResidentTeam(role.team)) return counts;
 
     if (seat.id === drunkSeatId && role.team === "townsfolk") {
       counts.outsider += 1;
@@ -139,7 +139,7 @@ export function getSetupTargetCounts(
 ) {
   const actual = roleIds.reduce<TeamCounts>((counts, roleId) => {
     const role = roleById.get(roleId);
-    if (role && role.team !== "traveller") counts[role.team] += 1;
+    if (role && isResidentTeam(role.team)) counts[role.team] += 1;
     return counts;
   }, emptyTeamCounts());
 

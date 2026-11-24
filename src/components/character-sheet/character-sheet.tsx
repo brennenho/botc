@@ -6,15 +6,33 @@ import {
   getCharacterSheetDefinition,
   getTravellerSheetDefinition,
   type EditionId,
-  type ResidentTeam,
+  type Team,
+  type CustomScript,
+  roleById,
   type Role,
 } from "@/lib/game-data";
+import jinxes from "../../../public/assets/data/jinxes.json";
 import { cn } from "@/lib/utils";
 
 const teamPresentation: Record<
-  ResidentTeam,
+  Team,
   { pluralLabel: string; sectionClass: string; labelClass: string }
 > = {
+  traveller: {
+    pluralLabel: "Travellers",
+    sectionClass: "border-amber-800/45 bg-amber-950/[0.04]",
+    labelClass: "text-amber-900",
+  },
+  fabled: {
+    pluralLabel: "Fabled",
+    sectionClass: "border-yellow-800/40 bg-yellow-950/[0.04]",
+    labelClass: "text-yellow-900",
+  },
+  loric: {
+    pluralLabel: "Loric",
+    sectionClass: "border-green-800/40 bg-green-950/[0.04]",
+    labelClass: "text-green-900",
+  },
   townsfolk: {
     pluralLabel: "Townsfolk",
     sectionClass: "border-sky-700/55 bg-sky-950/[0.045]",
@@ -58,7 +76,7 @@ export function CharacterSheet({
   topNavigation,
   className,
 }: {
-  sheetId: CharacterSheetId;
+  sheetId: CharacterSheetId | CustomScript;
   variant?: "embedded" | "standalone";
   topNavigation?: ReactNode;
   className?: string;
@@ -69,6 +87,22 @@ export function CharacterSheet({
     sheetId === "travellers" ? getTravellerSheetDefinition() : null;
   const [townsfolk, ...otherGroups] = editionDefinition?.groups ?? [];
 
+  const custom = typeof sheetId === "object" ? sheetId : null;
+  const pairs = custom
+    ? jinxes
+        .filter((role) => custom.roleIds.includes(role.id))
+        .flatMap((role) =>
+          role.jinx
+            .filter((other) => custom.roleIds.includes(other.id))
+            .map((other) => ({
+              label:
+                roleById.get(role.id)!.name +
+                " & " +
+                roleById.get(other.id)!.name,
+              reason: other.reason,
+            })),
+        )
+    : [];
   return (
     <article
       className={cn(
@@ -123,7 +157,10 @@ export function CharacterSheet({
                 ? "Travellers"
                 : editionDefinition?.edition.name}
             </h1>
-            {variant === "standalone" ? (
+            {custom?.author && (
+              <p className="mt-1 text-sm text-black/65">by {custom.author}</p>
+            )}
+            {variant === "standalone" && typeof sheetId === "string" ? (
               <p className="mt-2 max-w-2xl text-[12px] leading-[1.5] text-black/52 sm:text-[13px]">
                 {sheetIntroductions[sheetId]}
               </p>
@@ -155,6 +192,33 @@ export function CharacterSheet({
           </>
         )}
       </div>
+      {(pairs.length > 0 || Boolean(custom?.bootlegger?.length)) && (
+        <div className="grid gap-4 px-5 pb-5 text-sm">
+          {pairs.length > 0 && (
+            <section>
+              <h2 className="font-display text-lg">Jinxes</h2>
+              <ul className="grid gap-2">
+                {pairs.map(({ label, reason }) => (
+                  <li key={label}>
+                    <strong>{label}</strong>
+                    <p>{reason}</p>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
+          {Boolean(custom?.bootlegger?.length) && (
+            <section>
+              <h2 className="font-display text-lg">Bootlegger rules</h2>
+              <ul className="list-inside list-disc">
+                {custom?.bootlegger?.map((rule, i) => (
+                  <li key={i}>{rule}</li>
+                ))}
+              </ul>
+            </section>
+          )}
+        </div>
+      )}
     </article>
   );
 }

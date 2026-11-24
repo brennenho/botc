@@ -1,7 +1,7 @@
 "use client";
 
 import { CharacterSelectionDialog } from "@/components/storyteller/character-selection-dialog";
-import type { EditionId, Team } from "@/lib/game-data";
+import type { GameScript, Team } from "@/lib/game-data";
 
 export function RolePicker({
   open,
@@ -16,7 +16,7 @@ export function RolePicker({
   onSelect,
 }: {
   open: boolean;
-  editionId: EditionId;
+  editionId: GameScript;
   title?: string;
   selectedRoleId: string | null;
   usedRoleIds: string[];

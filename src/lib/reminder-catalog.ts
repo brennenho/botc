@@ -1,5 +1,5 @@
 import { getEditionRoles, roleById } from "@/lib/game-data";
-import type { EditionId, GameToken, Role, Seat } from "@/lib/game-data/types";
+import type { GameScript, GameToken, Role, Seat } from "@/lib/game-data/types";
 import { getSetupRoleIds } from "@/lib/setup-effects";
 import {
   getReminderKey,
@@ -46,7 +46,7 @@ export function getInPlayReminderSources(
   });
 }
 
-export function getScriptReminderSources(editionId: EditionId) {
+export function getScriptReminderSources(editionId: GameScript) {
   return getEditionRoles(editionId).flatMap((role): ReminderSource[] => {
     const source = createReminderSource(role);
     return source ? [source] : [];

@@ -1,5 +1,5 @@
 import type {
-  EditionId,
+  GameScript,
   PlayerSnapshot,
   StorytellerSnapshot,
   VersionedStorytellerPatch,
@@ -101,7 +101,7 @@ async function requestJson<T>(url: string, init?: RequestInit): Promise<T> {
   return body as T;
 }
 
-export function createGame(edition: EditionId, playerCount: number) {
+export function createGame(edition: GameScript, playerCount: number) {
   return requestJson<{
     snapshot: StorytellerSnapshot;
   }>("/api/games", {
