@@ -35,7 +35,6 @@ export function initializeClientObservability() {
         web_vitals_attribution: false,
       },
       debug: false,
-      disable_session_recording: true,
       disable_surveys: true,
       person_profiles: "never",
       persistence: "localStorage",

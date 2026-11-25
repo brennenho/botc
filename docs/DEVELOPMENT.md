@@ -117,8 +117,9 @@ upload source maps when the API key and project ID are both configured and fail
 when only one is present. `POSTHOG_CLI_HOST` must remain the direct PostHog app
 host rather than the managed proxy.
 
-The integration disables person profiles, DOM autocapture, and session
-recording. Diagnostic URLs, identifiers, messages, stacks, causes, and error
+The PostHog project's Session Replay settings control session recording.
+The integration disables person profiles and DOM autocapture. Diagnostic
+URLs, identifiers, messages, stacks, causes, and error
 details are sent without application-level redaction. Credentials are excluded
 at collection time: never add cookies, authorization headers, secret tokens, or
 environment variables to analytics properties or operational logs.
