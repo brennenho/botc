@@ -145,21 +145,6 @@ export async function createGameViaApi(
     },
   });
   expect(response.status()).toBe(200);
-  const setCookie = response.headers()["set-cookie"];
-  const cookiePair = setCookie?.split(";", 1)[0];
-  const separator = cookiePair?.indexOf("=") ?? -1;
-  if (cookiePair && separator > 0) {
-    await actor.context.addCookies([
-      {
-        name: cookiePair.slice(0, separator),
-        value: cookiePair.slice(separator + 1),
-        url: new URL(response.url()).origin,
-        httpOnly: true,
-        sameSite: "Lax",
-        secure: false,
-      },
-    ]);
-  }
   return responseJson<{ snapshot: StorytellerSnapshot }>(response);
 }
 
