@@ -610,6 +610,10 @@
   text-align: left;
 }
 
+.character-option[data-assigned] .character-option-button:disabled {
+  opacity: 1;
+}
+
 .character-option-token {
   position: relative;
   flex: none;

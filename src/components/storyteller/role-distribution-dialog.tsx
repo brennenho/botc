@@ -60,6 +60,7 @@ export function RoleDistributionDialog({
       teams={teams}
       selectionMode="multiple"
       selectedRoleIds={selectedRoleIds}
+      seats={seats}
       distribution={pool}
       onOpenChange={onOpenChange}
       onSelect={(id) => changeSelection(id, "toggle")}

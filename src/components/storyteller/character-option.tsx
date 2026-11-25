@@ -1,4 +1,4 @@
-import { Check, Minus, Plus } from "lucide-react";
+import { Check, LockKeyhole, Minus, Plus } from "lucide-react";
 
 import { CharacterToken } from "@/components/grimoire/character-token";
 import { RoleInfoButton } from "@/components/storyteller/role-info-button";
@@ -11,6 +11,7 @@ export function CharacterOption({
   role,
   count,
   fixedCount,
+  assignmentLabel,
   cannotAdd,
   selectionMode,
   inPlay,
@@ -21,6 +22,7 @@ export function CharacterOption({
   role: Role;
   count: number;
   fixedCount: number;
+  assignmentLabel?: string;
   cannotAdd: boolean;
   selectionMode: "single" | "multiple";
   inPlay: boolean;
@@ -30,13 +32,20 @@ export function CharacterOption({
 }) {
   const copyLimit = getSetupRoleCopyLimit(role.id);
   const selected = count > 0;
+  const status = [assignmentLabel, inPlay && "In play", bluff && "Demon bluff"]
+    .filter(Boolean)
+    .join(" · ");
   return (
-    <div className="character-option" data-selected={selected || undefined}>
+    <div
+      className="character-option"
+      data-selected={selected || undefined}
+      data-assigned={fixedCount > 0 || undefined}
+    >
       <Button
         type="button"
         variant="quiet"
         className="character-option-button"
-        aria-label={`${role.name}${inPlay ? ", in play" : ""}${bluff ? ", demon bluff" : ""}`}
+        aria-label={`${role.name}${assignmentLabel ? `, ${assignmentLabel}` : ""}${inPlay ? ", in play" : ""}${bluff ? ", demon bluff" : ""}`}
         aria-pressed={selectionMode === "multiple" ? selected : undefined}
         aria-current={selectionMode === "single" && selected ? true : undefined}
         disabled={cannotAdd && !selected}
@@ -44,17 +53,15 @@ export function CharacterOption({
       >
         <span className="character-option-token">
           <CharacterToken role={role} size="sm" />
-          {selected && <Check aria-hidden="true" />}
+          {fixedCount > 0 ? (
+            <LockKeyhole aria-hidden="true" />
+          ) : (
+            selected && <Check aria-hidden="true" />
+          )}
         </span>
         <span className="character-option-label">
           {role.name}
-          {(inPlay || bluff) && (
-            <small>
-              {[inPlay && "In play", bluff && "Demon bluff"]
-                .filter(Boolean)
-                .join(" · ")}
-            </small>
-          )}
+          {status && <small>{status}</small>}
         </span>
       </Button>
       {copyLimit > 1 && onChangeCopies && (

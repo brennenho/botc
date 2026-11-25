@@ -113,6 +113,109 @@ describe("character selection", () => {
     expect(onSelect).toHaveBeenCalledWith("barista");
   });
 
+  it("counts a fixed Demon and draws only the newly selected roles, including Travellers", async () => {
+    const user = userEvent.setup();
+    const onDistribute = vi.fn();
+    const seats = Array.from({ length: 7 }, (_, i) => createSeat(i));
+    seats[0] = {
+      ...seats[0]!,
+      roleId: "imp",
+      playerName: "Sam",
+      alignment: "evil",
+    };
+    render(
+      <RoleDistributionDialog
+        open
+        editionId="tb"
+        seats={seats}
+        gameTokens={[]}
+        onOpenChange={vi.fn()}
+        onDistribute={onDistribute}
+      />,
+    );
+    const demon = screen.getByRole("heading", { name: /^Demons/ });
+    expect(
+      within(demon).getByLabelText("1 in setup, 1 expected"),
+    ).toBeVisible();
+    expect(
+      screen.getByRole("button", { name: "Imp, Assigned to Sam" }),
+    ).toBeDisabled();
+    const headings = screen.getAllByRole("heading", { level: 3 });
+    expect(headings.at(-1)).toHaveTextContent("Travellers");
+    const travellers = screen.getByRole("button", { name: "Travellers" });
+    expect(travellers).toHaveAttribute("aria-expanded", "false");
+    await user.click(travellers);
+    await user.click(screen.getByRole("button", { name: "Barista" }));
+    expect(
+      within(
+        screen.getByRole("heading", { name: /^Townsfolk/ }),
+      ).getByLabelText("0 in setup, 3 expected"),
+    ).toBeVisible();
+    await user.click(screen.getByRole("button", { name: "Clear selection" }));
+    expect(
+      within(demon).getByLabelText("1 in setup, 1 expected"),
+    ).toBeVisible();
+    expect(
+      within(
+        screen.getByRole("heading", { name: /^Townsfolk/ }),
+      ).getByLabelText("0 in setup, 5 expected"),
+    ).toBeVisible();
+    for (const name of [
+      "Barista",
+      "Chef",
+      "Monk",
+      "Empath",
+      "Saint",
+      "Poisoner",
+    ]) {
+      await user.click(screen.getByRole("button", { name }));
+    }
+    expect(
+      screen.getByText("6 selected for 6 unassigned players"),
+    ).toBeVisible();
+    await user.click(screen.getByRole("button", { name: "Distribute Roles" }));
+    expect(onDistribute).toHaveBeenCalledWith([
+      "barista",
+      "chef",
+      "monk",
+      "empath",
+      "saint",
+      "poisoner",
+    ]);
+  });
+
+  it("counts assigned copies in the stepper and leaves them in place when clearing the selection", async () => {
+    const user = userEvent.setup();
+    const seats = [
+      { ...createSeat(0), roleId: "villageidiot" },
+      createSeat(1),
+      createSeat(2),
+      createSeat(3),
+    ];
+    render(
+      <RoleDistributionDialog
+        open
+        editionId={script}
+        seats={seats}
+        gameTokens={[]}
+        onOpenChange={vi.fn()}
+        onDistribute={vi.fn()}
+      />,
+    );
+    const add = screen.getByRole("button", { name: "Add one Village Idiot" });
+    const remove = screen.getByRole("button", {
+      name: "Remove one Village Idiot",
+    });
+    expect(remove).toBeDisabled();
+    await user.click(add);
+    await user.click(add);
+    expect(screen.getByLabelText("Village Idiot count")).toHaveTextContent("3");
+    expect(add).toBeDisabled();
+    await user.click(screen.getByRole("button", { name: "Clear selection" }));
+    expect(screen.getByLabelText("Village Idiot count")).toHaveTextContent("1");
+    expect(remove).toBeDisabled();
+  });
+
   it("counts a directly assigned Drunk as one occupied seat", async () => {
     const user = userEvent.setup();
     const seats = [
@@ -139,7 +242,9 @@ describe("character selection", () => {
         screen.getByRole("heading", { name: /^Townsfolk/ }),
       ).getByLabelText("3 in setup, 3 expected"),
     ).toBeVisible();
-    expect(screen.getByRole("button", { name: "Drunk" })).toBeDisabled();
+    expect(
+      screen.getByRole("button", { name: "Drunk, Assigned to Player 4" }),
+    ).toBeDisabled();
     await user.click(screen.getByRole("button", { name: "Imp" }));
     await user.click(screen.getByRole("button", { name: "Distribute Roles" }));
     expect(onDistribute).toHaveBeenCalledWith(["imp"]);

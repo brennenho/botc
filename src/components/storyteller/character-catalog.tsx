@@ -19,6 +19,7 @@ import {
   type Role,
 } from "@/lib/game-data";
 import type { getRoleDistribution } from "@/lib/game-data/distribution";
+import type { Seat } from "@/lib/game-data/types";
 import { DRUNK_ROLE_ID } from "@/lib/setup-effects";
 import { cn } from "@/lib/utils";
 
@@ -43,6 +44,7 @@ type CatalogSelection =
       selectionMode: "multiple";
       selectedRoleIds: string[];
       distribution: ReturnType<typeof getRoleDistribution>;
+      seats: readonly Seat[];
       onChangeCopies: ChangeCopies;
     };
 
@@ -74,6 +76,15 @@ export function CharacterCatalog({
   function renderRole(role: Role) {
     const count = copies.get(role.id) ?? 0;
     const fixedCount = pool?.distribution.fixedCopies.get(role.id) ?? 0;
+    let assignmentLabel: string | undefined;
+    if (pool && fixedCount > 0) {
+      const names = pool.seats
+        .filter((seat) => seat.roleId === role.id)
+        .map((seat) => seat.playerName);
+      assignmentLabel = names.length
+        ? `Assigned to ${names.join(", ")}`
+        : "In setup";
+    }
     const cannotAdd =
       !!pool &&
       (pool.distribution.unassignedCount === 0 ||
@@ -88,6 +99,7 @@ export function CharacterCatalog({
         selectionMode={selection.selectionMode}
         count={count}
         fixedCount={fixedCount}
+        assignmentLabel={assignmentLabel}
         cannotAdd={cannotAdd}
         inPlay={assignment?.usedRoleIds.includes(role.id) ?? false}
         bluff={assignment?.bluffRoleIds.includes(role.id) ?? false}
