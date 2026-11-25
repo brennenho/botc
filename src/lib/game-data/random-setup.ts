@@ -8,7 +8,7 @@ import {
 } from "./setup";
 import type { GameScript, ResidentTeam, Role } from "./types";
 
-function shuffled<T>(items: readonly T[], random: () => number) {
+export function shuffled<T>(items: readonly T[], random: () => number) {
   const result = [...items];
   for (let index = result.length - 1; index > 0; index -= 1) {
     const other = Math.floor(random() * (index + 1));

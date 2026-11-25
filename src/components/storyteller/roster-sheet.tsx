@@ -13,6 +13,7 @@ import { Tooltip } from "@/components/ui/tooltip";
 import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts";
 import { getSetupAssessment, isTravellerRole, roleById } from "@/lib/game-data";
 import type { GameScript, GameToken, Seat } from "@/lib/game-data/types";
+import { isSetupRoleToken } from "@/lib/setup-effects";
 import { cn } from "@/lib/utils";
 
 export function RosterPanel({
@@ -51,7 +52,6 @@ export function RosterPanel({
   const residentCount = seats.filter(
     (seat) => !isTravellerRole(seat.roleId),
   ).length;
-  const travellerCount = seats.length - residentCount;
 
   useKeyboardShortcuts(
     [
@@ -225,21 +225,26 @@ export function RosterPanel({
           size="sm"
           variant="secondary"
           className="roster-clear-assignments"
-          disabled={assessment.assignedCount === 0}
+          disabled={
+            !seats.some((seat) => seat.roleId) &&
+            !gameTokens.some(isSetupRoleToken)
+          }
           onClick={onClearAssignments}
         >
           <X className="size-4" />
           Clear All
         </Button>
       </footer>
-      <RoleDistributionDialog
-        open={distributionOpen}
-        editionId={editionId}
-        residentCount={residentCount}
-        travellerCount={travellerCount}
-        onOpenChange={setDistributionOpen}
-        onDistribute={onDistributeRoles}
-      />
+      {distributionOpen && (
+        <RoleDistributionDialog
+          open
+          editionId={editionId}
+          seats={seats}
+          gameTokens={gameTokens}
+          onOpenChange={setDistributionOpen}
+          onDistribute={onDistributeRoles}
+        />
+      )}
     </>
   );
 }

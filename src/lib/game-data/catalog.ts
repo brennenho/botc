@@ -110,6 +110,13 @@ export function getCrossEditionTravellerRoles(edition: GameScript) {
   return getTravellerRoles(edition).filter((role) => !listed.has(role.id));
 }
 
+export function getTravellerRoleGroups(edition: GameScript) {
+  return [
+    { label: "On this script", roles: getRolesByTeam(edition).traveller },
+    { label: "Other scripts", roles: getCrossEditionTravellerRoles(edition) },
+  ].filter((group) => group.roles.length > 0);
+}
+
 export function getDefaultAlignment(role: Role): Alignment {
   return role.team === "minion" || role.team === "demon" ? "evil" : "good";
 }
