@@ -1,3 +1,5 @@
+import { shuffled } from "@/lib/game-data/random-setup";
+import { getRoleDistribution } from "@/lib/game-data/distribution";
 import {
   createRandomSetup,
   getDefaultAlignment,
@@ -64,15 +66,6 @@ function roleState(seat: Seat, roleId: string | null) {
           : ("good" as const),
     isTraveller,
   };
-}
-
-function shuffledRoleIds(roleIds: readonly string[], random: () => number) {
-  const result = [...roleIds];
-  for (let index = result.length - 1; index > 0; index -= 1) {
-    const other = Math.floor(random() * (index + 1));
-    [result[index], result[other]] = [result[other]!, result[index]!];
-  }
-  return result;
 }
 
 export function createSeat(
@@ -205,6 +198,42 @@ export function dealRoles(
   rolePoolIds: readonly string[],
   factories?: GameStateFactoryOverrides,
 ): StorytellerPatch {
+  const pool = getRoleDistribution(
+    current.game.edition,
+    current.seats,
+    current.gameTokens,
+    rolePoolIds,
+  );
+  if (!pool.ready) return {};
+  const { createId, random } = resolveGameStateFactories(factories);
+  const bag = shuffled(pool.dealtRoles, random);
+  const seats = current.seats.map((seat) => {
+    if (seat.roleId) return seat;
+    return { ...seat, ...roleState(seat, bag.pop()!) };
+  });
+  if (!rolePoolIds.includes(DRUNK_ROLE_ID)) return { seats };
+  return {
+    seats,
+    gameTokens: [
+      ...current.gameTokens,
+      {
+        id: createId(),
+        seatId: null,
+        tokenType: "custom",
+        roleId: DRUNK_ROLE_ID,
+        label: "Drunk Selected",
+        position: current.gameTokens.length,
+        metadata: createSetupRoleMetadata(),
+      },
+    ],
+  };
+}
+
+export function redealRoles(
+  current: GameState,
+  rolePoolIds: readonly string[],
+  factories?: GameStateFactoryOverrides,
+): StorytellerPatch {
   const { createId, random } = resolveGameStateFactories(factories);
   const drunkSelected = rolePoolIds.includes(DRUNK_ROLE_ID);
   if (
@@ -236,7 +265,7 @@ export function dealRoles(
     dealtRoleIds,
   );
   if (roleIds.length !== residentSeats.length) return {};
-  const shuffledTravellerRoleIds = shuffledRoleIds(travellerRoleIds, random);
+  const shuffledTravellerRoleIds = shuffled(travellerRoleIds, random);
 
   let residentIndex = 0;
   let travellerIndex = 0;

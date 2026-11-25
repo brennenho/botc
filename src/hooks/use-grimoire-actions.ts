@@ -7,7 +7,7 @@ import {
   appendPlayer,
   assignSeatRole,
   clearRoleAssignments,
-  dealRoles,
+  redealRoles,
   deletePlayer,
   deleteReminder,
   patchSeat,
@@ -72,7 +72,7 @@ export function useGrimoireActions({ commit }: UseGrimoireActionsOptions) {
 
   const distributeRoles = useCallback(
     (rolePoolIds: string[]) => {
-      commit((current) => dealRoles(current, rolePoolIds));
+      commit((current) => redealRoles(current, rolePoolIds));
       trackEvent("roles_distributed", {
         actor_role: "storyteller",
         role_count: rolePoolIds.length,
