@@ -55,9 +55,9 @@ const teamPresentation: Record<
   },
 };
 
-const travellerPresentation = {
-  sectionClass: "border-amber-800/45 bg-amber-950/[0.04]",
-  labelClass: "text-amber-900",
+const rulePresentation = {
+  sectionClass: "border-stone-600/45 bg-stone-950/[0.04]",
+  labelClass: "text-stone-700",
 };
 
 export type CharacterSheetId = EditionId | "travellers";
@@ -85,24 +85,9 @@ export function CharacterSheet({
     sheetId === "travellers" ? null : getCharacterSheetDefinition(sheetId);
   const travellerDefinition =
     sheetId === "travellers" ? getTravellerSheetDefinition() : null;
-  const [townsfolk, ...otherGroups] = editionDefinition?.groups ?? [];
+  const [firstGroup, ...otherGroups] = editionDefinition?.groups ?? [];
 
   const custom = typeof sheetId === "object" ? sheetId : null;
-  const pairs = custom
-    ? jinxes
-        .filter((role) => custom.roleIds.includes(role.id))
-        .flatMap((role) =>
-          role.jinx
-            .filter((other) => custom.roleIds.includes(other.id))
-            .map((other) => ({
-              label:
-                roleById.get(role.id)!.name +
-                " & " +
-                roleById.get(other.id)!.name,
-              reason: other.reason,
-            })),
-        )
-    : [];
   return (
     <article
       className={cn(
@@ -179,81 +164,136 @@ export function CharacterSheet({
       >
         {travellerDefinition ? (
           travellerDefinition.groups.map((group) => (
-            <TravellerGroup key={group.edition.id} group={group} />
+            <SheetSection
+              key={group.edition.id}
+              headingId={`traveller-sheet-${group.edition.id}`}
+              label={group.edition.name}
+              count={group.roles.length}
+              presentation={teamPresentation.traveller}
+            >
+              {group.roles.map((role) => (
+                <CharacterEntry key={role.id} role={role} />
+              ))}
+            </SheetSection>
           ))
         ) : (
           <>
-            {townsfolk && <CharacterGroup group={townsfolk} />}
-            <div className="grid min-w-0 gap-5">
+            {firstGroup && <CharacterGroup group={firstGroup} />}
+            <div className="grid min-w-0 gap-5 empty:hidden">
               {otherGroups.map((group) => (
                 <CharacterGroup key={group.team} group={group} />
               ))}
+              {custom && <ScriptRules script={custom} />}
             </div>
           </>
         )}
       </div>
-      {(pairs.length > 0 || Boolean(custom?.bootlegger?.length)) && (
-        <div className="grid gap-4 px-5 pb-5 text-sm">
-          {pairs.length > 0 && (
-            <section>
-              <h2 className="font-display text-lg">Jinxes</h2>
-              <ul className="grid gap-2">
-                {pairs.map(({ label, reason }) => (
-                  <li key={label}>
-                    <strong>{label}</strong>
-                    <p>{reason}</p>
-                  </li>
-                ))}
-              </ul>
-            </section>
-          )}
-          {Boolean(custom?.bootlegger?.length) && (
-            <section>
-              <h2 className="font-display text-lg">Bootlegger rules</h2>
-              <ul className="list-inside list-disc">
-                {custom?.bootlegger?.map((rule, i) => (
-                  <li key={i}>{rule}</li>
-                ))}
-              </ul>
-            </section>
-          )}
-        </div>
-      )}
     </article>
   );
 }
 
-function TravellerGroup({
-  group,
-}: {
-  group: ReturnType<typeof getTravellerSheetDefinition>["groups"][number];
-}) {
-  const headingId = `traveller-sheet-${group.edition.id}`;
+function ScriptRules({ script }: { script: CustomScript }) {
+  const bootleggerRules = script.bootlegger ?? [];
+  const pairs = jinxes
+    .filter((role) => script.roleIds.includes(role.id))
+    .flatMap((role) =>
+      role.jinx
+        .filter((other) => script.roleIds.includes(other.id))
+        .map((other) => ({
+          first: roleById.get(role.id)!,
+          second: roleById.get(other.id)!,
+          reason: other.reason,
+        })),
+    );
+  return (
+    <>
+      {pairs.length > 0 && (
+        <SheetSection
+          headingId="character-sheet-jinxes"
+          label="Jinxes"
+          count={pairs.length}
+          presentation={rulePresentation}
+        >
+          {pairs.map(({ first, second, reason }) => (
+            <SheetEntry
+              key={`${first.id}-${second.id}`}
+              title={`${first.name} & ${second.name}`}
+              description={reason}
+              artwork={
+                <span
+                  className="grid size-12 grid-cols-1 grid-rows-1"
+                  aria-hidden="true"
+                >
+                  <CharacterToken
+                    role={first}
+                    appearance="bare"
+                    imageSizes="31px"
+                    className="col-start-1 row-start-1 place-self-start"
+                  />
+                  <CharacterToken
+                    role={second}
+                    appearance="bare"
+                    imageSizes="31px"
+                    className="col-start-1 row-start-1 place-self-end"
+                  />
+                </span>
+              }
+            />
+          ))}
+        </SheetSection>
+      )}
+      {bootleggerRules.length > 0 && (
+        <SheetSection
+          headingId="character-sheet-bootlegger"
+          label="Bootlegger rules"
+          count={bootleggerRules.length}
+          presentation={rulePresentation}
+        >
+          {bootleggerRules.map((rule, i) => (
+            <li
+              key={i}
+              className="py-2.5 text-[12px] leading-[1.42] wrap-anywhere text-black/62 first:pt-2"
+            >
+              {rule}
+            </li>
+          ))}
+        </SheetSection>
+      )}
+    </>
+  );
+}
 
+function SheetSection({
+  headingId,
+  label,
+  count,
+  presentation,
+  children,
+}: {
+  headingId: string;
+  label: string;
+  count: number;
+  presentation: { sectionClass: string; labelClass: string };
+  children: ReactNode;
+}) {
   return (
     <section
       aria-labelledby={headingId}
-      className={cn("min-w-0 border-t-2", travellerPresentation.sectionClass)}
+      className={cn("min-w-0 border-t-2", presentation.sectionClass)}
     >
       <header className="flex items-baseline justify-between gap-3 px-3 pt-3 pb-2">
         <h2
           id={headingId}
           className={cn(
             "font-mono text-[11px] font-medium tracking-normal uppercase",
-            travellerPresentation.labelClass,
+            presentation.labelClass,
           )}
         >
-          {group.edition.name}
+          {label}
         </h2>
-        <span className="font-mono text-[10px] text-black/38">
-          {group.roles.length}
-        </span>
+        <span className="font-mono text-[10px] text-black/38">{count}</span>
       </header>
-      <ul className="divide-y divide-black/[0.075] px-3">
-        {group.roles.map((role) => (
-          <CharacterEntry key={role.id} role={role} />
-        ))}
-      </ul>
+      <ul className="divide-y divide-black/[0.075] px-3">{children}</ul>
     </section>
   );
 }
@@ -266,48 +306,54 @@ function CharacterGroup({
   const presentation = teamPresentation[group.team];
 
   return (
-    <section
-      aria-labelledby={`character-sheet-${group.team}`}
-      className={cn("min-w-0 border-t-2", presentation.sectionClass)}
+    <SheetSection
+      headingId={`character-sheet-${group.team}`}
+      label={presentation.pluralLabel}
+      count={group.roles.length}
+      presentation={presentation}
     >
-      <header className="flex items-baseline justify-between gap-3 px-3 pt-3 pb-2">
-        <h2
-          id={`character-sheet-${group.team}`}
-          className={cn(
-            "font-mono text-[11px] font-medium tracking-normal uppercase",
-            presentation.labelClass,
-          )}
-        >
-          {presentation.pluralLabel}
-        </h2>
-        <span className="font-mono text-[10px] text-black/38">
-          {group.roles.length}
-        </span>
-      </header>
-      <ul className="divide-y divide-black/[0.075] px-3">
-        {group.roles.map((role) => (
-          <CharacterEntry key={role.id} role={role} />
-        ))}
-      </ul>
-    </section>
+      {group.roles.map((role) => (
+        <CharacterEntry key={role.id} role={role} />
+      ))}
+    </SheetSection>
   );
 }
 
 function CharacterEntry({ role }: { role: Role }) {
   return (
-    <li className="grid min-w-0 grid-cols-[46px_minmax(0,1fr)] items-center gap-3 py-2.5 first:pt-2">
-      <CharacterToken
-        role={role}
-        size="lg"
-        appearance="bare"
-        imageSizes="48px"
-      />
+    <SheetEntry
+      title={role.name}
+      description={role.ability}
+      artwork={
+        <CharacterToken
+          role={role}
+          size="lg"
+          appearance="bare"
+          imageSizes="48px"
+        />
+      }
+    />
+  );
+}
+
+function SheetEntry({
+  title,
+  description,
+  artwork,
+}: {
+  title: string;
+  description: string;
+  artwork: ReactNode;
+}) {
+  return (
+    <li className="grid min-w-0 grid-cols-[48px_minmax(0,1fr)] items-center gap-3 py-2.5 first:pt-2">
+      {artwork}
       <div className="min-w-0">
         <h3 className="text-[13px] leading-tight font-bold text-black/82">
-          {role.name}
+          {title}
         </h3>
         <p className="mt-0.5 text-[12px] leading-[1.42] text-black/62">
-          {role.ability}
+          {description}
         </p>
       </div>
     </li>
