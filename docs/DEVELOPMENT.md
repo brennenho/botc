@@ -206,10 +206,11 @@ pnpm test:integration
 
 Use `pnpm test:integration:ui` for Playwright's interactive runner and
 `pnpm test:integration:report` to reopen the most recent HTML report. The
-application runs on `http://localhost:3100` during these tests so it does not
-compete with a normal development server on port 3000. The HTML report is
-written to `integration-report/index.html`, and traces, screenshots, videos,
-and other run artifacts are written to `integration-test-results/`.
+development server runs on `http://localhost:3100`. CI serves the production
+build at `https://localhost:3100` so browsers can use its secure session cookies.
+The test server uses OpenSSL to generate a one-day localhost certificate for
+each run. Playwright writes the HTML report to `integration-report/index.html`
+and traces, screenshots, and videos to `integration-test-results/`.
 
 The CI integration job runs for pull requests and pushes to `main`. It starts an
 ephemeral local Supabase stack, rebuilds the database from migrations, exports

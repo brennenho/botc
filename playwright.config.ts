@@ -1,19 +1,20 @@
 import { defineConfig, devices } from "@playwright/test";
 
 const integrationPort = Number(process.env.PLAYWRIGHT_PORT ?? 3100);
-const baseURL = `http://localhost:${integrationPort}`;
+const isCI = Boolean(process.env.CI);
+const baseURL = `${isCI ? "https" : "http"}://localhost:${integrationPort}`;
 
 export default defineConfig({
   testDir: "./integration",
   fullyParallel: false,
-  forbidOnly: Boolean(process.env.CI),
-  retries: process.env.CI ? 1 : 0,
-  workers: process.env.CI ? 1 : undefined,
+  forbidOnly: isCI,
+  retries: isCI ? 1 : 0,
+  workers: isCI ? 1 : undefined,
   timeout: 45_000,
   expect: {
     timeout: 5_000,
   },
-  reporter: process.env.CI
+  reporter: isCI
     ? [
         ["line"],
         ["html", { open: "never", outputFolder: "integration-report" }],
@@ -26,6 +27,7 @@ export default defineConfig({
   outputDir: "integration-test-results",
   use: {
     baseURL,
+    contextOptions: { ignoreHTTPSErrors: isCI },
     trace: "on-first-retry",
     screenshot: "only-on-failure",
     video: "retain-on-failure",
@@ -65,11 +67,12 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: process.env.CI
-      ? `pnpm exec next start --hostname localhost --port ${integrationPort}`
+    command: isCI
+      ? "pnpm start:integration"
       : `pnpm exec next dev --turbo --hostname localhost --port ${integrationPort}`,
     url: baseURL,
-    reuseExistingServer: !process.env.CI,
+    ignoreHTTPSErrors: isCI,
+    reuseExistingServer: !isCI,
     timeout: 120_000,
     stdout: "pipe",
     stderr: "pipe",
