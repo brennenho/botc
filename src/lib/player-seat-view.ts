@@ -1,3 +1,4 @@
+import { isTravellerRole } from "@/lib/game-data";
 import type { GameToken, PlayerSeatView, Seat } from "@/lib/game-data/types";
 import { getPlayerPosition } from "@/lib/grimoire-canvas";
 
@@ -5,15 +6,16 @@ export function createPlayerSeatView(
   seat: Seat,
   position: PlayerSeatView["position"],
 ): PlayerSeatView {
+  const isTraveller = isTravellerRole(seat.roleId);
   return {
     id: seat.id,
     seatIndex: seat.seatIndex,
     playerName: seat.claimedByPlayer ? seat.playerName : null,
     occupied: seat.claimedByPlayer,
-    publicRoleId: seat.isTraveller ? seat.roleId : null,
+    publicRoleId: isTraveller ? seat.roleId : null,
     alive: seat.alive,
     ghostVoteAvailable: seat.ghostVoteAvailable,
-    isTraveller: seat.isTraveller,
+    isTraveller,
     position,
   };
 }

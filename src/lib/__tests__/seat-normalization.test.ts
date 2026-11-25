@@ -26,6 +26,19 @@ describe("seat update normalization", () => {
     expect(normalized?.alignment).toBe("evil");
   });
 
+  it("derives the stored Traveller flag from the role even for older seat payloads", () => {
+    const normalized = normalizeUpdatedSeats([
+      seat({ roleId: "barista", isTraveller: false }),
+      seat({ roleId: "chef", isTraveller: true }),
+      seat({ isTraveller: true }),
+    ]);
+    expect(normalized.map((item) => item.isTraveller)).toEqual([
+      true,
+      false,
+      false,
+    ]);
+  });
+
   it("normalizes seat order, names, and invalid roles", () => {
     const [normalized] = normalizeUpdatedSeats([
       seat({ playerName: "  ", roleId: "not-a-role" }),

@@ -1,5 +1,5 @@
 import { normalizeGameCode } from "@/lib/game-code";
-import { roleById } from "@/lib/game-data";
+import { isTravellerRole, roleById } from "@/lib/game-data";
 import type {
   Alignment,
   EditionId,
@@ -60,7 +60,6 @@ type SeatRow = {
   alignment: Alignment;
   alive: boolean;
   ghost_vote_available: boolean;
-  is_traveller: boolean;
   joined_at: string;
 };
 
@@ -99,7 +98,7 @@ export type JoinedGame = {
 const gameColumns =
   "id, join_code, edition, custom_script, phase, day_number, version, storyteller_token_hash, created_at, updated_at";
 const seatColumns =
-  "id, game_id, seat_index, player_name, player_token_hash, role_id, alignment, alive, ghost_vote_available, is_traveller, joined_at";
+  "id, game_id, seat_index, player_name, player_token_hash, role_id, alignment, alive, ghost_vote_available, joined_at";
 const tokenColumns =
   "id, game_id, seat_id, token_type, role_id, label, position, metadata";
 
@@ -129,7 +128,7 @@ function toStoredSeat(row: SeatRow): StoredSeat {
     alignment: row.alignment,
     alive: row.alive,
     ghostVoteAvailable: row.ghost_vote_available,
-    isTraveller: row.is_traveller,
+    isTraveller: isTravellerRole(row.role_id),
     joinedAt: row.joined_at,
   };
 }

@@ -56,7 +56,7 @@ describe("setup modifiers", () => {
     ).toContain("The Huntsman needs a Damsel in the starting setup.");
   });
 
-  it("excludes a Storyteller-marked Traveller regardless of native team", () => {
+  it("excludes Traveller characters when calculating resident counts", () => {
     const residents = [
       seat(0, "washerwoman"),
       seat(1, "librarian"),
@@ -66,13 +66,13 @@ describe("setup modifiers", () => {
       seat(5, "poisoner"),
       seat(6, "imp"),
     ];
-    const customTraveller = {
-      ...seat(7, "baron"),
+    const traveller = {
+      ...seat(7, "bureaucrat"),
       alignment: "evil" as const,
       isTraveller: true,
     };
 
-    expect(getSetupAssessment([...residents, customTraveller])).toMatchObject({
+    expect(getSetupAssessment([...residents, traveller])).toMatchObject({
       legal: true,
       assignedCount: 7,
       expected: sevenPlayerCounts,

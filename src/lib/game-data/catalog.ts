@@ -92,6 +92,10 @@ export function getRolesByTeam(edition: GameScript) {
   );
 }
 
+export function isTravellerRole(roleId: string | null) {
+  return roleId !== null && roleById.get(roleId)?.team === "traveller";
+}
+
 export function getTravellerRoles(script?: GameScript) {
   return roles.filter(
     (role) =>

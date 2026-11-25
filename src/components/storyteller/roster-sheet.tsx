@@ -11,7 +11,7 @@ import { IconButton } from "@/components/ui/icon-button";
 import { Input } from "@/components/ui/input";
 import { Tooltip } from "@/components/ui/tooltip";
 import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts";
-import { getSetupAssessment, roleById } from "@/lib/game-data";
+import { getSetupAssessment, isTravellerRole, roleById } from "@/lib/game-data";
 import type { GameScript, GameToken, Seat } from "@/lib/game-data/types";
 import { cn } from "@/lib/utils";
 
@@ -26,7 +26,6 @@ export function RosterPanel({
   onClearRole,
   onRemovePlayer,
   onRename,
-  onSetTraveller,
   onAddPlayer,
   onDistributeRoles,
   onClearAssignments,
@@ -42,7 +41,6 @@ export function RosterPanel({
   onClearRole: (seatId: string) => void;
   onRemovePlayer: (seatId: string) => void;
   onRename: (seatId: string, name: string) => void;
-  onSetTraveller: (seatId: string, isTraveller: boolean) => void;
   onAddPlayer: () => void;
   onDistributeRoles: (roleIds: string[]) => void;
   onClearAssignments: () => void;
@@ -50,7 +48,9 @@ export function RosterPanel({
 }) {
   const [distributionOpen, setDistributionOpen] = useState(false);
   const assessment = getSetupAssessment(seats, gameTokens);
-  const residentCount = seats.filter((seat) => !seat.isTraveller).length;
+  const residentCount = seats.filter(
+    (seat) => !isTravellerRole(seat.roleId),
+  ).length;
   const travellerCount = seats.length - residentCount;
 
   useKeyboardShortcuts(
@@ -124,9 +124,6 @@ export function RosterPanel({
           const roleAction = role
             ? `Change ${seat.playerName}'s Character`
             : `Assign ${seat.playerName}`;
-          const travellerAction = seat.isTraveller
-            ? "Traveller · Change to Resident"
-            : "Resident · Change to Traveller";
           return (
             <div key={seat.id} className="roster-row">
               <Tooltip content={seatType} side="right">
@@ -186,20 +183,6 @@ export function RosterPanel({
                   </IconButton>
                 )}
               </div>
-              <Tooltip content={travellerAction}>
-                <button
-                  type="button"
-                  className={cn(
-                    "roster-player-type",
-                    seat.isTraveller && "is-traveller",
-                  )}
-                  aria-label={`${seat.playerName} is ${seat.isTraveller ? "a Traveller. Change to Resident" : "a Resident. Change to Traveller"}`}
-                  aria-pressed={seat.isTraveller}
-                  onClick={() => onSetTraveller(seat.id, !seat.isTraveller)}
-                >
-                  {seat.isTraveller ? "T" : "R"}
-                </button>
-              </Tooltip>
               <RemovePlayerButton
                 playerName={seat.playerName}
                 display="icon"
