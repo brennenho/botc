@@ -8,6 +8,7 @@ export {
   getEditionRoles,
   getRolesByTeam,
   getTravellerRoles,
+  getTravellerRoleGroups,
   roleById,
   roles,
   teamLabel,

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId, useState } from "react";
+import { useId, useState } from "react";
 
 import {
   CharacterOption,
@@ -8,13 +8,14 @@ import {
 } from "@/components/storyteller/character-option";
 import { CharacterTeamHeading } from "@/components/storyteller/character-team-heading";
 import {
-  getCrossEditionTravellerRoles,
   countRoleCopies,
   getRolesByTeam,
+  getTravellerRoleGroups,
   isResidentTeam,
+  roleById,
   type GameScript,
-  type Role,
   type Team,
+  type Role,
   type TeamCounts,
 } from "@/lib/game-data";
 import { cn } from "@/lib/utils";
@@ -49,7 +50,6 @@ type CatalogSelection =
 export type CharacterCatalogProps = CatalogSelection & {
   editionId: GameScript;
   teams: readonly Team[];
-  collapsibleTeams?: readonly Team[];
   teamDetails?: Partial<Record<Team, string>>;
   onSelect: (roleId: string) => void;
 };
@@ -57,7 +57,6 @@ export type CharacterCatalogProps = CatalogSelection & {
 export function CharacterCatalog({
   editionId,
   teams,
-  collapsibleTeams = [],
   teamDetails = {},
   onSelect,
   ...selection
@@ -66,143 +65,95 @@ export function CharacterCatalog({
   const pool = selection.selectionMode === "multiple" ? selection : undefined;
   const assignment =
     selection.selectionMode === "single" ? selection : undefined;
-  const selectedRoleIds =
+  const copies = countRoleCopies(
     pool?.selectedRoleIds ??
-    (assignment?.selectedRoleId ? [assignment.selectedRoleId] : []);
-  const copies = countRoleCopies(selectedRoleIds);
-  const catalogGroups = teams.flatMap<{
-    key: string;
-    team: Team;
-    roles: Role[];
-    label: string;
-    detail?: string;
-    collapsible: boolean;
-  }>((team) => {
-    const group = {
-      key: team,
-      team,
-      roles: grouped[team],
-      label: teamHeadings[team],
-      detail: teamDetails[team],
-      collapsible: collapsibleTeams.includes(team),
-    };
-    if (team !== "traveller" || !group.collapsible) return [group];
-
-    const otherTravellers = getCrossEditionTravellerRoles(editionId);
-    if (!group.roles.length) return [{ ...group, roles: otherTravellers }];
-    if (!otherTravellers.length) return [group];
-    return [
-      group,
-      {
-        ...group,
-        key: "traveller-other",
-        roles: otherTravellers,
-        label: "Other Travellers",
-        detail: `${otherTravellers.length} from other scripts`,
-      },
-    ];
-  });
-  const catalogId = useId();
-  const [expandedGroups, setExpandedGroups] = useState<Set<string>>(
-    () => new Set(),
+      (assignment?.selectedRoleId ? [assignment.selectedRoleId] : []),
   );
-  const selectedCollapsibleGroupKey = catalogGroups
-    .filter(
-      (group) =>
-        group.collapsible &&
-        group.roles.some((role) => selectedRoleIds.includes(role.id)),
-    )
-    .map((group) => group.key)
-    .join("|");
+  const travellerContentId = useId();
+  const [travellersOpen, setTravellersOpen] = useState(
+    roleById.get(assignment?.selectedRoleId ?? "")?.team === "traveller",
+  );
 
-  useEffect(() => {
-    if (!selectedCollapsibleGroupKey) return;
-    const selectedGroups = selectedCollapsibleGroupKey.split("|");
-    setExpandedGroups((current) => {
-      const next = new Set(current);
-      selectedGroups.forEach((group) => next.add(group));
-      return next;
-    });
-  }, [selectedCollapsibleGroupKey]);
-
-  function toggleGroup(key: string) {
-    setExpandedGroups((current) => {
-      const next = new Set(current);
-      if (next.has(key)) next.delete(key);
-      else next.add(key);
-      return next;
-    });
+  function renderRole(role: Role) {
+    const count = copies.get(role.id) ?? 0;
+    const cannotAdd =
+      !!pool &&
+      (pool.unavailableRoleIds.includes(role.id) ||
+        (pool.selectedRoleIds.length >= pool.selectionLimit &&
+          !pool.expandableRoleIds.includes(role.id)));
+    return (
+      <CharacterOption
+        key={role.id}
+        role={role}
+        selectionMode={selection.selectionMode}
+        count={count}
+        cannotAdd={cannotAdd}
+        inPlay={assignment?.usedRoleIds.includes(role.id) ?? false}
+        bluff={assignment?.bluffRoleIds.includes(role.id) ?? false}
+        onSelect={onSelect}
+        onChangeCopies={pool?.onChangeCopies}
+      />
+    );
   }
 
   return (
     <div className="character-catalog">
-      {catalogGroups.map((group) => {
-        const { key, team, roles, label, detail, collapsible } = group;
+      {teams.map((team) => {
+        const isTraveller = team === "traveller";
+        const roleGroups = isTraveller
+          ? getTravellerRoleGroups(editionId)
+          : [{ label: teamHeadings[team], roles: grouped[team] }];
         const teamCount =
           pool && isResidentTeam(team)
             ? {
-                selected: roles.reduce(
+                selected: grouped[team].reduce(
                   (total, role) => total + (copies.get(role.id) ?? 0),
                   0,
                 ),
                 target: pool.targetTeamCounts[team],
               }
             : undefined;
-        const expanded = !collapsible || expandedGroups.has(key);
-        const visibleRoles = expanded ? roles : [];
-        const contentId = `${catalogId}-${key}`;
 
         return (
           <section
-            key={key}
+            key={team}
             className={cn(
               "token-team",
               `team-${team}`,
-              collapsible && "is-collapsible",
+              isTraveller && "is-collapsible",
             )}
           >
             <CharacterTeamHeading
-              label={label}
-              detail={detail}
+              label={teamHeadings[team]}
               count={teamCount}
+              detail={teamDetails[team]}
               disclosure={
-                collapsible
-                  ? { expanded, contentId, onToggle: () => toggleGroup(key) }
+                isTraveller
+                  ? {
+                      expanded: travellersOpen,
+                      contentId: travellerContentId,
+                      onToggle: () => setTravellersOpen((open) => !open),
+                    }
                   : undefined
               }
             />
-            {roles.length > 0 ? (
-              <div id={contentId} className="token-grid" hidden={!expanded}>
-                {visibleRoles.map((role) => {
-                  const cannotAdd =
-                    !!pool &&
-                    (pool.unavailableRoleIds.includes(role.id) ||
-                      (pool.selectedRoleIds.length >= pool.selectionLimit &&
-                        !pool.expandableRoleIds.includes(role.id)));
-                  return (
-                    <CharacterOption
-                      key={role.id}
-                      role={role}
-                      selectionMode={selection.selectionMode}
-                      count={copies.get(role.id) ?? 0}
-                      cannotAdd={cannotAdd}
-                      inPlay={
-                        assignment?.usedRoleIds.includes(role.id) ?? false
-                      }
-                      bluff={
-                        assignment?.bluffRoleIds.includes(role.id) ?? false
-                      }
-                      onSelect={onSelect}
-                      onChangeCopies={pool?.onChangeCopies}
-                    />
-                  );
-                })}
-              </div>
-            ) : (
-              <p id={contentId} className="token-team-empty" hidden={!expanded}>
-                No Matches
-              </p>
-            )}
+            <div
+              id={isTraveller ? travellerContentId : undefined}
+              hidden={isTraveller && !travellersOpen}
+            >
+              {(!isTraveller || travellersOpen) &&
+                roleGroups.map(({ label, roles }) => (
+                  <div key={label}>
+                    {isTraveller && (
+                      <h4 className="traveller-script-label">{label}</h4>
+                    )}
+                    {roles.length === 0 && (
+                      <p className="token-team-empty">No Matches</p>
+                    )}
+                    <div className="token-grid">{roles.map(renderRole)}</div>
+                  </div>
+                ))}
+            </div>
           </section>
         );
       })}

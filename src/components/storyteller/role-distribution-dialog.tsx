@@ -149,7 +149,6 @@ export function RoleDistributionDialog({
       expandableRoleIds={[DRUNK_ROLE_ID]}
       targetTeamCounts={targetTeamCounts}
       teams={assignableTeams}
-      collapsibleTeams={["traveller"]}
       teamDetails={{ traveller: travellerDetail }}
       unavailableRoleIds={unavailableRoleIds}
       onOpenChange={onOpenChange}

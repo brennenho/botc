@@ -77,4 +77,37 @@ describe("character selection", () => {
     expect(role).toHaveAttribute("aria-pressed", "false");
     expect(screen.getByLabelText("Village Idiot count")).toHaveTextContent("0");
   });
+
+  it("shows on-script and off-script roles behind one Traveller disclosure", async () => {
+    const user = userEvent.setup();
+    const onSelect = vi.fn();
+    render(
+      <CharacterSelectionDialog
+        open
+        title="Choose a Character"
+        closeLabel="Close Character Picker"
+        selectionMode="single"
+        editionId="tb"
+        teams={["traveller"]}
+        selectedRoleId="barista"
+        usedRoleIds={[]}
+        bluffRoleIds={[]}
+        onOpenChange={vi.fn()}
+        onSelect={onSelect}
+      />,
+    );
+    const toggle = screen.getByRole("button", { name: "Travellers" });
+    expect(toggle).toHaveAttribute("aria-expanded", "true");
+    expect(screen.getAllByRole("button", { expanded: true })).toEqual([toggle]);
+    expect(screen.getByRole("button", { name: "Bureaucrat" })).toBeVisible();
+    expect(screen.getByRole("button", { name: "Barista" })).toHaveAttribute(
+      "aria-current",
+      "true",
+    );
+    await user.click(toggle);
+    expect(screen.queryByRole("button", { name: "Barista" })).toBeNull();
+    await user.click(toggle);
+    await user.click(screen.getByRole("button", { name: "Barista" }));
+    expect(onSelect).toHaveBeenCalledWith("barista");
+  });
 });

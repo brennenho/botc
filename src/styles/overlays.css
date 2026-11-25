@@ -563,6 +563,12 @@
   background: color-mix(in srgb, var(--team-accent) 8%, transparent);
 }
 
+.traveller-script-label {
+  margin: 14px 8px 0;
+  color: var(--ink-muted);
+  font: 600 12px/1.4 var(--font-body);
+}
+
 .token-team-empty {
   margin: 18px 0;
   color: var(--ink-muted);
