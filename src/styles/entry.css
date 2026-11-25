@@ -402,6 +402,37 @@
   line-height: 1;
 }
 
+.entry-action-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0 4px;
+}
+
+.entry-install-button {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  gap: 6px;
+  border-radius: var(--radius-control);
+  color: #653336;
+  font-size: 12px;
+  font-weight: 560;
+  white-space: nowrap;
+}
+
+.entry-install-button svg {
+  width: 15px;
+  height: 15px;
+  stroke-width: 1.6;
+}
+
+.entry-install-button:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
 .entry-step-heading h2 {
   font-size: clamp(36px, 3.8vw, 56px);
   line-height: 1;
@@ -479,6 +510,7 @@
 .entry-back:focus-visible,
 .entry-edition:focus-visible,
 .entry-secondary-action:focus-visible,
+.entry-install-button:focus-visible,
 .entry-character-sheets:focus-visible,
 .entry-project-credit a:focus-visible,
 .entry-project-links a:focus-visible {
@@ -1251,7 +1283,7 @@
   }
 
   .entry-action-heading h2 {
-    font-size: 32px;
+    font-size: clamp(24px, 7.5vw, 32px);
   }
 
   .entry-back {
