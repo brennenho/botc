@@ -117,11 +117,15 @@ upload source maps when the API key and project ID are both configured and fail
 when only one is present. `POSTHOG_CLI_HOST` must remain the direct PostHog app
 host rather than the managed proxy.
 
-The integration disables person profiles, DOM autocapture, and session
-recording. Diagnostic URLs, identifiers, messages, stacks, causes, and error
-details are sent without application-level redaction. Credentials are excluded
-at collection time: never add cookies, authorization headers, secret tokens, or
-environment variables to analytics properties or operational logs.
+The browser SDK uses PostHog's defaults for pageviews, clicks, form interactions,
+and referrer and campaign attribution. Manage Session Replay, heatmaps, and
+performance capture in the PostHog project settings. The browser SDK honors
+Do Not Track and stores the analytics identifier in local storage.
+
+Diagnostic URLs, identifiers, messages, stacks, causes, and error details are
+sent without application-level redaction. Keep credentials out of analytics
+properties and operational logs, including cookies, authorization headers,
+secret tokens, and environment variables.
 
 Application code should use the vendor-neutral helpers in
 `src/lib/observability` rather than importing a PostHog SDK directly. The three
