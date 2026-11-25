@@ -54,6 +54,30 @@ export default tseslint.config(
     },
   },
   {
+    files: ["src/**/*.{js,jsx,ts,tsx}"],
+    ignores: ["src/components/ui/modal.tsx"],
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        {
+          paths: [
+            {
+              name: "@base-ui/react",
+              importNames: ["Dialog"],
+              message: "Build dialogs with @/components/ui/modal.",
+            },
+          ],
+          patterns: [
+            {
+              group: ["@base-ui/react/dialog", "@base-ui/react/dialog/*"],
+              message: "Build dialogs with @/components/ui/modal.",
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
     linterOptions: {
       reportUnusedDisableDirectives: true,
     },

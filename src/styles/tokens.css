@@ -60,15 +60,15 @@
   --status-danger: #8f2f34;
   --status-danger-hover: rgb(143 47 52 / 12%);
 
-  --team-townsfolk-accent: #72a9c4;
+  --team-townsfolk-accent: #305f77;
   --team-townsfolk-surface: rgb(54 112 140 / 17%);
-  --team-outsider-accent: #a08cc5;
+  --team-outsider-accent: #675282;
   --team-outsider-surface: rgb(112 91 148 / 19%);
-  --team-minion-accent: #cc7378;
+  --team-minion-accent: #883639;
   --team-minion-surface: rgb(148 65 69 / 18%);
-  --team-demon-accent: #c94d55;
+  --team-demon-accent: #76252b;
   --team-demon-surface: rgb(126 35 41 / 24%);
-  --team-traveller-accent: #b9a675;
+  --team-traveller-accent: #66512f;
   --team-traveller-surface: rgb(150 132 88 / 16%);
 
   --radius-control: 4px;
@@ -231,8 +231,7 @@
 
 .font-display,
 .entry-step-heading h1,
-.token-case-header h2,
-.sheet-header h2 {
+.modal-heading h2 {
   font-family: var(--font-display);
   font-variation-settings:
     "SOFT" 40,

@@ -156,7 +156,7 @@ export function RoleDistributionDialog({
       onSelect={(id) => changeSelection(id, "toggle")}
       onChangeCopies={changeSelection}
       footer={
-        <footer className="pool-case-footer">
+        <>
           <div className="pool-summary">
             <div className="pool-summary-line">
               <strong>
@@ -188,7 +188,7 @@ export function RoleDistributionDialog({
             <Shuffle className="size-4" />
             Distribute Roles
           </Button>
-        </footer>
+        </>
       }
     />
   );

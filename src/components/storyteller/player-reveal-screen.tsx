@@ -1,12 +1,12 @@
 "use client";
 
-import { Dialog } from "@base-ui/react/dialog";
 import { Undo2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
 import { CharacterToken } from "@/components/grimoire/character-token";
 import { InformationTokenIcon } from "@/components/storyteller/information-token-icon";
 import { Button } from "@/components/ui/button";
+import { Modal, ModalTitle } from "@/components/ui/modal";
 import { roleById, teamLabel } from "@/lib/game-data";
 import type { GameToken, Seat } from "@/lib/game-data/types";
 import type { PlayerReveal } from "@/lib/player-reveal";
@@ -26,27 +26,26 @@ export function PlayerRevealScreen({
   const titleRef = useRef<HTMLHeadingElement>(null);
 
   return (
-    <Dialog.Root open={reveal !== null} modal onOpenChange={() => undefined}>
-      <Dialog.Portal>
-        <Dialog.Viewport className="player-reveal-viewport">
-          {reveal ? (
-            <Dialog.Popup
-              className="player-reveal-screen"
-              initialFocus={titleRef}
-              data-keyboard-shortcuts-modal
-            >
-              <RevealContent
-                reveal={reveal}
-                seats={seats}
-                gameTokens={gameTokens}
-                titleRef={titleRef}
-              />
-              <SafeReturnButton onReturn={onClose} />
-            </Dialog.Popup>
-          ) : null}
-        </Dialog.Viewport>
-      </Dialog.Portal>
-    </Dialog.Root>
+    <Modal
+      open={reveal !== null}
+      onOpenChange={(_, eventDetails) => eventDetails.cancel()}
+      className="player-reveal-screen"
+      backdropClassName={false}
+      viewportClassName="player-reveal-viewport"
+      initialFocus={titleRef}
+    >
+      {reveal && (
+        <>
+          <RevealContent
+            reveal={reveal}
+            seats={seats}
+            gameTokens={gameTokens}
+            titleRef={titleRef}
+          />
+          <SafeReturnButton onReturn={onClose} />
+        </>
+      )}
+    </Modal>
   );
 }
 
@@ -80,13 +79,13 @@ function RevealContent({
     if (!role) return null;
     return (
       <main className="player-reveal-content is-role">
-        <Dialog.Title
+        <ModalTitle
           ref={titleRef}
           tabIndex={-1}
           className="player-reveal-title"
         >
           {reveal.heading}
-        </Dialog.Title>
+        </ModalTitle>
         <div className="player-reveal-primary-role">
           <CharacterToken
             role={role}
@@ -110,13 +109,13 @@ function RevealContent({
     const good = reveal.alignment === "good";
     return (
       <main className="player-reveal-content is-alignment">
-        <Dialog.Title
+        <ModalTitle
           ref={titleRef}
           tabIndex={-1}
           className="player-reveal-title"
         >
           You Are
-        </Dialog.Title>
+        </ModalTitle>
         <div
           className={cn(
             "player-reveal-alignment",
@@ -139,13 +138,13 @@ function RevealContent({
             type={isVoteQuestion ? "did-vote" : "did-nominate"}
           />
         </span>
-        <Dialog.Title
+        <ModalTitle
           ref={titleRef}
           tabIndex={-1}
           className="player-reveal-title"
         >
           {reveal.question}
-        </Dialog.Title>
+        </ModalTitle>
         <p className="player-reveal-question-response">
           Nod for Yes <span aria-hidden="true">·</span> Shake Your Head for No
         </p>
@@ -157,13 +156,13 @@ function RevealContent({
     return (
       <main className="player-reveal-content is-group-information">
         <section className="player-reveal-information-section">
-          <Dialog.Title
+          <ModalTitle
             ref={titleRef}
             tabIndex={-1}
             className="player-reveal-title"
           >
             This Is the Demon
-          </Dialog.Title>
+          </ModalTitle>
           <p className="player-reveal-player-name">
             {demon?.playerName ?? "No Demon Assigned"}
           </p>
@@ -180,13 +179,13 @@ function RevealContent({
     return (
       <main className="player-reveal-content is-group-information">
         <section className="player-reveal-information-section">
-          <Dialog.Title
+          <ModalTitle
             ref={titleRef}
             tabIndex={-1}
             className="player-reveal-title"
           >
             This Is the Demon
-          </Dialog.Title>
+          </ModalTitle>
           <p className="player-reveal-player-name">
             {demon?.playerName ?? "No Demon Assigned"}
           </p>
@@ -201,13 +200,13 @@ function RevealContent({
   if (reveal.type === "demon-bluffs") {
     return (
       <main className="player-reveal-content is-bluffs">
-        <Dialog.Title
+        <ModalTitle
           ref={titleRef}
           tabIndex={-1}
           className="player-reveal-title"
         >
           These Characters Are Not in Play
-        </Dialog.Title>
+        </ModalTitle>
         <RevealRoleList roles={bluffs} emptyLabel="No Demon Bluffs Set" />
       </main>
     );
@@ -216,13 +215,13 @@ function RevealContent({
   return (
     <main className="player-reveal-content is-group-information">
       <section className="player-reveal-information-section">
-        <Dialog.Title
+        <ModalTitle
           ref={titleRef}
           tabIndex={-1}
           className="player-reveal-title"
         >
           Your Minions
-        </Dialog.Title>
+        </ModalTitle>
         <RevealPlayerList seats={minions} emptyLabel="No Minions Assigned" />
       </section>
       <section className="player-reveal-information-section">
@@ -310,7 +309,7 @@ function SafeReturnButton({ onReturn }: { onReturn: () => void }) {
   return (
     <Button
       type="button"
-      variant="quiet"
+      variant="secondary"
       className={cn("player-reveal-return", confirming && "is-confirming")}
       onClick={handleClick}
     >

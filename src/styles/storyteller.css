@@ -37,7 +37,6 @@
   inset: 0;
   z-index: 69;
   border: 0;
-  background: rgb(8 10 9 / 40%);
   transition: opacity 160ms ease;
 }
 
@@ -65,8 +64,6 @@
   flex: 0 0 var(--grimoire-sheet-width);
   flex-direction: column;
   outline: none;
-  color: var(--ink);
-  background: var(--parchment-light);
   box-shadow: 0 0 36px rgb(0 0 0 / 42%);
   pointer-events: auto;
   transition: transform 200ms cubic-bezier(0.2, 0.75, 0.2, 1);
@@ -101,55 +98,17 @@
   display: none;
 }
 
-.sheet-header {
-  display: flex;
-  min-height: 72px;
-  flex: 0 0 72px;
-  align-items: center;
-  justify-content: space-between;
-  padding: 14px 18px;
-  border-bottom: 1px solid rgb(195 161 95 / 24%);
-  color: var(--chalk);
-  background: var(--felt-dark);
+.side-sheet > .modal-header {
+  padding: 16px 18px;
+  border-bottom: 1px solid var(--control-border);
 }
 
-.sheet-header .panel-eyebrow {
-  color: var(--brass);
+.side-sheet .sheet-pin-button[aria-pressed="true"] {
+  color: var(--oxblood);
 }
 
-.sheet-title {
-  margin: 0;
-  font-family: var(--font-display);
-  font-size: var(--text-title-sm);
-  font-weight: 510;
-  line-height: 1;
-  outline: none;
-}
-
-.sheet-header button {
-  color: rgb(244 240 230 / 60%);
-}
-
-.sheet-header button:hover {
-  color: white;
-  background: rgb(244 240 230 / 8%);
-}
-
-.sheet-header .sheet-pin-button[aria-pressed="true"] {
-  color: var(--brass);
-  border-color: transparent;
-  background: transparent !important;
-  box-shadow: none;
-}
-
-.sheet-header .sheet-pin-button[aria-pressed="true"] svg {
+.side-sheet .sheet-pin-button[aria-pressed="true"] svg {
   fill: currentColor;
-}
-
-.sheet-header-actions {
-  display: flex;
-  align-items: center;
-  gap: 2px;
 }
 
 .sheet-footer {
@@ -874,17 +833,12 @@
   overflow: hidden;
   place-items: center;
   outline: none;
-  color: #f3ead9;
-  background-color: #101713;
-  background-image: url("/assets/grimoire-leather.webp");
-  background-position: center;
-  background-size: cover;
 }
 
 .player-reveal-screen::before {
   position: absolute;
   inset: 18px;
-  border: 1px solid rgb(194 157 84 / 32%);
+  border: 1px solid var(--control-border);
   border-radius: 7px;
   content: "";
   pointer-events: none;
@@ -906,7 +860,6 @@
 .player-reveal-title {
   margin: 0;
   outline: none;
-  color: #f3ead9;
   font-family: var(--font-display);
   font-size: 42px;
   font-weight: 610;
@@ -930,7 +883,6 @@
 
 .player-reveal-primary-role h2 {
   margin: 16px 0 1px;
-  color: #f7efe0;
   font-family: var(--font-display);
   font-size: 32px;
   font-weight: 680;
@@ -939,7 +891,7 @@
 
 .player-reveal-team {
   margin: 0;
-  color: #75a8ba;
+  color: var(--team-townsfolk-accent);
   font-family: var(--font-utility);
   font-size: 10px;
   font-weight: 600;
@@ -948,13 +900,13 @@
 
 .player-reveal-team.team-minion,
 .player-reveal-team.team-demon {
-  color: #c97876;
+  color: var(--team-demon-accent);
 }
 
 .player-reveal-ability {
   max-width: 620px;
   margin: 15px 0 0;
-  color: rgb(243 234 217 / 72%);
+  color: var(--ink-muted);
   font-size: 15px;
   line-height: 1.5;
 }
@@ -983,7 +935,6 @@
 }
 
 .player-reveal-role-item > strong {
-  color: #f3ead9;
   font-family: var(--font-display);
   font-size: 19px;
   font-weight: 620;
@@ -992,14 +943,13 @@
 
 .player-reveal-empty {
   margin: 8px 0 0;
-  color: rgb(243 234 217 / 48%);
+  color: var(--ink-muted);
   font-family: var(--font-utility);
   font-size: 11px;
 }
 
 .player-reveal-player-name {
   margin: 0;
-  color: #f6eddb;
   font-family: var(--font-display);
   font-size: 66px;
   font-weight: 680;
@@ -1027,11 +977,11 @@
 }
 
 .player-reveal-alignment.is-good {
-  color: #72b6cf;
+  color: var(--team-townsfolk-accent);
 }
 
 .player-reveal-alignment.is-evil {
-  color: #d46f70;
+  color: var(--team-demon-accent);
 }
 
 .player-reveal-content.is-question {
@@ -1043,10 +993,10 @@
   width: 104px;
   height: 104px;
   place-items: center;
-  border: 1px solid rgb(194 157 84 / 32%);
+  border: 1px solid var(--control-border);
   border-radius: 50%;
-  color: #d1ad68;
-  background: rgb(238 224 191 / 6%);
+  color: var(--team-traveller-accent);
+  background: var(--control-secondary-bg);
 }
 
 .player-reveal-question-icon > svg {
@@ -1061,7 +1011,7 @@
 
 .player-reveal-question-response {
   margin: 0;
-  color: rgb(243 234 217 / 58%);
+  color: var(--ink-muted);
   font-family: var(--font-utility);
   font-size: 12px;
   line-height: 1.4;
@@ -1120,15 +1070,14 @@
   padding: 9px 13px 10px;
   border-top: 1px solid rgb(194 157 84 / 28%);
   border-bottom: 1px solid rgb(194 157 84 / 18%);
-  color: #f5ecdc;
-  background: rgb(238 224 191 / 7%);
+  background: var(--control-secondary-bg);
   font-family: var(--font-display);
   font-size: 24px;
   font-weight: 610;
 }
 
 .player-reveal-player-list > span {
-  color: rgb(243 234 217 / 48%);
+  color: var(--ink-muted);
   font-family: var(--font-utility);
   font-size: 11px;
 }
@@ -1140,21 +1089,11 @@
   z-index: 2;
   min-width: 170px;
   justify-content: center;
-  border: 1px solid rgb(194 157 84 / 26%);
-  color: rgb(243 234 217 / 58%);
-  background: rgb(11 16 14 / 58%);
-  backdrop-filter: blur(8px);
-}
-
-.player-reveal-return:hover,
-.player-reveal-return:focus-visible {
-  color: #f3ead9;
-  background: rgb(24 33 28 / 92%);
 }
 
 .player-reveal-return.is-confirming {
-  border-color: rgb(194 157 84 / 56%);
-  color: #f3ead9;
+  color: var(--oxblood);
+  border-color: currentColor;
 }
 
 .player-reveal-return > svg {
