@@ -19,7 +19,7 @@ export default function PrivacyPage() {
     <DocumentPage
       title="Privacy policy"
       headerDetail={
-        <time dateTime="2026-08-16">Last updated August 16, 2026</time>
+        <time dateTime="2026-11-24">Last updated November 24, 2026</time>
       }
       footer={
         <DocumentFooter title="Questions">
@@ -45,10 +45,12 @@ export default function PrivacyPage() {
           not need to create an account or provide an email address.
         </p>
         <p>
-          <strong>Usage and technical information.</strong> We collect limited
-          information about how the site is used, its performance, and errors.
-          This may include browser and device information, an approximate
-          location, and a browser identifier.
+          <strong>Usage and technical information.</strong> We use PostHog to
+          measure page visits, clicks, form interactions, performance, and
+          errors. We may record a replay of what appeared on screen and how you
+          interacted with it. We also collect browser and device information and
+          a browser identifier. We may collect your approximate location and how
+          you reached the site, such as a referring site or campaign.
         </p>
       </DocumentSection>
 
@@ -71,8 +73,8 @@ export default function PrivacyPage() {
       <DocumentSection title="Data retention">
         <p>
           Game data is automatically deleted after seven days of inactivity.
-          Usage measurements and error reports may be retained longer to
-          identify trends and recurring problems.
+          Usage measurements, session replays, and error reports may be retained
+          longer to identify trends and recurring problems.
         </p>
       </DocumentSection>
 
