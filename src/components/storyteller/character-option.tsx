@@ -10,6 +10,7 @@ export type ChangeCopies = (roleId: string, action: "add" | "remove") => void;
 export function CharacterOption({
   role,
   count,
+  fixedCount,
   cannotAdd,
   selectionMode,
   inPlay,
@@ -19,6 +20,7 @@ export function CharacterOption({
 }: {
   role: Role;
   count: number;
+  fixedCount: number;
   cannotAdd: boolean;
   selectionMode: "single" | "multiple";
   inPlay: boolean;
@@ -71,13 +73,15 @@ export function CharacterOption({
           >
             <Minus aria-hidden="true" />
           </Button>
-          <output aria-label={`${role.name} count`}>{count}</output>
+          <output aria-label={`${role.name} count`}>
+            {fixedCount + count}
+          </output>
           <Button
             type="button"
             variant="quiet"
             size="icon"
             aria-label={`Add one ${role.name}`}
-            disabled={cannotAdd || count >= copyLimit}
+            disabled={cannotAdd}
             onClick={() => onChangeCopies(role.id, "add")}
           >
             <Plus aria-hidden="true" />

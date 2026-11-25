@@ -12,12 +12,14 @@ import {
   getRolesByTeam,
   getTravellerRoleGroups,
   isResidentTeam,
+  getSetupRoleCopyLimit,
   roleById,
   type GameScript,
   type Team,
   type Role,
-  type TeamCounts,
 } from "@/lib/game-data";
+import type { getRoleDistribution } from "@/lib/game-data/distribution";
+import { DRUNK_ROLE_ID } from "@/lib/setup-effects";
 import { cn } from "@/lib/utils";
 
 const teamHeadings: Record<Team, string> = {
@@ -40,24 +42,19 @@ type CatalogSelection =
   | {
       selectionMode: "multiple";
       selectedRoleIds: string[];
-      selectionLimit: number;
-      expandableRoleIds: readonly string[];
-      targetTeamCounts: TeamCounts;
-      unavailableRoleIds: readonly string[];
+      distribution: ReturnType<typeof getRoleDistribution>;
       onChangeCopies: ChangeCopies;
     };
 
 export type CharacterCatalogProps = CatalogSelection & {
   editionId: GameScript;
   teams: readonly Team[];
-  teamDetails?: Partial<Record<Team, string>>;
   onSelect: (roleId: string) => void;
 };
 
 export function CharacterCatalog({
   editionId,
   teams,
-  teamDetails = {},
   onSelect,
   ...selection
 }: CharacterCatalogProps) {
@@ -76,17 +73,21 @@ export function CharacterCatalog({
 
   function renderRole(role: Role) {
     const count = copies.get(role.id) ?? 0;
+    const fixedCount = pool?.distribution.fixedCopies.get(role.id) ?? 0;
     const cannotAdd =
       !!pool &&
-      (pool.unavailableRoleIds.includes(role.id) ||
-        (pool.selectedRoleIds.length >= pool.selectionLimit &&
-          !pool.expandableRoleIds.includes(role.id)));
+      (pool.distribution.unassignedCount === 0 ||
+        fixedCount + count >= getSetupRoleCopyLimit(role.id) ||
+        (pool.distribution.dealtRoles.length >=
+          pool.distribution.unassignedCount &&
+          role.id !== DRUNK_ROLE_ID));
     return (
       <CharacterOption
         key={role.id}
         role={role}
         selectionMode={selection.selectionMode}
         count={count}
+        fixedCount={fixedCount}
         cannotAdd={cannotAdd}
         inPlay={assignment?.usedRoleIds.includes(role.id) ?? false}
         bluff={assignment?.bluffRoleIds.includes(role.id) ?? false}
@@ -106,11 +107,8 @@ export function CharacterCatalog({
         const teamCount =
           pool && isResidentTeam(team)
             ? {
-                selected: grouped[team].reduce(
-                  (total, role) => total + (copies.get(role.id) ?? 0),
-                  0,
-                ),
-                target: pool.targetTeamCounts[team],
+                selected: pool.distribution.teamCounts[team],
+                target: pool.distribution.targetTeamCounts?.[team],
               }
             : undefined;
 
@@ -126,7 +124,11 @@ export function CharacterCatalog({
             <CharacterTeamHeading
               label={teamHeadings[team]}
               count={teamCount}
-              detail={teamDetails[team]}
+              detail={
+                isTraveller && pool?.distribution.travellerCount
+                  ? `${pool.distribution.travellerCount} in setup`
+                  : undefined
+              }
               disclosure={
                 isTraveller
                   ? {

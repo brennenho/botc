@@ -1,9 +1,8 @@
 import { shuffled } from "@/lib/game-data/random-setup";
 import { getRoleDistribution } from "@/lib/game-data/distribution";
 import {
-  createRandomSetup,
-  getDefaultAlignment,
   isTravellerRole,
+  getDefaultAlignment,
   roleById,
 } from "@/lib/game-data";
 import type {
@@ -29,21 +28,13 @@ import {
   withReminderKey,
   type ReminderDefinition,
 } from "@/lib/reminders";
-import {
-  createSetupRoleMetadata,
-  DRUNK_ROLE_ID,
-  isSetupRoleToken,
-} from "@/lib/setup-effects";
+import { createSetupRoleMetadata, DRUNK_ROLE_ID } from "@/lib/setup-effects";
 
 import {
   resolveGameStateFactories,
   type GameStateFactoryOverrides,
 } from "./factories";
-import {
-  normalizeReminderOrders,
-  normalizeSeatIndexes,
-  preservePlayerPositionTokens,
-} from "./normalization";
+import { normalizeReminderOrders, normalizeSeatIndexes } from "./normalization";
 
 type GameState = Pick<StorytellerSnapshot, "game" | "seats" | "gameTokens">;
 
@@ -223,83 +214,6 @@ export function dealRoles(
         roleId: DRUNK_ROLE_ID,
         label: "Drunk Selected",
         position: current.gameTokens.length,
-        metadata: createSetupRoleMetadata(),
-      },
-    ],
-  };
-}
-
-export function redealRoles(
-  current: GameState,
-  rolePoolIds: readonly string[],
-  factories?: GameStateFactoryOverrides,
-): StorytellerPatch {
-  const { createId, random } = resolveGameStateFactories(factories);
-  const drunkSelected = rolePoolIds.includes(DRUNK_ROLE_ID);
-  if (
-    drunkSelected &&
-    rolePoolIds.indexOf(DRUNK_ROLE_ID) !==
-      rolePoolIds.lastIndexOf(DRUNK_ROLE_ID)
-  )
-    return {};
-  const travellerRoleIds = rolePoolIds.filter(
-    (roleId) => roleById.get(roleId)?.team === "traveller",
-  );
-  const dealtRoleIds = rolePoolIds.filter(
-    (roleId) =>
-      roleId !== DRUNK_ROLE_ID && roleById.get(roleId)?.team !== "traveller",
-  );
-  const residentSeats = current.seats.filter((seat) => !seat.isTraveller);
-  const travellerSeats = current.seats.filter((seat) => seat.isTraveller);
-  if (
-    (travellerRoleIds.length > 0 &&
-      travellerRoleIds.length !== travellerSeats.length) ||
-    new Set(travellerRoleIds).size !== travellerRoleIds.length
-  ) {
-    return {};
-  }
-  const roleIds = createRandomSetup(
-    current.game.edition,
-    residentSeats.length,
-    random,
-    dealtRoleIds,
-  );
-  if (roleIds.length !== residentSeats.length) return {};
-  const shuffledTravellerRoleIds = shuffled(travellerRoleIds, random);
-
-  let residentIndex = 0;
-  let travellerIndex = 0;
-  const seats = normalizeSeatIndexes(
-    current.seats.map((seat) => {
-      if (seat.isTraveller) {
-        if (shuffledTravellerRoleIds.length === 0) return seat;
-        const nextRoleState = roleState(
-          seat,
-          shuffledTravellerRoleIds[travellerIndex++] ?? null,
-        );
-        return nextRoleState ? { ...seat, ...nextRoleState } : seat;
-      }
-      const nextRoleState = roleState(seat, roleIds[residentIndex++] ?? null);
-      return nextRoleState ? { ...seat, ...nextRoleState } : seat;
-    }),
-  );
-  const gameTokens = preservePlayerPositionTokens(current.gameTokens);
-  if (!drunkSelected) return { seats, gameTokens };
-
-  const existingMarker = current.gameTokens.find(
-    (token) => isSetupRoleToken(token) && token.roleId === DRUNK_ROLE_ID,
-  );
-  return {
-    seats,
-    gameTokens: [
-      ...gameTokens,
-      {
-        id: existingMarker?.id ?? createId(),
-        seatId: null,
-        tokenType: "custom",
-        roleId: DRUNK_ROLE_ID,
-        label: "Drunk Selected",
-        position: gameTokens.length,
         metadata: createSetupRoleMetadata(),
       },
     ],

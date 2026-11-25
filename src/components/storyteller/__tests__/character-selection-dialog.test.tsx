@@ -1,12 +1,14 @@
 // @vitest-environment jsdom
 
 import "@testing-library/jest-dom/vitest";
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { CharacterSelectionDialog } from "@/components/storyteller/character-selection-dialog";
 import { RoleDistributionDialog } from "@/components/storyteller/role-distribution-dialog";
+
+import { createSeat } from "@/lib/game-state";
 
 const script = { name: "Test script", roleIds: ["villageidiot", "imp"] };
 
@@ -56,8 +58,8 @@ describe("character selection", () => {
       <RoleDistributionDialog
         open
         editionId={script}
-        residentCount={7}
-        travellerCount={0}
+        gameTokens={[]}
+        seats={Array.from({ length: 7 }, (_, i) => createSeat(i))}
         onOpenChange={vi.fn()}
         onDistribute={vi.fn()}
       />,
@@ -109,5 +111,68 @@ describe("character selection", () => {
     await user.click(toggle);
     await user.click(screen.getByRole("button", { name: "Barista" }));
     expect(onSelect).toHaveBeenCalledWith("barista");
+  });
+
+  it("counts a directly assigned Drunk as one occupied seat", async () => {
+    const user = userEvent.setup();
+    const seats = [
+      "washerwoman",
+      "librarian",
+      "chef",
+      "drunk",
+      "poisoner",
+      null,
+    ].map((roleId, i) => ({ ...createSeat(i), roleId }));
+    const onDistribute = vi.fn();
+    render(
+      <RoleDistributionDialog
+        open
+        editionId="tb"
+        seats={seats}
+        gameTokens={[]}
+        onOpenChange={vi.fn()}
+        onDistribute={onDistribute}
+      />,
+    );
+    expect(
+      within(
+        screen.getByRole("heading", { name: /^Townsfolk/ }),
+      ).getByLabelText("3 in setup, 3 expected"),
+    ).toBeVisible();
+    expect(screen.getByRole("button", { name: "Drunk" })).toBeDisabled();
+    await user.click(screen.getByRole("button", { name: "Imp" }));
+    await user.click(screen.getByRole("button", { name: "Distribute Roles" }));
+    expect(onDistribute).toHaveBeenCalledWith(["imp"]);
+  });
+
+  it("accounts for a manually assigned Baron and allows an already full roster to be inspected", () => {
+    const seats = [
+      "chef",
+      "empath",
+      "monk",
+      "saint",
+      "butler",
+      "baron",
+      "imp",
+    ].map((roleId, i) => ({ ...createSeat(i), roleId }));
+    render(
+      <RoleDistributionDialog
+        open
+        editionId="tb"
+        seats={seats}
+        gameTokens={[]}
+        onOpenChange={vi.fn()}
+        onDistribute={vi.fn()}
+      />,
+    );
+    expect(
+      within(
+        screen.getByRole("heading", { name: /^Outsiders/ }),
+      ).getByLabelText("2 in setup, 2 expected"),
+    ).toBeVisible();
+    expect(screen.getByText("All players have a role.")).toBeVisible();
+    expect(
+      screen.getByRole("button", { name: "Distribute Roles" }),
+    ).toBeDisabled();
   });
 });

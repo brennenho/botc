@@ -15,18 +15,13 @@ import { parseScriptExport } from "@/lib/game-data/custom-script";
 import oneInOneOut from "../../../../public/assets/scripts/one-in-one-out.json";
 import { readReminderPlacement } from "@/lib/grimoire-canvas";
 import { getReminderDefinition, getReminderKey } from "@/lib/reminders";
-import {
-  createSetupRoleMetadata,
-  DRUNK_ROLE_ID,
-  isSetupRoleToken,
-} from "@/lib/setup-effects";
+import { createSetupRoleMetadata, DRUNK_ROLE_ID } from "@/lib/setup-effects";
 
 import {
   appendPlayer,
   assignSeatRole,
   clearRoleAssignments,
   dealRoles,
-  redealRoles,
   deletePlayer,
   deleteReminder,
   normalizeReminderOrders,
@@ -494,68 +489,6 @@ describe("role distribution", () => {
         ).legal,
       ).toBe(false);
     }
-  });
-
-  it("preserves traveller seats and position tokens while rebuilding setup markers", () => {
-    const residents = Array.from({ length: 7 }, (_, index) =>
-      seat(`seat-${index}`, index),
-    );
-    const traveller = seat("traveller", 7, {
-      roleId: "bureaucrat",
-      isTraveller: true,
-    });
-    const positionToken: GameToken = {
-      id: "position",
-      seatId: "seat-0",
-      tokenType: "custom",
-      roleId: null,
-      label: "Player Position",
-      position: 0,
-      metadata: {
-        kind: "player-position",
-        canvasPosition: { x: 25, y: 50 },
-      },
-    };
-    const priorMarker: GameToken = {
-      id: "drunk-marker",
-      seatId: null,
-      tokenType: "custom",
-      roleId: DRUNK_ROLE_ID,
-      label: "Drunk Selected",
-      position: 1,
-      metadata: createSetupRoleMetadata(),
-    };
-    const current = state(
-      [...residents, traveller],
-      [positionToken, reminder("old-reminder", "seat-0", 0), priorMarker],
-    );
-    const rolePool = [
-      "washerwoman",
-      "librarian",
-      "chef",
-      "empath",
-      "monk",
-      "baron",
-      "imp",
-      DRUNK_ROLE_ID,
-    ];
-
-    const patch = redealRoles(current, rolePool, { random: () => 0.5 });
-
-    expect(patch.seats).toHaveLength(8);
-    expect(patch.seats?.at(-1)).toEqual(traveller);
-    expect(patch.seats?.slice(0, 7).every((item) => item.roleId)).toBe(true);
-    expect(
-      patch.seats
-        ?.slice(0, 7)
-        .filter((item) => item.roleId === "baron" || item.roleId === "imp")
-        .every((item) => item.alignment === "evil"),
-    ).toBe(true);
-    expect(patch.gameTokens).toEqual([
-      positionToken,
-      expect.objectContaining({ id: "drunk-marker", roleId: DRUNK_ROLE_ID }),
-    ]);
-    expect(patch.gameTokens?.filter(isSetupRoleToken)).toHaveLength(1);
   });
 
   it("deals only to open seats and preserves assigned players, alignments, and tokens", () => {
