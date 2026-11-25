@@ -432,9 +432,6 @@ export function StorytellerApp({
           onClearRole={(seatId) => chooseRole(seatId, null)}
           onRemovePlayer={handleRemovePlayer}
           onRename={(seatId, playerName) => updateSeat(seatId, { playerName })}
-          onSetTraveller={(seatId, isTraveller) =>
-            updateSeat(seatId, { isTraveller })
-          }
           onAddPlayer={addPlayer}
           onDistributeRoles={handleDistributeRoles}
           onClearAssignments={handleClearAssignments}

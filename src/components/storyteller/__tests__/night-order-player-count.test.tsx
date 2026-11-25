@@ -18,7 +18,11 @@ function NightOrder({ residents }: { residents: number }) {
     ...createSeat(i),
     alive: i !== 0,
   }));
-  seats.push({ ...createSeat(residents), isTraveller: true });
+  seats.push({
+    ...createSeat(residents),
+    roleId: "bureaucrat",
+    isTraveller: true,
+  });
   return (
     <NightOrderPanel
       shortcutsEnabled={false}

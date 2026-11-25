@@ -1,4 +1,9 @@
-import { roleById, teamLabel, isResidentTeam } from "./catalog";
+import {
+  roleById,
+  teamLabel,
+  isResidentTeam,
+  isTravellerRole,
+} from "./catalog";
 import type {
   GameToken,
   ResidentTeam,
@@ -18,7 +23,6 @@ import {
 type SetupSeat = {
   id: string;
   roleId: string | null;
-  isTraveller?: boolean;
 };
 
 const setupReminderRequirements: Record<
@@ -153,7 +157,7 @@ function countAssignedTeams(
   const drunkSeatId = getDrunkReminder(gameTokens)?.seatId;
 
   return seats.reduce<TeamCounts>((counts, seat) => {
-    if (seat.isTraveller || !seat.roleId) return counts;
+    if (!seat.roleId) return counts;
     const role = roleById.get(seat.roleId);
     if (!role || !isResidentTeam(role.team)) return counts;
 
@@ -204,7 +208,7 @@ export function getSetupAssessment(
   seats: readonly SetupSeat[],
   gameTokens: readonly GameToken[] = [],
 ): SetupAssessment {
-  const residents = seats.filter((seat) => !seat.isTraveller);
+  const residents = seats.filter((seat) => !isTravellerRole(seat.roleId));
   const drunkReminder = getDrunkReminder(gameTokens);
   const setupRoleIds = [
     ...residents.flatMap((seat) =>
@@ -313,8 +317,7 @@ export function getSetupReminderWarnings(
       if (roleId === "librarian" && !hasOutsider) return [];
       if (
         roleId === "villageidiot" &&
-        seats.filter((seat) => !seat.isTraveller && seat.roleId === roleId)
-          .length < 2
+        seats.filter((seat) => seat.roleId === roleId).length < 2
       )
         return [];
 
@@ -334,10 +337,7 @@ export function getSetupReminderWarnings(
 
           if (roleId === "villageidiot")
             return seats.some(
-              (seat) =>
-                seat.id === token.seatId &&
-                !seat.isTraveller &&
-                seat.roleId === roleId,
+              (seat) => seat.id === token.seatId && seat.roleId === roleId,
             );
           if (roleId !== DRUNK_ROLE_ID) return true;
           const seat = seats.find((candidate) => candidate.id === token.seatId);

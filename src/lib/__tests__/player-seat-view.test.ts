@@ -56,10 +56,10 @@ describe("player seat views", () => {
     });
   });
 
-  it("exposes a marked Traveller's character without exposing alignment", () => {
+  it("exposes only Traveller characters and keeps alignment private", () => {
     expect(
       createPlayerSeatView(
-        seat({ roleId: "chef", alignment: "evil", isTraveller: true }),
+        seat({ roleId: "barista", alignment: "evil", isTraveller: false }),
         { x: 20, y: 30 },
       ),
     ).toEqual({
@@ -67,12 +67,18 @@ describe("player seat views", () => {
       seatIndex: 0,
       playerName: "Alice",
       occupied: true,
-      publicRoleId: "chef",
+      publicRoleId: "barista",
       alive: false,
       ghostVoteAvailable: false,
       isTraveller: true,
       position: { x: 20, y: 30 },
     });
+  });
+
+  it("keeps resident roles private even with an old Traveller flag", () => {
+    expect(
+      createPlayerSeatView(seat({ isTraveller: true }), { x: 0, y: 0 }),
+    ).toMatchObject({ isTraveller: false, publicRoleId: null });
   });
 
   it("uses storyteller-defined token positions without exposing the token", () => {

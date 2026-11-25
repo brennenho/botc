@@ -12,6 +12,7 @@ import { Switch } from "@/components/ui/switch";
 import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts";
 import {
   getNightOrderEntries,
+  isTravellerRole,
   type GameScript,
   type NightOrderEntry,
 } from "@/lib/game-data";
@@ -109,14 +110,14 @@ export function NightOrderPanel({
         editionId,
         night,
         seats.flatMap((seat) =>
-          seat.isTraveller && seat.roleId ? [seat.roleId] : [],
+          seat.roleId && isTravellerRole(seat.roleId) ? [seat.roleId] : [],
         ),
       ),
     [editionId, night, seats],
   );
   const smallGameInfo =
     night === "first" &&
-    seats.filter((seat) => !seat.isTraveller).length < 7 &&
+    seats.filter((seat) => !isTravellerRole(seat.roleId)).length < 7 &&
     order.some((entry) => isEvilInfo(entry.id));
   const entries = useMemo(() => {
     const visibleOrder =

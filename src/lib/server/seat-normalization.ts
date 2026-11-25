@@ -9,6 +9,7 @@ export function normalizeUpdatedSeats(seats: Seat[]): Seat[] {
       ...seat,
       seatIndex: index,
       roleId: role?.id ?? null,
+      isTraveller: role?.team === "traveller",
       playerName: seat.playerName.trim() || `Player ${index + 1}`,
     };
   });

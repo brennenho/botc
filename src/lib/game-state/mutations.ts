@@ -1,6 +1,7 @@
 import {
   createRandomSetup,
   getDefaultAlignment,
+  isTravellerRole,
   roleById,
 } from "@/lib/game-data";
 import type {
@@ -45,29 +46,22 @@ import {
 type GameState = Pick<StorytellerSnapshot, "game" | "seats" | "gameTokens">;
 
 export type MutableSeatPatch = Partial<
-  Pick<
-    Seat,
-    "playerName" | "alignment" | "alive" | "ghostVoteAvailable" | "isTraveller"
-  >
+  Pick<Seat, "playerName" | "alignment" | "alive" | "ghostVoteAvailable">
 >;
 
 function roleState(seat: Seat, roleId: string | null) {
   const role = roleId ? roleById.get(roleId) : null;
   if (roleId && !role) return null;
 
-  if (!role) {
-    return {
-      roleId: null,
-      alignment: seat.isTraveller ? seat.alignment : ("good" as const),
-      isTraveller: seat.isTraveller,
-    };
-  }
-
-  const isTraveller = seat.isTraveller || role.team === "traveller";
-
+  const isTraveller = role?.team === "traveller";
   return {
-    roleId: role.id,
-    alignment: seat.isTraveller ? seat.alignment : getDefaultAlignment(role),
+    roleId: role?.id ?? null,
+    alignment:
+      isTraveller && isTravellerRole(seat.roleId)
+        ? seat.alignment
+        : role
+          ? getDefaultAlignment(role)
+          : ("good" as const),
     isTraveller,
   };
 }
@@ -118,7 +112,6 @@ export function patchSeat(
               alive: patch.alive ?? seat.alive,
               ghostVoteAvailable:
                 patch.ghostVoteAvailable ?? seat.ghostVoteAvailable,
-              isTraveller: patch.isTraveller ?? seat.isTraveller,
             }
           : seat,
       ),
@@ -290,7 +283,8 @@ export function clearRoleAssignments(current: GameState): StorytellerPatch {
       current.seats.map((seat) => ({
         ...seat,
         roleId: null,
-        alignment: seat.isTraveller ? seat.alignment : "good",
+        isTraveller: false,
+        alignment: "good",
       })),
     ),
     gameTokens: current.gameTokens.filter(
