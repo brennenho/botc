@@ -10,7 +10,6 @@ const port = Number(process.env.PLAYWRIGHT_PORT ?? 3100);
 const app = next({ dev: false, hostname, port });
 await app.prepare();
 
-// Keep the private key outside the checkout and only for the TLS setup.
 const directory = mkdtempSync(join(tmpdir(), "botc-playwright-"));
 try {
   const keyPath = join(directory, "localhost.key");

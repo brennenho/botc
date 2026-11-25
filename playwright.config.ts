@@ -68,8 +68,9 @@ export default defineConfig({
   ],
   webServer: {
     command: isCI
-      ? "pnpm start:integration"
+      ? "node scripts/start-integration-server.mjs"
       : `pnpm exec next dev --turbo --hostname localhost --port ${integrationPort}`,
+    env: isCI ? { NODE_ENV: "production" } : undefined,
     url: baseURL,
     ignoreHTTPSErrors: isCI,
     reuseExistingServer: !isCI,

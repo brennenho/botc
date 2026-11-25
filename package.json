@@ -18,7 +18,7 @@
     "lint:fix": "eslint . --fix",
     "preview": "next build && next start",
     "start": "next start",
-    "start:integration": "NODE_ENV=production node scripts/start-integration-server.mjs",
+    "start:integration": "next start --hostname localhost --port 3100",
     "supabase:lint": "supabase db lint --local --fail-on error",
     "supabase:reset": "supabase db reset",
     "supabase:start": "supabase start",

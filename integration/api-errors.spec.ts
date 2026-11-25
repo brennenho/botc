@@ -142,6 +142,7 @@ test("credential cookies are private and scoped to the application", async ({
   expect(cookie).toContain(`botc_st_${body.snapshot.game.joinCode}=`);
   expect(cookie.toLowerCase()).toContain("httponly");
   expect(cookie.toLowerCase()).toContain("samesite=lax");
+  if (process.env.CI) expect(cookie).toMatch(/;\s*Secure(?:;|$)/i);
   expect(cookie).toContain("Path=/");
   expect(cookie).toMatch(/Max-Age=604800/i);
 });
