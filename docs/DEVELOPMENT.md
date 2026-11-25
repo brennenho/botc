@@ -212,9 +212,13 @@ Use `pnpm test:integration:ui` for Playwright's interactive runner and
 `pnpm test:integration:report` to reopen the most recent HTML report. The
 development server runs on `http://localhost:3100`. CI serves the production
 build at `https://localhost:3100` so browsers can use its secure session cookies.
-The test server uses OpenSSL to generate a one-day localhost certificate for
-each run. Playwright writes the HTML report to `integration-report/index.html`
-and traces, screenshots, and videos to `integration-test-results/`.
+The browser integration jobs also enable TLS on the local Supabase gateway so
+Realtime connects over WSS. Each job generates one-day certificates for the
+app and gateway and configures Node to trust the gateway certificate.
+The uploaded-script smoke test checks that the player receives the assignment
+broadcast over the WebSocket. Playwright writes the HTML report to
+`integration-report/index.html` and traces, screenshots, and videos to
+`integration-test-results/`.
 
 The CI integration job runs for pull requests and pushes to `main`. It starts an
 ephemeral local Supabase stack, rebuilds the database from migrations, exports
