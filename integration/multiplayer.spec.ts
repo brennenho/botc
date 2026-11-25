@@ -13,8 +13,13 @@ import {
 } from "./fixtures/multiplayer";
 
 test("@smoke an uploaded script survives a reload and reaches the joining player's reference sheet", async ({
+  browserName,
   createActor,
 }) => {
+  test.slow(
+    browserName === "webkit",
+    "Two players navigate the full setup UI.",
+  );
   const storyteller = await createActor();
   const player = await createActor();
   const page = storyteller.page;
