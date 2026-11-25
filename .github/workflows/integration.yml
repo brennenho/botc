@@ -40,6 +40,9 @@ jobs:
       - name: Install WebKit
         run: pnpm exec playwright install webkit --with-deps
 
+      - name: Configure local Supabase TLS
+        run: bash scripts/configure-integration-tls.sh
+
       - name: Start local Supabase
         run: pnpm supabase:start
         env:

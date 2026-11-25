@@ -1,4 +1,5 @@
 import type { StorytellerSnapshot } from "../src/lib/game-data/types";
+import { GAME_INVALIDATION_EVENT } from "../src/lib/game-invalidation";
 import {
   createGameFromHome,
   createGameViaApi,
@@ -12,8 +13,13 @@ import {
 } from "./fixtures/multiplayer";
 
 test("@smoke an uploaded script survives a reload and reaches the joining player's reference sheet", async ({
+  browserName,
   createActor,
 }) => {
+  test.slow(
+    browserName === "webkit",
+    "Two players navigate the full setup UI.",
+  );
   const storyteller = await createActor();
   const player = await createActor();
   const page = storyteller.page;
@@ -31,7 +37,13 @@ test("@smoke an uploaded script survives a reload and reaches the joining player
   await page.getByRole("button", { name: "Open grimoire" }).click();
   await page.waitForURL(/\/game\/[^/]+\/storyteller$/);
   const joinCode = new URL(page.url()).pathname.split("/")[2]!;
-  await joinGameFromHome(player, joinCode, "Alice");
+  const [realtime] = await Promise.all([
+    player.page.waitForEvent(
+      "websocket",
+      (socket) => new URL(socket.url()).pathname === "/realtime/v1/websocket",
+    ),
+    joinGameFromHome(player, joinCode, "Alice"),
+  ]);
   await page
     .getByRole("button", {
       name: "Alice, Character not assigned. Open player controls",
@@ -40,9 +52,14 @@ test("@smoke an uploaded script survives a reload and reaches the joining player
   await page
     .getByRole("button", { name: "Assign a Character to Alice" })
     .click();
-  await page
-    .getByRole("button", { name: "Village Idiot", exact: true })
-    .click();
+  await Promise.all([
+    realtime.waitForEvent("framereceived", {
+      predicate: ({ payload }) =>
+        payload.toString().includes(GAME_INVALIDATION_EVENT),
+      timeout: 10_000,
+    }),
+    page.getByRole("button", { name: "Village Idiot", exact: true }).click(),
+  ]);
   await expect(
     player.page
       .getByLabel("Your Character")
