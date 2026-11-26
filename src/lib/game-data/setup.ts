@@ -197,9 +197,10 @@ export function getSetupTargetCounts(
 export function getSetupSelectionTargetCounts(
   playerCount: number,
   roleIds: readonly string[],
+  needsDrunkCover = roleIds.includes(DRUNK_ROLE_ID),
 ) {
   const target = getSetupTargetCounts(playerCount, roleIds);
-  if (!target || !roleIds.includes(DRUNK_ROLE_ID)) return target;
+  if (!target || !needsDrunkCover) return target;
 
   return { ...target, townsfolk: target.townsfolk + 1 };
 }

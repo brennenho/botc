@@ -1,7 +1,8 @@
+import { shuffled } from "@/lib/game-data/random-setup";
+import { getRoleDistribution } from "@/lib/game-data/distribution";
 import {
-  createRandomSetup,
-  getDefaultAlignment,
   isTravellerRole,
+  getDefaultAlignment,
   roleById,
 } from "@/lib/game-data";
 import type {
@@ -27,21 +28,13 @@ import {
   withReminderKey,
   type ReminderDefinition,
 } from "@/lib/reminders";
-import {
-  createSetupRoleMetadata,
-  DRUNK_ROLE_ID,
-  isSetupRoleToken,
-} from "@/lib/setup-effects";
+import { createSetupRoleMetadata, DRUNK_ROLE_ID } from "@/lib/setup-effects";
 
 import {
   resolveGameStateFactories,
   type GameStateFactoryOverrides,
 } from "./factories";
-import {
-  normalizeReminderOrders,
-  normalizeSeatIndexes,
-  preservePlayerPositionTokens,
-} from "./normalization";
+import { normalizeReminderOrders, normalizeSeatIndexes } from "./normalization";
 
 type GameState = Pick<StorytellerSnapshot, "game" | "seats" | "gameTokens">;
 
@@ -64,15 +57,6 @@ function roleState(seat: Seat, roleId: string | null) {
           : ("good" as const),
     isTraveller,
   };
-}
-
-function shuffledRoleIds(roleIds: readonly string[], random: () => number) {
-  const result = [...roleIds];
-  for (let index = result.length - 1; index > 0; index -= 1) {
-    const other = Math.floor(random() * (index + 1));
-    [result[index], result[other]] = [result[other]!, result[index]!];
-  }
-  return result;
 }
 
 export function createSeat(
@@ -205,72 +189,31 @@ export function dealRoles(
   rolePoolIds: readonly string[],
   factories?: GameStateFactoryOverrides,
 ): StorytellerPatch {
-  const { createId, random } = resolveGameStateFactories(factories);
-  const drunkSelected = rolePoolIds.includes(DRUNK_ROLE_ID);
-  if (
-    drunkSelected &&
-    rolePoolIds.indexOf(DRUNK_ROLE_ID) !==
-      rolePoolIds.lastIndexOf(DRUNK_ROLE_ID)
-  )
-    return {};
-  const travellerRoleIds = rolePoolIds.filter(
-    (roleId) => roleById.get(roleId)?.team === "traveller",
-  );
-  const dealtRoleIds = rolePoolIds.filter(
-    (roleId) =>
-      roleId !== DRUNK_ROLE_ID && roleById.get(roleId)?.team !== "traveller",
-  );
-  const residentSeats = current.seats.filter((seat) => !seat.isTraveller);
-  const travellerSeats = current.seats.filter((seat) => seat.isTraveller);
-  if (
-    (travellerRoleIds.length > 0 &&
-      travellerRoleIds.length !== travellerSeats.length) ||
-    new Set(travellerRoleIds).size !== travellerRoleIds.length
-  ) {
-    return {};
-  }
-  const roleIds = createRandomSetup(
+  const pool = getRoleDistribution(
     current.game.edition,
-    residentSeats.length,
-    random,
-    dealtRoleIds,
+    current.seats,
+    current.gameTokens,
+    rolePoolIds,
   );
-  if (roleIds.length !== residentSeats.length) return {};
-  const shuffledTravellerRoleIds = shuffledRoleIds(travellerRoleIds, random);
-
-  let residentIndex = 0;
-  let travellerIndex = 0;
-  const seats = normalizeSeatIndexes(
-    current.seats.map((seat) => {
-      if (seat.isTraveller) {
-        if (shuffledTravellerRoleIds.length === 0) return seat;
-        const nextRoleState = roleState(
-          seat,
-          shuffledTravellerRoleIds[travellerIndex++] ?? null,
-        );
-        return nextRoleState ? { ...seat, ...nextRoleState } : seat;
-      }
-      const nextRoleState = roleState(seat, roleIds[residentIndex++] ?? null);
-      return nextRoleState ? { ...seat, ...nextRoleState } : seat;
-    }),
-  );
-  const gameTokens = preservePlayerPositionTokens(current.gameTokens);
-  if (!drunkSelected) return { seats, gameTokens };
-
-  const existingMarker = current.gameTokens.find(
-    (token) => isSetupRoleToken(token) && token.roleId === DRUNK_ROLE_ID,
-  );
+  if (!pool.ready) return {};
+  const { createId, random } = resolveGameStateFactories(factories);
+  const bag = shuffled(pool.dealtRoles, random);
+  const seats = current.seats.map((seat) => {
+    if (seat.roleId) return seat;
+    return { ...seat, ...roleState(seat, bag.pop()!) };
+  });
+  if (!rolePoolIds.includes(DRUNK_ROLE_ID)) return { seats };
   return {
     seats,
     gameTokens: [
-      ...gameTokens,
+      ...current.gameTokens,
       {
-        id: existingMarker?.id ?? createId(),
+        id: createId(),
         seatId: null,
         tokenType: "custom",
         roleId: DRUNK_ROLE_ID,
         label: "Drunk Selected",
-        position: gameTokens.length,
+        position: current.gameTokens.length,
         metadata: createSetupRoleMetadata(),
       },
     ],

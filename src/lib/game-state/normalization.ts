@@ -1,6 +1,5 @@
 import type { GameToken, Seat } from "@/lib/game-data/types";
 import {
-  isPlayerPositionToken,
   readReminderPlacement,
   withReminderPlacement,
 } from "@/lib/grimoire-canvas";
@@ -55,10 +54,4 @@ export function normalizeReminderOrders(
           }),
         };
   });
-}
-
-export function preservePlayerPositionTokens(
-  gameTokens: readonly GameToken[],
-): GameToken[] {
-  return gameTokens.filter(isPlayerPositionToken);
 }

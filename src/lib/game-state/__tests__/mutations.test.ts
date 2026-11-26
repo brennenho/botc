@@ -15,11 +15,7 @@ import { parseScriptExport } from "@/lib/game-data/custom-script";
 import oneInOneOut from "../../../../public/assets/scripts/one-in-one-out.json";
 import { readReminderPlacement } from "@/lib/grimoire-canvas";
 import { getReminderDefinition, getReminderKey } from "@/lib/reminders";
-import {
-  createSetupRoleMetadata,
-  DRUNK_ROLE_ID,
-  isSetupRoleToken,
-} from "@/lib/setup-effects";
+import { createSetupRoleMetadata, DRUNK_ROLE_ID } from "@/lib/setup-effects";
 
 import {
   appendPlayer,
@@ -495,169 +491,79 @@ describe("role distribution", () => {
     }
   });
 
-  it("preserves traveller seats and position tokens while rebuilding setup markers", () => {
-    const residents = Array.from({ length: 7 }, (_, index) =>
-      seat(`seat-${index}`, index),
-    );
-    const traveller = seat("traveller", 7, {
+  it("deals only to open seats and preserves assigned players, alignments, and tokens", () => {
+    const demon = seat("ada", 1, { roleId: "imp", alignment: "evil" });
+    const traveller = seat("cam", 3, {
       roleId: "bureaucrat",
+      alignment: "evil",
       isTraveller: true,
     });
-    const positionToken: GameToken = {
-      id: "position",
-      seatId: "seat-0",
-      tokenType: "custom",
-      roleId: null,
-      label: "Player Position",
-      position: 0,
-      metadata: {
-        kind: "player-position",
-        canvasPosition: { x: 25, y: 50 },
-      },
-    };
-    const priorMarker: GameToken = {
-      id: "drunk-marker",
-      seatId: null,
-      tokenType: "custom",
-      roleId: DRUNK_ROLE_ID,
-      label: "Drunk Selected",
-      position: 1,
-      metadata: createSetupRoleMetadata(),
-    };
     const current = state(
-      [...residents, traveller],
-      [positionToken, reminder("old-reminder", "seat-0", 0), priorMarker],
+      [seat("ben", 0), demon, seat("dee", 2), traveller],
+      [reminder("marked", demon.id, 0)],
     );
-    const rolePool = [
-      "washerwoman",
-      "librarian",
+    const patch = dealRoles(current, ["chef", "barista"], {
+      random: () => 0.5,
+    });
+    const seats = patch.seats!;
+    expect(seats[1]).toEqual(demon);
+    expect(seats[3]).toEqual(traveller);
+    expect([seats[0]?.roleId, seats[2]?.roleId].sort()).toEqual([
+      "barista",
       "chef",
-      "empath",
-      "monk",
-      "baron",
-      "imp",
-      DRUNK_ROLE_ID,
-    ];
-
-    const patch = dealRoles(current, rolePool, { random: () => 0.5 });
-
-    expect(patch.seats).toHaveLength(8);
-    expect(patch.seats?.at(-1)).toEqual(traveller);
-    expect(patch.seats?.slice(0, 7).every((item) => item.roleId)).toBe(true);
-    expect(
-      patch.seats
-        ?.slice(0, 7)
-        .filter((item) => item.roleId === "baron" || item.roleId === "imp")
-        .every((item) => item.alignment === "evil"),
-    ).toBe(true);
-    expect(patch.gameTokens).toEqual([
-      positionToken,
-      expect.objectContaining({ id: "drunk-marker", roleId: DRUNK_ROLE_ID }),
     ]);
-    expect(patch.gameTokens?.filter(isSetupRoleToken)).toHaveLength(1);
-  });
-
-  it("drops stale setup markers when the Drunk is not selected", () => {
-    const current = state(
-      Array.from({ length: 7 }, (_, index) => seat(`seat-${index}`, index)),
-      [
-        {
-          id: "position",
-          seatId: "seat-0",
-          tokenType: "custom",
-          roleId: null,
-          label: "Player Position",
-          position: 0,
-          metadata: { kind: "player-position" },
-        },
-        {
-          id: "setup",
-          seatId: null,
-          tokenType: "custom",
-          roleId: DRUNK_ROLE_ID,
-          label: "Drunk Selected",
-          position: 1,
-          metadata: createSetupRoleMetadata(),
-        },
-      ],
-    );
-
-    const patch = dealRoles(
-      current,
-      ["washerwoman", "librarian", "chef", "empath", "monk", "baron", "imp"],
-      { random: () => 0.5 },
-    );
-
-    expect(patch.gameTokens?.map(({ id }) => id)).toEqual(["position"]);
-  });
-
-  it("distributes selected Traveller roles only among marked Traveller seats", () => {
-    const current = state([
-      ...Array.from({ length: 5 }, (_, index) => seat(`seat-${index}`, index)),
-      seat("traveller-good", 5, {
-        roleId: "beggar",
-        alignment: "good",
-        isTraveller: true,
-      }),
-      seat("traveller-evil", 6, {
-        roleId: "thief",
-        alignment: "evil",
-        isTraveller: true,
-      }),
-    ]);
-
-    const patch = dealRoles(
-      current,
-      [
-        "washerwoman",
-        "chef",
-        "empath",
-        "poisoner",
-        "imp",
-        "bureaucrat",
-        "barista",
-      ],
-      { random: () => 0.5 },
-    );
-
-    expect(
-      patch.seats
-        ?.slice(0, 5)
-        .map(({ roleId }) => roleId)
-        .sort(),
-    ).toEqual(["chef", "empath", "imp", "poisoner", "washerwoman"]);
-    expect(
-      patch.seats
-        ?.slice(5)
-        .map(({ roleId }) => roleId)
-        .sort(),
-    ).toEqual(["barista", "bureaucrat"]);
-    expect(patch.seats?.[5]).toMatchObject({
+    expect(seats.find((s) => s.roleId === "barista")).toMatchObject({
       isTraveller: true,
       alignment: "good",
     });
-    expect(patch.seats?.[6]).toMatchObject({
-      isTraveller: true,
-      alignment: "evil",
-    });
+    expect(patch.gameTokens).toBeUndefined();
+    expect(dealRoles({ ...current, seats }, ["chef", "barista"])).toEqual({});
+    expect(dealRoles(current, ["imp", "chef"])).toEqual({});
+    expect(dealRoles(current, ["chef"])).toEqual({});
+    expect(dealRoles(current, ["chef", "knight"])).toEqual({});
   });
 
-  it("rejects a partial Traveller pool rather than assigning it ambiguously", () => {
-    const current = state([
-      ...Array.from({ length: 5 }, (_, index) => seat(`seat-${index}`, index)),
-      seat("traveller-a", 5, { isTraveller: true }),
-      seat("traveller-b", 6, { isTraveller: true }),
+  it("adds the Drunk marker once while dealing cover roles to the remaining players", () => {
+    const existing = reminder("marked", "ada", 0);
+    const current = state(
+      [seat("ada", 0, { roleId: "imp" }), seat("ben", 1)],
+      [existing],
+    );
+    const dealt = dealRoles(current, [DRUNK_ROLE_ID, "chef"]);
+    expect(dealt.seats?.map((s) => s.roleId)).toEqual(["imp", "chef"]);
+    expect(dealt.gameTokens).toEqual([
+      existing,
+      expect.objectContaining({
+        roleId: DRUNK_ROLE_ID,
+        metadata: createSetupRoleMetadata(),
+      }),
     ]);
+    const next = {
+      ...current,
+      gameTokens: dealt.gameTokens!,
+      seats: [...dealt.seats!, seat("cam", 2)],
+    };
+    expect(dealRoles(next, ["monk", DRUNK_ROLE_ID])).toEqual({});
+    const last = dealRoles(next, ["monk"]);
+    expect(last.seats?.map((s) => s.roleId)).toEqual(["imp", "chef", "monk"]);
+    expect(last.gameTokens).toBeUndefined();
+  });
 
+  it("applies the copy limit across assigned and selected roles", () => {
+    const current = state([
+      seat("a", 0, { roleId: "villageidiot" }),
+      seat("b", 1),
+      seat("c", 2),
+      seat("d", 3),
+    ]);
+    current.game.edition = { name: "Test", roleIds: ["villageidiot", "imp"] };
     expect(
-      dealRoles(current, [
-        "washerwoman",
-        "chef",
-        "empath",
-        "poisoner",
-        "imp",
-        "bureaucrat",
-      ]),
+      dealRoles(current, ["villageidiot", "villageidiot", "villageidiot"]),
     ).toEqual({});
+    expect(
+      dealRoles(current, ["villageidiot", "villageidiot", "imp"]).seats?.filter(
+        (s) => s.roleId === "villageidiot",
+      ),
+    ).toHaveLength(3);
   });
 });

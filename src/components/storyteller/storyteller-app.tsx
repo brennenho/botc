@@ -80,6 +80,10 @@ export function StorytellerApp({
     useState<ReminderDefinition | null>(null);
   const [playerReveal, setPlayerReveal] = useState<PlayerReveal | null>(null);
   const [pickerTarget, setPickerTarget] = useState<PickerTarget>(null);
+  const pickerSeat =
+    pickerTarget?.type === "seat"
+      ? snapshot.seats.find((seat) => seat.id === pickerTarget.seatId)
+      : undefined;
   const [redacted, setRedacted] = useState(false);
   const {
     updateSeat,
@@ -459,13 +463,12 @@ export function StorytellerApp({
               : pickerTarget?.type === "reveal"
                 ? `Choose a Character to Show with “${pickerTarget.heading}”`
                 : pickerTarget?.type === "seat"
-                  ? `Choose a Character for ${snapshot.seats.find((seat) => seat.id === pickerTarget.seatId)?.playerName ?? "Player"}`
+                  ? `Choose a Character for ${pickerSeat?.playerName ?? "Player"}`
                   : "Choose a Character"
           }
           selectedRoleId={
             pickerTarget?.type === "seat"
-              ? (snapshot.seats.find((seat) => seat.id === pickerTarget.seatId)
-                  ?.roleId ?? null)
+              ? (pickerSeat?.roleId ?? null)
               : pickerTarget?.type === "bluff"
                 ? (bluffs.find((token) => token.position === pickerTarget.slot)
                     ?.roleId ?? null)
@@ -480,7 +483,6 @@ export function StorytellerApp({
           teams={
             pickerTarget?.type === "bluff" ? residentTeams : assignableTeams
           }
-          collapsibleTeams={pickerTarget?.type === "bluff" ? [] : ["traveller"]}
           onOpenChange={(open) => !open && setPickerTarget(null)}
           onSelect={(roleId) => {
             if (pickerTarget?.type === "seat")

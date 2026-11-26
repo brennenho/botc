@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 type CharacterTeamHeadingProps = {
   label: string;
   detail?: string;
-  count?: { selected: number; target: number };
+  count?: { selected: number; target: number | undefined };
   disclosure?: {
     expanded: boolean;
     contentId: string;
@@ -48,11 +48,15 @@ export function CharacterTeamHeading({
       {count && (
         <span
           className="token-team-count"
-          aria-label={`${count.selected} selected, ${count.target} in the current setup`}
+          aria-label={`${count.selected} in setup${count.target === undefined ? "" : `, ${count.target} expected`}`}
         >
           <strong>{count.selected}</strong>
-          <span aria-hidden="true">/</span>
-          <span>{count.target}</span>
+          {count.target !== undefined && (
+            <>
+              <span aria-hidden="true">/</span>
+              <span>{count.target}</span>
+            </>
+          )}
         </span>
       )}
     </h3>
