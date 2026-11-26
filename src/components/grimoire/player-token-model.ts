@@ -1,4 +1,4 @@
-import { roleById } from "@/lib/game-data";
+import { roleById, isTravellerRole } from "@/lib/game-data";
 import type {
   Alignment,
   PlayerSeatView,
@@ -30,7 +30,7 @@ export function createStorytellerPlayerTokenModel(
     alignment: seat.alignment,
     alive: seat.alive,
     ghostVoteAvailable: seat.ghostVoteAvailable,
-    isTraveller: seat.isTraveller,
+    isTraveller: isTravellerRole(seat.roleId),
   };
 }
 
@@ -50,6 +50,6 @@ export function createPublicPlayerTokenModel(
     alignment: privateSeat?.alignment ?? null,
     alive: seat.alive,
     ghostVoteAvailable: seat.ghostVoteAvailable,
-    isTraveller: seat.isTraveller,
+    isTraveller: isTravellerRole(visibleRoleId),
   };
 }

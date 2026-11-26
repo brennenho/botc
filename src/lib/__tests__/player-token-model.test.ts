@@ -84,13 +84,13 @@ describe("player token models", () => {
         ...publicSeat,
         id: "seat-2",
         playerName: "Bob",
-        publicRoleId: "chef",
+        publicRoleId: "barista",
         isTraveller: true,
       },
       ownSeat,
     );
 
-    expect(model.role?.id).toBe("chef");
+    expect(model.role?.id).toBe("barista");
     expect(model.isTraveller).toBe(true);
     expect(model.alignment).toBeNull();
   });

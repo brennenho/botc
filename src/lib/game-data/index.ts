@@ -1,6 +1,7 @@
 export {
   editions,
   isResidentTeam,
+  isTravellerRole,
   getCrossEditionTravellerRoles,
   getDefaultAlignment,
   getEdition,

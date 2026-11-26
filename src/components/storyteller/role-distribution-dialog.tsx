@@ -86,7 +86,7 @@ export function RoleDistributionDialog({
   ];
   const travellerDetail =
     travellerCount === 0
-      ? "Mark a player as a Traveller first."
+      ? "Assign a Traveller character to a player first."
       : selectedTravellerCount === 0
         ? "Leave empty to keep current roles."
         : `${selectedTravellerCount} of ${travellerCount} selected`;
