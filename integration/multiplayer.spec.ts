@@ -9,6 +9,7 @@ import {
   joinGameViaApi,
   patchStorytellerViaApi,
   responseJson,
+  rotateStorytellerIfPrompted,
   test,
 } from "./fixtures/multiplayer";
 
@@ -36,6 +37,7 @@ test("@smoke an uploaded script survives a reload and reaches the joining player
   await preview.getByRole("button", { name: "Close Script preview" }).click();
   await page.getByRole("button", { name: "Open grimoire" }).click();
   await page.waitForURL(/\/game\/[^/]+\/storyteller$/);
+  await rotateStorytellerIfPrompted(page);
   const joinCode = new URL(page.url()).pathname.split("/")[2]!;
   const [realtime] = await Promise.all([
     player.page.waitForEvent(

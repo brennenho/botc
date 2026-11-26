@@ -2,6 +2,7 @@ import {
   createGameViaApi,
   expect,
   patchStorytellerViaApi,
+  rotateStorytellerIfPrompted,
   test,
 } from "./fixtures/multiplayer";
 
@@ -33,6 +34,7 @@ test("@smoke player controls expose character info and in-play reminders", async
   );
   expect(response.status()).toBe(200);
   await storyteller.page.goto(`/game/${joinCode}/storyteller`);
+  await rotateStorytellerIfPrompted(storyteller.page);
 
   await storyteller.page
     .getByRole("button", {

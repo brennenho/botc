@@ -3,6 +3,7 @@ import {
   createGameViaApi,
   expect,
   joinGameViaApi,
+  rotateStorytellerIfPrompted,
   test,
 } from "./fixtures/multiplayer";
 
@@ -12,6 +13,7 @@ test("@smoke invitation surfaces fit the viewport", async ({ createActor }) => {
   const created = await createGameViaApi(storyteller);
   const joinCode = created.snapshot.game.joinCode;
   await storyteller.page.goto(`/game/${joinCode}/storyteller`);
+  await rotateStorytellerIfPrompted(storyteller.page);
 
   await storyteller.page
     .getByRole("button", { name: `Invite players to game ${joinCode}` })
