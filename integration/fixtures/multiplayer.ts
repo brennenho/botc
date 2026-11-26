@@ -33,7 +33,10 @@ type MultiplayerFixtures = {
 };
 
 export const test = base.extend<MultiplayerFixtures>({
-  createActor: async ({ baseURL, browser, contextOptions }, provide) => {
+  createActor: async (
+    { baseURL, browser, contextOptions, viewport },
+    provide,
+  ) => {
     const contexts: BrowserContext[] = [];
     const unexpectedClientErrors: string[] = [];
 
@@ -45,7 +48,7 @@ export const test = base.extend<MultiplayerFixtures>({
           ...contextOptions.extraHTTPHeaders,
           "x-real-ip": options.clientId ?? `integration-${crypto.randomUUID()}`,
         },
-        viewport: options.viewport ?? contextOptions.viewport,
+        viewport: options.viewport ?? viewport,
       });
       if (options.stubClipboard) {
         await context.addInitScript(() => {
@@ -85,6 +88,21 @@ export const test = base.extend<MultiplayerFixtures>({
 });
 
 export { expect } from "@playwright/test";
+
+export async function rotateStorytellerIfPrompted(page: Page) {
+  const viewport = page.viewportSize();
+  if (!viewport || viewport.width >= viewport.height) return;
+
+  await page.locator(".storyteller-shell").waitFor();
+  const prompt = page.getByText("Rotate to landscape for the grimoire.");
+  if (await prompt.isVisible()) {
+    await page.setViewportSize({
+      width: viewport.height,
+      height: viewport.width,
+    });
+    await expect(prompt).toBeHidden();
+  }
+}
 
 export async function createGameFromHome(
   actor: Actor,

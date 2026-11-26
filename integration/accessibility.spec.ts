@@ -1,6 +1,11 @@
 import AxeBuilder from "@axe-core/playwright";
 
-import { createGameViaApi, expect, test } from "./fixtures/multiplayer";
+import {
+  createGameViaApi,
+  expect,
+  rotateStorytellerIfPrompted,
+  test,
+} from "./fixtures/multiplayer";
 
 test("@smoke core entry and invitation surfaces have no automated accessibility violations", async ({
   createActor,
@@ -16,6 +21,7 @@ test("@smoke core entry and invitation surfaces have no automated accessibility 
   const created = await createGameViaApi(actor);
   const joinCode = created.snapshot.game.joinCode;
   await actor.page.goto(`/game/${joinCode}/storyteller`);
+  await rotateStorytellerIfPrompted(actor.page);
   await actor.page
     .getByRole("button", { name: `Invite players to game ${joinCode}` })
     .click();
