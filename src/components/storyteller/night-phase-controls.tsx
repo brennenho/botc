@@ -1,62 +1,29 @@
-import { ArrowLeft, ArrowRight, History } from "lucide-react";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 import { useId, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import type { GameEvent, GamePhase } from "@/lib/game-data/types";
-import {
-  nextPhase,
-  phaseHistoryLabel,
-  phaseLabel,
-  previousPhase,
-} from "@/lib/game-phase";
+import type { GamePhase } from "@/lib/game-data/types";
+import { nextPhase, phaseLabel, previousPhase } from "@/lib/game-phase";
 
-export type NightPhaseProps = {
+export type PhaseControlsProps = {
   game: GamePhase;
-  events: GameEvent[];
   disabled: boolean;
   onChangePhase: (target: GamePhase) => void;
 };
 
 export function NightPhaseControls({
   game,
-  events,
   disabled,
   onChangePhase,
-}: NightPhaseProps) {
-  const [expanded, setExpanded] = useState<"history" | "start" | null>(null);
-  const historyId = useId();
+}: PhaseControlsProps) {
+  const [showStartForm, setShowStartForm] = useState(false);
   const startId = useId();
   const previous = previousPhase(game);
   const next = nextPhase(game);
-  const choosingStart = !previous && expanded === "start";
+  const choosingStart = !previous && showStartForm;
   return (
     <footer className="night-phase-footer">
-      <div
-        id={historyId}
-        hidden={expanded !== "history"}
-        className="night-phase-drawer"
-      >
-        {events.length ? (
-          <ol
-            aria-label="Phase history"
-            className="divide-y divide-[var(--control-border)]"
-          >
-            {events.map((event, index) => (
-              <li
-                key={`${event.gameVersion}-${event.ordinal}`}
-                className="px-4 py-2 text-sm"
-              >
-                {phaseHistoryLabel(event, events[index + 1])}
-              </li>
-            ))}
-          </ol>
-        ) : (
-          <p className="px-4 py-3 text-sm text-[var(--ink-muted)]">
-            No phases recorded yet.
-          </p>
-        )}
-      </div>
       {!previous && (
         <form
           id={startId}
@@ -69,7 +36,7 @@ export function NightPhaseControls({
               phase: data.get("phase") === "day" ? "day" : "night",
               dayNumber: Number(data.get("number")),
             });
-            setExpanded(null);
+            setShowStartForm(false);
           }}
         >
           <label>
@@ -94,15 +61,6 @@ export function NightPhaseControls({
         </form>
       )}
       <div className="night-phase-actions">
-        <Button
-          variant={expanded === "history" ? "tinted" : "quiet"}
-          aria-expanded={expanded === "history"}
-          aria-controls={historyId}
-          onClick={() => setExpanded(expanded === "history" ? null : "history")}
-        >
-          <History aria-hidden="true" className="size-4" />
-          History
-        </Button>
         {previous ? (
           <Button
             variant="quiet"
@@ -119,7 +77,7 @@ export function NightPhaseControls({
             variant="quiet"
             aria-expanded={choosingStart}
             aria-controls={startId}
-            onClick={() => setExpanded(choosingStart ? null : "start")}
+            onClick={() => setShowStartForm(!choosingStart)}
           >
             {choosingStart ? "Cancel" : "Start mid-game"}
           </Button>
