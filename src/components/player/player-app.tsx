@@ -76,8 +76,7 @@ export function PlayerApp({
       )}
     >
       <GrimoireToolbar
-        editionId={snapshot.game.edition}
-        joinCode={snapshot.game.joinCode}
+        game={snapshot.game}
         actorRole="player"
         redacted={redacted}
         onRedactedChange={(nextRedacted) => {

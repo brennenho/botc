@@ -6,13 +6,19 @@ import {
   test,
 } from "./fixtures/multiplayer";
 
-test("starting mid-game publishes one phase to another open Game history", async ({
+test("@ipad starting mid-game and stepping back update open history and player views", async ({
   createActor,
 }) => {
   const storyteller = await createActor();
   const { context, page } = storyteller;
   const { snapshot } = await createGameViaApi(storyteller);
-  const path = `/game/${snapshot.game.joinCode}/storyteller`;
+  const code = snapshot.game.joinCode;
+  const path = `/game/${code}/storyteller`;
+  const player = await createActor({ viewport: { width: 390, height: 844 } });
+  const { seatId } = await joinGameViaApi(player, code, "Mei");
+  await player.page.goto(`/game/${code}/player/${seatId}`);
+  const playerEdition = player.page.locator(".toolbar-edition");
+  await expect(playerEdition.getByText("Setup", { exact: true })).toBeVisible();
   const observer = await context.newPage();
   for (const tab of [page, observer]) {
     await tab.goto(path);
@@ -32,6 +38,9 @@ test("starting mid-game publishes one phase to another open Game history", async
       .getByRole("listitem")
       .locator("span"),
   ).toHaveText(["Day 3 began"], { timeout: 20_000 });
+  await expect(playerEdition.getByText("Day 3", { exact: true })).toBeVisible({
+    timeout: 20_000,
+  });
   await expect(
     observer.getByRole("button", { name: "Begin Night 4" }),
   ).toBeHidden();
@@ -39,6 +48,12 @@ test("starting mid-game publishes one phase to another open Game history", async
   await expect(
     observer.getByRole("button", { name: "Begin Night 4" }),
   ).toBeVisible();
+  await page.getByRole("button", { name: "Back to Night 3" }).click();
+  await expect(playerEdition.getByText("Night 3", { exact: true })).toBeVisible(
+    {
+      timeout: 20_000,
+    },
+  );
 });
 
 test("@ipad Storyteller tracks phases and each night starts a fresh checklist", async ({

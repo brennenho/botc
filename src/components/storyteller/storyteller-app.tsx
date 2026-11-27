@@ -26,7 +26,6 @@ import { useStorytellerGame } from "@/hooks/use-storyteller-game";
 import { isTerminalGameError } from "@/lib/app-error";
 import { getSetupReminderWarnings } from "@/lib/game-data";
 import type { StorytellerSnapshot } from "@/lib/game-data/types";
-import { phaseLabel } from "@/lib/game-phase";
 import { getAdjacentSeatId } from "@/lib/keyboard-shortcuts";
 import {
   getReminderDefinition,
@@ -305,11 +304,9 @@ export function StorytellerApp({
       )}
     >
       <GrimoireToolbar
-        editionId={snapshot.game.edition}
-        joinCode={snapshot.game.joinCode}
+        game={snapshot.game}
         actorRole="storyteller"
         saveState={saveState}
-        phase={phaseLabel(snapshot.game)}
         redacted={redacted}
         onRedactedChange={handleRedactedChange}
       />

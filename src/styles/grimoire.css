@@ -30,6 +30,8 @@
   display: flex;
   min-height: 52px;
   min-width: 0;
+  /* Reserve both 30px insets, the invite control and an 8px gap. */
+  max-width: calc(100% - var(--toolbar-sheet-offset, 0px) - 180px);
   box-sizing: border-box;
   align-items: center;
   gap: 10px;
@@ -54,10 +56,10 @@
 }
 
 .toolbar-edition {
-  display: flex;
+  display: grid;
   min-width: 0;
-  align-items: baseline;
-  gap: 6px;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 2px;
   line-height: 1.25;
 }
 
@@ -78,15 +80,6 @@
   font-variant-numeric: tabular-nums;
 }
 
-.toolbar-phase span {
-  margin-right: 3px;
-}
-
-.toolbar-brand:has(.toolbar-phase) {
-  /* Reserve both 30px insets, the 112px invite control and an 8px gap. */
-  max-width: calc(100% - var(--toolbar-sheet-offset, 0px) - 180px);
-}
-
 .storyteller-shell.is-sheet-pinned .toolbar-brand {
   --toolbar-sheet-offset: var(--grimoire-pinned-sheet-width);
 }
@@ -94,15 +87,6 @@
 @media (max-width: 960px) {
   .storyteller-shell.is-sheet-pinned .toolbar-brand {
     gap: 6px;
-  }
-
-  .storyteller-shell.is-sheet-pinned .toolbar-edition {
-    display: grid;
-    gap: 1px;
-  }
-
-  .storyteller-shell.is-sheet-pinned .toolbar-phase span {
-    display: none;
   }
 }
 

@@ -306,6 +306,7 @@
 
   .player-grimoire-shell .toolbar-brand {
     left: 12px;
+    max-width: calc(100% - 144px);
   }
 
   .player-grimoire-shell .join-code-control {
@@ -317,10 +318,6 @@
   .player-grimoire-shell .toolbar-brand {
     gap: 6px;
     padding-right: 8px;
-  }
-
-  .player-grimoire-shell .toolbar-brand > div {
-    display: none;
   }
 
   .player-grimoire-shell .grimoire-redaction-setting {

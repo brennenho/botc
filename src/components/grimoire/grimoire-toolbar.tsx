@@ -13,26 +13,23 @@ import { Switch } from "@/components/ui/switch";
 import { Tooltip } from "@/components/ui/tooltip";
 import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts";
 import { getEdition } from "@/lib/game-data";
-import type { GameScript } from "@/lib/game-data/types";
+import type { Game } from "@/lib/game-data/types";
+import { phaseLabel } from "@/lib/game-phase";
 
 export function GrimoireToolbar({
-  editionId,
-  joinCode,
+  game,
   actorRole,
   saveState,
-  phase,
   redacted,
   onRedactedChange,
 }: {
-  editionId: GameScript;
-  joinCode: string;
+  game: Pick<Game, "edition" | "joinCode" | "phase" | "dayNumber">;
   actorRole: "storyteller" | "player";
   saveState?: "idle" | "saving" | "error";
-  phase?: string;
   redacted: boolean;
   onRedactedChange: (redacted: boolean) => void;
 }) {
-  const edition = getEdition(editionId);
+  const edition = getEdition(game.edition);
   const [inviteOpen, setInviteOpen] = useState(false);
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
 
@@ -72,10 +69,8 @@ export function GrimoireToolbar({
         </Link>
         <div className="toolbar-edition">
           <p>{edition.name}</p>
-          {phase && !redacted && (
-            <small className="toolbar-phase">
-              <span aria-hidden="true">·</span> {phase}
-            </small>
+          {!redacted && (
+            <small className="toolbar-phase">{phaseLabel(game)}</small>
           )}
         </div>
         <label className="grimoire-redaction-setting">
@@ -110,7 +105,7 @@ export function GrimoireToolbar({
       </div>
 
       <GameInviteControl
-        joinCode={joinCode}
+        joinCode={game.joinCode}
         actorRole={actorRole}
         open={inviteOpen}
         onOpenChange={setInviteOpen}
