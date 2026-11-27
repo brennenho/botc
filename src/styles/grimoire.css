@@ -81,6 +81,14 @@
   font-variant-numeric: tabular-nums;
 }
 
+.toolbar-phase[data-phase="day"] {
+  color: #703707;
+}
+
+.toolbar-phase[data-phase="night"] {
+  color: #403d80;
+}
+
 .storyteller-shell.is-sheet-pinned .toolbar-brand {
   --toolbar-sheet-offset: var(--grimoire-pinned-sheet-width);
 }

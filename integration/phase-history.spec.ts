@@ -43,6 +43,10 @@ test("@ipad starting mid-game and stepping back update open history and player v
     timeout: 20_000,
   });
   await expect(playerEdition.locator(".lucide-sun")).toBeVisible();
+  const phaseLabel = playerEdition.locator(".toolbar-phase");
+  const dayColor = await phaseLabel.evaluate(
+    (label) => getComputedStyle(label).color,
+  );
   await expect(
     observer.getByRole("button", { name: "Begin Night 4" }),
   ).toBeHidden();
@@ -57,6 +61,7 @@ test("@ipad starting mid-game and stepping back update open history and player v
     },
   );
   await expect(playerEdition.locator(".lucide-moon")).toBeVisible();
+  await expect(phaseLabel).not.toHaveCSS("color", dayColor);
 });
 
 test("@ipad Storyteller tracks phases and each night starts a fresh checklist", async ({
