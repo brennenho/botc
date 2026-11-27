@@ -108,18 +108,18 @@ test("@ipad Storyteller tracks phases and each night starts a fresh checklist", 
       .locator(":scope > header"),
   ).toHaveText("Game");
   await history.click();
-  await expect(
-    page
-      .getByRole("list", { name: "Phase history" })
-      .getByRole("listitem")
-      .locator("span"),
-  ).toHaveText([
+  const timeline = page.getByRole("list", { name: "Phase history" });
+  await expect(timeline.getByRole("listitem").locator("span")).toHaveText([
     "Night 2 began",
     "Day 1 began",
     "Night 1 began",
     "Returned to Setup",
     "Night 1 began",
   ]);
+  await expect(timeline.locator(".lucide-moon")).toHaveCount(3);
+  await expect(timeline.locator(".lucide-sun")).toHaveCount(1);
+  await expect(timeline.locator(".lucide-undo-2")).toHaveCount(1);
+  await expect(timeline.locator("time[datetime]")).toHaveCount(5);
   await history.press("ArrowLeft");
   await expect(nightOrder).toBeFocused();
   const dusk = button(/Dusk/);

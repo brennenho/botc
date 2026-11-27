@@ -1,4 +1,5 @@
 import { Tabs } from "@base-ui/react/tabs";
+import { Flag, Moon, Sun, Undo2 } from "lucide-react";
 import { useState, type ComponentProps } from "react";
 
 import { NightOrderPanel } from "@/components/storyteller/night-order-sheet";
@@ -7,9 +8,48 @@ import {
   type PhaseControlsProps,
 } from "@/components/storyteller/night-phase-controls";
 import type { GameEvent } from "@/lib/game-data/types";
-import { phaseHistoryLabel } from "@/lib/game-phase";
+import { isPhaseReturn, phaseLabel } from "@/lib/game-phase";
 
 const eventTime = new Intl.DateTimeFormat(undefined, { timeStyle: "short" });
+const historyIcons = { day: Sun, night: Moon, setup: Flag, return: Undo2 };
+
+function PhaseHistory({ events }: { events: GameEvent[] }) {
+  if (!events.length) {
+    return (
+      <p className="px-4 py-3 text-sm text-[var(--ink-muted)]">
+        Phase changes appear here once you start tracking.
+      </p>
+    );
+  }
+
+  return (
+    <ol aria-label="Phase history" role="list" className="phase-timeline">
+      {events.map((event, index) => {
+        const returned = isPhaseReturn(event, events[index + 1]);
+        const marker = returned ? "return" : event.phase;
+        const Icon = historyIcons[marker];
+        const phase = phaseLabel(event);
+        return (
+          <li key={`${event.gameVersion}-${event.ordinal}`}>
+            <Icon
+              className="phase-timeline-marker"
+              data-marker={marker}
+              aria-hidden="true"
+            />
+            <div>
+              <span>
+                {returned ? `Returned to ${phase}` : `${phase} began`}
+              </span>
+              <time dateTime={event.occurredAt}>
+                {eventTime.format(new Date(event.occurredAt))}
+              </time>
+            </div>
+          </li>
+        );
+      })}
+    </ol>
+  );
+}
 
 export function GamePanel({
   phaseControls,
@@ -48,31 +88,7 @@ export function GamePanel({
         <NightPhaseControls {...phaseControls} />
       </Tabs.Panel>
       <Tabs.Panel value="history" className="min-h-0 flex-1 overflow-y-auto">
-        {events.length ? (
-          <ol
-            aria-label="Phase history"
-            className="divide-y divide-[var(--control-border)]"
-          >
-            {events.map((event, index) => (
-              <li
-                key={`${event.gameVersion}-${event.ordinal}`}
-                className="flex items-baseline justify-between gap-4 px-4 py-3 text-sm"
-              >
-                <span>{phaseHistoryLabel(event, events[index + 1])}</span>
-                <time
-                  dateTime={event.occurredAt}
-                  className="shrink-0 font-mono text-xs text-[var(--ink-muted)]"
-                >
-                  {eventTime.format(new Date(event.occurredAt))}
-                </time>
-              </li>
-            ))}
-          </ol>
-        ) : (
-          <p className="px-4 py-3 text-sm text-[var(--ink-muted)]">
-            Phase changes appear here once you start tracking.
-          </p>
-        )}
+        <PhaseHistory events={events} />
       </Tabs.Panel>
     </Tabs.Root>
   );

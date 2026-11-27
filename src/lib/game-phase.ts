@@ -21,10 +21,7 @@ export function previousPhase({
   return { phase: "day", dayNumber: dayNumber - 1 };
 }
 
-export function phaseHistoryLabel(current: GamePhase, prior?: GamePhase) {
+export function isPhaseReturn(current: GamePhase, prior?: GamePhase) {
   const back = prior && previousPhase(prior);
-  if (back?.phase === current.phase && back.dayNumber === current.dayNumber) {
-    return `Returned to ${phaseLabel(current)}`;
-  }
-  return `${phaseLabel(current)} began`;
+  return back?.phase === current.phase && back.dayNumber === current.dayNumber;
 }
