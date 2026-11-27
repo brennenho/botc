@@ -311,7 +311,10 @@ export function StorytellerApp({
         onRedactedChange={handleRedactedChange}
       />
 
-      <div className="grimoire-workspace">
+      <div
+        className="grimoire-workspace"
+        data-phase={redacted ? undefined : snapshot.game.phase}
+      >
         <GrimoireBoard
           editionId={snapshot.game.edition}
           seats={snapshot.seats}

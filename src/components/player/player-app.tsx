@@ -85,7 +85,10 @@ export function PlayerApp({
         }}
       />
 
-      <div className="grimoire-workspace">
+      <div
+        className="grimoire-workspace"
+        data-phase={redacted ? undefined : snapshot.game.phase}
+      >
         <ReadOnlyGrimoireBoard
           seats={snapshot.seats}
           ownSeat={snapshot.seat}

@@ -47,6 +47,10 @@ test("@ipad starting mid-game and stepping back update open history and player v
   const dayColor = await phaseLabel.evaluate(
     (label) => getComputedStyle(label).color,
   );
+  const playerBoard = player.page.locator(".grimoire-board");
+  const dayBackground = await playerBoard.evaluate(
+    (board) => getComputedStyle(board).backgroundImage,
+  );
   await expect(
     observer.getByRole("button", { name: "Begin Night 4" }),
   ).toBeHidden();
@@ -62,6 +66,16 @@ test("@ipad starting mid-game and stepping back update open history and player v
   );
   await expect(playerEdition.locator(".lucide-moon")).toBeVisible();
   await expect(phaseLabel).not.toHaveCSS("color", dayColor);
+  const nightBackground = await playerBoard.evaluate(
+    (board) => getComputedStyle(board).backgroundImage,
+  );
+  expect(nightBackground).not.toBe(dayBackground);
+  await expect(page.locator(".grimoire-board")).toHaveCSS(
+    "background-image",
+    nightBackground,
+  );
+  await player.page.getByRole("switch", { name: "Hide" }).click();
+  await expect(playerBoard).toHaveCSS("background-image", dayBackground);
 });
 
 test("@ipad Storyteller tracks phases and each night starts a fresh checklist", async ({
