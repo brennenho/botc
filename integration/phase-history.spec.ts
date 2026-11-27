@@ -19,6 +19,7 @@ test("@ipad starting mid-game and stepping back update open history and player v
   await player.page.goto(`/game/${code}/player/${seatId}`);
   const playerEdition = player.page.locator(".toolbar-edition");
   await expect(playerEdition.getByText("Setup", { exact: true })).toBeVisible();
+  await expect(playerEdition.locator("svg")).toHaveCount(0);
   const observer = await context.newPage();
   for (const tab of [page, observer]) {
     await tab.goto(path);
@@ -41,6 +42,7 @@ test("@ipad starting mid-game and stepping back update open history and player v
   await expect(playerEdition.getByText("Day 3", { exact: true })).toBeVisible({
     timeout: 20_000,
   });
+  await expect(playerEdition.locator(".lucide-sun")).toBeVisible();
   await expect(
     observer.getByRole("button", { name: "Begin Night 4" }),
   ).toBeHidden();
@@ -54,6 +56,7 @@ test("@ipad starting mid-game and stepping back update open history and player v
       timeout: 20_000,
     },
   );
+  await expect(playerEdition.locator(".lucide-moon")).toBeVisible();
 });
 
 test("@ipad Storyteller tracks phases and each night starts a fresh checklist", async ({

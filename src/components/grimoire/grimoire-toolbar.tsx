@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { Keyboard } from "lucide-react";
+import { Keyboard, Moon, Sun } from "lucide-react";
 import { useState } from "react";
 
 import { GameInviteControl } from "@/components/grimoire/game-invite-control";
@@ -15,6 +15,8 @@ import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts";
 import { getEdition } from "@/lib/game-data";
 import type { Game } from "@/lib/game-data/types";
 import { phaseLabel } from "@/lib/game-phase";
+
+const phaseIcons = { setup: null, day: Sun, night: Moon };
 
 export function GrimoireToolbar({
   game,
@@ -30,6 +32,7 @@ export function GrimoireToolbar({
   onRedactedChange: (redacted: boolean) => void;
 }) {
   const edition = getEdition(game.edition);
+  const PhaseIcon = phaseIcons[game.phase];
   const [inviteOpen, setInviteOpen] = useState(false);
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
 
@@ -70,7 +73,12 @@ export function GrimoireToolbar({
         <div className="toolbar-edition">
           <p>{edition.name}</p>
           {!redacted && (
-            <small className="toolbar-phase">{phaseLabel(game)}</small>
+            <small className="toolbar-phase">
+              {PhaseIcon && (
+                <PhaseIcon aria-hidden="true" className="size-3 shrink-0" />
+              )}
+              {phaseLabel(game)}
+            </small>
           )}
         </div>
         <label className="grimoire-redaction-setting">
