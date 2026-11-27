@@ -53,8 +53,19 @@
   object-fit: contain;
 }
 
-.toolbar-brand p {
+.toolbar-edition {
+  display: flex;
+  min-width: 0;
+  align-items: baseline;
+  gap: 6px;
+  line-height: 1.25;
+}
+
+.toolbar-edition p {
   margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   font-size: 12px;
   font-weight: 680;
 }
@@ -62,7 +73,37 @@
 .toolbar-phase {
   font-size: 11px;
   font-weight: 500;
-  color: var(--grimoire-hardware-muted);
+  color: color-mix(in srgb, var(--grimoire-hardware-text) 80%, transparent);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.toolbar-phase span {
+  margin-right: 3px;
+}
+
+.toolbar-brand:has(.toolbar-phase) {
+  /* Reserve both 30px insets, the 112px invite control and an 8px gap. */
+  max-width: calc(100% - var(--toolbar-sheet-offset, 0px) - 180px);
+}
+
+.storyteller-shell.is-sheet-pinned .toolbar-brand {
+  --toolbar-sheet-offset: var(--grimoire-pinned-sheet-width);
+}
+
+@media (max-width: 960px) {
+  .storyteller-shell.is-sheet-pinned .toolbar-brand {
+    gap: 6px;
+  }
+
+  .storyteller-shell.is-sheet-pinned .toolbar-edition {
+    display: grid;
+    gap: 1px;
+  }
+
+  .storyteller-shell.is-sheet-pinned .toolbar-phase span {
+    display: none;
+  }
 }
 
 .grimoire-redaction-setting {

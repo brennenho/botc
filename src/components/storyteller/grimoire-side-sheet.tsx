@@ -20,7 +20,6 @@ import type {
   Role,
   Seat,
 } from "@/lib/game-data/types";
-import { phaseLabel } from "@/lib/game-phase";
 import type { NightOrderState } from "@/lib/night-order-state";
 import type { ReminderDefinition } from "@/lib/reminders";
 import type { NightRevealAction, PlayerReveal } from "@/lib/player-reveal";
@@ -103,7 +102,6 @@ export function GrimoireSideSheet({
         if (!open) onClose();
       }}
       title={panelTitles[panel ?? "players"]}
-      eyebrow={panel === "game" ? phaseLabel(phaseControls.game) : undefined}
       suspended={suspended}
       modal={false}
       backdrop={false}

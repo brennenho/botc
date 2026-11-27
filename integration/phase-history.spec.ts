@@ -64,6 +64,12 @@ test("@ipad Storyteller tracks phases and each night starts a fresh checklist", 
   await button("Begin Night 1").click();
   await button("Begin Day 1").click();
   await button("Begin Night 2").click();
+  await expect(page.locator(".toolbar-edition")).toContainText("Night 2");
+  await expect(
+    page
+      .getByRole("dialog", { name: "Game", exact: true })
+      .locator(":scope > header"),
+  ).toHaveText("Game");
   await history.click();
   await expect(
     page

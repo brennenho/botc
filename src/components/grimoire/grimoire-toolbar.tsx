@@ -70,10 +70,12 @@ export function GrimoireToolbar({
             priority
           />
         </Link>
-        <div>
+        <div className="toolbar-edition">
           <p>{edition.name}</p>
           {phase && !redacted && (
-            <small className="toolbar-phase">{phase}</small>
+            <small className="toolbar-phase">
+              <span aria-hidden="true">·</span> {phase}
+            </small>
           )}
         </div>
         <label className="grimoire-redaction-setting">
