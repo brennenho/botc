@@ -27,7 +27,7 @@ const storytellerGroups: ShortcutGroup[] = [
     title: "Open a panel",
     shortcuts: [
       { label: "Players", keys: ["P"] },
-      { label: "Game", keys: ["N"] },
+      { label: "Night order", keys: ["N"] },
       { label: "Player information", keys: ["I"] },
       { label: "Reference", keys: ["R"] },
     ],

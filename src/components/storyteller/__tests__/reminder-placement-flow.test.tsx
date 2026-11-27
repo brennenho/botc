@@ -94,12 +94,12 @@ describe("Night Order reminder placement", () => {
         reminderOwner={null}
         pendingReminder={poisonedReminder}
         playersOpen={false}
-        gameOpen
+        nightOpen
         infoOpen={false}
         scriptOpen={false}
         sheetVisible={false}
         onOpenPlayers={() => undefined}
-        onOpenGame={() => undefined}
+        onOpenNight={() => undefined}
         onOpenInfo={() => undefined}
         onOpenScript={() => undefined}
         onRemoveSelectedReminder={() => undefined}
@@ -115,7 +115,7 @@ describe("Night Order reminder placement", () => {
     expect(
       screen.getByRole("navigation", { name: "Grimoire Panels" }),
     ).not.toHaveClass("is-sheet-open");
-    expect(screen.getByRole("button", { name: "Game" })).toHaveAttribute(
+    expect(screen.getByRole("button", { name: "Night Order" })).toHaveAttribute(
       "aria-pressed",
       "true",
     );
@@ -126,12 +126,12 @@ describe("Night Order reminder placement", () => {
         reminderOwner={null}
         pendingReminder={poisonedReminder}
         playersOpen={false}
-        gameOpen
+        nightOpen
         infoOpen={false}
         scriptOpen={false}
         sheetVisible
         onOpenPlayers={() => undefined}
-        onOpenGame={() => undefined}
+        onOpenNight={() => undefined}
         onOpenInfo={() => undefined}
         onOpenScript={() => undefined}
         onRemoveSelectedReminder={() => undefined}

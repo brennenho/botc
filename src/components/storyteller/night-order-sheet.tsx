@@ -1,6 +1,6 @@
 "use client";
 
-import { useLayoutEffect, useMemo, useRef, type RefObject } from "react";
+import { useLayoutEffect, useMemo, useRef } from "react";
 import { Check, Moon, Plus, Sun, X } from "lucide-react";
 
 import { InformationTokenIcon } from "@/components/storyteller/information-token-icon";
@@ -37,7 +37,6 @@ export function NightOrderPanel({
   seats,
   gameTokens,
   state,
-  scrollTopRef,
   pendingReminder,
   onStateChange,
   onPlaceReminder,
@@ -49,7 +48,6 @@ export function NightOrderPanel({
   seats: Seat[];
   gameTokens: GameToken[];
   state: NightOrderState;
-  scrollTopRef?: RefObject<number>;
   pendingReminder: ReminderDefinition | null;
   onStateChange: (state: NightOrderState) => void;
   onPlaceReminder: (
@@ -59,7 +57,6 @@ export function NightOrderPanel({
   onCancelReminderPlacement: () => void;
   onReveal: (action: NightRevealAction) => void;
 }) {
-  const listRef = useRef<HTMLDivElement>(null);
   const placementOriginRef = useRef<HTMLButtonElement | null>(null);
   const previousPendingReminderKeyRef = useRef<string | null>(null);
   const pendingReminderKey = pendingReminder?.key ?? null;
@@ -69,12 +66,6 @@ export function NightOrderPanel({
     () => new Set(state.completed[viewKey] ?? []),
     [state.completed, viewKey],
   );
-
-  useLayoutEffect(() => {
-    if (listRef.current && scrollTopRef) {
-      listRef.current.scrollTop = scrollTopRef.current;
-    }
-  }, [scrollTopRef]);
 
   useLayoutEffect(() => {
     const previousPendingReminderKey = previousPendingReminderKeyRef.current;
@@ -208,14 +199,7 @@ export function NightOrderPanel({
           />
         </label>
       )}
-      <div
-        className="night-order-list"
-        ref={listRef}
-        onScroll={(event) => {
-          if (scrollTopRef)
-            scrollTopRef.current = event.currentTarget.scrollTop;
-        }}
-      >
+      <div className="night-order-list">
         {entries.map((entry, index) => {
           const done = completed.has(entry.key);
           const revealActions = getNightRevealActions(entry);

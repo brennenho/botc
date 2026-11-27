@@ -20,8 +20,3 @@ export function previousPhase({
   if (dayNumber === 1) return { phase: "setup", dayNumber: 1 };
   return { phase: "day", dayNumber: dayNumber - 1 };
 }
-
-export function isPhaseReturn(current: GamePhase, prior?: GamePhase) {
-  const back = prior && previousPhase(prior);
-  return back?.phase === current.phase && back.dayNumber === current.dayNumber;
-}

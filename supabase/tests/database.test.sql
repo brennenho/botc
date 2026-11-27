@@ -2,7 +2,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(23);
+select plan(20);
 
 select ok(to_regclass('public.games') is not null, 'games table exists');
 select ok(to_regclass('public.seats') is not null, 'seats table exists');
@@ -137,23 +137,7 @@ select is(
   'a rejected stale update does not overwrite the winner'
 );
 
-select results_eq(
-  $$ select kind, phase, day_number, game_version from public.game_events where game_id = 'pgtap-game' $$,
-  $$ values ('phase_started'::text, 'night'::text, 2, 3) $$,
-  'only the successful phase change creates a history entry'
-);
-select ok(
-  not has_table_privilege('anon', 'public.game_events', 'select')
-  and not has_table_privilege('authenticated', 'public.game_events', 'select'),
-  'game history is private to the server'
-);
-
 delete from public.games where id = 'pgtap-game';
-select is(
-  (select count(*) from public.game_events where game_id = 'pgtap-game'),
-  0::bigint,
-  'deleting a game removes its history'
-);
 select is(
   (select count(*) from public.seats where game_id = 'pgtap-game'),
   0::bigint,

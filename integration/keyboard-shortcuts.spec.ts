@@ -50,7 +50,7 @@ test("storyteller shortcuts cover common grimoire controls without firing while 
 
   for (const [key, heading] of [
     ["p", "Players"],
-    ["n", "Game"],
+    ["n", "Night Order"],
     ["i", "Player Information"],
     ["r", "Character Reference"],
   ] as const) {
