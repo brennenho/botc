@@ -346,7 +346,87 @@
   line-height: 1.4;
 }
 
-/* Night order */
+/* Game panel */
+.game-view-tabs {
+  display: flex;
+  flex: none;
+  border-bottom: 1px solid var(--control-border);
+}
+
+.game-view-tabs button {
+  flex: 1;
+  min-height: 44px;
+  border-bottom: 2px solid transparent;
+  color: var(--ink-muted);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.game-view-tabs button[aria-selected="true"] {
+  border-color: var(--oxblood);
+  color: var(--oxblood);
+}
+
+.phase-timeline {
+  --marker-size: 32px;
+  padding: 18px;
+}
+
+.phase-timeline li {
+  position: relative;
+  display: grid;
+  grid-template-columns: var(--marker-size) minmax(0, 1fr);
+  align-items: start;
+  gap: 12px;
+  color: var(--ink);
+  font-size: 14px;
+  line-height: 1.3;
+}
+
+.phase-timeline li:not(:last-child) {
+  padding-bottom: 16px;
+}
+
+.phase-timeline li:not(:last-child)::before {
+  content: "";
+  position: absolute;
+  inset-inline-start: calc(var(--marker-size) / 2);
+  inset-block: var(--marker-size) 0;
+  border-inline-start: 1px solid var(--grimoire-hardware-border);
+}
+
+.phase-timeline-marker {
+  width: var(--marker-size);
+  height: var(--marker-size);
+  padding: 7px;
+  border-radius: 50%;
+  color: var(--ink-muted);
+  background: var(--control-hover);
+  stroke-width: 1.75;
+}
+
+.phase-timeline-marker[data-marker="night"] {
+  color: #444a6b;
+  background: #e2e2ec;
+}
+
+.phase-timeline-marker[data-marker="day"] {
+  color: #785a27;
+  background: #eee2c6;
+}
+
+.phase-timeline li:first-child span {
+  font-weight: 650;
+}
+
+.phase-timeline time {
+  display: block;
+  margin-top: 2px;
+  color: var(--ink-muted);
+  font: 500 11px/1.4 var(--font-utility);
+  font-variant-numeric: tabular-nums;
+}
+
 .night-phase-footer {
   flex: none;
   border-top: 1px solid var(--control-border);

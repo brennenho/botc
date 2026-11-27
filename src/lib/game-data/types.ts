@@ -17,6 +17,13 @@ export type Phase = "setup" | "day" | "night";
 
 export type GamePhase = { phase: Phase; dayNumber: number };
 
+export type GameEvent = GamePhase & {
+  kind: "phase_started";
+  gameVersion: number;
+  ordinal: number;
+  occurredAt: string;
+};
+
 export type Role = {
   id: string;
   name: string;
@@ -106,6 +113,7 @@ export type GameToken = {
 
 export type StorytellerSnapshot = {
   game: Game;
+  events: GameEvent[];
   seats: Seat[];
   gameTokens: GameToken[];
 };

@@ -6,6 +6,7 @@ import type {
   CustomScript,
   GameScript,
   Game,
+  GameEvent,
   GameToken,
   Phase,
   PlayerSnapshot,
@@ -374,13 +375,25 @@ export async function getStorytellerSnapshotByCode(
 ): Promise<StorytellerSnapshot> {
   const game = await requireGameByCode(gameCode);
   assertCredential(game.storytellerTokenHash, credential, "Storyteller");
-  const [seats, gameTokens] = await Promise.all([
+  const [seats, gameTokens, events] = await Promise.all([
     loadSeats(game.id),
     loadTokens(game.id),
+    getSupabaseAdmin()
+      .from("game_events")
+      .select(
+        "kind, phase, dayNumber:day_number, gameVersion:game_version, ordinal, occurredAt:occurred_at",
+      )
+      .eq("game_id", game.id)
+      .lte("game_version", game.version)
+      .order("game_version", { ascending: false })
+      .order("ordinal")
+      .returns<GameEvent[]>(),
   ]);
+  if (events.error) throw databaseError(events.error);
 
   return {
     game: publicGame(game),
+    events: events.data ?? [],
     seats: seats.map(publicSeat),
     gameTokens: normalizeReminderOrders(reconcileReminderInventory(gameTokens)),
   };
