@@ -26,6 +26,7 @@ import { useStorytellerGame } from "@/hooks/use-storyteller-game";
 import { isTerminalGameError } from "@/lib/app-error";
 import { getSetupReminderWarnings } from "@/lib/game-data";
 import type { StorytellerSnapshot } from "@/lib/game-data/types";
+import { phaseLabel } from "@/lib/game-phase";
 import { getAdjacentSeatId } from "@/lib/keyboard-shortcuts";
 import {
   getReminderDefinition,
@@ -70,8 +71,10 @@ export function StorytellerApp({
   const [referenceView, setReferenceView] =
     useState<CharacterReferenceView>("script");
   const [sheetPinned, setSheetPinned] = usePersistedGrimoireSheetPin(gameCode);
-  const [nightOrderState, setNightOrderState] =
-    usePersistedNightOrderState(gameCode);
+  const [nightOrderState, setNightOrderState] = usePersistedNightOrderState(
+    gameCode,
+    snapshot.game.phase === "setup" ? undefined : snapshot.game.dayNumber,
+  );
   const [selectedSeatId, setSelectedSeatId] = useState<string | null>(null);
   const [selectedReminderId, setSelectedReminderId] = useState<string | null>(
     null,
@@ -306,6 +309,11 @@ export function StorytellerApp({
         joinCode={snapshot.game.joinCode}
         actorRole="storyteller"
         saveState={saveState}
+        historyControl={{
+          phaseLabel: phaseLabel(snapshot.game),
+          open: openPanel === "history",
+          onClick: () => handleOpenPanel("history"),
+        }}
         redacted={redacted}
         onRedactedChange={handleRedactedChange}
       />
@@ -413,6 +421,12 @@ export function StorytellerApp({
 
       {!redacted && (
         <GrimoireSideSheet
+          history={{
+            game: snapshot.game,
+            events: snapshot.events,
+            disabled: saveState !== "idle",
+            onBegin: commit,
+          }}
           panel={openPanel}
           shortcutsEnabled={
             selectedSeatId === null &&

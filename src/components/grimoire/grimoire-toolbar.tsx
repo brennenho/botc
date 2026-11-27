@@ -20,6 +20,7 @@ export function GrimoireToolbar({
   joinCode,
   actorRole,
   saveState,
+  historyControl,
   redacted,
   onRedactedChange,
 }: {
@@ -27,6 +28,7 @@ export function GrimoireToolbar({
   joinCode: string;
   actorRole: "storyteller" | "player";
   saveState?: "idle" | "saving" | "error";
+  historyControl?: { phaseLabel: string; open: boolean; onClick: () => void };
   redacted: boolean;
   onRedactedChange: (redacted: boolean) => void;
 }) {
@@ -68,9 +70,22 @@ export function GrimoireToolbar({
             priority
           />
         </Link>
-        <div>
-          <p>{edition.name}</p>
-        </div>
+        {historyControl && !redacted ? (
+          <button
+            type="button"
+            onClick={historyControl.onClick}
+            aria-expanded={historyControl.open}
+            aria-label={`Game history, ${historyControl.phaseLabel}`}
+            className="toolbar-history"
+          >
+            <span>{edition.name}</span>
+            <small>{historyControl.phaseLabel} · History</small>
+          </button>
+        ) : (
+          <div>
+            <p>{edition.name}</p>
+          </div>
+        )}
         <label className="grimoire-redaction-setting">
           <span>Hide</span>
           <Tooltip

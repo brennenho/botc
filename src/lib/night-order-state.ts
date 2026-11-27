@@ -6,6 +6,7 @@ export type NightOrderScope = (typeof nightOrderScopes)[number];
 export type NightOrderViewKey = `${NightOrderNight}:${NightOrderScope}`;
 
 export type NightOrderState = {
+  trackedNight?: number;
   night: NightOrderNight;
   scope: NightOrderScope;
   smallGameEvilInfo?: boolean;
@@ -34,11 +35,26 @@ export function getNightOrderViewKey(
   return `${night}:${scope}`;
 }
 
+export function checklistForNight(
+  state: NightOrderState,
+  nightNumber?: number,
+): NightOrderState {
+  if (nightNumber === undefined || state.trackedNight === nightNumber)
+    return state;
+  return {
+    ...state,
+    trackedNight: nightNumber,
+    night: nightNumber === 1 ? "first" : "other",
+    completed: {},
+  };
+}
+
 export function normalizeNightOrderState(value: unknown): NightOrderState {
   const fallback = createDefaultNightOrderState();
   if (!value || typeof value !== "object") return fallback;
 
   const candidate = value as {
+    trackedNight?: unknown;
     night?: unknown;
     scope?: unknown;
     smallGameEvilInfo?: unknown;
@@ -66,6 +82,9 @@ export function normalizeNightOrderState(value: unknown): NightOrderState {
       ? (candidate.scope as NightOrderScope)
       : fallback.scope,
     completed,
+    ...(typeof candidate.trackedNight === "number" &&
+      Number.isInteger(candidate.trackedNight) &&
+      candidate.trackedNight > 0 && { trackedNight: candidate.trackedNight }),
     ...(candidate.smallGameEvilInfo === true && { smallGameEvilInfo: true }),
   };
 }

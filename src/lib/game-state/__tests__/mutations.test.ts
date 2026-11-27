@@ -62,7 +62,7 @@ function state(
   seats: Seat[] = [seat("seat-a", 0), seat("seat-b", 1)],
   gameTokens: GameToken[] = [],
 ): StorytellerSnapshot {
-  return { game, seats, gameTokens };
+  return { game, seats, gameTokens, events: [] };
 }
 
 function reminder(

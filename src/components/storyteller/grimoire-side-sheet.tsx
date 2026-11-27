@@ -7,6 +7,10 @@ import {
   type CharacterReferenceView,
 } from "@/components/character-sheet/character-reference";
 import { NightOrderPanel } from "@/components/storyteller/night-order-sheet";
+import {
+  GameHistoryPanel,
+  type GameHistoryProps,
+} from "@/components/storyteller/game-history-panel";
 import { PlayerRevealPanel } from "@/components/storyteller/player-reveal-panel";
 import { RosterPanel } from "@/components/storyteller/roster-sheet";
 import { IconButton } from "@/components/ui/icon-button";
@@ -18,10 +22,18 @@ import type { ReminderDefinition } from "@/lib/reminders";
 import type { NightRevealAction, PlayerReveal } from "@/lib/player-reveal";
 import { cn } from "@/lib/utils";
 
-export type GrimoirePanel = "players" | "night" | "info" | "script" | null;
+const panelTitles = {
+  players: "Players",
+  night: "Night Order",
+  info: "Player Information",
+  script: "Character Reference",
+  history: "Game history",
+};
+export type GrimoirePanel = keyof typeof panelTitles | null;
 
 export function GrimoireSideSheet({
   panel,
+  history,
   shortcutsEnabled,
   editionId,
   seats,
@@ -51,6 +63,7 @@ export function GrimoireSideSheet({
   onChooseRevealRole,
 }: {
   panel: GrimoirePanel;
+  history: GameHistoryProps;
   shortcutsEnabled: boolean;
   editionId: GameScript;
   seats: Seat[];
@@ -79,22 +92,13 @@ export function GrimoireSideSheet({
   onReveal: (reveal: PlayerReveal) => void;
   onChooseRevealRole: (heading: string) => void;
 }) {
-  const title =
-    panel === "night"
-      ? "Night Order"
-      : panel === "info"
-        ? "Player Information"
-        : panel === "script"
-          ? "Character Reference"
-          : "Players";
-
   return (
     <Sheet
       open={panel !== null}
       onOpenChange={(open) => {
         if (!open) onClose();
       }}
-      title={title}
+      title={panelTitles[panel ?? "players"]}
       suspended={suspended}
       modal={false}
       backdrop={false}
@@ -112,6 +116,7 @@ export function GrimoireSideSheet({
         </IconButton>
       }
     >
+      {panel === "history" && <GameHistoryPanel {...history} />}
       <div className="sheet-panel" hidden={panel !== "players"}>
         <RosterPanel
           shortcutsEnabled={shortcutsEnabled && panel === "players"}
