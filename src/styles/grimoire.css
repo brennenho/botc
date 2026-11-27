@@ -81,14 +81,6 @@
   font-variant-numeric: tabular-nums;
 }
 
-.toolbar-phase[data-phase="day"] {
-  color: #703707;
-}
-
-.toolbar-phase[data-phase="night"] {
-  color: #403d80;
-}
-
 .storyteller-shell.is-sheet-pinned .toolbar-brand {
   --toolbar-sheet-offset: var(--grimoire-pinned-sheet-width);
 }
@@ -247,9 +239,9 @@
 .grimoire-workspace[data-phase="night"] {
   --board-wash: radial-gradient(
     ellipse at center,
-    rgb(65 77 136 / 4%) 15%,
-    rgb(65 77 136 / 18%) 58%,
-    rgb(65 77 136 / 38%)
+    rgb(65 77 136 / 6%) 15%,
+    rgb(65 77 136 / 24%) 58%,
+    rgb(65 77 136 / 47%)
   );
 }
 

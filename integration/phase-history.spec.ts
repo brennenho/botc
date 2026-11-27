@@ -65,7 +65,7 @@ test("@ipad starting mid-game and stepping back update open history and player v
     },
   );
   await expect(playerEdition.locator(".lucide-moon")).toBeVisible();
-  await expect(phaseLabel).not.toHaveCSS("color", dayColor);
+  await expect(phaseLabel).toHaveCSS("color", dayColor);
   const nightBackground = await playerBoard.evaluate(
     (board) => getComputedStyle(board).backgroundImage,
   );

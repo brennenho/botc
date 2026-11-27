@@ -73,7 +73,7 @@ export function GrimoireToolbar({
         <div className="toolbar-edition">
           <p>{edition.name}</p>
           {!redacted && (
-            <small className="toolbar-phase" data-phase={game.phase}>
+            <small className="toolbar-phase">
               {PhaseIcon && (
                 <PhaseIcon aria-hidden="true" className="size-3 shrink-0" />
               )}
