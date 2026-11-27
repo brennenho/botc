@@ -854,12 +854,10 @@
   right: 0;
   bottom: 122px;
   left: auto;
-  display: flex;
+  display: grid;
+  grid-auto-rows: 1fr;
   min-width: 0;
   height: auto;
-  align-items: stretch;
-  justify-content: flex-start;
-  flex-direction: column;
   width: var(--panel-tab-width);
   gap: 0;
   padding: 0;
@@ -882,6 +880,10 @@
   transition: right 200ms cubic-bezier(0.2, 0.75, 0.2, 1);
 }
 
+.storyteller-shell:not(.player-grimoire-shell) .grimoire-panel-tabs.global-dock {
+  --panel-tab-padding-block: 5px;
+}
+
 .grimoire-panel-tabs.global-dock.is-sheet-open {
   right: var(--active-grimoire-sheet-width);
 }
@@ -894,7 +896,6 @@
   height: auto;
   min-height: 0;
   box-sizing: border-box;
-  flex: 0 0 auto;
   align-items: center;
   justify-content: center;
   flex-direction: column;
@@ -999,7 +1000,7 @@
   .storyteller-shell:not(.player-grimoire-shell)
     .grimoire-panel-tabs.global-dock {
     --panel-tab-content-gap: 4px;
-    --panel-tab-padding-block: 8px;
+    --panel-tab-padding-block: 3px;
 
     bottom: 16px;
   }
