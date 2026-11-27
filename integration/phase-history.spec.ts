@@ -6,6 +6,34 @@ import {
   test,
 } from "./fixtures/multiplayer";
 
+test("@ipad Night order keeps its place when the storyteller returns to Game", async ({
+  createActor,
+}) => {
+  const storyteller = await createActor();
+  const { snapshot } = await createGameViaApi(storyteller);
+  const { page } = storyteller;
+  await page.goto(`/game/${snapshot.game.joinCode}/storyteller`);
+  const game = page.getByRole("button", { name: "Game", exact: true });
+  await game.click();
+  await page.getByRole("button", { name: "All", exact: true }).click();
+
+  const checklist = page.locator(".night-order-list");
+  const position = await checklist.evaluate((list) => {
+    list.scrollTop = 250;
+    return list.scrollTop;
+  });
+  expect(position).toBeGreaterThan(0);
+
+  await page.getByRole("button", { name: "Players", exact: true }).click();
+  await game.click();
+  await expect(checklist).toHaveJSProperty("scrollTop", position);
+
+  await game.click();
+  await expect(page.locator(".side-sheet")).toHaveCount(0);
+  await game.click();
+  await expect(checklist).toHaveJSProperty("scrollTop", position);
+});
+
 test("@ipad starting mid-game and stepping back update open history and player views", async ({
   createActor,
 }) => {

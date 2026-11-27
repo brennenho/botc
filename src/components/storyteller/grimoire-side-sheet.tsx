@@ -1,6 +1,7 @@
 "use client";
 
 import { Pin } from "lucide-react";
+import { useRef } from "react";
 
 import {
   CharacterReference,
@@ -95,6 +96,8 @@ export function GrimoireSideSheet({
   onReveal: (reveal: PlayerReveal) => void;
   onChooseRevealRole: (heading: string) => void;
 }) {
+  const nightOrderScrollTop = useRef(0);
+
   return (
     <Sheet
       open={panel !== null}
@@ -141,6 +144,7 @@ export function GrimoireSideSheet({
         <GamePanel
           phaseControls={phaseControls}
           events={events}
+          scrollTopRef={nightOrderScrollTop}
           shortcutsEnabled={shortcutsEnabled}
           editionId={editionId}
           seats={seats}
