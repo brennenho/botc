@@ -3,7 +3,8 @@ export const nightOrderScopes = ["alive", "all"] as const;
 
 export type NightOrderNight = (typeof nightOrderNights)[number];
 export type NightOrderScope = (typeof nightOrderScopes)[number];
-export type NightOrderViewKey = `${NightOrderNight}:${NightOrderScope}`;
+export type NightOrderViewKey =
+  `${number | "setup"}:${NightOrderNight}:${NightOrderScope}`;
 
 export type NightOrderState = {
   trackedNight?: number;
@@ -12,13 +13,6 @@ export type NightOrderState = {
   smallGameEvilInfo?: boolean;
   completed: Partial<Record<NightOrderViewKey, string[]>>;
 };
-
-const nightOrderViewKeys: NightOrderViewKey[] = [
-  "first:alive",
-  "first:all",
-  "other:alive",
-  "other:all",
-];
 
 export function createDefaultNightOrderState(): NightOrderState {
   return {
@@ -31,21 +25,20 @@ export function createDefaultNightOrderState(): NightOrderState {
 export function getNightOrderViewKey(
   night: NightOrderNight,
   scope: NightOrderScope,
+  trackedNight?: number,
 ): NightOrderViewKey {
-  return `${night}:${scope}`;
+  return `${trackedNight ?? "setup"}:${night}:${scope}`;
 }
 
 export function checklistForNight(
   state: NightOrderState,
   nightNumber?: number,
 ): NightOrderState {
-  if (nightNumber === undefined || state.trackedNight === nightNumber)
-    return state;
+  if (state.trackedNight === nightNumber) return state;
   return {
     ...state,
     trackedNight: nightNumber,
-    night: nightNumber === 1 ? "first" : "other",
-    completed: {},
+    night: (nightNumber ?? 1) === 1 ? "first" : "other",
   };
 }
 
@@ -64,15 +57,30 @@ export function normalizeNightOrderState(value: unknown): NightOrderState {
     candidate.completed && typeof candidate.completed === "object"
       ? (candidate.completed as Record<string, unknown>)
       : {};
+  const trackedNight =
+    typeof candidate.trackedNight === "number" &&
+    Number.isInteger(candidate.trackedNight) &&
+    candidate.trackedNight > 0
+      ? candidate.trackedNight
+      : undefined;
   const completed = Object.fromEntries(
-    nightOrderViewKeys.flatMap((key) => {
-      const entries = completedSource[key];
-      return Array.isArray(entries) &&
-        entries.every((entry) => typeof entry === "string")
-        ? [[key, [...new Set(entries)]]]
-        : [];
+    Object.entries(completedSource).flatMap(([storedKey, entries]) => {
+      const match = /^(?:(setup|[1-9]\d*):)?(first|other):(alive|all)$/.exec(
+        storedKey,
+      );
+      if (
+        !match ||
+        !Array.isArray(entries) ||
+        !entries.every((entry) => typeof entry === "string")
+      )
+        return [];
+      // Older checklists only included the sheet and scope in their key.
+      const key = match[1]
+        ? storedKey
+        : `${trackedNight ?? "setup"}:${storedKey}`;
+      return [[key, [...new Set(entries)]]];
     }),
-  ) as NightOrderState["completed"];
+  );
 
   return {
     night: nightOrderNights.includes(candidate.night as NightOrderNight)
@@ -82,9 +90,7 @@ export function normalizeNightOrderState(value: unknown): NightOrderState {
       ? (candidate.scope as NightOrderScope)
       : fallback.scope,
     completed,
-    ...(typeof candidate.trackedNight === "number" &&
-      Number.isInteger(candidate.trackedNight) &&
-      candidate.trackedNight > 0 && { trackedNight: candidate.trackedNight }),
+    ...(trackedNight !== undefined && { trackedNight }),
     ...(candidate.smallGameEvilInfo === true && { smallGameEvilInfo: true }),
   };
 }

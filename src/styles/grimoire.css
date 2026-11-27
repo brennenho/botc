@@ -59,16 +59,7 @@
   font-weight: 680;
 }
 
-.toolbar-history {
-  display: grid;
-  align-content: center;
-  min-height: 44px;
-  text-align: left;
-  font-size: 12px;
-  font-weight: 680;
-}
-
-.toolbar-history small {
+.toolbar-phase {
   font-size: 11px;
   font-weight: 500;
   color: var(--grimoire-hardware-muted);

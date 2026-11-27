@@ -347,6 +347,49 @@
 }
 
 /* Night order */
+.night-phase-footer {
+  flex: none;
+  border-top: 1px solid var(--control-border);
+  background: var(--parchment-light);
+}
+
+.night-phase-actions,
+.night-start-form:not([hidden]) {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 10px;
+}
+
+.night-phase-actions button {
+  min-height: 44px;
+  padding-inline: 10px;
+}
+
+.night-phase-actions button:first-child {
+  margin-right: auto;
+}
+
+.night-phase-drawer {
+  max-height: min(9rem, 24dvh);
+  overflow-y: auto;
+}
+
+.night-start-form label {
+  display: grid;
+  gap: 2px;
+  font-size: 12px;
+}
+
+.night-start-form select {
+  height: 40px;
+  border: 1px solid var(--control-border);
+  border-radius: var(--radius-control);
+  padding-inline: 8px;
+  background: var(--control-secondary-bg);
+}
+
 .night-controls {
   display: flex;
   gap: 7px;

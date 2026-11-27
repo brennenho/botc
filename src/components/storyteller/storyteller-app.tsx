@@ -309,11 +309,7 @@ export function StorytellerApp({
         joinCode={snapshot.game.joinCode}
         actorRole="storyteller"
         saveState={saveState}
-        historyControl={{
-          phaseLabel: phaseLabel(snapshot.game),
-          open: openPanel === "history",
-          onClick: () => handleOpenPanel("history"),
-        }}
+        phase={phaseLabel(snapshot.game)}
         redacted={redacted}
         onRedactedChange={handleRedactedChange}
       />
@@ -425,7 +421,7 @@ export function StorytellerApp({
             game: snapshot.game,
             events: snapshot.events,
             disabled: saveState !== "idle",
-            onBegin: commit,
+            onChangePhase: commit,
           }}
           panel={openPanel}
           shortcutsEnabled={

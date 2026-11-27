@@ -61,7 +61,7 @@ export function NightOrderPanel({
   const previousPendingReminderKeyRef = useRef<string | null>(null);
   const pendingReminderKey = pendingReminder?.key ?? null;
   const { night, scope } = state;
-  const viewKey = getNightOrderViewKey(night, scope);
+  const viewKey = getNightOrderViewKey(night, scope, state.trackedNight);
   const completed = useMemo(
     () => new Set(state.completed[viewKey] ?? []),
     [state.completed, viewKey],
