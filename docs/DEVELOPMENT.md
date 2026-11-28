@@ -118,9 +118,12 @@ when only one is present. `POSTHOG_CLI_HOST` must remain the direct PostHog app
 host rather than the managed proxy.
 
 The browser SDK uses PostHog's defaults for pageviews, clicks, form interactions,
-and referrer and campaign attribution. Manage Session Replay, heatmaps, and
-performance capture in the PostHog project settings. The browser SDK honors
-Do Not Track and stores the analytics identifier in local storage.
+and referrer and campaign attribution. Session Replay is disabled by default.
+Opening an authorized storyteller grimoire enables replay according to the
+PostHog project's recording settings. Leaving the grimoire stops replay.
+Manage heatmaps and performance capture in the PostHog project settings. The
+browser SDK honors Do Not Track and stores the analytics identifier in local
+storage.
 
 Diagnostic URLs, identifiers, messages, stacks, causes, and error details are
 sent without application-level redaction. Keep credentials out of analytics

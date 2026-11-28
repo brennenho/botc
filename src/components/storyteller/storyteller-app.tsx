@@ -1,7 +1,7 @@
 "use client";
 
 import { RotateCcw } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useLayoutEffect, useMemo, useState } from "react";
 
 import type { CharacterReferenceView } from "@/components/character-sheet/character-reference";
 import { DemonBluffRack } from "@/components/storyteller/demon-bluff-rack";
@@ -27,6 +27,7 @@ import { isTerminalGameError } from "@/lib/app-error";
 import { getSetupReminderWarnings } from "@/lib/game-data";
 import type { StorytellerSnapshot } from "@/lib/game-data/types";
 import { getAdjacentSeatId } from "@/lib/keyboard-shortcuts";
+import { startStorytellerSessionReplay } from "@/lib/observability/client";
 import {
   getReminderDefinition,
   type ReminderDefinition,
@@ -65,6 +66,11 @@ export function StorytellerApp({
     recoverSave,
     dismissSaveError,
   } = useStorytellerGame(gameCode, initialSnapshot);
+  const gameUnavailable = isTerminalGameError(refreshError);
+  useLayoutEffect(() => {
+    if (!gameUnavailable) return startStorytellerSessionReplay();
+  }, [gameUnavailable]);
+
   const presence = useGamePresence(gameCode);
   const [openPanel, setOpenPanel] = useState<GrimoirePanel>(null);
   const [referenceView, setReferenceView] =
@@ -180,7 +186,7 @@ export function StorytellerApp({
     },
   ]);
 
-  if (isTerminalGameError(refreshError)) {
+  if (gameUnavailable) {
     return (
       <PageError
         title="Game unavailable"

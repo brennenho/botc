@@ -4,6 +4,8 @@ const posthog = vi.hoisted(() => ({
   capture: vi.fn(),
   captureException: vi.fn(),
   init: vi.fn(),
+  startSessionRecording: vi.fn(),
+  stopSessionRecording: vi.fn(),
 }));
 const mockEnv = vi.hoisted(() => ({
   NEXT_PUBLIC_DISABLE_OBSERVABILITY: "false",
@@ -20,6 +22,8 @@ beforeEach(() => {
   posthog.capture.mockReset();
   posthog.captureException.mockReset();
   posthog.init.mockReset();
+  posthog.startSessionRecording.mockReset();
+  posthog.stopSessionRecording.mockReset();
   mockEnv.NEXT_PUBLIC_DISABLE_OBSERVABILITY = "false";
   vi.spyOn(console, "error").mockImplementation(() => undefined);
 });
@@ -30,16 +34,50 @@ afterEach(() => {
 });
 
 describe("client observability", () => {
+  it("captures player events with session replay disabled", async () => {
+    const { trackEvent } = await import("@/lib/observability/client");
+
+    trackEvent("game_joined", { actor_role: "player" });
+
+    expect(posthog.init).toHaveBeenCalledWith(
+      mockEnv.NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN,
+      expect.objectContaining({ disable_session_recording: true }),
+    );
+    expect(posthog.capture).toHaveBeenCalledWith("game_joined", {
+      actor_role: "player",
+    });
+    expect(posthog.startSessionRecording).not.toHaveBeenCalled();
+  });
+
+  it("starts and stops storyteller replay using the project recording rules", async () => {
+    const { startStorytellerSessionReplay } =
+      await import("@/lib/observability/client");
+
+    const stopReplay = startStorytellerSessionReplay();
+    expect(posthog.startSessionRecording).toHaveBeenCalledExactlyOnceWith();
+    expect(posthog.stopSessionRecording).not.toHaveBeenCalled();
+
+    stopReplay();
+    expect(posthog.stopSessionRecording).toHaveBeenCalledOnce();
+  });
+
   it("honors the explicit observability kill switch", async () => {
     mockEnv.NEXT_PUBLIC_DISABLE_OBSERVABILITY = "true";
-    const { initializeClientObservability, trackEvent } =
-      await import("@/lib/observability/client");
+    const {
+      initializeClientObservability,
+      startStorytellerSessionReplay,
+      trackEvent,
+    } = await import("@/lib/observability/client");
 
     initializeClientObservability();
     trackEvent("game_joined", { actor_role: "player" });
+    const stopReplay = startStorytellerSessionReplay();
+    stopReplay();
 
     expect(posthog.init).not.toHaveBeenCalled();
     expect(posthog.capture).not.toHaveBeenCalled();
+    expect(posthog.startSessionRecording).not.toHaveBeenCalled();
+    expect(posthog.stopSessionRecording).not.toHaveBeenCalled();
   });
 
   it("keeps observability disabled outside production", async () => {

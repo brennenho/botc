@@ -19,7 +19,7 @@ export default function PrivacyPage() {
     <DocumentPage
       title="Privacy policy"
       headerDetail={
-        <time dateTime="2026-11-24">Last updated November 24, 2026</time>
+        <time dateTime="2026-11-27">Last updated November 27, 2026</time>
       }
       footer={
         <DocumentFooter title="Questions">
@@ -47,10 +47,15 @@ export default function PrivacyPage() {
         <p>
           <strong>Usage and technical information.</strong> We use PostHog to
           measure page visits, clicks, form interactions, performance, and
-          errors. We may record a replay of what appeared on screen and how you
-          interacted with it. We also collect browser and device information and
-          a browser identifier. We may collect your approximate location and how
-          you reached the site, such as a referring site or campaign.
+          errors. We also collect browser and device information and a browser
+          identifier. We may collect your approximate location and how you
+          reached the site, such as a referring site or campaign.
+        </p>
+        <p>
+          <strong>Session replays.</strong> If you’re the Storyteller, we may
+          record what you see and do in the grimoire. Replays help us spot
+          confusing controls and reproduce bugs so we can fix them. Recording
+          stops when you leave the grimoire.
         </p>
       </DocumentSection>
 
