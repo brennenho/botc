@@ -18,11 +18,20 @@ export type Phase = "setup" | "day" | "night";
 export type GamePhase = { phase: Phase; dayNumber: number };
 
 export type GameEvent = GamePhase & {
-  kind: "phase_started";
   gameVersion: number;
   ordinal: number;
   occurredAt: string;
-};
+} & (
+    | { kind: "phase_started" }
+    | {
+        kind: "reminder_placed" | "reminder_removed";
+        reminder: {
+          label: string;
+          roleId: string | null;
+          playerName: string | null;
+        };
+      }
+  );
 
 export type Role = {
   id: string;

@@ -269,4 +269,29 @@ test("@ipad missing setup reminders place directly from the compact tray", async
   await expect(
     storyteller.page.locator('[aria-label^="Wrong reminder on"]'),
   ).toHaveCount(0);
+
+  const observer = await storyteller.context.newPage();
+  await observer.goto(`/game/${joinCode}/storyteller`);
+  await observer.getByRole("button", { name: "Game", exact: true }).click();
+  await observer.getByRole("tab", { name: "History" }).click();
+  const timeline = observer.getByRole("list", { name: "Game history" });
+  await expect(
+    timeline.getByText(`Townsfolk placed on ${targetPlayerName}`),
+  ).toBeVisible();
+
+  await storyteller.page
+    .getByRole("button", { name: `Townsfolk reminder on ${targetPlayerName}` })
+    .click();
+  await storyteller.page
+    .getByRole("button", { name: "Remove Reminder", exact: true })
+    .click();
+  await storyteller.page
+    .getByRole("button", { name: "Click Again to Remove", exact: true })
+    .click();
+  const entries = timeline.getByRole("listitem");
+  await expect(entries.first()).toContainText(
+    `Townsfolk removed from ${targetPlayerName}`,
+    { timeout: 20_000 },
+  );
+  await expect(entries).toHaveCount(2);
 });
