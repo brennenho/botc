@@ -350,29 +350,95 @@
 .game-timeline {
   --marker-size: 32px;
   padding: 18px;
-}
-
-.game-timeline li {
-  position: relative;
-  display: grid;
-  grid-template-columns: var(--marker-size) minmax(0, 1fr);
-  align-items: start;
-  gap: 12px;
   color: var(--ink);
   font-size: 14px;
   line-height: 1.3;
 }
 
-.game-timeline li:not(:last-child) {
-  padding-bottom: 16px;
+.game-timeline-phase,
+.game-timeline-reminders > li {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
 }
 
-.game-timeline li:not(:last-child)::before {
+.game-timeline > li:first-child h3 {
+  font-weight: 650;
+}
+
+.game-timeline-phase {
+  row-gap: 0;
+}
+
+.game-timeline-phase::before,
+.game-timeline-phase::after {
+  content: "";
+  grid-column: 1 / -1;
+  height: 8px;
+  margin-inline-start: calc(var(--marker-size) / 2);
+  border-inline-start: 1px solid var(--grimoire-hardware-border);
+}
+
+.game-timeline > li:first-child > .game-timeline-phase:first-child::before,
+.game-timeline > li:last-child > .game-timeline-phase::after {
+  content: none;
+}
+
+.game-timeline-reminders {
+  --reminder-indent: 32px;
+  margin-inline-start: calc(var(--marker-size) / 2);
+}
+
+.game-timeline > li + li > .game-timeline-reminders::before,
+.game-timeline-reminders::after {
+  content: "";
+  display: block;
+  width: calc(var(--reminder-indent) + 1px);
+  height: 16px;
+  background-color: var(--grimoire-hardware-border);
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 33 16'%3E%3Cpath d='M.5 0 V1.5 a7 7 0 0 0 7 7 h18 a7 7 0 0 1 7 7 V16' fill='none' stroke='black'/%3E%3C/svg%3E") center / 100% 100% no-repeat;
+}
+
+.game-timeline-reminders::after {
+  transform: scaleY(-1);
+}
+
+.game-timeline-reminders > li {
+  grid-template-columns: var(--marker-size) minmax(0, 1fr) auto;
+  gap: 8px;
+  padding-inline-start: calc(var(--reminder-indent) - var(--marker-size) / 2);
+  padding-block: 5px;
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+
+.game-timeline-reminders > li::before {
   content: "";
   position: absolute;
-  inset-inline-start: calc(var(--marker-size) / 2);
-  inset-block: var(--marker-size) 0;
+  inset-inline-start: var(--reminder-indent);
+  inset-block: 0;
   border-inline-start: 1px solid var(--grimoire-hardware-border);
+}
+
+.game-timeline > li:first-child > .game-timeline-reminders > li:first-child::before {
+  inset-block-start: 50%;
+}
+
+.game-timeline-reminders .reminder-token {
+  justify-self: center;
+}
+
+.game-timeline-reminders strong {
+  font-weight: 600;
+}
+
+.game-timeline-reminders small {
+  display: block;
+  margin-top: 2px;
+  color: var(--ink-muted);
+  font-size: 12px;
 }
 
 .game-timeline-marker {
@@ -395,16 +461,11 @@
   background: #eee2c6;
 }
 
-.game-timeline li:first-child span {
-  font-weight: 650;
-}
-
 .game-timeline time {
-  display: block;
-  margin-top: 2px;
   color: var(--ink-muted);
   font: 500 11px/1.4 var(--font-utility);
   font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
 
 .night-phase-footer {

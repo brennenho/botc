@@ -60,10 +60,7 @@ test("@ipad starting mid-game and stepping back update open history and player v
   await page.getByLabel("Number", { exact: true }).fill("3");
   await page.getByRole("button", { name: "Start tracking" }).click();
   await expect(
-    observer
-      .getByRole("list", { name: "Game history" })
-      .getByRole("listitem")
-      .locator("span"),
+    observer.getByRole("list", { name: "Game history" }).getByRole("heading"),
   ).toHaveText(["Day 3 began"], { timeout: 20_000 });
   await expect(playerEdition.getByText("Day 3", { exact: true })).toBeVisible({
     timeout: 20_000,
@@ -135,7 +132,7 @@ test("@ipad Storyteller tracks phases and each night starts a fresh checklist", 
   ).toHaveText("Game");
   await history.click();
   const timeline = page.getByRole("list", { name: "Game history" });
-  await expect(timeline.getByRole("listitem").locator("span")).toHaveText([
+  await expect(timeline.getByRole("heading")).toHaveText([
     "Night 2 began",
     "Day 1 began",
     "Night 1 began",
@@ -167,9 +164,8 @@ test("@ipad Storyteller tracks phases and each night starts a fresh checklist", 
   await expect(
     page
       .getByRole("list", { name: "Game history" })
-      .getByRole("listitem")
-      .first()
-      .locator("span"),
+      .getByRole("heading")
+      .first(),
   ).toHaveText("Returned to Night 2");
   await button("Players").click();
   await button("Game").click();

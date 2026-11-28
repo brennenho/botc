@@ -193,6 +193,13 @@ test("@ipad missing setup reminders place directly from the compact tray", async
 
   await storyteller.page.goto(`/game/${joinCode}/storyteller`);
 
+  const observer = await storyteller.context.newPage();
+  await observer.goto(`/game/${joinCode}/storyteller`);
+  await observer.getByRole("button", { name: "Game", exact: true }).click();
+  await observer.getByRole("tab", { name: "History" }).click();
+  await expect(observer.getByText("No game events yet.")).toBeVisible();
+  const timeline = observer.getByRole("list", { name: "Game history" });
+
   const summary = storyteller.page.getByRole("button", {
     name: "Show 2 missing setup reminders",
   });
@@ -269,4 +276,44 @@ test("@ipad missing setup reminders place directly from the compact tray", async
   await expect(
     storyteller.page.locator('[aria-label^="Wrong reminder on"]'),
   ).toHaveCount(0);
+
+  const setup = timeline.getByRole("list", { name: "Setup reminders" });
+  await expect(setup.getByRole("listitem")).toContainText(
+    `Townsfolk Added to ${targetPlayerName}`,
+    { timeout: 20_000 },
+  );
+  await expect(setup.locator(".reminder-token-face img")).toBeVisible();
+
+  const game = storyteller.page.getByRole("button", {
+    name: "Game",
+    exact: true,
+  });
+  await game.click();
+  await storyteller.page.getByRole("button", { name: "Begin Night 1" }).click();
+  await game.click();
+
+  await storyteller.page
+    .getByRole("button", { name: `Townsfolk reminder on ${targetPlayerName}` })
+    .click();
+  await storyteller.page
+    .getByRole("button", { name: "Remove Reminder", exact: true })
+    .click();
+  await storyteller.page
+    .getByRole("button", { name: "Click Again to Remove", exact: true })
+    .click();
+  const night = timeline.getByRole("list", { name: "Night 1 reminders" });
+  await expect(night.getByRole("listitem")).toContainText(
+    `Townsfolk Removed from ${targetPlayerName}`,
+    { timeout: 20_000 },
+  );
+  const historyRows = timeline
+    .getByRole("heading")
+    .or(night.getByRole("listitem"))
+    .or(setup.getByRole("listitem"));
+  await expect(historyRows).toHaveText([
+    /Townsfolk Removed from/,
+    "Night 1 began",
+    /Townsfolk Added to/,
+    "Setup",
+  ]);
 });

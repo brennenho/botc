@@ -381,12 +381,12 @@ export async function getStorytellerSnapshotByCode(
     getSupabaseAdmin()
       .from("game_events")
       .select(
-        "kind, phase, dayNumber:day_number, gameVersion:game_version, ordinal, occurredAt:occurred_at",
+        "kind, reminder, phase, dayNumber:day_number, gameVersion:game_version, ordinal, occurredAt:occurred_at",
       )
       .eq("game_id", game.id)
       .lte("game_version", game.version)
       .order("game_version", { ascending: false })
-      .order("ordinal")
+      .order("ordinal", { ascending: false })
       .returns<GameEvent[]>(),
   ]);
   if (events.error) throw databaseError(events.error);
