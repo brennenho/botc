@@ -47,12 +47,14 @@ export default function PrivacyPage() {
         <p>
           <strong>Usage and technical information.</strong> We use PostHog to
           measure page visits, clicks, form interactions, performance, and
-          errors. We may record a session replay only while you have the
-          storyteller grimoire open. It shows what appeared on your screen and
-          how you interacted with it. We also collect browser and device
-          information and a browser identifier. We may collect your approximate
-          location and how you reached the site, such as a referring site or
-          campaign.
+          errors. We also collect browser and device information and a browser
+          identifier. We may collect your approximate location and how you
+          reached the site, such as a referring site or campaign.
+        </p>
+        <p>
+          <strong>Session replays.</strong> If you’re the Storyteller, we may
+          record what you see and do in the grimoire. Recording stops when you
+          leave it.
         </p>
       </DocumentSection>
 
