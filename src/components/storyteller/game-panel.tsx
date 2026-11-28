@@ -50,10 +50,10 @@ function ReminderEntry({ event }: { event: ReminderEvent }) {
   return (
     <li>
       <ReminderToken label={label} roleId={roleId} size={24} />
-      <span>
-        <strong>{label}</strong> {action} {playerName ?? "the board"}
-      </span>
-      <EventTime at={event.occurredAt} />
+      <div>
+        {label} {action} {playerName ?? "the board"}
+        <EventTime at={event.occurredAt} />
+      </div>
     </li>
   );
 }
@@ -96,14 +96,16 @@ function GameHistory({ events }: { events: GameEvent[] }) {
                 data-marker={marker}
                 aria-hidden="true"
               />
-              <h3>
-                {returned
-                  ? `Returned to ${phase}`
-                  : started
-                    ? `${phase} began`
-                    : phase}
-              </h3>
-              {started && <EventTime at={anchor.occurredAt} />}
+              <div>
+                <h3>
+                  {returned
+                    ? `Returned to ${phase}`
+                    : started
+                      ? `${phase} began`
+                      : phase}
+                </h3>
+                {started && <EventTime at={anchor.occurredAt} />}
+              </div>
             </div>
           </li>
         );

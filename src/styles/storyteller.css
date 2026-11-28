@@ -349,63 +349,57 @@
 /* Game panel */
 .game-timeline {
   --marker-size: 32px;
-  display: grid;
-  gap: 18px;
-  padding: 20px;
+  padding: 18px;
   color: var(--ink);
+  font-size: 14px;
+  line-height: 1.3;
 }
 
 .game-timeline-phase,
 .game-timeline-reminders > li {
+  position: relative;
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
-  align-items: center;
-  column-gap: 10px;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  gap: 12px;
 }
 
-.game-timeline-phase h3 {
-  font: 550 18px/1.2 var(--font-display);
+.game-timeline > li:first-child h3 {
+  font-weight: 650;
+}
+
+.game-timeline > li:not(:last-child) .game-timeline-phase {
+  padding-block-end: 16px;
+}
+
+.game-timeline > li:not(:last-child) .game-timeline-phase::after {
+  content: "";
+  position: absolute;
+  inset-inline-start: calc(var(--marker-size) / 2);
+  inset-block: var(--marker-size) 0;
+  border-inline-start: 1px solid var(--grimoire-hardware-border);
 }
 
 .game-timeline-reminders {
   margin-inline-start: calc(var(--marker-size) / 2);
+  border-inline-start: 1px solid var(--grimoire-hardware-border);
 }
 
 .game-timeline-reminders > li {
-  position: relative;
-  padding-block: 6px;
-  padding-inline-start: 26px;
-  color: var(--ink-muted);
+  gap: 8px;
+  padding-inline-start: 14px;
+  padding-block-end: 10px;
   font-size: 13px;
-  line-height: 1.45;
   overflow-wrap: anywhere;
 }
 
-.game-timeline-reminders strong {
-  color: var(--ink);
-  font-weight: 600;
-}
-
-.game-timeline-reminders > li::before,
-.game-timeline-reminders > li::after {
+.game-timeline-reminders > li::before {
   content: "";
   position: absolute;
   inset-inline-start: 0;
-}
-
-.game-timeline-reminders > li::before {
-  inset-block: 0;
-  border-inline-start: 1px solid var(--control-border);
-}
-
-.game-timeline-reminders > li:first-child::before {
-  inset-block-start: 50%;
-}
-
-.game-timeline-reminders > li::after {
-  inset-block-start: 50%;
-  width: 16px;
-  border-block-start: 1px solid var(--control-border);
+  top: 12px;
+  width: 8px;
+  border-block-start: 1px solid var(--grimoire-hardware-border);
 }
 
 .game-timeline-marker {
@@ -429,10 +423,11 @@
 }
 
 .game-timeline time {
+  display: block;
+  margin-top: 2px;
   color: var(--ink-muted);
-  font: 400 11px/1.4 var(--font-utility);
+  font: 500 11px/1.4 var(--font-utility);
   font-variant-numeric: tabular-nums;
-  white-space: nowrap;
 }
 
 .night-phase-footer {
