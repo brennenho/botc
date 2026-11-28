@@ -1,4 +1,3 @@
-import { Tabs } from "@base-ui/react/tabs";
 import { Flag, Moon, Sun, Undo2 } from "lucide-react";
 import { useState, type ComponentProps } from "react";
 
@@ -7,6 +6,7 @@ import {
   NightPhaseControls,
   type PhaseControlsProps,
 } from "@/components/storyteller/night-phase-controls";
+import { Tabs } from "@/components/ui/tabs";
 import type { GameEvent } from "@/lib/game-data/types";
 import { isPhaseReturn, phaseLabel } from "@/lib/game-phase";
 
@@ -60,36 +60,37 @@ export function GamePanel({
   phaseControls: PhaseControlsProps;
   events: GameEvent[];
 }) {
-  const [view, setView] = useState("night");
+  const [view, setView] = useState<"night" | "history">("night");
 
   return (
-    <Tabs.Root
-      className="sheet-panel"
+    <Tabs
+      label="Game views"
       value={view}
-      onValueChange={(value: unknown) => {
-        if (value !== "night" && value !== "history") return;
+      onValueChange={(nextView) => {
         if (nightOrder.pendingReminder) nightOrder.onCancelReminderPlacement();
-        setView(value);
+        setView(nextView);
       }}
-    >
-      <Tabs.List
-        className="game-view-tabs"
-        aria-label="Game views"
-        activateOnFocus
-      >
-        <Tabs.Tab value="night">Night order</Tabs.Tab>
-        <Tabs.Tab value="history">History</Tabs.Tab>
-      </Tabs.List>
-      <Tabs.Panel value="night" className="sheet-panel" keepMounted>
-        <NightOrderPanel
-          {...nightOrder}
-          shortcutsEnabled={shortcutsEnabled && view === "night"}
-        />
-        <NightPhaseControls {...phaseControls} />
-      </Tabs.Panel>
-      <Tabs.Panel value="history" className="min-h-0 flex-1 overflow-y-auto">
-        <GameHistory events={events} />
-      </Tabs.Panel>
-    </Tabs.Root>
+      tabs={[
+        {
+          value: "night",
+          label: "Night order",
+          keepMounted: true,
+          content: (
+            <>
+              <NightOrderPanel
+                {...nightOrder}
+                shortcutsEnabled={shortcutsEnabled && view === "night"}
+              />
+              <NightPhaseControls {...phaseControls} />
+            </>
+          ),
+        },
+        {
+          value: "history",
+          label: "History",
+          content: <GameHistory events={events} />,
+        },
+      ]}
+    />
   );
 }

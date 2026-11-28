@@ -347,26 +347,6 @@
 }
 
 /* Game panel */
-.game-view-tabs {
-  display: flex;
-  flex: none;
-  border-bottom: 1px solid var(--control-border);
-}
-
-.game-view-tabs button {
-  flex: 1;
-  min-height: 44px;
-  border-bottom: 2px solid transparent;
-  color: var(--ink-muted);
-  font-size: 13px;
-  font-weight: 600;
-}
-
-.game-view-tabs button[aria-selected="true"] {
-  border-color: var(--oxblood);
-  color: var(--oxblood);
-}
-
 .game-timeline {
   --marker-size: 32px;
   padding: 18px;
