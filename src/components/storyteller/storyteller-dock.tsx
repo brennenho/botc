@@ -1,6 +1,6 @@
 "use client";
 
-import { BookOpen, Moon, Users, X } from "lucide-react";
+import { BookOpen, SunMoon, Users, X } from "lucide-react";
 import { useLayoutEffect, useRef } from "react";
 
 import { GrimoirePanelTabs } from "@/components/grimoire/grimoire-panel-tabs";
@@ -19,12 +19,12 @@ export function StorytellerDock({
   reminderOwner,
   pendingReminder,
   playersOpen,
-  nightOpen,
+  gameOpen,
   infoOpen,
   scriptOpen,
   sheetVisible,
   onOpenPlayers,
-  onOpenNight,
+  onOpenGame,
   onOpenInfo,
   onOpenScript,
   onRemoveSelectedReminder,
@@ -35,12 +35,12 @@ export function StorytellerDock({
   reminderOwner: Seat | null;
   pendingReminder: ReminderDefinition | null;
   playersOpen: boolean;
-  nightOpen: boolean;
+  gameOpen: boolean;
   infoOpen: boolean;
   scriptOpen: boolean;
   sheetVisible: boolean;
   onOpenPlayers: () => void;
-  onOpenNight: () => void;
+  onOpenGame: () => void;
   onOpenInfo: () => void;
   onOpenScript: () => void;
   onRemoveSelectedReminder: () => void;
@@ -68,13 +68,12 @@ export function StorytellerDock({
           onClick: onOpenPlayers,
         },
         {
-          id: "night-order",
-          icon: <Moon />,
-          label: "Night Order",
-          displayLabel: "Night",
-          shortcut: "N",
-          active: nightOpen,
-          onClick: onOpenNight,
+          id: "game",
+          icon: <SunMoon />,
+          label: "Game",
+          shortcut: "G",
+          active: gameOpen,
+          onClick: onOpenGame,
         },
         {
           id: "info",

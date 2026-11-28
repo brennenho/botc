@@ -14,7 +14,7 @@ const sharedGroups: ShortcutGroup[] = [
   {
     title: "Anywhere",
     shortcuts: [
-      { label: "Shortcut guide", keys: ["G"] },
+      { label: "Shortcut guide", keys: ["?"] },
       { label: "Invite / join code", keys: ["J"] },
       { label: "Toggle hide", keys: ["H"] },
       { label: "Close or cancel", keys: ["Escape"] },
@@ -27,7 +27,7 @@ const storytellerGroups: ShortcutGroup[] = [
     title: "Open a panel",
     shortcuts: [
       { label: "Players", keys: ["P"] },
-      { label: "Night order", keys: ["N"] },
+      { label: "Game", keys: ["G"] },
       { label: "Player information", keys: ["I"] },
       { label: "Reference", keys: ["R"] },
     ],
