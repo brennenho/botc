@@ -193,6 +193,13 @@ test("@ipad missing setup reminders place directly from the compact tray", async
 
   await storyteller.page.goto(`/game/${joinCode}/storyteller`);
 
+  const observer = await storyteller.context.newPage();
+  await observer.goto(`/game/${joinCode}/storyteller`);
+  await observer.getByRole("button", { name: "Game", exact: true }).click();
+  await observer.getByRole("tab", { name: "History" }).click();
+  await expect(observer.getByText("No game events yet.")).toBeVisible();
+  const timeline = observer.getByRole("list", { name: "Game history" });
+
   const summary = storyteller.page.getByRole("button", {
     name: "Show 2 missing setup reminders",
   });
@@ -270,14 +277,9 @@ test("@ipad missing setup reminders place directly from the compact tray", async
     storyteller.page.locator('[aria-label^="Wrong reminder on"]'),
   ).toHaveCount(0);
 
-  const observer = await storyteller.context.newPage();
-  await observer.goto(`/game/${joinCode}/storyteller`);
-  await observer.getByRole("button", { name: "Game", exact: true }).click();
-  await observer.getByRole("tab", { name: "History" }).click();
-  const timeline = observer.getByRole("list", { name: "Game history" });
   await expect(
     timeline.getByText(`Townsfolk placed on ${targetPlayerName}`),
-  ).toBeVisible();
+  ).toBeVisible({ timeout: 20_000 });
 
   await storyteller.page
     .getByRole("button", { name: `Townsfolk reminder on ${targetPlayerName}` })
