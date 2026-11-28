@@ -381,14 +381,28 @@
 }
 
 .game-timeline-reminders {
-  --branch-length: 18px;
+  --reminder-indent: 32px;
   margin-inline-start: calc(var(--marker-size) / 2);
-  border-inline-start: 1px solid var(--grimoire-hardware-border);
+}
+
+.game-timeline-reminders::before,
+.game-timeline-reminders::after {
+  content: "";
+  display: block;
+  width: calc(var(--reminder-indent) + 1px);
+  height: 16px;
+  background-color: var(--grimoire-hardware-border);
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 33 16'%3E%3Cpath d='M.5 0 C.5 10 32.5 6 32.5 16' fill='none' stroke='black'/%3E%3C/svg%3E") center / 100% 100% no-repeat;
+}
+
+.game-timeline-reminders::after {
+  transform: scaleY(-1);
 }
 
 .game-timeline-reminders > li {
+  grid-template-columns: var(--marker-size) minmax(0, 1fr) auto;
   gap: 8px;
-  padding-inline-start: var(--branch-length);
+  padding-inline-start: calc(var(--reminder-indent) - var(--marker-size) / 2);
   padding-block: 5px;
   font-size: 13px;
   overflow-wrap: anywhere;
@@ -397,13 +411,13 @@
 .game-timeline-reminders > li::before {
   content: "";
   position: absolute;
-  inset-inline-start: -1px;
-  inset-block-start: 50%;
-  width: var(--branch-length);
-  height: 10px;
+  inset-inline-start: var(--reminder-indent);
+  inset-block: 0;
   border-inline-start: 1px solid var(--grimoire-hardware-border);
-  border-block-start: 1px solid var(--grimoire-hardware-border);
-  border-start-start-radius: 10px;
+}
+
+.game-timeline-reminders .reminder-token {
+  justify-self: center;
 }
 
 .game-timeline-reminders strong {
