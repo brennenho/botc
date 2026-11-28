@@ -282,7 +282,7 @@ test("@ipad missing setup reminders place directly from the compact tray", async
     `Townsfolk Added to ${targetPlayerName}`,
     { timeout: 20_000 },
   );
-  await expect(setup.locator("img")).toBeVisible();
+  await expect(setup.locator(".reminder-token-face img")).toBeVisible();
 
   const game = storyteller.page.getByRole("button", {
     name: "Game",

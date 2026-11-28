@@ -134,11 +134,6 @@
   stroke-width: 1.5;
 }
 
-.reminder-token-artwork .reminder-token-fallback-icon {
-  width: 75%;
-  height: 75%;
-}
-
 .reminder-token-label {
   position: absolute;
   top: 75%;

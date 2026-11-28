@@ -48,12 +48,7 @@ function ReminderEntry({ event }: { event: ReminderEvent }) {
   const action = event.kind === "reminder_placed" ? "Added to" : "Removed from";
   return (
     <li>
-      <ReminderToken
-        label={label}
-        roleId={roleId}
-        size={26}
-        presentation="artwork"
-      />
+      <ReminderToken label={label} roleId={roleId} size="inline" />
       <div>
         <strong>{label}</strong>{" "}
         <small>
