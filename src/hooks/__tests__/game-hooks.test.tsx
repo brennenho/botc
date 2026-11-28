@@ -27,6 +27,7 @@ import { useStorytellerGame } from "@/hooks/use-storyteller-game";
 
 function storytellerSnapshot(version = 1): StorytellerSnapshot {
   return {
+    events: [],
     game: {
       joinCode: "ABC234",
       edition: "tb",

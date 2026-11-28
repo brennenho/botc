@@ -1,32 +1,42 @@
 "use client";
 
 import { Pin } from "lucide-react";
+import { useRef } from "react";
 
 import {
   CharacterReference,
   type CharacterReferenceView,
 } from "@/components/character-sheet/character-reference";
-import { NightOrderPanel } from "@/components/storyteller/night-order-sheet";
-import {
-  NightPhaseControls,
-  type PhaseControlsProps,
-} from "@/components/storyteller/night-phase-controls";
+import { GamePanel } from "@/components/storyteller/game-panel";
+import type { PhaseControlsProps } from "@/components/storyteller/night-phase-controls";
 import { PlayerRevealPanel } from "@/components/storyteller/player-reveal-panel";
 import { RosterPanel } from "@/components/storyteller/roster-sheet";
 import { IconButton } from "@/components/ui/icon-button";
 import { Sheet } from "@/components/ui/sheet";
 import type { NightReminderAction } from "@/lib/game-data/night-reminder-actions";
-import type { GameScript, GameToken, Role, Seat } from "@/lib/game-data/types";
+import type {
+  GameEvent,
+  GameScript,
+  GameToken,
+  Role,
+  Seat,
+} from "@/lib/game-data/types";
 import type { NightOrderState } from "@/lib/night-order-state";
 import type { ReminderDefinition } from "@/lib/reminders";
 import type { NightRevealAction, PlayerReveal } from "@/lib/player-reveal";
-import { cn } from "@/lib/utils";
 
-export type GrimoirePanel = "players" | "night" | "info" | "script" | null;
+const panelTitles = {
+  players: "Players",
+  game: "Game",
+  info: "Player Information",
+  script: "Character Reference",
+};
+export type GrimoirePanel = keyof typeof panelTitles | null;
 
 export function GrimoireSideSheet({
   panel,
   phaseControls,
+  events,
   shortcutsEnabled,
   editionId,
   seats,
@@ -57,6 +67,7 @@ export function GrimoireSideSheet({
 }: {
   panel: GrimoirePanel;
   phaseControls: PhaseControlsProps;
+  events: GameEvent[];
   shortcutsEnabled: boolean;
   editionId: GameScript;
   seats: Seat[];
@@ -85,14 +96,7 @@ export function GrimoireSideSheet({
   onReveal: (reveal: PlayerReveal) => void;
   onChooseRevealRole: (heading: string) => void;
 }) {
-  const title =
-    panel === "night"
-      ? "Night Order"
-      : panel === "info"
-        ? "Player Information"
-        : panel === "script"
-          ? "Character Reference"
-          : "Players";
+  const nightOrderScrollTop = useRef(0);
 
   return (
     <Sheet
@@ -100,12 +104,12 @@ export function GrimoireSideSheet({
       onOpenChange={(open) => {
         if (!open) onClose();
       }}
-      title={title}
+      title={panelTitles[panel ?? "players"]}
       suspended={suspended}
       modal={false}
       backdrop={false}
       disablePointerDismissal
-      className={cn(panel === "night" && "night-sheet", pinned && "is-pinned")}
+      className={pinned ? "is-pinned" : undefined}
       headerActions={
         <IconButton
           label={pinned ? "Unpin Sheet" : "Pin Sheet"}
@@ -136,9 +140,12 @@ export function GrimoireSideSheet({
           onArrangeCircle={onArrangeCircle}
         />
       </div>
-      <div className="sheet-panel" hidden={panel !== "night"}>
-        <NightOrderPanel
-          shortcutsEnabled={shortcutsEnabled && panel === "night"}
+      {panel === "game" && (
+        <GamePanel
+          phaseControls={phaseControls}
+          events={events}
+          scrollTopRef={nightOrderScrollTop}
+          shortcutsEnabled={shortcutsEnabled}
           editionId={editionId}
           seats={seats}
           gameTokens={gameTokens}
@@ -149,8 +156,7 @@ export function GrimoireSideSheet({
           onCancelReminderPlacement={onCancelReminderPlacement}
           onReveal={onNightReveal}
         />
-        <NightPhaseControls {...phaseControls} />
-      </div>
+      )}
       <div className="sheet-panel" hidden={panel !== "info"}>
         <PlayerRevealPanel
           seats={seats}

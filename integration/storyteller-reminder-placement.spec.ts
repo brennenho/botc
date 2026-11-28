@@ -33,15 +33,15 @@ test("@ipad reminder placement yields the full board and restores Night Order", 
   await responseJson<{ snapshot: StorytellerSnapshot }>(update);
 
   await storyteller.page.goto(`/game/${joinCode}/storyteller`);
-  const nightTab = storyteller.page.getByRole("button", {
-    name: "Night Order",
+  const gameTab = storyteller.page.getByRole("button", {
+    name: "Game",
     exact: true,
   });
-  await nightTab.click();
+  await gameTab.click();
 
-  const sideSheet = storyteller.page.locator(".side-sheet.night-sheet");
+  const sideSheet = storyteller.page.locator(".side-sheet");
   const nightOrder = storyteller.page.getByRole("dialog", {
-    name: "Night Order",
+    name: "Game",
   });
   await expect(nightOrder).toBeVisible();
   await nightOrder.getByRole("button", { name: "All" }).click();
@@ -69,6 +69,12 @@ test("@ipad reminder placement yields the full board and restores Night Order", 
     (list) => list.scrollTop,
   );
   expect(scrollTopBeforePlacement).toBeGreaterThan(0);
+  await nightOrder.getByRole("tab", { name: "History" }).click();
+  await expect(nightOrderList).toBeHidden();
+  await nightOrder.getByRole("tab", { name: "Night order" }).click();
+  await expect
+    .poll(() => nightOrderList.evaluate((list) => list.scrollTop))
+    .toBe(scrollTopBeforePlacement);
 
   const playerTokens = storyteller.page.locator(
     ".canvas-player-position .player-token",
@@ -101,7 +107,7 @@ test("@ipad reminder placement yields the full board and restores Night Order", 
   await expect(sideSheet).toHaveAttribute("data-suspended", "");
   await expect(sideSheet).toHaveAttribute("inert", "");
   await expect(sideSheet).toHaveAttribute("aria-hidden", "true");
-  await expect(nightTab).toHaveAttribute("aria-pressed", "true");
+  await expect(gameTab).toHaveAttribute("aria-pressed", "true");
   await expect(
     storyteller.page.locator(".grimoire-panel-tabs"),
   ).not.toHaveClass(/is-sheet-open/);
@@ -145,9 +151,9 @@ test("@ipad reminder placement yields the full board and restores Night Order", 
   await expect(reminderAction).toBeFocused();
 
   await reminderAction.click();
-  await nightTab.click();
+  await gameTab.click();
   await expect(nightOrder).toBeVisible();
-  await expect(nightTab).toHaveAttribute("aria-pressed", "true");
+  await expect(gameTab).toHaveAttribute("aria-pressed", "true");
   await expect(reminderAction).toBeFocused();
 
   await sideSheet.getByRole("button", { name: "Pin Sheet" }).click();

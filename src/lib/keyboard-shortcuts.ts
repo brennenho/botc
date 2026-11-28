@@ -25,10 +25,13 @@ export function matchesKeyboardShortcut(
   const keyMatches =
     eventKey === shortcutKey ||
     (shortcutKey === "?" && event.shiftKey && eventKey === "/");
+  const shiftMatches =
+    event.shiftKey === Boolean(shortcut.shift) ||
+    (shortcutKey === "?" && shortcut.shift === undefined);
 
   return (
     keyMatches &&
-    event.shiftKey === Boolean(shortcut.shift) &&
+    shiftMatches &&
     event.altKey === Boolean(shortcut.alt) &&
     event.ctrlKey === Boolean(shortcut.ctrl) &&
     event.metaKey === Boolean(shortcut.meta)

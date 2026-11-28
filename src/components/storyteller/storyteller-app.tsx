@@ -124,7 +124,7 @@ export function StorytellerApp({
     [selectedReminderId, snapshot.gameTokens],
   );
   const sheetSuspended =
-    openPanel === "night" && pendingReminder !== null && !sheetPinned;
+    openPanel === "game" && pendingReminder !== null && !sheetPinned;
   const sheetVisible = openPanel !== null && !sheetSuspended;
 
   useKeyboardShortcuts([
@@ -135,10 +135,10 @@ export function StorytellerApp({
       onTrigger: () => handleOpenPanel("players"),
     },
     {
-      id: "toggle-night-panel",
-      key: "n",
+      id: "toggle-game-panel",
+      key: "g",
       enabled: !redacted,
-      onTrigger: () => handleOpenPanel("night"),
+      onTrigger: () => handleOpenPanel("game"),
     },
     {
       id: "toggle-info-panel",
@@ -404,12 +404,12 @@ export function StorytellerApp({
           }
           pendingReminder={pendingReminder}
           playersOpen={openPanel === "players"}
-          nightOpen={openPanel === "night"}
+          gameOpen={openPanel === "game"}
           infoOpen={openPanel === "info"}
           scriptOpen={openPanel === "script"}
           sheetVisible={sheetVisible}
           onOpenPlayers={() => handleOpenPanel("players")}
-          onOpenNight={() => handleOpenPanel("night")}
+          onOpenGame={() => handleOpenPanel("game")}
           onOpenInfo={() => handleOpenPanel("info")}
           onOpenScript={() => handleOpenPanel("script")}
           onRemoveSelectedReminder={() => {
@@ -423,6 +423,7 @@ export function StorytellerApp({
 
       {!redacted && (
         <GrimoireSideSheet
+          events={snapshot.events}
           phaseControls={{
             game: snapshot.game,
             disabled: saveState !== "idle",

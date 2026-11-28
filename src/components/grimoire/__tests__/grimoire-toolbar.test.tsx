@@ -16,7 +16,7 @@ vi.mock("@/components/grimoire/game-invite-control", () => ({
 afterEach(() => cleanup());
 
 describe("GrimoireToolbar", () => {
-  it("uses a compact icon for the keyboard shortcut guide", async () => {
+  it("shows the guide shortcut to players and opens it from the keyboard", async () => {
     const user = userEvent.setup();
 
     render(
@@ -28,7 +28,7 @@ describe("GrimoireToolbar", () => {
             phase: "setup",
             dayNumber: 1,
           }}
-          actorRole="storyteller"
+          actorRole="player"
           redacted={false}
           onRedactedChange={vi.fn()}
         />
@@ -40,7 +40,7 @@ describe("GrimoireToolbar", () => {
     });
 
     expect(button).toHaveClass("toolbar-shortcuts-button");
-    expect(button).toHaveAttribute("aria-keyshortcuts", "G");
+    expect(button).toHaveAttribute("aria-keyshortcuts", "?");
     expect(button).not.toHaveTextContent("Keys");
 
     await user.hover(button);
@@ -48,6 +48,10 @@ describe("GrimoireToolbar", () => {
     const tooltip = (await screen.findByText("Keyboard shortcuts")).closest(
       ".site-tooltip-popup",
     );
-    expect(tooltip).toHaveTextContent("G");
+    expect(tooltip).toHaveTextContent("?");
+    await user.keyboard("?");
+    expect(
+      await screen.findByRole("heading", { name: "Shortcut guide" }),
+    ).toBeVisible();
   });
 });

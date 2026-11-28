@@ -39,7 +39,7 @@ export function GrimoireToolbar({
   useKeyboardShortcuts([
     {
       id: "show-shortcuts",
-      key: "g",
+      key: "?",
       enabled: !inviteOpen,
       allowInModal: true,
       onTrigger: () => setShortcutsOpen((current) => !current),
@@ -104,7 +104,7 @@ export function GrimoireToolbar({
           label="Open keyboard shortcuts"
           tooltip="Keyboard shortcuts"
           tooltipSide="bottom"
-          shortcut="G"
+          shortcut="?"
           className="toolbar-shortcuts-button"
           onClick={() => setShortcutsOpen((current) => !current)}
         >
