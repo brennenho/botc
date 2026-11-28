@@ -45,15 +45,22 @@ function EventTime({ at }: { at: string }) {
 
 function ReminderEntry({ event }: { event: ReminderEvent }) {
   const { label, playerName, roleId } = event.reminder;
-  const action =
-    event.kind === "reminder_placed" ? "placed on" : "removed from";
+  const action = event.kind === "reminder_placed" ? "Added to" : "Removed from";
   return (
     <li>
-      <ReminderToken label={label} roleId={roleId} size={24} />
+      <ReminderToken
+        label={label}
+        roleId={roleId}
+        size={26}
+        presentation="artwork"
+      />
       <div>
-        {label} {action} {playerName ?? "the board"}
-        <EventTime at={event.occurredAt} />
+        <strong>{label}</strong>{" "}
+        <small>
+          {action} {playerName ?? "the board"}
+        </small>
       </div>
+      <EventTime at={event.occurredAt} />
     </li>
   );
 }
@@ -96,16 +103,14 @@ function GameHistory({ events }: { events: GameEvent[] }) {
                 data-marker={marker}
                 aria-hidden="true"
               />
-              <div>
-                <h3>
-                  {returned
-                    ? `Returned to ${phase}`
-                    : started
-                      ? `${phase} began`
-                      : phase}
-                </h3>
-                {started && <EventTime at={anchor.occurredAt} />}
-              </div>
+              <h3>
+                {returned
+                  ? `Returned to ${phase}`
+                  : started
+                    ? `${phase} began`
+                    : phase}
+              </h3>
+              {started && <EventTime at={anchor.occurredAt} />}
             </div>
           </li>
         );

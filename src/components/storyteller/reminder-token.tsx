@@ -1,3 +1,4 @@
+import Image from "next/image";
 import type { CSSProperties } from "react";
 
 import { CharacterToken } from "@/components/grimoire/character-token";
@@ -9,7 +10,7 @@ type ReminderTokenProps = {
   label: string;
   roleId: string | null;
   size?: "inline" | "tray" | number;
-  presentation?: "icon" | "labeled";
+  presentation?: "icon" | "labeled" | "artwork";
   selected?: boolean;
   count?: number;
   showSingleCount?: boolean;
@@ -38,6 +39,39 @@ export function ReminderToken({
       ? { "--reminder-token-size": `${size}px` }
       : undefined;
 
+  const fallback = <ReminderIcon className="reminder-token-fallback-icon" />;
+  const face =
+    presentation === "artwork" ? (
+      role ? (
+        <Image
+          src={role.imagePath}
+          alt=""
+          fill
+          sizes={typeof size === "number" ? `${size}px` : "36px"}
+          className="object-contain"
+        />
+      ) : (
+        fallback
+      )
+    ) : (
+      <span
+        className={cn(
+          "reminder-token-face tactile-surface",
+          !role && "is-generic",
+        )}
+      >
+        {role && (
+          <CharacterToken
+            role={role}
+            size="fill"
+            appearance="soft"
+            className="reminder-token-source-art"
+          />
+        )}
+        {!role && fallback}
+      </span>
+    );
+
   return (
     <span
       className={cn(
@@ -53,22 +87,7 @@ export function ReminderToken({
       data-label-layout={labelLayout}
       data-team={role?.team}
     >
-      <span
-        className={cn(
-          "reminder-token-face tactile-surface",
-          !role && "is-generic",
-        )}
-      >
-        {role && (
-          <CharacterToken
-            role={role}
-            size="fill"
-            appearance="soft"
-            className="reminder-token-source-art"
-          />
-        )}
-        {!role && <ReminderIcon className="reminder-token-fallback-icon" />}
-      </span>
+      {face}
       {presentation === "labeled" && (
         <span className="reminder-token-label">
           <span className="reminder-token-label-text">{label}</span>

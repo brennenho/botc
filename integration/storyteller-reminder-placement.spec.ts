@@ -279,9 +279,10 @@ test("@ipad missing setup reminders place directly from the compact tray", async
 
   const setup = timeline.getByRole("list", { name: "Setup reminders" });
   await expect(setup.getByRole("listitem")).toContainText(
-    `Townsfolk placed on ${targetPlayerName}`,
+    `Townsfolk Added to ${targetPlayerName}`,
     { timeout: 20_000 },
   );
+  await expect(setup.locator("img")).toBeVisible();
 
   const game = storyteller.page.getByRole("button", {
     name: "Game",
@@ -302,7 +303,7 @@ test("@ipad missing setup reminders place directly from the compact tray", async
     .click();
   const night = timeline.getByRole("list", { name: "Night 1 reminders" });
   await expect(night.getByRole("listitem")).toContainText(
-    `Townsfolk removed from ${targetPlayerName}`,
+    `Townsfolk Removed from ${targetPlayerName}`,
     { timeout: 20_000 },
   );
   const historyRows = timeline
@@ -310,9 +311,9 @@ test("@ipad missing setup reminders place directly from the compact tray", async
     .or(night.getByRole("listitem"))
     .or(setup.getByRole("listitem"));
   await expect(historyRows).toHaveText([
-    /Townsfolk removed from/,
+    /Townsfolk Removed from/,
     "Night 1 began",
-    /Townsfolk placed on/,
+    /Townsfolk Added to/,
     "Setup",
   ]);
 });

@@ -359,8 +359,8 @@
 .game-timeline-reminders > li {
   position: relative;
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  align-items: start;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
   gap: 12px;
 }
 
@@ -381,14 +381,15 @@
 }
 
 .game-timeline-reminders {
+  --branch-length: 18px;
   margin-inline-start: calc(var(--marker-size) / 2);
   border-inline-start: 1px solid var(--grimoire-hardware-border);
 }
 
 .game-timeline-reminders > li {
   gap: 8px;
-  padding-inline-start: 14px;
-  padding-block-end: 10px;
+  padding-inline-start: var(--branch-length);
+  padding-block: 5px;
   font-size: 13px;
   overflow-wrap: anywhere;
 }
@@ -396,10 +397,24 @@
 .game-timeline-reminders > li::before {
   content: "";
   position: absolute;
-  inset-inline-start: 0;
-  top: 12px;
-  width: 8px;
+  inset-inline-start: -1px;
+  inset-block-start: 50%;
+  width: var(--branch-length);
+  height: 10px;
+  border-inline-start: 1px solid var(--grimoire-hardware-border);
   border-block-start: 1px solid var(--grimoire-hardware-border);
+  border-start-start-radius: 10px;
+}
+
+.game-timeline-reminders strong {
+  font-weight: 600;
+}
+
+.game-timeline-reminders small {
+  display: block;
+  margin-top: 2px;
+  color: var(--ink-muted);
+  font-size: 12px;
 }
 
 .game-timeline-marker {
@@ -423,11 +438,10 @@
 }
 
 .game-timeline time {
-  display: block;
-  margin-top: 2px;
   color: var(--ink-muted);
   font: 500 11px/1.4 var(--font-utility);
   font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
 
 .night-phase-footer {
