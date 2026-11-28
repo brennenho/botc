@@ -368,16 +368,22 @@
   font-weight: 650;
 }
 
-.game-timeline > li:not(:last-child) .game-timeline-phase {
-  padding-block-end: 16px;
+.game-timeline-phase {
+  row-gap: 0;
 }
 
-.game-timeline > li:not(:last-child) .game-timeline-phase::after {
+.game-timeline-phase::before,
+.game-timeline-phase::after {
   content: "";
-  position: absolute;
-  inset-inline-start: calc(var(--marker-size) / 2);
-  inset-block: var(--marker-size) 0;
+  grid-column: 1 / -1;
+  height: 8px;
+  margin-inline-start: calc(var(--marker-size) / 2);
   border-inline-start: 1px solid var(--grimoire-hardware-border);
+}
+
+.game-timeline > li:first-child > .game-timeline-phase:first-child::before,
+.game-timeline > li:last-child > .game-timeline-phase::after {
+  content: none;
 }
 
 .game-timeline-reminders {
