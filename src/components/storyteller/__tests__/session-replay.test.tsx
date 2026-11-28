@@ -60,7 +60,7 @@ it("records only the storyteller view when switching roles in the same tab", () 
   view.rerender(
     <StorytellerApp
       gameCode={game.joinCode}
-      initialSnapshot={{ game, seats: [seat], gameTokens: [] }}
+      initialSnapshot={{ game, events: [], seats: [seat], gameTokens: [] }}
     />,
   );
   expect(startStorytellerSessionReplay).toHaveBeenCalledOnce();
