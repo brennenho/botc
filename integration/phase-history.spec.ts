@@ -54,16 +54,14 @@ test("@ipad starting mid-game and stepping back update open history and player v
     await tab.getByRole("button", { name: "Game", exact: true }).click();
   }
   await observer.getByRole("tab", { name: "History" }).click();
-  await expect(
-    observer.getByText("Phase changes appear here once you start tracking."),
-  ).toBeVisible();
+  await expect(observer.getByText("No game events yet.")).toBeVisible();
   await page.getByText("Start mid-game").click();
   await page.getByRole("combobox", { name: "Phase" }).selectOption("day");
   await page.getByLabel("Number", { exact: true }).fill("3");
   await page.getByRole("button", { name: "Start tracking" }).click();
   await expect(
     observer
-      .getByRole("list", { name: "Phase history" })
+      .getByRole("list", { name: "Game history" })
       .getByRole("listitem")
       .locator("span"),
   ).toHaveText(["Day 3 began"], { timeout: 20_000 });
@@ -136,7 +134,7 @@ test("@ipad Storyteller tracks phases and each night starts a fresh checklist", 
       .locator(":scope > header"),
   ).toHaveText("Game");
   await history.click();
-  const timeline = page.getByRole("list", { name: "Phase history" });
+  const timeline = page.getByRole("list", { name: "Game history" });
   await expect(timeline.getByRole("listitem").locator("span")).toHaveText([
     "Night 2 began",
     "Day 1 began",
@@ -168,7 +166,7 @@ test("@ipad Storyteller tracks phases and each night starts a fresh checklist", 
   await history.click();
   await expect(
     page
-      .getByRole("list", { name: "Phase history" })
+      .getByRole("list", { name: "Game history" })
       .getByRole("listitem")
       .first()
       .locator("span"),

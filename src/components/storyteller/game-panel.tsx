@@ -13,17 +13,17 @@ import { isPhaseReturn, phaseLabel } from "@/lib/game-phase";
 const eventTime = new Intl.DateTimeFormat(undefined, { timeStyle: "short" });
 const historyIcons = { day: Sun, night: Moon, setup: Flag, return: Undo2 };
 
-function PhaseHistory({ events }: { events: GameEvent[] }) {
+function GameHistory({ events }: { events: GameEvent[] }) {
   if (!events.length) {
     return (
       <p className="px-4 py-3 text-sm text-[var(--ink-muted)]">
-        Phase changes appear here once you start tracking.
+        No game events yet.
       </p>
     );
   }
 
   return (
-    <ol aria-label="Phase history" role="list" className="phase-timeline">
+    <ol aria-label="Game history" role="list" className="game-timeline">
       {events.map((event, index) => {
         const returned = isPhaseReturn(event, events[index + 1]);
         const marker = returned ? "return" : event.phase;
@@ -32,7 +32,7 @@ function PhaseHistory({ events }: { events: GameEvent[] }) {
         return (
           <li key={`${event.gameVersion}-${event.ordinal}`}>
             <Icon
-              className="phase-timeline-marker"
+              className="game-timeline-marker"
               data-marker={marker}
               aria-hidden="true"
             />
@@ -88,7 +88,7 @@ export function GamePanel({
         <NightPhaseControls {...phaseControls} />
       </Tabs.Panel>
       <Tabs.Panel value="history" className="min-h-0 flex-1 overflow-y-auto">
-        <PhaseHistory events={events} />
+        <GameHistory events={events} />
       </Tabs.Panel>
     </Tabs.Root>
   );
