@@ -21,10 +21,10 @@ describe("GrimoirePanelTabs", () => {
           sheetOpen={false}
           tabs={[
             {
-              id: "night-order",
-              icon: <span aria-hidden="true">N</span>,
-              label: "Night Order",
-              shortcut: "N",
+              id: "game",
+              icon: <span aria-hidden="true">G</span>,
+              label: "Game",
+              shortcut: "G",
               onClick: vi.fn(),
             },
           ]}
@@ -32,7 +32,7 @@ describe("GrimoirePanelTabs", () => {
       </TooltipProvider>,
     );
 
-    await user.hover(screen.getByRole("button", { name: "Night Order" }));
+    await user.hover(screen.getByRole("button", { name: "Game" }));
 
     await waitFor(() =>
       expect(document.querySelector(".site-tooltip-popup")).toBeVisible(),

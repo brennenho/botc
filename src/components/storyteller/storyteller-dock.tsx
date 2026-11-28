@@ -71,7 +71,7 @@ export function StorytellerDock({
           id: "game",
           icon: <SunMoon />,
           label: "Game",
-          shortcut: "N",
+          shortcut: "G",
           active: gameOpen,
           onClick: onOpenGame,
         },

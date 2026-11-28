@@ -26,10 +26,13 @@ test("storyteller shortcuts cover common grimoire controls without firing while 
   await storyteller.page.keyboard.press("Escape");
   await expect(shortcutsHeading).toBeHidden();
 
-  await storyteller.page.keyboard.press("g");
+  await storyteller.page.keyboard.press("Shift+/");
   await expect(shortcutsHeading).toBeVisible();
-  await storyteller.page.keyboard.press("g");
+  await storyteller.page.keyboard.press("?");
   await expect(shortcutsHeading).toBeHidden();
+  await expect(
+    storyteller.page.getByRole("button", { name: "Game", exact: true }),
+  ).toHaveAttribute("aria-keyshortcuts", "G");
 
   await storyteller.page.keyboard.press("j");
   await expect(
@@ -50,7 +53,7 @@ test("storyteller shortcuts cover common grimoire controls without firing while 
 
   for (const [key, heading] of [
     ["p", "Players"],
-    ["n", "Game"],
+    ["g", "Game"],
     ["i", "Player Information"],
     ["r", "Character Reference"],
   ] as const) {

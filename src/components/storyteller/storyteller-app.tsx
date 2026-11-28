@@ -130,7 +130,7 @@ export function StorytellerApp({
     },
     {
       id: "toggle-game-panel",
-      key: "n",
+      key: "g",
       enabled: !redacted,
       onTrigger: () => handleOpenPanel("game"),
     },
