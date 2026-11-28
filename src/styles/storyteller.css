@@ -392,7 +392,7 @@
   width: calc(var(--reminder-indent) + 1px);
   height: 16px;
   background-color: var(--grimoire-hardware-border);
-  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 33 16'%3E%3Cpath d='M.5 0 C.5 10 32.5 6 32.5 16' fill='none' stroke='black'/%3E%3C/svg%3E") center / 100% 100% no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 33 16'%3E%3Cpath d='M.5 0 V1.5 a7 7 0 0 0 7 7 h18 a7 7 0 0 1 7 7 V16' fill='none' stroke='black'/%3E%3C/svg%3E") center / 100% 100% no-repeat;
 }
 
 .game-timeline-reminders::after {
