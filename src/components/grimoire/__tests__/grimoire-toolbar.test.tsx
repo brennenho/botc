@@ -22,8 +22,12 @@ describe("GrimoireToolbar", () => {
     render(
       <TooltipProvider delay={0} closeDelay={0}>
         <GrimoireToolbar
-          editionId="tb"
-          joinCode="ABC234"
+          game={{
+            edition: "tb",
+            joinCode: "ABC234",
+            phase: "setup",
+            dayNumber: 1,
+          }}
           actorRole="storyteller"
           redacted={false}
           onRedactedChange={vi.fn()}

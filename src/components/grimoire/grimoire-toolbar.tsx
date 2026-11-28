@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { Keyboard } from "lucide-react";
+import { Keyboard, Moon, Sun } from "lucide-react";
 import { useState } from "react";
 
 import { GameInviteControl } from "@/components/grimoire/game-invite-control";
@@ -13,24 +13,26 @@ import { Switch } from "@/components/ui/switch";
 import { Tooltip } from "@/components/ui/tooltip";
 import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts";
 import { getEdition } from "@/lib/game-data";
-import type { GameScript } from "@/lib/game-data/types";
+import type { Game } from "@/lib/game-data/types";
+import { phaseLabel } from "@/lib/game-phase";
+
+const phaseIcons = { setup: null, day: Sun, night: Moon };
 
 export function GrimoireToolbar({
-  editionId,
-  joinCode,
+  game,
   actorRole,
   saveState,
   redacted,
   onRedactedChange,
 }: {
-  editionId: GameScript;
-  joinCode: string;
+  game: Pick<Game, "edition" | "joinCode" | "phase" | "dayNumber">;
   actorRole: "storyteller" | "player";
   saveState?: "idle" | "saving" | "error";
   redacted: boolean;
   onRedactedChange: (redacted: boolean) => void;
 }) {
-  const edition = getEdition(editionId);
+  const edition = getEdition(game.edition);
+  const PhaseIcon = phaseIcons[game.phase];
   const [inviteOpen, setInviteOpen] = useState(false);
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
 
@@ -68,8 +70,16 @@ export function GrimoireToolbar({
             priority
           />
         </Link>
-        <div>
+        <div className="toolbar-edition">
           <p>{edition.name}</p>
+          {!redacted && (
+            <small className="toolbar-phase">
+              {PhaseIcon && (
+                <PhaseIcon aria-hidden="true" className="size-3 shrink-0" />
+              )}
+              {phaseLabel(game)}
+            </small>
+          )}
         </div>
         <label className="grimoire-redaction-setting">
           <span>Hide</span>
@@ -103,7 +113,7 @@ export function GrimoireToolbar({
       </div>
 
       <GameInviteControl
-        joinCode={joinCode}
+        joinCode={game.joinCode}
         actorRole={actorRole}
         open={inviteOpen}
         onOpenChange={setInviteOpen}

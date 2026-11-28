@@ -7,6 +7,10 @@ import {
   type CharacterReferenceView,
 } from "@/components/character-sheet/character-reference";
 import { NightOrderPanel } from "@/components/storyteller/night-order-sheet";
+import {
+  NightPhaseControls,
+  type PhaseControlsProps,
+} from "@/components/storyteller/night-phase-controls";
 import { PlayerRevealPanel } from "@/components/storyteller/player-reveal-panel";
 import { RosterPanel } from "@/components/storyteller/roster-sheet";
 import { IconButton } from "@/components/ui/icon-button";
@@ -22,6 +26,7 @@ export type GrimoirePanel = "players" | "night" | "info" | "script" | null;
 
 export function GrimoireSideSheet({
   panel,
+  phaseControls,
   shortcutsEnabled,
   editionId,
   seats,
@@ -51,6 +56,7 @@ export function GrimoireSideSheet({
   onChooseRevealRole,
 }: {
   panel: GrimoirePanel;
+  phaseControls: PhaseControlsProps;
   shortcutsEnabled: boolean;
   editionId: GameScript;
   seats: Seat[];
@@ -143,6 +149,7 @@ export function GrimoireSideSheet({
           onCancelReminderPlacement={onCancelReminderPlacement}
           onReveal={onNightReveal}
         />
+        <NightPhaseControls {...phaseControls} />
       </div>
       <div className="sheet-panel" hidden={panel !== "info"}>
         <PlayerRevealPanel

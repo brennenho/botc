@@ -15,6 +15,8 @@ export type Team = ResidentTeam | "traveller" | "fabled" | "loric";
 export type Alignment = "good" | "evil";
 export type Phase = "setup" | "day" | "night";
 
+export type GamePhase = { phase: Phase; dayNumber: number };
+
 export type Role = {
   id: string;
   name: string;

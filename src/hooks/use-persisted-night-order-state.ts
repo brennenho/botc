@@ -4,6 +4,7 @@ import {
 } from "@/hooks/use-persisted-state";
 
 import {
+  checklistForNight,
   createDefaultNightOrderState,
   normalizeNightOrderState,
   type NightOrderState,
@@ -15,10 +16,14 @@ const nightOrderCodec: PersistedStateCodec<NightOrderState> = {
   stringify: JSON.stringify,
 };
 
-export function usePersistedNightOrderState(gameCode: string) {
-  return usePersistedState(
+export function usePersistedNightOrderState(
+  gameCode: string,
+  nightNumber?: number,
+) {
+  const [state, setState] = usePersistedState(
     `${storagePrefix}${gameCode}`,
     createDefaultNightOrderState,
     nightOrderCodec,
   );
+  return [checklistForNight(state, nightNumber), setState] as const;
 }

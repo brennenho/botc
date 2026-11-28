@@ -76,8 +76,7 @@ export function PlayerApp({
       )}
     >
       <GrimoireToolbar
-        editionId={snapshot.game.edition}
-        joinCode={snapshot.game.joinCode}
+        game={snapshot.game}
         actorRole="player"
         redacted={redacted}
         onRedactedChange={(nextRedacted) => {
@@ -86,7 +85,10 @@ export function PlayerApp({
         }}
       />
 
-      <div className="grimoire-workspace">
+      <div
+        className="grimoire-workspace"
+        data-phase={redacted ? undefined : snapshot.game.phase}
+      >
         <ReadOnlyGrimoireBoard
           seats={snapshot.seats}
           ownSeat={snapshot.seat}

@@ -36,7 +36,15 @@ describe("night order state", () => {
     ).toEqual({
       night: "other",
       scope: "all",
-      completed: { "other:all": ["poisoner", "imp"] },
+      completed: { "setup:other:all": ["poisoner", "imp"] },
     });
+  });
+  it("keeps migrated checkmarks on their original numbered night", () => {
+    expect(
+      normalizeNightOrderState({
+        trackedNight: 2,
+        completed: { "other:alive": ["imp"], "1:first:alive": ["dusk"] },
+      }).completed,
+    ).toEqual({ "2:other:alive": ["imp"], "1:first:alive": ["dusk"] });
   });
 });

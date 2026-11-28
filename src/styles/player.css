@@ -9,14 +9,9 @@
 
 .player-grimoire-frame {
   position: relative;
-  background-color: var(--parchment);
-  background-image: url("/assets/grimoire-parchment.webp");
-  background-position: center;
-  background-size: cover;
 }
 
 .player-grimoire-canvas {
-  background: transparent;
   box-shadow: none;
 }
 
@@ -306,6 +301,7 @@
 
   .player-grimoire-shell .toolbar-brand {
     left: 12px;
+    max-width: calc(100% - 144px);
   }
 
   .player-grimoire-shell .join-code-control {
@@ -317,10 +313,6 @@
   .player-grimoire-shell .toolbar-brand {
     gap: 6px;
     padding-right: 8px;
-  }
-
-  .player-grimoire-shell .toolbar-brand > div {
-    display: none;
   }
 
   .player-grimoire-shell .grimoire-redaction-setting {

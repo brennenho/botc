@@ -70,8 +70,10 @@ export function StorytellerApp({
   const [referenceView, setReferenceView] =
     useState<CharacterReferenceView>("script");
   const [sheetPinned, setSheetPinned] = usePersistedGrimoireSheetPin(gameCode);
-  const [nightOrderState, setNightOrderState] =
-    usePersistedNightOrderState(gameCode);
+  const [nightOrderState, setNightOrderState] = usePersistedNightOrderState(
+    gameCode,
+    snapshot.game.phase === "setup" ? undefined : snapshot.game.dayNumber,
+  );
   const [selectedSeatId, setSelectedSeatId] = useState<string | null>(null);
   const [selectedReminderId, setSelectedReminderId] = useState<string | null>(
     null,
@@ -302,15 +304,17 @@ export function StorytellerApp({
       )}
     >
       <GrimoireToolbar
-        editionId={snapshot.game.edition}
-        joinCode={snapshot.game.joinCode}
+        game={snapshot.game}
         actorRole="storyteller"
         saveState={saveState}
         redacted={redacted}
         onRedactedChange={handleRedactedChange}
       />
 
-      <div className="grimoire-workspace">
+      <div
+        className="grimoire-workspace"
+        data-phase={redacted ? undefined : snapshot.game.phase}
+      >
         <GrimoireBoard
           editionId={snapshot.game.edition}
           seats={snapshot.seats}
@@ -413,6 +417,11 @@ export function StorytellerApp({
 
       {!redacted && (
         <GrimoireSideSheet
+          phaseControls={{
+            game: snapshot.game,
+            disabled: saveState !== "idle",
+            onChangePhase: commit,
+          }}
           panel={openPanel}
           shortcutsEnabled={
             selectedSeatId === null &&
