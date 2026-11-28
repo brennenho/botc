@@ -1,32 +1,31 @@
-import Link from "next/link";
-
 import {
   CharacterSheet,
   type CharacterSheetId,
 } from "@/components/character-sheet/character-sheet";
 import { CharacterSheetHomeLink } from "@/components/character-sheet/character-sheet-home-link";
+import { Tabs } from "@/components/ui/tabs";
 import { editions } from "@/lib/game-data";
 import { createBreadcrumbStructuredData } from "@/lib/site-config";
-import { cn } from "@/lib/utils";
 
-const referenceSheets: {
-  id: CharacterSheetId;
-  name: string;
-  shortName: string;
-}[] = [
+const sheetLinks = [
   ...editions,
   {
     id: "travellers",
     name: "Travellers",
     shortName: "Trav.",
   },
-];
+].map((sheet) => ({
+  value: sheet.id,
+  label: sheet.name,
+  shortLabel: sheet.shortName,
+  href: `/${sheet.id}`,
+}));
 
 export function CharacterSheetPage({ sheetId }: { sheetId: CharacterSheetId }) {
-  const activeSheet = referenceSheets.find((sheet) => sheet.id === sheetId);
+  const activeSheet = sheetLinks.find((sheet) => sheet.value === sheetId);
   const breadcrumbs = createBreadcrumbStructuredData([
     { name: "Home", path: "/" },
-    { name: activeSheet?.name ?? "Character Sheet", path: `/${sheetId}` },
+    { name: activeSheet?.label ?? "Character Sheet", path: `/${sheetId}` },
   ]);
 
   return (
@@ -42,30 +41,15 @@ export function CharacterSheetPage({ sheetId }: { sheetId: CharacterSheetId }) {
           sheetId={sheetId}
           variant="standalone"
           topNavigation={
-            <nav
-              className="flex min-w-0 items-stretch border-b border-black/12 bg-black/[0.025]"
-              aria-label="Character Sheet Navigation"
+            <Tabs
+              label="Character Sheet Navigation"
+              value={sheetId}
+              links={sheetLinks}
             >
-              <div className="flex min-w-0 flex-1 overflow-x-auto">
-                {referenceSheets.map((sheet) => (
-                  <Link
-                    key={sheet.id}
-                    href={`/${sheet.id}`}
-                    aria-current={sheet.id === sheetId ? "page" : undefined}
-                    className={cn(
-                      "-mb-px flex min-h-11 min-w-0 flex-1 items-center justify-center border-b-2 border-transparent px-2.5 text-[11px] font-semibold whitespace-nowrap text-black/48 transition-colors hover:text-black/76 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-[var(--focus-ring)] sm:px-3",
-                      sheet.id === sheetId && "border-black/55 text-black/82",
-                    )}
-                  >
-                    <span className="sm:hidden">{sheet.shortName}</span>
-                    <span className="hidden sm:inline">{sheet.name}</span>
-                  </Link>
-                ))}
-              </div>
               <div className="ml-2 flex min-h-11 w-11 shrink-0 items-center justify-center">
                 <CharacterSheetHomeLink />
               </div>
-            </nav>
+            </Tabs>
           }
           className="overflow-hidden border border-black/12 bg-[#f4ecd9]/84 shadow-[0_12px_36px_rgb(62_41_18/0.14)] backdrop-blur-[2px]"
         />
