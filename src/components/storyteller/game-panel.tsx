@@ -50,10 +50,10 @@ function ReminderEntry({ event }: { event: ReminderEvent }) {
   return (
     <li>
       <ReminderToken label={label} roleId={roleId} size={24} />
-      <div>
-        {label} {action} {playerName ?? "the board"}
-        <EventTime at={event.occurredAt} />
-      </div>
+      <span>
+        <strong>{label}</strong> {action} {playerName ?? "the board"}
+      </span>
+      <EventTime at={event.occurredAt} />
     </li>
   );
 }
@@ -76,23 +76,6 @@ function GameHistory({ events }: { events: GameEvent[] }) {
         const started = anchor.kind === "phase_started";
         return (
           <li key={`${anchor.gameVersion}-${anchor.ordinal}`}>
-            <div className="game-timeline-phase">
-              <Icon
-                className="game-timeline-marker"
-                data-marker={marker}
-                aria-hidden="true"
-              />
-              <div>
-                <h3>
-                  {returned
-                    ? `Returned to ${phase}`
-                    : started
-                      ? `${phase} began`
-                      : phase}
-                </h3>
-                {started && <EventTime at={anchor.occurredAt} />}
-              </div>
-            </div>
             {reminders.length > 0 && (
               <ol
                 className="game-timeline-reminders"
@@ -107,6 +90,21 @@ function GameHistory({ events }: { events: GameEvent[] }) {
                 ))}
               </ol>
             )}
+            <div className="game-timeline-phase">
+              <Icon
+                className="game-timeline-marker"
+                data-marker={marker}
+                aria-hidden="true"
+              />
+              <h3>
+                {returned
+                  ? `Returned to ${phase}`
+                  : started
+                    ? `${phase} began`
+                    : phase}
+              </h3>
+              {started && <EventTime at={anchor.occurredAt} />}
+            </div>
           </li>
         );
       })}

@@ -305,9 +305,14 @@ test("@ipad missing setup reminders place directly from the compact tray", async
     `Townsfolk removed from ${targetPlayerName}`,
     { timeout: 20_000 },
   );
-  await expect(timeline.getByRole("heading")).toHaveText([
+  const historyRows = timeline
+    .getByRole("heading")
+    .or(night.getByRole("listitem"))
+    .or(setup.getByRole("listitem"));
+  await expect(historyRows).toHaveText([
+    /Townsfolk removed from/,
     "Night 1 began",
+    /Townsfolk placed on/,
     "Setup",
   ]);
-  await expect(setup.getByRole("listitem")).toHaveCount(1);
 });
