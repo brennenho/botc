@@ -277,9 +277,19 @@ test("@ipad missing setup reminders place directly from the compact tray", async
     storyteller.page.locator('[aria-label^="Wrong reminder on"]'),
   ).toHaveCount(0);
 
-  await expect(
-    timeline.getByText(`Townsfolk placed on ${targetPlayerName}`),
-  ).toBeVisible({ timeout: 20_000 });
+  const setup = timeline.getByRole("list", { name: "Setup reminders" });
+  await expect(setup.getByRole("listitem")).toContainText(
+    `Townsfolk placed on ${targetPlayerName}`,
+    { timeout: 20_000 },
+  );
+
+  const game = storyteller.page.getByRole("button", {
+    name: "Game",
+    exact: true,
+  });
+  await game.click();
+  await storyteller.page.getByRole("button", { name: "Begin Night 1" }).click();
+  await game.click();
 
   await storyteller.page
     .getByRole("button", { name: `Townsfolk reminder on ${targetPlayerName}` })
@@ -290,10 +300,14 @@ test("@ipad missing setup reminders place directly from the compact tray", async
   await storyteller.page
     .getByRole("button", { name: "Click Again to Remove", exact: true })
     .click();
-  const entries = timeline.getByRole("listitem");
-  await expect(entries.first()).toContainText(
+  const night = timeline.getByRole("list", { name: "Night 1 reminders" });
+  await expect(night.getByRole("listitem")).toContainText(
     `Townsfolk removed from ${targetPlayerName}`,
     { timeout: 20_000 },
   );
-  await expect(entries).toHaveCount(2);
+  await expect(timeline.getByRole("heading")).toHaveText([
+    "Night 1 began",
+    "Setup",
+  ]);
+  await expect(setup.getByRole("listitem")).toHaveCount(1);
 });
