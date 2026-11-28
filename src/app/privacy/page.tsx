@@ -53,8 +53,9 @@ export default function PrivacyPage() {
         </p>
         <p>
           <strong>Session replays.</strong> If you’re the Storyteller, we may
-          record what you see and do in the grimoire. Recording stops when you
-          leave it.
+          record what you see and do in the grimoire. Replays help us spot
+          confusing controls and reproduce bugs so we can fix them. Recording
+          stops when you leave the grimoire.
         </p>
       </DocumentSection>
 
