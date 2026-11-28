@@ -5,6 +5,38 @@ import {
   test,
 } from "./fixtures/multiplayer";
 
+test("@smoke @ipad static sheet links support direct URLs and browser history", async ({
+  page,
+}) => {
+  await page.goto("/bmr");
+  const navigation = page.getByRole("navigation", {
+    name: "Character Sheet Navigation",
+  });
+  for (const [name, href] of [
+    ["Trouble Brewing", "/tb"],
+    ["Bad Moon Rising", "/bmr"],
+    ["Sects & Violets", "/snv"],
+    ["Travellers", "/travellers"],
+  ] as const) {
+    await expect(
+      navigation.getByRole("link", { name, exact: true }),
+    ).toHaveAttribute("href", href);
+  }
+
+  const current = navigation.locator('a[aria-current="page"]');
+  await expect(current).toHaveAccessibleName("Bad Moon Rising");
+  await navigation.getByRole("link", { name: "Travellers" }).press("Enter");
+  await expect(page).toHaveURL(/\/travellers$/);
+  await expect(current).toHaveAccessibleName("Travellers");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText(
+    "Travellers",
+  );
+
+  await page.goBack();
+  await expect(page).toHaveURL(/\/bmr$/);
+  await expect(current).toHaveAccessibleName("Bad Moon Rising");
+});
+
 test("@ipad Character Reference switches sheets for storytellers and players", async ({
   createActor,
 }) => {
