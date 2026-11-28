@@ -23,6 +23,7 @@ export function initializeClientObservability() {
       ui_host: "https://us.posthog.com",
       defaults: "2026-06-25",
       capture_exceptions: true,
+      disable_session_recording: true,
       persistence: "localStorage",
       respect_dnt: true,
     });
@@ -42,6 +43,11 @@ function runWhenReady(action: () => void) {
   } catch (error) {
     console.error("Unable to send client observability data.", error);
   }
+}
+
+export function startStorytellerSessionReplay() {
+  runWhenReady(() => posthog.startSessionRecording());
+  return () => runWhenReady(() => posthog.stopSessionRecording());
 }
 
 export function trackEvent<Name extends keyof ProductEvents>(
